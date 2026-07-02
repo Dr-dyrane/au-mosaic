@@ -79,6 +79,27 @@ WhatsApp enquiries, higher customer trust, better product presentation, less
 time answering repeated questions, and the foundation for inventory
 digitization.
 
+## The numbers
+
+Illustrative scenarios, deliberately conservative. Your real margins replace
+these assumptions in the first weeks of trading.
+
+| Scenario | Extra sales won / month | Assumed profit per sale | Extra profit / month |
+|---|---|---|---|
+| Careful | 4 | ₦50,000 | ₦200,000 |
+| Expected | 8 | ₦75,000 | ₦600,000 |
+| Strong | 15 | ₦100,000 | ₦1,500,000 |
+
+Read it plainly: at the careful case, the website pays for itself inside the
+first six weeks. Everything after that is growth. And these figures are
+materials sales only; a single extra pool construction job won through the
+site covers the entire digital investment, dashboard included, several times
+over.
+
+There is also the quiet money: the hours your team spends answering the same
+questions and chasing debts (your own words). The site answers the questions;
+the dashboard chases the debts.
+
 ## Why Dyrane
 
 Dyrane does not simply build websites. We design digital systems that help
