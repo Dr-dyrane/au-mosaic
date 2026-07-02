@@ -83,7 +83,7 @@ digitization.
 
 Dyrane does not simply build websites. We design digital systems that help
 businesses sell more, operate more efficiently, and make better decisions
-with data.
+with data. See our work: https://dyrane.tech
 
 ## The road ahead
 
@@ -101,4 +101,4 @@ intelligence dashboard. The website is milestone one of a modern business.
 
 ---
 
-Dyrane · proposals@dyrane.tech · info@dyrane.tech
+Dyrane · dyrane.tech · proposals@dyrane.tech · info@dyrane.tech
