@@ -122,10 +122,11 @@ intelligence dashboard. The website is milestone one of a modern business.
 4. Provide your Instagram handle. Your WhatsApp line is already live on the site.
 5. Launch within 2 to 3 weeks.
 
-## Agreed and accepted
+## The next move
 
-For AU Mosaic and Pool Materials: Nonso · Signature · Date
-For Dyrane: Alexander (Dyrane) · Signature · Date
+Say yes, and the agreement follows within a day. Approve on WhatsApp or by
+email, choose your payment option, and we start the same week. This document
+is a proposal, valid for 30 days.
 
 ---
 
