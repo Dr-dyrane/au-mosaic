@@ -16,21 +16,23 @@ operational systems next.
 
 Live today: https://au-mosaic.shop (also at au-mosaic.vercel.app)
 
-Built from your Business Discovery answers. Open it on your phone, tap any
-product, and it starts a WhatsApp chat, the way you already sell.
+A luxury digital flagship, built from your Business Discovery answers and
+designed in the class of the world's mosaic houses: dark, editorial,
+cinematic. Open it on your phone. Tap any piece, and it starts a WhatsApp
+chat, the way you already sell.
 
 ## Deliverables
 
 ### Phase 1: Website launch
-- Product catalogue (your full stock list)
+- Luxury flagship design: dark, editorial, cinematic
+- Environments before products, the storytelling of the great mosaic houses
+- Product collection (your full stock list)
+- WhatsApp on every piece
 - Pool construction and renovation pages
-- WhatsApp integration on every product
-- Google search optimization
-- Mobile-first responsive design
+- Brand mark, icons, and social card
 - Your story and showroom information
 - Trust and quality pages (the gum cement rule)
-- Contact page with direct WhatsApp and call
-- Traffic analytics
+- Google search optimization, analytics, launch and indexing
 
 ### Phase 2: Business operations dashboard
 - CRM and customer database
