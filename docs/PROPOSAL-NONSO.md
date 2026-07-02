@@ -9,7 +9,7 @@ and it sells the way you sell: no cart, no signup. A customer taps any tile or
 material and lands in your WhatsApp with the item already written out. Quote
 per job, your way.
 
-Live preview: ________________________________ (link)
+Live preview: https://au-mosaic.vercel.app
 
 What's on it today: your full stock list as a browsable catalogue, pool
 construction and renovation pages, your story, the showroom details, and a
