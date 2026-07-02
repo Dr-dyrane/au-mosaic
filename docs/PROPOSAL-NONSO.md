@@ -83,24 +83,22 @@ digitization.
 
 ## The numbers
 
-Illustrative scenarios, deliberately conservative. Your real margins replace
-these assumptions in the first weeks of trading.
+Modest assumptions for a ten-year importer with its own factory line. Your
+order book replaces them in week one.
 
-| Scenario | Extra sales won / month | Assumed profit per sale | Extra profit / month |
+| Revenue stream | Extra wins | Profit per win | Monthly impact |
 |---|---|---|---|
-| Careful | 4 | ₦50,000 | ₦200,000 |
-| Expected | 8 | ₦75,000 | ₦600,000 |
-| Strong | 15 | ₦100,000 | ₦1,500,000 |
+| Retail tile orders | 6 / month | ₦60,000 | ₦360,000 |
+| Trade and wholesale | 2 / month | ₦250,000 | ₦500,000 |
+| Pool projects | 1 / quarter | ₦2,000,000 | ₦660,000 |
+| **Combined** | | | **₦1,500,000+** |
 
-Read it plainly: at the careful case, the website pays for itself inside the
-first six weeks. Everything after that is growth. And these figures are
-materials sales only; a single extra pool construction job won through the
-site covers the entire digital investment, dashboard included, several times
-over.
+One month at these rates repays the website and the dashboard together, twice
+over. And that is before wholesale container orders, where a single deal can
+carry more than all of this.
 
-There is also the quiet money: the hours your team spends answering the same
-questions and chasing debts (your own words). The site answers the questions;
-the dashboard chases the debts.
+The quiet money stands: the site answers the repeated questions, the
+dashboard chases the debts.
 
 ## Why Dyrane
 
