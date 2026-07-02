@@ -1,210 +1,245 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
-import { BUYING_STEPS, MOSAIC_RANGES } from "@/lib/products";
-import { GALLERY, IMG } from "@/lib/images";
-import { waPool, waQuote } from "@/lib/wa";
-import { TileSheet } from "@/components/Mosaic";
-import { CtaRow, Section } from "@/components/ui";
+import { MOSAIC_RANGES } from "@/lib/products";
+import { ENVIRONMENTS, IMG, LUX } from "@/lib/images";
+import { waPool, waProduct, waQuote } from "@/lib/wa";
+import Reveal from "@/components/Reveal";
 
-const TRUST = [
-  { n: SITE.yearsInBusiness, label: "years in mosaic" },
-  { n: "1000s", label: "of tiles in stock" },
-  { n: "Direct", label: "factory prices" },
-  { n: "Pools", label: "built from scratch" },
+/* The Mosaic Maison. Story first, products second. One loud thing per
+   screen; everything else whispers. */
+
+const COLLECTION_PICKS = [
+  { ...MOSAIC_RANGES[0].items[0], collection: "Pool mosaic" },
+  { ...MOSAIC_RANGES[0].items[3], collection: "Pool mosaic" },
+  { ...MOSAIC_RANGES[1].items[0], collection: "Glass mosaic" },
+  { ...MOSAIC_RANGES[2].items[0], collection: "Art mosaic" },
+  { ...MOSAIC_RANGES[2].items[1], collection: "Art mosaic" },
 ];
 
-const OFFERS = [
-  {
-    href: "/mosaic-tiles",
-    title: "Mosaic tiles",
-    body: "Every colour, every blend. Most mosaic samples you see online in Nigeria come from this store.",
-  },
-  {
-    href: "/pool-materials",
-    title: "Pool materials",
-    body: "Pumps, filters, lights, gum cement. The full Astral range, on the shelf.",
-  },
-  {
-    href: "/pools",
-    title: "Pool construction",
-    body: "New pools and renovations, from first sketch to first swim.",
-  },
+const MATERIALS = [
+  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: IMG.sunlitBlueMosaic },
+  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: IMG.vibrantGlassMosaic },
+  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: IMG.fishMosaicPool },
 ];
 
 export default function Home() {
   return (
     <>
-      {/* Hero: standing at the edge of the water */}
-      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
-        <div className="relative overflow-hidden rounded-[2rem] shadow-lift">
-          <Image
-            src={IMG.poolWaterHero}
-            alt="Vivid blue pool water over mosaic tiles"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(168deg, rgba(6,20,28,0.82) 0%, rgba(9,42,56,0.55) 45%, rgba(9,42,56,0.18) 100%)",
-            }}
-          />
-          <div className="relative px-6 py-16 sm:px-14 sm:py-24">
-            <p className="text-xs font-semibold uppercase tracking-widest text-aqua">
-              {SITE.location}
-            </p>
-            <h1 className="mt-3 max-w-2xl text-5xl font-semibold tracking-tight text-white sm:text-7xl">
-              Everything mosaic.
+      {/* Cinematic hero */}
+      <section className="relative flex min-h-[92svh] items-end overflow-hidden">
+        <Image
+          src={LUX.villaDusk}
+          alt="A villa pool holding the last light of dusk"
+          fill
+          priority
+          sizes="100vw"
+          className="kenburns object-cover"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(12,11,9,0.55) 0%, rgba(12,11,9,0.12) 40%, rgba(12,11,9,0.82) 100%)",
+          }}
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
+          <Reveal>
+            <p className="eyebrow">AU Mosaic · Lagos</p>
+            <h1 className="font-serif mt-5 max-w-3xl text-[clamp(2.8rem,8vw,5.5rem)] leading-[1.04] text-white">
+              Spaces that begin with water.
             </h1>
-            <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/85">
-              Nigeria&apos;s home of mosaic tiles and pool materials. Largest stock
-              on ground, direct from our factory in {SITE.factory}.
+            <p className="mt-6 max-w-md text-[17px] leading-relaxed text-white/80">
+              Mosaic for pools, walls, and rooms people remember.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <a
-                href={waQuote()}
-                target="_blank"
-                rel="noopener"
-                className="rounded-full bg-white px-6 py-3.5 text-[15px] font-semibold text-pool-deep shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
-              >
-                Get a quote on WhatsApp
+            <div className="mt-10 flex flex-wrap items-center gap-8">
+              <a href={waQuote()} target="_blank" rel="noopener" className="btn-gold">
+                Begin a project
               </a>
-              <Link
-                href="/mosaic-tiles"
-                className="rounded-full px-5 py-3.5 text-[15px] font-semibold text-white/90 hover:bg-white/10"
-              >
-                Browse tiles
+              <Link href="/mosaic-tiles" className="link-hair text-white">
+                View the collection
               </Link>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* Trust */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="mt-14 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {TRUST.map((t) => (
-            <div key={t.label} className="rounded-3xl bg-shell p-5 text-center shadow-lift">
-              <p className="text-2xl font-semibold tracking-tight text-pool-deep">{t.n}</p>
-              <p className="mt-1 text-sm text-dusk">{t.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* What we do */}
-      <Section eyebrow="What we do" title="Tiles, materials, and the pool itself.">
-        <div className="grid gap-4 md:grid-cols-3">
-          {OFFERS.map((o) => (
-            <Link
-              key={o.href}
-              href={o.href}
-              className="group rounded-3xl bg-shell p-6 shadow-lift transition-transform hover:-translate-y-0.5"
-            >
-              <h3 className="text-lg font-semibold tracking-tight">{o.title}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-dusk">{o.body}</p>
-              <p className="mt-4 text-sm font-semibold text-pool group-hover:underline">Explore</p>
-            </Link>
-          ))}
-        </div>
-      </Section>
-
-      {/* Best sellers */}
-      <Section
-        tint
-        eyebrow="Best sellers"
-        title="Pool mosaics, always in demand."
-        sub="Pools are being built everywhere, and mosaic is the tile they trust. These blends move fastest."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {MOSAIC_RANGES[0].items.map((t) => (
-            <div key={t.name} className="overflow-hidden rounded-3xl bg-sand shadow-lift">
-              {t.colors && <TileSheet colors={t.colors} rows={4} cols={8} className="h-28 w-full" />}
-              <div className="p-5">
-                <p className="font-semibold tracking-tight">{t.name}</p>
-                {t.note && <p className="mt-1 text-sm text-dusk">{t.note}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8">
-          <CtaRow href="/mosaic-tiles" label="See all mosaic ranges" />
-        </div>
-      </Section>
-
-      {/* The gallery: product-vivid, edge to edge */}
-      <Section
-        eyebrow="The gallery"
-        title="See the work."
-        sub="Real mosaic, real water. Nonso's own projects join this wall at launch."
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          {GALLERY.map((g) => (
-            <div key={g.title} className="group relative h-64 overflow-hidden rounded-3xl shadow-lift sm:h-80">
-              <Image
-                src={g.src}
-                alt={g.title}
-                fill
-                sizes="(max-width: 640px) 100vw, 50vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-              <div className="absolute bottom-0 p-5">
-                <p className="text-lg font-semibold tracking-tight text-white">{g.title}</p>
-                <p className="text-sm text-white/80">{g.sub}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* Education: why mosaics fall */}
-      <Section
-        eyebrow="Worth knowing"
-        title="Why mosaics fall off. And why ours don't."
-        sub="Nine times out of ten, it's the gum cement. Substandard adhesive fails, and the mosaic gets the blame. We sell and use adhesives that hold, and we'll tell you exactly what your tiler should use."
-      >
-        <CtaRow
-          href={waQuote()}
-          label="Ask us about gum cement"
-          secondary={{ href: "/pool-materials#tiling-finishing", label: "See tiling materials" }}
-        />
-      </Section>
-
-      {/* How buying works */}
-      <Section
-        tint
-        eyebrow="How it works"
-        title="Buying, the market way. Online."
-        sub="The same way it works at our showroom, without the trip."
-      >
-        <ol className="grid gap-4 md:grid-cols-4">
-          {BUYING_STEPS.map((s, i) => (
-            <li key={s.title} className="rounded-3xl bg-sand p-5 shadow-lift">
-              <p className="text-sm font-semibold text-terra">Step {i + 1}</p>
-              <p className="mt-1 font-semibold tracking-tight">{s.title}</p>
-              <p className="mt-1 text-sm leading-relaxed text-dusk">{s.body}</p>
-            </li>
-          ))}
-        </ol>
-      </Section>
-
-      {/* Final CTA */}
-      <section className="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
-        <div className="rounded-[2rem] bg-pool-deep px-6 py-12 text-center text-white sm:px-12">
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Building a pool? Start with us.
+      {/* Environments: the dream first */}
+      <section className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
+        <Reveal>
+          <p className="eyebrow">Environments</p>
+          <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+            Begin with the dream.
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-white/75">
-            Tiles, materials, and construction from one store that has done it for {SITE.yearsInBusiness} years.
+          <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
+            Nobody buys tiles. They buy the villa, the evening, the calm.
+            The materials come after.
           </p>
-          <div className="mt-7 flex justify-center">
-            <CtaRow href={waPool()} label="Talk pools on WhatsApp" />
+        </Reveal>
+
+        <div className="mt-16 grid gap-x-8 gap-y-20 sm:grid-cols-2">
+          {ENVIRONMENTS.map((e, i) => (
+            <Reveal key={e.place} delay={(i % 2) * 90} className={i % 2 === 1 ? "sm:mt-24" : ""}>
+              <Link href={e.href} className="group block">
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <Image
+                    src={e.src}
+                    alt={e.place}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                    className="img-glide object-cover"
+                  />
+                </div>
+                <p className="eyebrow mt-7">{e.place}</p>
+                <p className="font-serif mt-3 text-[26px] leading-snug">{e.line}</p>
+                <p className="mt-3 text-[14px] leading-relaxed text-mist">{e.materials}</p>
+                <span className="link-hair mt-6 text-dusk">The materials behind it</span>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Materials: three ways to build with light */}
+      <section className="hairline">
+        <div className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
+          <Reveal>
+            <p className="eyebrow">Materials</p>
+            <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+              Three ways to build with light.
+            </h2>
+          </Reveal>
+          <div className="mt-16 grid gap-10 sm:grid-cols-3">
+            {MATERIALS.map((m, i) => (
+              <Reveal key={m.title} delay={i * 90}>
+                <Link href={m.href} className="group block">
+                  <div className="relative aspect-square overflow-hidden">
+                    <Image src={m.src} alt={m.title} fill sizes="33vw" className="img-glide object-cover" />
+                  </div>
+                  <h3 className="font-serif mt-6 text-[22px]">{m.title}</h3>
+                  <p className="mt-2 text-[14px] text-dusk">{m.line}</p>
+                </Link>
+              </Reveal>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* Lifestyle: one full-bleed breath */}
+      <section className="relative flex min-h-[70svh] items-center overflow-hidden">
+        <Image
+          src={LUX.villaPalms}
+          alt="A villa resting beside still water"
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-[rgba(12,11,9,0.45)]" />
+        <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
+          <Reveal>
+            <p className="font-serif max-w-2xl text-[clamp(1.8rem,4.5vw,3.2rem)] leading-tight text-white">
+              The room people remember is the one you built slowly.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* The collection: five, not five hundred */}
+      <section className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
+        <Reveal>
+          <p className="eyebrow">The collection</p>
+          <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+            Five pieces. The rest when you are ready.
+          </h2>
+        </Reveal>
+        <div className="mt-16 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+          {COLLECTION_PICKS.map((p, i) => (
+            <Reveal key={p.name} delay={(i % 3) * 80}>
+              <div className="group">
+                <div className="relative aspect-[4/5] overflow-hidden bg-shell">
+                  {p.image ? (
+                    <Image src={p.image} alt={p.name} fill sizes="33vw" className="img-glide object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 grid grid-cols-4">
+                      {(p.colors || []).slice(0, 4).map((c) => (
+                        <div key={c} style={{ background: c }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="eyebrow mt-6">{p.collection}</p>
+                <h3 className="font-serif mt-2 text-[21px]">{p.name}</h3>
+                {p.note && <p className="mt-1.5 text-[14px] text-dusk">{p.note}</p>}
+                <a
+                  href={waProduct(p.name)}
+                  target="_blank"
+                  rel="noopener"
+                  className="link-hair mt-5 text-dusk"
+                >
+                  Enquire
+                </a>
+              </div>
+            </Reveal>
+          ))}
+          <Reveal delay={160}>
+            <Link href="/mosaic-tiles" className="group flex h-full min-h-64 flex-col justify-center hairline p-8">
+              <p className="font-serif text-[24px] leading-snug">Explore the collection</p>
+              <p className="mt-2 text-[14px] text-mist">Every range, every colour, from stock.</p>
+              <span className="link-hair mt-6 text-dusk">Enter</span>
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Craftsmanship */}
+      <section className="hairline">
+        <div className="mx-auto max-w-6xl gap-16 px-5 py-28 sm:grid sm:grid-cols-2 sm:px-8 sm:py-36">
+          <Reveal>
+            <div className="relative aspect-[4/5] overflow-hidden">
+              <Image src={IMG.bluePatternTiles} alt="Patterned mosaic, laid by hand" fill sizes="50vw" className="object-cover" />
+            </div>
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="mt-10 sm:mt-0">
+              <p className="eyebrow">Craft</p>
+              <h2 className="font-serif mt-4 text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+                Why our surfaces last.
+              </h2>
+              <p className="mt-6 max-w-md text-[16px] leading-relaxed text-dusk">
+                Mosaic fails when the adhesive fails. Ours does not. Spanish
+                Kerakoll sits beneath every surface we install, and we tell
+                every client the honest difference before they buy.
+              </p>
+              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
+                Ten years in the market. Our own factory line in {SITE.factory}.
+                The largest mosaic stock on the ground in Lagos.
+              </p>
+              <a href={waPool()} target="_blank" rel="noopener" className="link-hair mt-8 text-dusk">
+                Build a pool with us
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Final invitation */}
+      <section className="hairline">
+        <div className="mx-auto max-w-6xl px-5 py-32 text-center sm:px-8 sm:py-44">
+          <Reveal>
+            <p className="eyebrow">{SITE.location}</p>
+            <h2 className="font-serif mx-auto mt-5 max-w-2xl text-[clamp(2.2rem,6vw,4rem)] leading-tight">
+              Begin your project.
+            </h2>
+            <p className="mx-auto mt-5 max-w-sm text-[15px] leading-relaxed text-dusk">
+              One message starts it. Photos and a quote follow the same day.
+            </p>
+            <div className="mt-10">
+              <a href={waQuote()} target="_blank" rel="noopener" className="btn-gold">
+                Speak with the house
+              </a>
+            </div>
+            <p className="mt-6 text-[13px] tracking-wide text-mist">{SITE.phoneDisplay} · {SITE.hours}</p>
+          </Reveal>
         </div>
       </section>
     </>

@@ -4,9 +4,9 @@
 export const SITE = {
   name: "AU Mosaic and Pool Materials",
   shortName: "AU Mosaic",
-  tagline: "Everything mosaic.",
+  tagline: "The house of mosaic.",
   description:
-    "Nigeria's home of mosaic tiles and pool materials. Largest stock on ground, direct factory prices, pools built from scratch.",
+    "The house of mosaic in Lagos. Pool mosaic, glass, art, and the pools themselves. Largest stock on ground, direct from our own factory line.",
   location: "Agric Market, Lagos",
   hours: "Mon to Sat, 8:30am to 5pm",
   yearsInBusiness: "10+",

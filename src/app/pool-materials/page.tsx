@@ -13,15 +13,13 @@ export const metadata: Metadata = {
 export default function PoolMaterialsPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-pool">
-          {SITE.poolBrand} equipment · in stock
-        </p>
-        <h1 className="mt-3 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28">
+        <p className="eyebrow">{SITE.poolBrand} equipment · in stock</p>
+        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
           Everything a pool needs.
         </h1>
-        <p className="mt-4 max-w-xl text-lg leading-relaxed text-dusk">
-          From the pump to the waterfall. Tap any item for photos and today&apos;s
+        <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
+          From the pump to the waterfall. Any item, photos and today&apos;s
           price on WhatsApp.
         </p>
         <div className="mt-8">

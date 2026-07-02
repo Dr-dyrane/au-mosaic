@@ -4,7 +4,8 @@ import { waProduct } from "@/lib/wa";
 import type { Product, ProductGroup } from "@/lib/products";
 import { TileSheet } from "./Mosaic";
 
-/* Shared building blocks. Calm cards, no borders, tint and shadow only. */
+/* Editorial building blocks. Photography separates; hairlines and
+   whitespace structure. No cards, no borders, one loud thing per screen. */
 
 export function Section({
   eyebrow,
@@ -20,14 +21,12 @@ export function Section({
   tint?: boolean;
 }) {
   return (
-    <section className={tint ? "bg-shell" : ""}>
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-widest text-pool">{eyebrow}</p>
-        )}
-        <h2 className="mt-2 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
-        {sub && <p className="mt-3 max-w-xl text-[17px] leading-relaxed text-dusk">{sub}</p>}
-        {children && <div className="mt-10">{children}</div>}
+    <section className={tint ? "hairline" : ""}>
+      <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
+        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.8rem,4vw,2.8rem)] leading-tight">{title}</h2>
+        {sub && <p className="mt-4 max-w-md text-[15px] leading-relaxed text-dusk">{sub}</p>}
+        {children && <div className="mt-14">{children}</div>}
       </div>
     </section>
   );
@@ -36,57 +35,38 @@ export function Section({
 export function ProductCard({ item }: { item: Product }) {
   const label = item.variants ? `${item.name} (${item.variants.join(", ")})` : item.name;
   return (
-    <a
-      href={waProduct(label)}
-      target="_blank"
-      rel="noopener"
-      className="group flex flex-col overflow-hidden rounded-3xl bg-shell shadow-lift transition-transform hover:-translate-y-0.5"
-    >
-      {item.image ? (
-        <div className="relative h-40 w-full overflow-hidden sm:h-44">
+    <div className="group">
+      <div className="relative aspect-[4/5] overflow-hidden bg-shell">
+        {item.image ? (
           <Image
             src={item.image}
             alt={item.name}
             fill
             sizes="(max-width: 640px) 100vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+            className="img-glide object-cover"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
-        </div>
-      ) : item.colors ? (
-        <div className="relative">
-          <TileSheet colors={item.colors} rows={5} cols={9} className="h-36 w-full transition-transform duration-500 group-hover:scale-[1.04] sm:h-40" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
-        </div>
-      ) : null}
-      <div className="flex flex-1 flex-col justify-between p-5">
-        <div>
-          <p className="font-semibold tracking-tight">{item.name}</p>
-          {item.variants && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {item.variants.map((v) => (
-                <span key={v} className="rounded-full bg-aqua-soft px-2.5 py-1 text-xs font-medium text-pool-deep">
-                  {v}
-                </span>
-              ))}
-            </div>
-          )}
-          {item.note && <p className="mt-2 text-sm leading-relaxed text-dusk">{item.note}</p>}
-        </div>
-        <p className="mt-4 text-sm font-semibold text-pool group-hover:underline">
-          Photos and price on WhatsApp
-        </p>
+        ) : item.colors ? (
+          <TileSheet colors={item.colors} rows={8} cols={7} className="img-glide h-full w-full" />
+        ) : null}
       </div>
-    </a>
+      <h3 className="font-serif mt-5 text-[20px] leading-snug">{item.name}</h3>
+      {item.variants && (
+        <p className="mt-1.5 text-[12px] uppercase tracking-[0.14em] text-mist">{item.variants.join(" · ")}</p>
+      )}
+      {item.note && <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">{item.note}</p>}
+      <a href={waProduct(label)} target="_blank" rel="noopener" className="link-hair mt-4 text-dusk">
+        Enquire
+      </a>
+    </div>
   );
 }
 
 export function ProductGroupBlock({ group }: { group: ProductGroup }) {
   return (
-    <div id={group.id}>
-      <h3 className="text-xl font-semibold tracking-tight">{group.title}</h3>
-      <p className="mt-1 max-w-xl text-[15px] text-dusk">{group.blurb}</p>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div id={group.id} className="scroll-mt-24">
+      <p className="eyebrow">{group.title}</p>
+      <p className="font-serif mt-3 max-w-lg text-[22px] leading-snug">{group.blurb}</p>
+      <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
         {group.items.map((item) => (
           <ProductCard key={item.name} item={item} />
         ))}
@@ -97,20 +77,17 @@ export function ProductGroupBlock({ group }: { group: ProductGroup }) {
 
 export function CtaRow({ href, label, secondary }: { href: string; label: string; secondary?: { href: string; label: string } }) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-8">
       <a
         href={href}
         target={href.startsWith("http") ? "_blank" : undefined}
         rel="noopener"
-        className="rounded-full bg-pool px-6 py-3.5 text-[15px] font-semibold text-white shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
+        className="btn-gold"
       >
         {label}
       </a>
       {secondary && (
-        <a
-          href={secondary.href}
-          className="rounded-full px-5 py-3.5 text-[15px] font-semibold text-pool-deep hover:bg-ink/5"
-        >
+        <a href={secondary.href} className="link-hair text-dusk">
           {secondary.label}
         </a>
       )}

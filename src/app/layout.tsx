@@ -8,15 +8,26 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.shortName} · Mosaic tiles and pool materials, Lagos`,
+    default: `${SITE.shortName} · The house of mosaic, Lagos`,
     template: `%s · ${SITE.shortName}`,
   },
   description: SITE.description,
   openGraph: {
-    title: SITE.name,
+    title: `${SITE.shortName} · The house of mosaic`,
     description: SITE.description,
     type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "AU Mosaic, the house of mosaic in Lagos" }],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE.shortName} · The house of mosaic`,
+    description: SITE.description,
+    images: ["/og.png"],
+  },
+};
+
+export const viewport = {
+  themeColor: "#0c0b09",
 };
 
 const jsonLd = {

@@ -13,11 +13,12 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
-        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28">
+        <p className="eyebrow">The house</p>
+        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
           It started with creativity.
         </h1>
-        <div className="mt-6 max-w-xl space-y-5 text-lg leading-relaxed text-dusk">
+        <div className="mt-8 max-w-xl space-y-6 text-[17px] leading-relaxed text-dusk">
           <p>
             There are many tiles in the construction business. Mosaic is not the
             common one. That was the point. Mosaic keeps creativity alive while
@@ -35,7 +36,7 @@ export default function AboutPage() {
             largest mosaic artwork in the world. Watch us.
           </p>
         </div>
-        <MosaicBand rows={4} className="mt-12 h-32 w-full rounded-3xl shadow-lift" />
+        <MosaicBand rows={3} className="mt-16 h-24 w-full" />
       </section>
 
       <Section

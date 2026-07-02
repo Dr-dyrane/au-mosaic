@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 export default function MosaicTilesPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
-        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-          Mosaic tiles, every colour you can name.
+      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28">
+        <p className="eyebrow">The collection</p>
+        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
+          Every colour you can name.
         </h1>
-        <p className="mt-4 max-w-xl text-lg leading-relaxed text-dusk">
-          Tell us the look you want. We send real photos and videos from stock,
+        <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
+          Tell us the look. Real photos and videos from stock follow the
           same day, on WhatsApp.
         </p>
         <div className="mt-8">
@@ -26,13 +27,13 @@ export default function MosaicTilesPage() {
         </div>
         <TileSheet
           colors={["#1179a8", "#2fb9cf", "#67d6e5", "#a8def2", "#134e5e", "#f5f1e8"]}
-          rows={4}
-          cols={26}
-          className="mt-12 h-28 w-full rounded-3xl shadow-lift"
+          rows={3}
+          cols={30}
+          className="mt-14 h-20 w-full"
         />
       </section>
 
-      <Section title="Ranges">
+      <Section title="The ranges">
         <div className="space-y-14">
           {MOSAIC_RANGES.map((g) => (
             <ProductGroupBlock key={g.id} group={g} />
@@ -43,8 +44,8 @@ export default function MosaicTilesPage() {
       <Section
         tint
         eyebrow="For projects"
-        title="Contractor or reseller?"
-        sub="We supply trade quantities from stock, and order containers directly from our factory in Foshan for large projects. Factory prices, honest timelines."
+        title="Contractors and resellers, welcome."
+        sub="Trade quantities from stock. Containers direct from our factory line in Foshan for large projects. Factory prices, honest timelines."
       >
         <CtaRow href={waQuote()} label="Discuss a bulk order" />
       </Section>

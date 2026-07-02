@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-/* AU Mosaic · design tokens, dark first.
-   The client's preference: dark is the default render, light is the option.
-   Same token names in both themes, so components never change. Deep water
-   inks, glowing aqua, warm terracotta. Few borders; tint and shadow only. */
+/* The Mosaic Maison · tokens. Night gallery by default, daylight one tap
+   away. Warm near-black, stone, brass; water only where water is the
+   subject. Photography separates; hairlines and whitespace structure.
+   See docs/DESIGN.md for the laws. */
 
 @theme {
   --color-sand: var(--t-sand);
@@ -11,53 +11,61 @@
   --color-ink: var(--t-ink);
   --color-dusk: var(--t-dusk);
   --color-mist: var(--t-mist);
-  --color-pool: var(--t-pool);
-  --color-pool-deep: var(--t-pool-deep);
-  --color-aqua: var(--t-aqua);
-  --color-aqua-soft: var(--t-aqua-soft);
-  --color-terra: var(--t-terra);
-  --color-terra-soft: var(--t-terra-soft);
+  --color-gold: var(--t-gold);
+  --color-gold-deep: var(--t-gold-deep);
+  --color-water: var(--t-water);
+  --color-hairline: var(--t-hairline);
 
-  --radius-card: 1.4rem;
+  /* Legacy aliases so existing components keep working during the shift. */
+  --color-pool: var(--t-water);
+  --color-pool-deep: var(--t-shell);
+  --color-aqua: var(--t-water);
+  --color-aqua-soft: var(--t-shell);
+  --color-terra: var(--t-gold);
+  --color-terra-soft: var(--t-shell);
+
   --shadow-lift: var(--t-lift);
 
-  /* Native system fonts: crisp and instant on any device or connection. */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Didot", "Bodoni 72", "Playfair Display", Georgia,
+    "Times New Roman", serif;
+
+  --ease-glide: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* Dark: the default. Night water. */
+/* Night gallery: the default. */
 :root {
-  --t-sand: #0a141b;
-  --t-shell: #12222d;
-  --t-ink: #ecf4f7;
-  --t-dusk: #a4bcc6;
-  --t-mist: #6d8794;
-  --t-pool: #18a7c2;
-  --t-pool-deep: #0d3542;
-  --t-aqua: #46d8e8;
-  --t-aqua-soft: #10394a;
-  --t-terra: #e07a3f;
-  --t-terra-soft: #3a2418;
-  --t-lift: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.55);
+  --t-sand: #0c0b09;
+  --t-shell: #16130f;
+  --t-ink: #f3efe6;
+  --t-dusk: #a79e8f;
+  --t-mist: #6e6558;
+  --t-gold: #c2a15c;
+  --t-gold-deep: #8f7434;
+  --t-water: #7fd0db;
+  --t-hairline: rgb(194 161 92 / 0.22);
+  --t-lift: 0 20px 60px -30px rgb(0 0 0 / 0.8);
   color-scheme: dark;
 }
 
-/* Light: one tap away. Daylight sand. */
+/* Daylight. */
 [data-theme="light"] {
-  --t-sand: #f7f4ee;
+  --t-sand: #f6f3ec;
   --t-shell: #ffffff;
-  --t-ink: #0d2430;
-  --t-dusk: #4c6270;
-  --t-mist: #8aa0ab;
-  --t-pool: #0e7490;
-  --t-pool-deep: #134e5e;
-  --t-aqua: #38cfe0;
-  --t-aqua-soft: #d7f3f7;
-  --t-terra: #c05f2b;
-  --t-terra-soft: #f7e5d9;
-  --t-lift: 0 1px 2px rgb(13 36 48 / 0.05), 0 10px 30px -12px rgb(13 36 48 / 0.18);
+  --t-ink: #17150f;
+  --t-dusk: #5d564a;
+  --t-mist: #8d8577;
+  --t-gold: #a5813d;
+  --t-gold-deep: #8f7434;
+  --t-water: #2e7e8c;
+  --t-hairline: rgb(23 21 15 / 0.14);
+  --t-lift: 0 18px 50px -28px rgb(23 21 15 / 0.25);
   color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -68,12 +76,91 @@ body {
 }
 
 ::selection {
-  background: var(--color-aqua-soft);
+  background: var(--t-gold);
+  color: var(--t-sand);
 }
 
-h1, h2, h3 {
-  text-wrap: balance;
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* ---- editorial primitives -------------------------------------------------- */
+
+.font-serif { font-family: var(--font-serif); }
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-gold);
 }
-p {
-  text-wrap: pretty;
+
+.hairline { border-top: 1px solid var(--color-hairline); }
+.hairline-b { border-bottom: 1px solid var(--color-hairline); }
+
+/* Hairline-underline link that draws itself on hover. */
+.link-hair {
+  position: relative;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  padding-bottom: 6px;
+}
+.link-hair::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-gold);
+  transform: scaleX(0.35);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-glide);
+}
+.link-hair:hover::after { transform: scaleX(1); }
+
+/* The one loud thing per screen. */
+.btn-gold {
+  display: inline-block;
+  background: var(--color-gold);
+  color: #14110b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 16px 30px;
+  border-radius: 2px;
+  transition: transform 0.3s var(--ease-glide), background 0.3s var(--ease-glide);
+}
+.btn-gold:hover { transform: translateY(-1px); background: #d3b26c; }
+.btn-gold:active { transform: translateY(0); }
+
+/* ---- motion ------------------------------------------------------------------ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px) scale(0.985);
+  transition: opacity 0.6s var(--ease-glide), transform 0.7s var(--ease-glide);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.is-in { opacity: 1; transform: none; }
+
+.kenburns { animation: kenburns 14s var(--ease-glide) forwards; }
+@keyframes kenburns {
+  from { transform: scale(1.0); }
+  to { transform: scale(1.06); }
+}
+
+.img-glide { transition: transform 0.7s var(--ease-glide); }
+.group:hover .img-glide { transform: scale(1.03); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .kenburns { animation: none; }
+  .img-glide, .group:hover .img-glide { transition: none; transform: none; }
 }

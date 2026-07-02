@@ -1,0 +1,80 @@
+# The Mosaic Maison · design system
+
+AU Mosaic's digital flagship. Not an ecommerce store, not a catalogue: a
+house. SICIS direction, Apple HIG discipline, Dyrane philosophy. Luxury
+whispers; it never screams.
+
+## Laws
+
+1. Story first, products second. Environments open every journey; the
+   materials that made them follow.
+2. Photography creates separation. No cards, no borders, almost no shadows.
+   Hairlines and whitespace do the structural work.
+3. Progressive disclosure. Five pieces, then "Explore the collection."
+   Never five hundred.
+4. Motion glides. 240 to 500ms, opacity and 0.985 to 1 scale, one slow
+   ken-burns on the hero. Nothing flies. Reduced motion is respected.
+5. Copy whispers. "Designed for water, light, and time." Never
+   "Premium tiles." Dyrane copy rules hold: few words, no em dashes.
+6. Commerce stays human. Every enquiry lands in WhatsApp, the way the
+   house actually sells. No cart, ever.
+
+## Palette · night gallery (default)
+
+Warm near-black, not blue-black. Stone and brass, one breath of water.
+
+| Token | Dark (default) | Light |
+|---|---|---|
+| sand (canvas) | #0C0B09 | #F6F3EC |
+| shell (surface) | #16130F | #FFFFFF |
+| ink (text) | #F3EFE6 | #17150F |
+| dusk (secondary) | #A79E8F | #5D564A |
+| mist (tertiary) | #6E6558 | #8D8577 |
+| gold (accent) | #C2A15C | #A5813D |
+| gold-deep | #8F7434 | #8F7434 |
+| water (reserved) | #7FD0DB | #2E7E8C |
+| hairline | gold at 22% | ink at 14% |
+
+Gold is for eyebrows, hairlines, and the words that matter. Water appears
+only where water is the subject. No saturated fills, no gradient washes.
+
+## Typography
+
+Headlines: native luxury serif stack, largest first.
+`Didot, "Bodoni 72", "Playfair Display", Georgia, "Times New Roman", serif`
+Apple devices render true Didot; everywhere else falls to Georgia, which
+carries the tone. No webfont download, instant on any connection.
+
+Body: the native sans stack (SF Pro on Apple, Segoe/Roboto elsewhere).
+Eyebrows: 11px, uppercase, 0.25em tracking, gold.
+Hero: clamp(2.8rem, 8vw, 5.5rem), serif, tight leading.
+Section titles: clamp(1.9rem, 4vw, 3rem), serif.
+
+## Layout
+
+Content 1200px, wide scenes full-bleed. Section padding 96 to 140px
+vertical. Margins are generous; whitespace is the product. Magazine,
+not dashboard.
+
+## Motion
+
+`--ease-glide: cubic-bezier(0.22, 0.61, 0.36, 1)`
+Reveal on scroll: opacity 0 to 1, translateY 14px to 0, scale 0.985 to 1,
+via IntersectionObserver (components/Reveal.tsx). Hero image: 14s ken-burns
+scale 1.0 to 1.06, once. Hover: images scale 1.03 over 700ms. That is all.
+
+## Components
+
+Environment: full or half-bleed image, eyebrow, serif line, one sentence,
+"The materials behind it" hairline link.
+Piece (product): image, collection eyebrow, serif name, one sentence,
+"Enquire" hairline link straight into WhatsApp.
+Buttons: gold rectangle (2px radius) for the single primary action per
+screen; hairline-underline text links for everything else.
+
+## Assets
+
+Imagery: verified Pexels hotlinks (src/lib/images.ts is the only home),
+replaced by the house's own photography as it arrives. Wide angle, natural
+light, dusk and golden hour, minimal people. Icons and OG: gold tessera
+mark on night, generated in-repo.

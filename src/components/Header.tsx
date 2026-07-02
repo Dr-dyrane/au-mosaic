@@ -13,66 +13,61 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 bg-sand/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
-          <MosaicMark className="h-8 w-8" />
+    <header className="sticky top-0 z-40 bg-sand/80 backdrop-blur-md hairline-b">
+      <div className="mx-auto flex h-[68px] max-w-6xl items-center gap-6 px-5 sm:px-8">
+        <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
+          <MosaicMark className="h-7 w-7" />
           <span className="leading-tight">
-            <span className="block text-[15px] font-semibold tracking-tight">{SITE.shortName}</span>
-            <span className="block text-[10px] font-medium uppercase tracking-widest text-mist">
-              and Pool Materials
+            <span className="font-serif block text-[17px] tracking-wide">AU Mosaic</span>
+            <span className="block text-[9px] font-semibold uppercase tracking-[0.28em] text-mist">
+              The house of mosaic
             </span>
           </span>
         </Link>
 
-        <nav className="ml-auto hidden items-center gap-1 md:flex">
+        <nav className="ml-auto hidden items-center gap-7 md:flex">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
-              className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
-                pathname === n.href ? "bg-ink/5 text-ink" : "text-dusk hover:text-ink"
+              className={`text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors duration-300 ${
+                pathname === n.href ? "text-gold" : "text-dusk hover:text-ink"
               }`}
             >
               {n.label}
             </Link>
           ))}
           <ThemeToggle />
-          <a
-            href={waQuote()}
-            target="_blank"
-            rel="noopener"
-            className="ml-1 rounded-full bg-pool px-4 py-2 text-sm font-semibold text-white shadow-lift transition-transform hover:scale-[1.03] active:scale-95"
-          >
-            Get a quote
+          <a href={waQuote()} target="_blank" rel="noopener" className="link-hair text-ink">
+            Enquire
           </a>
         </nav>
 
         <div className="ml-auto flex items-center md:hidden"><ThemeToggle /></div>
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-full text-ink md:hidden"
+          className="flex h-10 w-10 items-center justify-center text-ink md:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Menu"
           aria-expanded={open}
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
             {open ? (
-              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             ) : (
-              <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M3 7h14M3 13h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             )}
           </svg>
         </button>
       </div>
 
       {open && (
-        <nav className="mx-4 mb-4 rounded-3xl bg-shell p-3 shadow-lift md:hidden">
+        <nav className="hairline bg-sand px-5 pb-8 pt-4 md:hidden">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
               onClick={() => setOpen(false)}
-              className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-ink active:bg-ink/5"
+              className="font-serif block py-3.5 text-[22px] text-ink"
             >
               {n.label}
             </Link>
@@ -81,10 +76,11 @@ export default function Header() {
             href={waQuote()}
             target="_blank"
             rel="noopener"
-            className="mt-2 block rounded-2xl bg-pool px-4 py-3 text-center text-[15px] font-semibold text-white"
+            className="btn-gold mt-6 inline-block"
           >
-            Get a quote on WhatsApp
+            Enquire on WhatsApp
           </a>
+          <p className="mt-5 text-[12px] tracking-wide text-mist">{SITE.location} · {SITE.hours}</p>
         </nav>
       )}
     </header>

@@ -21,29 +21,29 @@ const PROCESS = [
 export default function PoolsPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
-        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-          Pools, from first sketch to first swim.
+      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28">
+        <p className="eyebrow">Pool construction</p>
+        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
+          From first sketch to first swim.
         </h1>
-        <p className="mt-4 max-w-xl text-lg leading-relaxed text-dusk">
-          We sell the tiles and the materials. We also build the pool. One team,
-          one responsibility, no finger-pointing.
+        <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
+          The tiles, the materials, and the pool itself. One house, one
+          responsibility.
         </p>
         <div className="mt-8">
           <CtaRow href={waPool()} label="Talk pools on WhatsApp" />
         </div>
-        <div className="relative mt-12 h-56 overflow-hidden rounded-3xl shadow-lift sm:h-72">
+        <div className="relative mt-16 aspect-[21/9] overflow-hidden">
           <Image src={IMG.rippledLaneWater} alt="Clear rippled pool water" fill sizes="100vw" className="object-cover" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
         </div>
       </section>
 
       <Section title="What we take on">
         <div className="grid gap-4 md:grid-cols-3">
           {POOL_SERVICES.map((s) => (
-            <div key={s.title} className="rounded-3xl bg-shell p-6 shadow-lift">
-              <h3 className="text-lg font-semibold tracking-tight">{s.title}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-dusk">{s.body}</p>
+            <div key={s.title} className="hairline pt-6">
+              <h3 className="font-serif text-[21px]">{s.title}</h3>
+              <p className="mt-2.5 text-[14px] leading-relaxed text-dusk">{s.body}</p>
             </div>
           ))}
         </div>

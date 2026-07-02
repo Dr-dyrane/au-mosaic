@@ -5,33 +5,34 @@ import { MosaicMark } from "./Mosaic";
 
 export default function Footer() {
   return (
-    <footer className="mt-24 bg-pool-deep text-white/90">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-3">
+    <footer className="hairline mt-32">
+      <div className="mx-auto grid max-w-6xl gap-14 px-5 py-20 sm:px-8 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2.5">
-            <MosaicMark className="h-8 w-8" />
-            <span className="font-semibold tracking-tight text-white">{SITE.shortName}</span>
+          <div className="flex items-center gap-3">
+            <MosaicMark className="h-7 w-7" />
+            <span className="font-serif text-[18px] tracking-wide">AU Mosaic</span>
           </div>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/70">
-            {SITE.description}
+          <p className="font-serif mt-6 max-w-xs text-[19px] leading-snug text-dusk">
+            Everything mosaic, and the water it belongs to.
           </p>
         </div>
 
-        <div className="text-sm">
-          <p className="font-semibold text-white">Visit</p>
-          <p className="mt-3 text-white/70">{SITE.location}</p>
-          <p className="mt-1 text-white/70">{SITE.hours}</p>
-          <a href={waGeneral()} target="_blank" rel="noopener" className="mt-3 inline-block font-medium text-aqua hover:underline">
-            Chat on WhatsApp
+        <div>
+          <p className="eyebrow">Visit</p>
+          <p className="mt-5 text-[14px] leading-relaxed text-dusk">{SITE.location}</p>
+          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{SITE.hours}</p>
+          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{SITE.phoneDisplay}</p>
+          <a href={waGeneral()} target="_blank" rel="noopener" className="link-hair mt-6 text-dusk">
+            WhatsApp the house
           </a>
         </div>
 
-        <nav className="text-sm">
-          <p className="font-semibold text-white">Explore</p>
-          <ul className="mt-3 space-y-2">
+        <nav>
+          <p className="eyebrow">Explore</p>
+          <ul className="mt-5 space-y-2.5">
             {NAV.map((n) => (
               <li key={n.href}>
-                <Link href={n.href} className="text-white/70 hover:text-white">
+                <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
                   {n.label}
                 </Link>
               </li>
@@ -39,8 +40,11 @@ export default function Footer() {
           </ul>
         </nav>
       </div>
-      <div className="border-t border-white/10 py-5 text-center text-xs text-white/50">
-        {SITE.name} · {SITE.location} · {SITE.yearsInBusiness} years of mosaic
+      <div className="hairline">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 sm:px-8">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-mist">{SITE.name}</p>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-mist">Lagos · Foshan</p>
+        </div>
       </div>
     </footer>
   );

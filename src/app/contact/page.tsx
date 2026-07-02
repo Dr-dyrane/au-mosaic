@@ -11,13 +11,14 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
-        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28">
+        <p className="eyebrow">Contact</p>
+        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
           Come see the stock. Or just message.
         </h1>
-        <p className="mt-4 max-w-xl text-lg leading-relaxed text-dusk">
-          Most of our business happens on WhatsApp: photos, prices, delivery.
-          Start there.
+        <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
+          Most of the house&apos;s business happens on WhatsApp: photos,
+          prices, delivery. Start there.
         </p>
         <div className="mt-8">
           <CtaRow href={waGeneral()} label="Chat on WhatsApp" />
@@ -26,20 +27,20 @@ export default function ContactPage() {
 
       <Section title="The showroom">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl bg-shell p-6 shadow-lift">
-            <p className="text-sm font-semibold uppercase tracking-widest text-pool">Where</p>
-            <p className="mt-2 font-semibold tracking-tight">{SITE.location}</p>
-            <p className="mt-1 text-sm text-dusk">Ask any trader for AU Mosaic.</p>
+          <div className="hairline pt-6">
+            <p className="eyebrow">Where</p>
+            <p className="font-serif mt-3 text-[20px]">{SITE.location}</p>
+            <p className="mt-1.5 text-[14px] text-dusk">Ask any trader for AU Mosaic.</p>
           </div>
-          <div className="rounded-3xl bg-shell p-6 shadow-lift">
-            <p className="text-sm font-semibold uppercase tracking-widest text-pool">When</p>
-            <p className="mt-2 font-semibold tracking-tight">{SITE.hours}</p>
-            <p className="mt-1 text-sm text-dusk">Sundays, we rest.</p>
+          <div className="hairline pt-6">
+            <p className="eyebrow">When</p>
+            <p className="font-serif mt-3 text-[20px]">{SITE.hours}</p>
+            <p className="mt-1.5 text-[14px] text-dusk">Sundays, we rest.</p>
           </div>
-          <div className="rounded-3xl bg-shell p-6 shadow-lift">
-            <p className="text-sm font-semibold uppercase tracking-widest text-pool">Delivery</p>
-            <p className="mt-2 font-semibold tracking-tight">Pickup or delivery</p>
-            <p className="mt-1 text-sm text-dusk">Collect at the market, or we bring it to site.</p>
+          <div className="hairline pt-6">
+            <p className="eyebrow">Delivery</p>
+            <p className="font-serif mt-3 text-[20px]">Pickup or delivery</p>
+            <p className="mt-1.5 text-[14px] text-dusk">Collect at the market, or we bring it to site.</p>
           </div>
         </div>
       </Section>
