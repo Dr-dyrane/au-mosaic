@@ -43,10 +43,12 @@ its own phase once the site is live.
 
 ## Investment
 
-Website build and launch: ₦ ____________
-Domain (au-mosaic.shop) and first year hosting: ₦ ____________
-Business dashboard: CRM, inventory, deliveries, warehouse: ₦ ____________
-Monthly care (updates, new photos, changes): ₦ ____________ (optional)
+Website build and launch: ₦250,000
+Domain (au-mosaic.shop): $40 for the year. Hosting: free.
+Business dashboard: CRM, inventory, deliveries, warehouse: ₦500,000
+Monthly care (updates, new photos, changes): ₦25,000 per month (optional)
+
+Bare minimum to go live: ₦250,000 plus the domain.
 
 ## What we need from you
 
