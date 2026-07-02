@@ -96,5 +96,9 @@ intelligence dashboard. The website is milestone one of a modern business.
 1. Approve the proposal.
 2. Select your payment option.
 3. Send your business photos.
-4. Provide your WhatsApp Business number and Instagram handle.
+4. Provide your Instagram handle. Your WhatsApp line is already live on the site.
 5. Launch within 2 to 3 weeks.
+
+---
+
+Dyrane · proposals@dyrane.tech · info@dyrane.tech
