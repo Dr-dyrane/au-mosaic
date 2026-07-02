@@ -1,4 +1,6 @@
-# Digital Transformation Proposal
+# AU Mosaic. The digital flagship.
+
+Digital Transformation Proposal
 
 ## Growing AU Mosaic into Lagos' leading digital tile and pool brand
 
@@ -119,6 +121,11 @@ intelligence dashboard. The website is milestone one of a modern business.
 3. Send your business photos.
 4. Provide your Instagram handle. Your WhatsApp line is already live on the site.
 5. Launch within 2 to 3 weeks.
+
+## Agreed and accepted
+
+For AU Mosaic and Pool Materials: Nonso · Signature · Date
+For Dyrane: Alexander (Dyrane) · Signature · Date
 
 ---
 
