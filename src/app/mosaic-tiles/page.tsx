@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { MOSAIC_RANGES } from "@/lib/products";
 import { waQuote } from "@/lib/wa";
-import { MosaicBand } from "@/components/Mosaic";
+import { TileSheet } from "@/components/Mosaic";
 import { CtaRow, ProductGroupBlock, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -24,7 +24,12 @@ export default function MosaicTilesPage() {
         <div className="mt-8">
           <CtaRow href={waQuote()} label="Ask for samples" />
         </div>
-        <MosaicBand rows={3} className="mt-12 h-24 w-full rounded-3xl shadow-lift" />
+        <TileSheet
+          colors={["#1179a8", "#2fb9cf", "#67d6e5", "#a8def2", "#134e5e", "#f5f1e8"]}
+          rows={4}
+          cols={26}
+          className="mt-12 h-28 w-full rounded-3xl shadow-lift"
+        />
       </section>
 
       <Section title="Ranges">

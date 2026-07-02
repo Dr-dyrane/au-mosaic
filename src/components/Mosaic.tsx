@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 /* Deterministic mosaic graphics. No images needed: the brand IS the pattern.
    Colours cycle through a pool-to-terracotta palette with an index hash, so
    server and client always render the same tiles (no hydration drift). */
@@ -29,7 +31,7 @@ export function MosaicMark({ className = "" }: { className?: string }) {
   );
 }
 
-/** Wide mosaic band used as the hero artwork. */
+/** Wide mosaic band used as section artwork. */
 export function MosaicBand({ rows = 5, cols = 18, className = "" }: { rows?: number; cols?: number; className?: string }) {
   const w = cols * 12;
   const h = rows * 12;
@@ -48,5 +50,86 @@ export function MosaicBand({ rows = 5, cols = 18, className = "" }: { rows?: num
         />
       ))}
     </svg>
+  );
+}
+
+/* ---- vivid product renders ------------------------------------------------
+   A "tile sheet" drawn like the real thing: glass squares on grout, each with
+   a specular highlight and a darker base edge, colours picked from the range's
+   own palette. Deterministic (index hash), so server and client agree. */
+
+const pick = (colors: string[], i: number) => colors[(i * 13 + 5) % colors.length];
+
+export function TileSheet({
+  colors,
+  rows = 7,
+  cols = 7,
+  className = "",
+}: {
+  colors: string[];
+  rows?: number;
+  cols?: number;
+  className?: string;
+}) {
+  const T = 14; // tile cell
+  const w = cols * T;
+  const h = rows * T;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className={className} preserveAspectRatio="xMidYMid slice" aria-hidden>
+      {/* grout */}
+      <rect x="0" y="0" width={w} height={h} fill="#e9e4da" />
+      {Array.from({ length: rows * cols }, (_, i) => {
+        const x = (i % cols) * T + 1;
+        const y = Math.floor(i / cols) * T + 1;
+        const s = T - 2;
+        const c = pick(colors, i);
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width={s} height={s} rx="1.6" fill={c} />
+            {/* darker base edge for depth */}
+            <rect x={x} y={y + s - 2.6} width={s} height="2.6" rx="1.3" fill="#0d2430" opacity="0.18" />
+            {/* glass specular highlight */}
+            <path
+              d={`M ${x + 1} ${y + 4} Q ${x + 1} ${y + 1} ${x + 4} ${y + 1} L ${x + s - 3} ${y + 1} Q ${x + 2} ${y + 2.5} ${x + 1} ${y + s * 0.55} Z`}
+              fill="#ffffff"
+              opacity="0.34"
+            />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/** Immersive water panel: layered pool gradient over a mosaic floor, with
+    light caustics. The hero surface the headline sits on. */
+export function WaterHero({ className = "", children }: { className?: string; children?: ReactNode }) {
+  return (
+    <div className={`relative overflow-hidden ${className}`}>
+      {/* mosaic floor */}
+      <TileSheet
+        colors={["#0e7490", "#155e75", "#1a94ad", "#2fb9cf", "#67d6e5"]}
+        rows={10}
+        cols={24}
+        className="absolute inset-0 h-full w-full"
+      />
+      {/* water depth */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(168deg, rgba(19,78,94,0.86) 0%, rgba(14,116,144,0.62) 42%, rgba(56,207,224,0.32) 100%)",
+        }}
+      />
+      {/* light caustics */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(58% 42% at 78% 6%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%), radial-gradient(42% 30% at 16% 86%, rgba(56,207,224,0.36) 0%, rgba(56,207,224,0) 70%)",
+        }}
+      />
+      <div className="relative">{children}</div>
+    </div>
   );
 }

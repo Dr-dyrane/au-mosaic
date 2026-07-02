@@ -34,10 +34,18 @@ Today those people land on nothing. After launch they land on a catalogue that
 starts a WhatsApp chat, which is exactly the sale you already know how to
 close. It also answers the repeated questions that waste your team's time.
 
+## The dashboard
+
+The website is the shop window. The dashboard is the back office: customers
+and enquiries in one place (CRM), inventory with stock warnings, deliveries,
+and warehouse records. No more forgotten debts, no more paper books. Built as
+its own phase once the site is live.
+
 ## Investment
 
 Website build and launch: ₦ ____________
-Domain and first year hosting: ₦ ____________
+Domain (au-mosaic.shop) and first year hosting: ₦ ____________
+Business dashboard: CRM, inventory, deliveries, warehouse: ₦ ____________
 Monthly care (updates, new photos, changes): ₦ ____________ (optional)
 
 ## What we need from you

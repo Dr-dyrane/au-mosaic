@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { BUYING_STEPS, MOSAIC_RANGES } from "@/lib/products";
 import { waPool, waQuote } from "@/lib/wa";
-import { MosaicBand } from "@/components/Mosaic";
+import { TileSheet, WaterHero } from "@/components/Mosaic";
 import { CtaRow, Section } from "@/components/ui";
 
 const TRUST = [
@@ -33,26 +33,38 @@ const OFFERS = [
 export default function Home() {
   return (
     <>
-      {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6 sm:pt-20">
-        <p className="text-xs font-semibold uppercase tracking-widest text-terra">
-          {SITE.location}
-        </p>
-        <h1 className="mt-3 max-w-2xl text-5xl font-semibold tracking-tight sm:text-6xl">
-          Everything mosaic.
-        </h1>
-        <p className="mt-4 max-w-xl text-lg leading-relaxed text-dusk">
-          Nigeria&apos;s home of mosaic tiles and pool materials. Largest stock on
-          ground, direct from our factory in {SITE.factory}.
-        </p>
-        <div className="mt-8">
-          <CtaRow
-            href={waQuote()}
-            label="Get a quote on WhatsApp"
-            secondary={{ href: "/mosaic-tiles", label: "Browse tiles" }}
-          />
-        </div>
-        <MosaicBand className="mt-14 h-36 w-full rounded-3xl shadow-lift sm:h-44" />
+      {/* Hero: standing at the edge of the water */}
+      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
+        <WaterHero className="rounded-[2rem] shadow-lift">
+          <div className="px-6 py-16 sm:px-14 sm:py-24">
+            <p className="text-xs font-semibold uppercase tracking-widest text-aqua">
+              {SITE.location}
+            </p>
+            <h1 className="mt-3 max-w-2xl text-5xl font-semibold tracking-tight text-white sm:text-7xl">
+              Everything mosaic.
+            </h1>
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/85">
+              Nigeria&apos;s home of mosaic tiles and pool materials. Largest stock
+              on ground, direct from our factory in {SITE.factory}.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <a
+                href={waQuote()}
+                target="_blank"
+                rel="noopener"
+                className="rounded-full bg-white px-6 py-3.5 text-[15px] font-semibold text-pool-deep shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
+              >
+                Get a quote on WhatsApp
+              </a>
+              <Link
+                href="/mosaic-tiles"
+                className="rounded-full px-5 py-3.5 text-[15px] font-semibold text-white/90 hover:bg-white/10"
+              >
+                Browse tiles
+              </Link>
+            </div>
+          </div>
+        </WaterHero>
       </section>
 
       {/* Trust */}
@@ -93,9 +105,12 @@ export default function Home() {
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {MOSAIC_RANGES[0].items.map((t) => (
-            <div key={t.name} className="rounded-3xl bg-sand p-5 shadow-lift">
-              <p className="font-semibold tracking-tight">{t.name}</p>
-              {t.note && <p className="mt-1 text-sm text-dusk">{t.note}</p>}
+            <div key={t.name} className="overflow-hidden rounded-3xl bg-sand shadow-lift">
+              {t.colors && <TileSheet colors={t.colors} rows={4} cols={8} className="h-28 w-full" />}
+              <div className="p-5">
+                <p className="font-semibold tracking-tight">{t.name}</p>
+                {t.note && <p className="mt-1 text-sm text-dusk">{t.note}</p>}
+              </div>
             </div>
           ))}
         </div>

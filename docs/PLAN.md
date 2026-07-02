@@ -40,7 +40,15 @@ Optional per-item price ranges ("from ₦..."), stock badges fed from his Excel,
 and an "order list" that composes one WhatsApp message from multiple items.
 Still no cart. The order list IS the cart, WhatsApp is the checkout.
 
-### Phase 5 · Measure and grow
+### Phase 5 · The dashboard (its own engagement)
+The back office: CRM (customers, enquiries, debts owed, the discount leak),
+inventory (his Excel, structured, with stock-out warnings), deliveries, and
+warehouse. This answers his actual discovery pains: forgotten debts, over-high
+discounts, records on paper. Separate app, separate fee, built after the
+public site earns trust. Stack: same Next.js repo, protected /admin routes,
+a real database (Postgres) when we get here.
+
+### Phase 6 · Measure and grow
 Vercel Analytics, Google Business Profile link-up, WhatsApp click tracking.
 SEO pages per intent: "mosaic tiles Lagos", "pool construction Lagos",
 "pool pump price Nigeria".

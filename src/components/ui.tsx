@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { waProduct } from "@/lib/wa";
 import type { Product, ProductGroup } from "@/lib/products";
+import { TileSheet } from "./Mosaic";
 
 /* Shared building blocks. Calm cards, no borders, tint and shadow only. */
 
@@ -38,24 +39,32 @@ export function ProductCard({ item }: { item: Product }) {
       href={waProduct(label)}
       target="_blank"
       rel="noopener"
-      className="group flex flex-col justify-between rounded-3xl bg-shell p-5 shadow-lift transition-transform hover:-translate-y-0.5"
+      className="group flex flex-col overflow-hidden rounded-3xl bg-shell shadow-lift transition-transform hover:-translate-y-0.5"
     >
-      <div>
-        <p className="font-semibold tracking-tight">{item.name}</p>
-        {item.variants && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {item.variants.map((v) => (
-              <span key={v} className="rounded-full bg-aqua-soft px-2.5 py-1 text-xs font-medium text-pool-deep">
-                {v}
-              </span>
-            ))}
-          </div>
-        )}
-        {item.note && <p className="mt-2 text-sm leading-relaxed text-dusk">{item.note}</p>}
+      {item.colors && (
+        <div className="relative">
+          <TileSheet colors={item.colors} rows={5} cols={9} className="h-36 w-full transition-transform duration-500 group-hover:scale-[1.04] sm:h-40" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/10 to-transparent" />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col justify-between p-5">
+        <div>
+          <p className="font-semibold tracking-tight">{item.name}</p>
+          {item.variants && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {item.variants.map((v) => (
+                <span key={v} className="rounded-full bg-aqua-soft px-2.5 py-1 text-xs font-medium text-pool-deep">
+                  {v}
+                </span>
+              ))}
+            </div>
+          )}
+          {item.note && <p className="mt-2 text-sm leading-relaxed text-dusk">{item.note}</p>}
+        </div>
+        <p className="mt-4 text-sm font-semibold text-pool group-hover:underline">
+          Photos and price on WhatsApp
+        </p>
       </div>
-      <p className="mt-4 text-sm font-semibold text-pool group-hover:underline">
-        Photos and price on WhatsApp
-      </p>
     </a>
   );
 }

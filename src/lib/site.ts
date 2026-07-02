@@ -12,12 +12,13 @@ export const SITE = {
   yearsInBusiness: "10+",
   factory: "Foshan, China",
   poolBrand: "Astral",
-  url: "https://aumosaic.ng", // update when the domain is settled
+  // Canonical URL: the vercel.app link until the domain (au-mosaic.shop) is bought,
+  // then set NEXT_PUBLIC_SITE_URL in Vercel and add the domain to the project.
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://au-mosaic.vercel.app",
   instagram: "https://instagram.com", // TODO: real handle
-  // WhatsApp number in international format, digits only. Set the real one in .env.local:
-  // NEXT_PUBLIC_WHATSAPP=234XXXXXXXXXX
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "2340000000000",
-  phoneDisplay: process.env.NEXT_PUBLIC_PHONE_DISPLAY || "",
+  // WhatsApp Business number, international format, digits only.
+  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "2347077550283",
+  phoneDisplay: process.env.NEXT_PUBLIC_PHONE_DISPLAY || "+234 707 755 0283",
 };
 
 export const NAV = [
