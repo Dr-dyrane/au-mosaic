@@ -1,56 +1,99 @@
-# AU Mosaic · website proposal
+# Digital Transformation Proposal
+
+## Growing AU Mosaic into Lagos' leading digital tile and pool brand
 
 Prepared by Dyrane Academy for Nonso, AU Mosaic and Pool Materials.
 
-## What already exists
+## Business objective
 
-We took your Business Discovery answers and built the website. It is live now,
-and it sells the way you sell: no cart, no signup. A customer taps any tile or
-material and lands in your WhatsApp with the item already written out. Quote
-per job, your way.
+Increase enquiries, deepen customer trust, cut repetitive sales conversations,
+and lay the digital foundation for growth: a professional online presence now,
+operational systems next.
 
-Live preview: https://au-mosaic.vercel.app
+## What we've already built
 
-What's on it today: your full stock list as a browsable catalogue, pool
-construction and renovation pages, your story, the showroom details, and a
-page that answers the number one complaint in your market (mosaics falling
-off, and why your gum cement is the fix).
+Live today: https://au-mosaic.shop (also at au-mosaic.vercel.app)
 
-## What launch adds
+Built from your Business Discovery answers. Open it on your phone, tap any
+product, and it starts a WhatsApp chat, the way you already sell.
 
-1. Your WhatsApp number behind every button, so enquiries land with you
-   from day one.
-2. Your real photos. You already send them to customers daily; we take about
-   20 to 40 from your phone and make the site photo-real: tiles, materials,
-   and finished pools.
-3. Your domain (for example aumosaic.ng) and Google, so "mosaic tiles Lagos"
-   finds you.
-4. A finished-pools gallery, the trust engine for construction jobs.
+## Deliverables
 
-## What it does for the business
+### Phase 1: Website launch
+- Product catalogue (your full stock list)
+- Pool construction and renovation pages
+- WhatsApp integration on every product
+- Google search optimization
+- Mobile-first responsive design
+- Your story and showroom information
+- Trust and quality pages (the gum cement rule)
+- Contact page with direct WhatsApp and call
+- Traffic analytics
 
-Your customers already find you through Google, social media, and referrals.
-Today those people land on nothing. After launch they land on a catalogue that
-starts a WhatsApp chat, which is exactly the sale you already know how to
-close. It also answers the repeated questions that waste your team's time.
+### Phase 2: Business operations dashboard
+- CRM and customer database
+- Inventory with stock warnings
+- Warehouse records
+- Sales tracking and reporting
+- Delivery management
+- Invoices
 
-## The dashboard
+## Domain strategy
 
-The website is the shop window. The dashboard is the back office: customers
-and enquiries in one place (CRM), inventory with stock warnings, deliveries,
-and warehouse records. No more forgotten debts, no more paper books. Built as
-its own phase once the site is live.
+Current domain: **au-mosaic.shop**, secured by Dyrane and connecting now.
+Premium upgrade: **au-mosaic.com**, recommended for long-term brand strength,
+about USD 40 per year. Since the .shop domain was purchased on your behalf,
+we credit that investment if you later migrate to the .com.
 
 ## Investment
 
-Website build and launch: ₦250,000
-Domain (au-mosaic.shop): $40 for the year. Hosting: free.
-Business dashboard: CRM, inventory, deliveries, warehouse: ₦500,000
-Monthly care (updates, new photos, changes): ₦25,000 per month (optional)
+| Phase | Scope | Fee |
+|---|---|---|
+| Phase 1 | Website design and launch | NGN 250,000 |
+| Phase 2 | Business operations dashboard | NGN 500,000 |
+| Optional | Monthly care: updates, photos, changes | NGN 25,000 / month |
 
-Bare minimum to go live: ₦250,000 plus the domain.
+## Payment options
 
-## What we need from you
+**Option A · Full payment.** NGN 250,000 at start.
 
-Your WhatsApp Business number, your Instagram handle, and the photos.
-One afternoon of your time. We handle everything else.
+**Option B · Installments.** 40% to begin (NGN 100,000), 30% at launch
+(NGN 75,000), 30% thirty days after launch (NGN 75,000).
+
+**Option C · Growth partnership.** Instead of paying the full development cost
+upfront, Dyrane recovers its investment through an agreed percentage of the
+additional revenue the digital platform generates, until the agreed project
+value is reached. Terms agreed together before launch.
+
+## Project timeline
+
+Week 1: business assets, photos, content.
+Week 2: website completion and testing.
+Week 3: launch, Google indexing, team training.
+
+## Expected results
+
+Within 90 days the business should expect: more Google visibility, more
+WhatsApp enquiries, higher customer trust, better product presentation, less
+time answering repeated questions, and the foundation for inventory
+digitization.
+
+## Why Dyrane
+
+Dyrane does not simply build websites. We design digital systems that help
+businesses sell more, operate more efficiently, and make better decisions
+with data.
+
+## The road ahead
+
+Today, then: professional website, Google presence, CRM, inventory, warehouse,
+sales analytics, customer loyalty, accounting integration, and a business
+intelligence dashboard. The website is milestone one of a modern business.
+
+## Next steps
+
+1. Approve the proposal.
+2. Select your payment option.
+3. Send your business photos.
+4. Provide your WhatsApp Business number and Instagram handle.
+5. Launch within 2 to 3 weeks.
