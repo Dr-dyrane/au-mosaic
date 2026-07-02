@@ -40,10 +40,11 @@ product, and it starts a WhatsApp chat, the way you already sell.
 
 ## Domain strategy
 
-Current domain: **au-mosaic.shop**, secured by Dyrane and connecting now.
-Premium upgrade: **au-mosaic.com**, recommended for long-term brand strength,
-about USD 40 per year. Since the .shop domain was purchased on your behalf,
-we credit that investment if you later migrate to the .com.
+**au-mosaic.shop is already purchased, connected, and live.** Dyrane bought it
+upfront on the business's behalf, our commitment to making this work; its cost
+is part of the Phase 1 investment. Premium upgrade: **au-mosaic.com**,
+recommended for long-term brand strength, about USD 40 per year. The .shop
+investment is credited if you later migrate to the .com.
 
 ## Investment
 

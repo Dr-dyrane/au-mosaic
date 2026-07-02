@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { POOL_SERVICES } from "@/lib/products";
+import { IMG } from "@/lib/images";
 import { waPool } from "@/lib/wa";
 import { CtaRow, Section } from "@/components/ui";
 
@@ -29,6 +31,10 @@ export default function PoolsPage() {
         </p>
         <div className="mt-8">
           <CtaRow href={waPool()} label="Talk pools on WhatsApp" />
+        </div>
+        <div className="relative mt-12 h-56 overflow-hidden rounded-3xl shadow-lift sm:h-72">
+          <Image src={IMG.rippledLaneWater} alt="Clear rippled pool water" fill sizes="100vw" className="object-cover" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
         </div>
       </section>
 

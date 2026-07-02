@@ -1,29 +1,63 @@
 @import "tailwindcss";
 
-/* AU Mosaic · design tokens.
-   Calm, warm, and confident: sand paper, deep pool inks, aqua water,
-   terracotta for mosaic warmth. Few borders; separation by tint and shadow. */
+/* AU Mosaic · design tokens, dark first.
+   The client's preference: dark is the default render, light is the option.
+   Same token names in both themes, so components never change. Deep water
+   inks, glowing aqua, warm terracotta. Few borders; tint and shadow only. */
 
 @theme {
-  --color-sand: #f7f4ee;
-  --color-shell: #ffffff;
-  --color-ink: #0d2430;
-  --color-dusk: #4c6270;
-  --color-mist: #8aa0ab;
-
-  --color-pool: #0e7490;
-  --color-pool-deep: #134e5e;
-  --color-aqua: #38cfe0;
-  --color-aqua-soft: #d7f3f7;
-  --color-terra: #c05f2b;
-  --color-terra-soft: #f7e5d9;
+  --color-sand: var(--t-sand);
+  --color-shell: var(--t-shell);
+  --color-ink: var(--t-ink);
+  --color-dusk: var(--t-dusk);
+  --color-mist: var(--t-mist);
+  --color-pool: var(--t-pool);
+  --color-pool-deep: var(--t-pool-deep);
+  --color-aqua: var(--t-aqua);
+  --color-aqua-soft: var(--t-aqua-soft);
+  --color-terra: var(--t-terra);
+  --color-terra-soft: var(--t-terra-soft);
 
   --radius-card: 1.4rem;
-  --shadow-lift: 0 1px 2px rgb(13 36 48 / 0.05), 0 10px 30px -12px rgb(13 36 48 / 0.18);
+  --shadow-lift: var(--t-lift);
 
   /* Native system fonts: crisp and instant on any device or connection. */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Dark: the default. Night water. */
+:root {
+  --t-sand: #0a141b;
+  --t-shell: #12222d;
+  --t-ink: #ecf4f7;
+  --t-dusk: #a4bcc6;
+  --t-mist: #6d8794;
+  --t-pool: #18a7c2;
+  --t-pool-deep: #0d3542;
+  --t-aqua: #46d8e8;
+  --t-aqua-soft: #10394a;
+  --t-terra: #e07a3f;
+  --t-terra-soft: #3a2418;
+  --t-lift: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.55);
+  color-scheme: dark;
+}
+
+/* Light: one tap away. Daylight sand. */
+[data-theme="light"] {
+  --t-sand: #f7f4ee;
+  --t-shell: #ffffff;
+  --t-ink: #0d2430;
+  --t-dusk: #4c6270;
+  --t-mist: #8aa0ab;
+  --t-pool: #0e7490;
+  --t-pool-deep: #134e5e;
+  --t-aqua: #38cfe0;
+  --t-aqua-soft: #d7f3f7;
+  --t-terra: #c05f2b;
+  --t-terra-soft: #f7e5d9;
+  --t-lift: 0 1px 2px rgb(13 36 48 / 0.05), 0 10px 30px -12px rgb(13 36 48 / 0.18);
+  color-scheme: light;
 }
 
 body {

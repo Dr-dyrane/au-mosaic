@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { NAV, SITE } from "@/lib/site";
 import { waQuote } from "@/lib/wa";
 import { MosaicMark } from "./Mosaic";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -36,18 +37,20 @@ export default function Header() {
               {n.label}
             </Link>
           ))}
+          <ThemeToggle />
           <a
             href={waQuote()}
             target="_blank"
             rel="noopener"
-            className="ml-2 rounded-full bg-pool px-4 py-2 text-sm font-semibold text-white shadow-lift transition-transform hover:scale-[1.03] active:scale-95"
+            className="ml-1 rounded-full bg-pool px-4 py-2 text-sm font-semibold text-white shadow-lift transition-transform hover:scale-[1.03] active:scale-95"
           >
             Get a quote
           </a>
         </nav>
 
+        <div className="ml-auto flex items-center md:hidden"><ThemeToggle /></div>
         <button
-          className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-ink md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-ink md:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Menu"
           aria-expanded={open}

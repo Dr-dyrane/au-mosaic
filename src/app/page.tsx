@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { BUYING_STEPS, MOSAIC_RANGES } from "@/lib/products";
+import { GALLERY, IMG } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
-import { TileSheet, WaterHero } from "@/components/Mosaic";
+import { TileSheet } from "@/components/Mosaic";
 import { CtaRow, Section } from "@/components/ui";
 
 const TRUST = [
@@ -35,8 +37,23 @@ export default function Home() {
     <>
       {/* Hero: standing at the edge of the water */}
       <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
-        <WaterHero className="rounded-[2rem] shadow-lift">
-          <div className="px-6 py-16 sm:px-14 sm:py-24">
+        <div className="relative overflow-hidden rounded-[2rem] shadow-lift">
+          <Image
+            src={IMG.poolWaterHero}
+            alt="Vivid blue pool water over mosaic tiles"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(168deg, rgba(6,20,28,0.82) 0%, rgba(9,42,56,0.55) 45%, rgba(9,42,56,0.18) 100%)",
+            }}
+          />
+          <div className="relative px-6 py-16 sm:px-14 sm:py-24">
             <p className="text-xs font-semibold uppercase tracking-widest text-aqua">
               {SITE.location}
             </p>
@@ -64,7 +81,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-        </WaterHero>
+        </div>
       </section>
 
       {/* Trust */}
@@ -116,6 +133,32 @@ export default function Home() {
         </div>
         <div className="mt-8">
           <CtaRow href="/mosaic-tiles" label="See all mosaic ranges" />
+        </div>
+      </Section>
+
+      {/* The gallery: product-vivid, edge to edge */}
+      <Section
+        eyebrow="The gallery"
+        title="See the work."
+        sub="Real mosaic, real water. Nonso's own projects join this wall at launch."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          {GALLERY.map((g) => (
+            <div key={g.title} className="group relative h-64 overflow-hidden rounded-3xl shadow-lift sm:h-80">
+              <Image
+                src={g.src}
+                alt={g.title}
+                fill
+                sizes="(max-width: 640px) 100vw, 50vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+              <div className="absolute bottom-0 p-5">
+                <p className="text-lg font-semibold tracking-tight text-white">{g.title}</p>
+                <p className="text-sm text-white/80">{g.sub}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
 

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { waProduct } from "@/lib/wa";
 import type { Product, ProductGroup } from "@/lib/products";
 import { TileSheet } from "./Mosaic";
@@ -41,12 +42,23 @@ export function ProductCard({ item }: { item: Product }) {
       rel="noopener"
       className="group flex flex-col overflow-hidden rounded-3xl bg-shell shadow-lift transition-transform hover:-translate-y-0.5"
     >
-      {item.colors && (
+      {item.image ? (
+        <div className="relative h-40 w-full overflow-hidden sm:h-44">
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            sizes="(max-width: 640px) 100vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
+        </div>
+      ) : item.colors ? (
         <div className="relative">
           <TileSheet colors={item.colors} rows={5} cols={9} className="h-36 w-full transition-transform duration-500 group-hover:scale-[1.04] sm:h-40" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
         </div>
-      )}
+      ) : null}
       <div className="flex flex-1 flex-col justify-between p-5">
         <div>
           <p className="font-semibold tracking-tight">{item.name}</p>
