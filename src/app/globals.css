@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* AU Mosaic · design tokens.
+   Calm, warm, and confident: sand paper, deep pool inks, aqua water,
+   terracotta for mosaic warmth. Few borders; separation by tint and shadow. */
+
+@theme {
+  --color-sand: #f7f4ee;
+  --color-shell: #ffffff;
+  --color-ink: #0d2430;
+  --color-dusk: #4c6270;
+  --color-mist: #8aa0ab;
+
+  --color-pool: #0e7490;
+  --color-pool-deep: #134e5e;
+  --color-aqua: #38cfe0;
+  --color-aqua-soft: #d7f3f7;
+  --color-terra: #c05f2b;
+  --color-terra-soft: #f7e5d9;
+
+  --radius-card: 1.4rem;
+  --shadow-lift: 0 1px 2px rgb(13 36 48 / 0.05), 0 10px 30px -12px rgb(13 36 48 / 0.18);
+
+  /* Native system fonts: crisp and instant on any device or connection. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  background: var(--color-sand);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-aqua-soft);
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
