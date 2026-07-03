@@ -81,6 +81,50 @@ export async function addStaff(_prev: SaveState, form: FormData): Promise<SaveSt
   return { ok: true, message: `${name} can open the door now.` };
 }
 
+/* This phone asks to be told: the browser's subscription lands here.
+   Turning it off leaves the row inactive; nothing is deleted. */
+export async function savePushSubscription(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const endpoint = String(form.get("endpoint") ?? "");
+  const p256dh = String(form.get("p256dh") ?? "");
+  const auth = String(form.get("auth") ?? "");
+  if (!endpoint.startsWith("https://") || !p256dh || !auth) {
+    return { ok: false, message: "That subscription is not whole. Try the toggle again." };
+  }
+  try {
+    await getDb()
+      .insert(schema.pushSubscriptions)
+      .values({ endpoint, p256dh, auth, active: true })
+      .onConflictDoUpdate({
+        target: schema.pushSubscriptions.endpoint,
+        set: { p256dh, auth, active: true },
+      });
+  } catch {
+    return {
+      ok: false,
+      message: "The subscriptions table is not in the book yet. Run npm run db:push, then try again.",
+    };
+  }
+  await logAction("asked this phone to be told");
+  return { ok: true, message: "This phone will be told." };
+}
+
+export async function dropPushSubscription(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const endpoint = String(form.get("endpoint") ?? "");
+  if (!endpoint) return { ok: false, message: "Missing subscription." };
+  try {
+    await getDb()
+      .update(schema.pushSubscriptions)
+      .set({ active: false })
+      .where(eq(schema.pushSubscriptions.endpoint, endpoint));
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+  await logAction("quieted this phone");
+  return { ok: true, message: "This phone rests." };
+}
+
 export async function setStaffActive(_prev: SaveState, form: FormData): Promise<SaveState> {
   const refuse = await ownerOnly();
   if (refuse) return refuse;

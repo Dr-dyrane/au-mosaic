@@ -208,6 +208,20 @@ export const staff = pgTable("staff", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* The phones that asked to be told: one Web Push subscription per
+   device, keys and endpoint as the browser minted them. A dead
+   endpoint goes inactive, never deleted; it is a device token, but
+   the law is cheap to keep. */
+
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /* The book's history: who did what, when, in sentences. Arrives with
    staff accounts, per CRM law 8. Append-only; nothing here is ever
    edited or removed. */

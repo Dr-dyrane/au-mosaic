@@ -7,6 +7,7 @@ import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
 import { naira, parseNaira } from "@/lib/backoffice";
+import { sendPush } from "@/lib/push";
 import { PIPELINE, STATUS_LABEL, type OrderStatus } from "./pipeline";
 
 /* Server actions are public HTTP endpoints whatever the UI hides, so
@@ -56,6 +57,16 @@ export async function createOrder(_prev: SaveState, form: FormData): Promise<Sav
   redirect(`/admin/orders/${id}`);
 }
 
+/* Delivered is the moment stock leaves the building, so that is the
+   moment the book counts it: crossing into delivered takes each
+   line's quantity off its piece, never below zero, and walking back
+   out returns it. Every movement signs the history, and a piece
+   pushed across its warn-me-at line answers in the same sentence
+   and taps the owner's phone. */
+const OUT_THE_DOOR: readonly OrderStatus[] = ["delivered", "settled"];
+
+type Crossing = { name: string; qty: number; unit: string; slug: string };
+
 export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveState> {
   if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
 
@@ -69,19 +80,97 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
   const status = raw as OrderStatus;
 
   const db = getDb();
+  const crossings: Crossing[] = [];
+  const moved: string[] = [];
   try {
-    const rows = await db
+    const [before] = await db
+      .select({ status: schema.orders.status })
+      .from(schema.orders)
+      .where(eq(schema.orders.id, id));
+    if (!before) return { ok: false, message: "That order is not in the book." };
+
+    await db
       .update(schema.orders)
       .set({ status, updatedAt: sql`now()` })
-      .where(eq(schema.orders.id, id))
-      .returning({ id: schema.orders.id });
-    if (rows.length === 0) return { ok: false, message: "That order is not in the book." };
+      .where(eq(schema.orders.id, id));
+
+    const wasOut = OUT_THE_DOOR.includes(before.status);
+    const nowOut = OUT_THE_DOOR.includes(status);
+    if (wasOut !== nowOut) {
+      const lines = await db
+        .select({
+          pieceSlug: schema.orderItems.pieceSlug,
+          quantity: schema.orderItems.quantity,
+        })
+        .from(schema.orderItems)
+        .where(eq(schema.orderItems.orderId, id));
+
+      for (const line of lines) {
+        if (!line.pieceSlug || line.quantity <= 0) continue;
+        const [row] = await db
+          .select({
+            qty: schema.stockLevels.quantitySheets,
+            reorderAt: schema.stockLevels.reorderAt,
+            name: schema.pieces.name,
+            unit: schema.pieces.unit,
+          })
+          .from(schema.stockLevels)
+          .innerJoin(schema.pieces, eq(schema.pieces.slug, schema.stockLevels.pieceSlug))
+          .where(eq(schema.stockLevels.pieceSlug, line.pieceSlug));
+        if (!row) continue;
+
+        /* Never below the visible truth. */
+        const after = nowOut
+          ? Math.max(0, row.qty - line.quantity)
+          : row.qty + line.quantity;
+        await db
+          .update(schema.stockLevels)
+          .set({ quantitySheets: after, updatedAt: sql`now()` })
+          .where(eq(schema.stockLevels.pieceSlug, line.pieceSlug));
+
+        moved.push(
+          nowOut
+            ? `${row.name}: ${line.quantity} ${row.unit} out, ${after} left`
+            : `${row.name}: ${line.quantity} ${row.unit} back, ${after} on hand`
+        );
+        if (nowOut && row.qty > row.reorderAt && after <= row.reorderAt) {
+          crossings.push({ name: row.name, qty: after, unit: row.unit, slug: line.pieceSlug });
+        }
+      }
+    }
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
   await logAction("moved an order", `order ${id.slice(0, 8)}`, `to ${STATUS_LABEL[status].toLowerCase()}`);
+  for (const m of moved) {
+    await logAction(
+      OUT_THE_DOOR.includes(status) ? "took stock for a delivery" : "returned stock to the shelf",
+      `order ${id.slice(0, 8)}`,
+      m
+    );
+  }
+  /* A crossing taps the phone; the digest never repeats it louder. */
+  for (const c of crossings) {
+    await sendPush({
+      title: "Running low",
+      body: `${c.name}: ${c.qty} ${c.unit} left.`,
+      url: `/admin/pieces/${c.slug}`,
+    });
+  }
+
   refresh(id);
+  revalidatePath("/admin/pieces");
+  if (crossings.length > 0) {
+    const first = crossings[0];
+    const more = crossings.length - 1;
+    return {
+      ok: true,
+      message: `Delivered. ${first.name} is running low: ${first.qty} ${first.unit} left.${
+        more > 0 ? ` And ${more} more.` : ""
+      }`,
+    };
+  }
   return { ok: true, message: `Moved to ${STATUS_LABEL[status].toLowerCase()}.` };
 }
 

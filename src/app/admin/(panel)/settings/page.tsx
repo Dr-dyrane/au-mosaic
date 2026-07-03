@@ -5,6 +5,7 @@ import { whoAmI } from "@/lib/admin-auth";
 import SettingsForm from "./SettingsForm";
 import AddStaffForm from "./AddStaffForm";
 import KeyRow from "./KeyRow";
+import NotifyToggle from "./NotifyToggle";
 
 /* The facts of the house, and the keys to its door. Today the site
    still reads its built-in facts; when the seam flips, it reads
@@ -75,6 +76,15 @@ export default async function SettingsPage() {
           </p>
         </div>
       )}
+
+      <div className="panel mt-8 max-w-xl">
+        <p className="font-serif text-[20px]">The morning tap</p>
+        <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+          The glance, brought to the phone: what runs low, what is
+          owed, what came in fresh.
+        </p>
+        <NotifyToggle />
+      </div>
 
       <div className="panel mt-8 max-w-xl">
         <p className="font-serif text-[20px]">The book&apos;s history</p>

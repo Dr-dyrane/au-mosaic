@@ -257,22 +257,21 @@ keepValues, icons components exist).
    link sits in the rooms list; tour_start, tour_step, tour_done,
    tour_skip all tracked.
 
-7. Stock movement and notifications (Dyrane asked how a running-low
-   count reaches him; agreed): (a) PREREQUISITE, a domain decision
-   made: moving an order to delivered decrements stockLevels per line
-   with a pieceSlug (quantity times line quantity), never below the
-   visible truth, recorded so it can be audited later; enquiry-to-
-   deposit does not touch stock. (b) The moment: action sentences
-   learn arithmetic; a delivered move that crosses reorderAt answers
-   "Delivered. {piece} is running low: {qty} {unit} left." (c) The
-   spine: Web Push. "Notify this phone" toggle in Settings,
-   PushManager subscription stored in a push_subscriptions table,
-   VAPID keys in env (.env.example placeholders), web-push as one
-   justified dependency; works on Android and on iOS 16.4 plus when
-   installed. (d) The rhythm: Vercel Cron at 08:00 Lagos sends one
-   digest (pieces low, naira owed, fresh enquiries); crossings push
-   immediately; tapping opens the glance. House voice in every
-   notification body.
+7. DONE 2026-07-03, built as decided. (a) Crossing into delivered
+   (or settled) takes each line's quantity off its piece, clamped at
+   zero; walking back out returns it; every movement signs the
+   history per line. Enquiry to deposit never touches stock. (b) The
+   sentence learned arithmetic: crossings answer "Delivered. {piece}
+   is running low: {qty} {unit} left." (c) Web Push shipped as the
+   one justified dependency: push_subscriptions (migration 0005,
+   inactive not deleted), lib/push fails silent and open, sw push
+   and notificationclick handlers, Notify this phone in Settings
+   with the iPhone caveat. (d) vercel.json cron knocks /api/digest
+   at 07:00 UTC (08:00 Lagos), CRON_SECRET guarded, one house-voice
+   digest plus immediate crossings, taps open the glance. OWNER
+   ERRANDS: npx web-push generate-vapid-keys, then set
+   NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, CRON_SECRET in
+   Vercel; npm run db:push covers migrations 0003 through 0005.
 
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
