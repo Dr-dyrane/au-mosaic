@@ -32,7 +32,7 @@ means not built yet. Update the verdicts as passes land.
 | Server-side input validation | Pass (enums, ints, hex, uuid guards) |
 | Idempotent seeds and migrations | Pass |
 | No destructive actions | Pass (no hard deletes anywhere, by law) |
-| Unsaved-changes warning | Missing |
+| Unsaved-changes warning | Partial (piece record, browser-level) |
 | Keyboard submit (Enter) | Pass (native forms) |
 
 ## Navigation and IA
@@ -128,7 +128,7 @@ up as they land, never delete them.
 | 13 | Recognition over recall: the glance lists the last three records he touched, so morning starts where yesterday ended | M |
 | 14 | Refresh affordance in the installed app: quiet "Updated 9:41 · refresh" line on the glance (standalone hides the browser reload) | S |
 | 15 | Functional micro-icon set, six at most, house-drawn inline SVG (back, eye, filter, close, share, refresh); typography stays the identity; icons only for verbs the thumb knows | S |
-| 16 | Unsaved-changes guard on long forms | M |
+| 16 | Unsaved-changes guard on long forms | SHIPPED at browser level on the piece record (beforeunload when dirty, cleared by Save); in-app nav guard remains | M |
 
 ### Later and ongoing
 

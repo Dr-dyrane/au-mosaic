@@ -1,9 +1,28 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import ColorsField from "../ColorsField";
 import { buzz } from "@/lib/backoffice";
 import { savePiece, type SaveState } from "../actions";
+
+/* The unsaved guard: touch the form and the browser will ask before
+   the tab closes or reloads. Saving clears it. */
+function useUnsavedGuard(saved: boolean) {
+  const dirty = useRef(false);
+  useEffect(() => {
+    const warn = (e: BeforeUnloadEvent) => {
+      if (dirty.current) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, []);
+  useEffect(() => {
+    if (saved) dirty.current = false;
+  }, [saved]);
+  return () => {
+    dirty.current = true;
+  };
+}
 
 /* One form, one Save. Labels speak shop floor, not database: sheets in
    stock, warn me at, container lands. The colour field previews its
@@ -29,9 +48,10 @@ const label = "eyebrow mb-2.5 block";
 
 export default function PieceForm({ piece, stock }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(savePiece, null);
+  const markDirty = useUnsavedGuard(!!state?.ok);
 
   return (
-    <form action={action} className="mt-10 grid max-w-3xl gap-8">
+    <form action={action} onChange={markDirty} className="mt-10 grid max-w-3xl gap-8">
       <input type="hidden" name="slug" value={piece.slug} />
 
       <div className="panel grid gap-6">
