@@ -201,12 +201,15 @@ keepValues, icons components exist).
    the enquiry rows (Tie them); createOrder auto-converts that
    customer's open enquiries; Insights draws From tap to settled
    with the two honest rates. No fingerprinting, no third parties.
-5. SEO sprint, strategy agreed: no-code first (Nonso claims Google
-   Business Profile; Dyrane verifies Search Console and submits the
-   sitemap), then title-tag audit (H1 house voice, title search-plain),
-   Product and BreadcrumbList and enriched LocalBusiness schema, then
-   the Journal: five to eight SSG intent guides from PLAN Phase 6
-   queries, each ending in WhatsApp, FAQ schema, in the sitemap.
+5. CODE HALF DONE 2026-07-03: title audit (search-plain titles, H1s
+   untouched), Product and BreadcrumbList on pieces, enriched
+   LocalBusiness (honest fields only; Instagram joins sameAs when the
+   real handle lands in site.ts), and the Journal: five SSG guides
+   from the Phase 6 queries, FAQ on page and in schema, WhatsApp
+   closes with journal-slug sources, sitemap and footer. STILL OPEN,
+   no-code errands: Nonso claims Google Business Profile; Dyrane
+   verifies Search Console and submits /sitemap.xml; the real
+   Instagram handle into site.ts.
 6. Nonso onboarding: word-for-word 3-minute screen-recording script
    for a WhatsApp video (glance, new order, line with list versus
    given, payment, who owes what, stockroom edit, photos), and "The

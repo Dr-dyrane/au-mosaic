@@ -6,8 +6,9 @@ import WaTracker from "@/components/WaTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
+  /* Titles speak search-plain; the pages beneath keep house voice. */
   title: {
-    default: `${SITE.shortName} · The house of mosaic, Lagos`,
+    default: `${SITE.shortName} · Mosaic tiles, pool materials, and pools in Lagos`,
     template: `%s · ${SITE.shortName}`,
   },
   description: SITE.description,

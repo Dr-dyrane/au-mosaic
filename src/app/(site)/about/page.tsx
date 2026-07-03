@@ -6,7 +6,7 @@ import ThemeImage from "@/components/ThemeImage";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About us",
   description:
     "The story of AU Mosaic and Pool Materials: creativity, mosaic tiles, and a decade of pools.",
 };

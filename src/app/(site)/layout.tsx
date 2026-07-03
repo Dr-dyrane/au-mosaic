@@ -7,14 +7,29 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
    footer, and the WhatsApp float belong to the shop window. The back
    office wears its own clothes. */
 
+/* The business card, enriched but honest: only facts the house
+   actually states. The Instagram link joins sameAs once the real
+   handle lands in site.ts. */
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: SITE.name,
   description: SITE.description,
-  address: { "@type": "PostalAddress", addressLocality: "Lagos", addressCountry: "NG" },
+  url: SITE.url,
+  telephone: SITE.phoneDisplay,
+  image: `${SITE.url.replace(/\/$/, "")}/og.png`,
+  priceRange: "₦₦",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Agric Market",
+    addressLocality: "Lagos",
+    addressCountry: "NG",
+  },
   areaServed: "Nigeria",
   openingHours: "Mo-Sa 08:30-17:00",
+  ...(SITE.instagram.includes("instagram.com/") && SITE.instagram !== "https://instagram.com"
+    ? { sameAs: [SITE.instagram] }
+    : {}),
 };
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {

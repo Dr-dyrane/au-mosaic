@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Visualizer from "@/components/Visualizer";
 
 export const metadata: Metadata = {
-  title: "See it in your space",
+  title: "Mosaic tile visualizer",
   description:
     "Upload a photo of your pool or wall and see any AU Mosaic colourway laid onto it, in your own light.",
 };

@@ -49,6 +49,11 @@ export default function Footer() {
                 See it in your space
               </Link>
             </li>
+            <li>
+              <Link href="/journal" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                The journal
+              </Link>
+            </li>
           </ul>
         </nav>
         </div>

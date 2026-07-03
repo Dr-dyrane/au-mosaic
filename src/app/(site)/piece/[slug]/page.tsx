@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPiece, getPieces } from "@/lib/catalog";
+import { SITE } from "@/lib/site";
 import { ENVIRONMENTS } from "@/lib/images";
 import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const piece = await getPiece((await params).slug);
   if (!piece) return {};
   return {
-    title: piece.name,
+    title: `${piece.name} · ${piece.collection}, Lagos`,
     description: piece.note ? `${piece.name}. ${piece.note}.` : `${piece.name}, from the ${piece.collection.toLowerCase()} collection.`,
     openGraph: piece.image ? { images: [{ url: piece.image }] } : undefined,
   };
@@ -37,8 +38,42 @@ export default async function PiecePage({ params }: { params: Params }) {
   if (!piece) notFound();
   const scene = ENVIRONMENTS.find((e) => e.href.endsWith(piece.groupId)) ?? ENVIRONMENTS[1];
 
+  /* Structured data, honest to the house: a Product without a price,
+     because every job is quoted in the chat, and the path that led
+     here. Absolute URLs; search engines read no relative paths. */
+  const base = SITE.url.replace(/\/$/, "");
+  const productLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: piece.name,
+    description: piece.note ? `${piece.name}. ${piece.note}.` : `${piece.name}, ${piece.collection.toLowerCase()}.`,
+    ...(piece.image
+      ? { image: piece.image.startsWith("http") ? piece.image : `${base}${piece.image}` }
+      : {}),
+    category: piece.collection,
+    brand: { "@type": "Brand", name: SITE.shortName },
+    url: `${base}/piece/${piece.slug}`,
+  };
+  const crumbsLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${base}/` },
+      { "@type": "ListItem", position: 2, name: "Mosaic tiles", item: `${base}/mosaic-tiles` },
+      { "@type": "ListItem", position: 3, name: piece.name, item: `${base}/piece/${piece.slug}` },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
       {/* Full-screen reveal: no borders, no containers, lit like a gallery. */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
         <SceneVars light={piece.imageLight}>

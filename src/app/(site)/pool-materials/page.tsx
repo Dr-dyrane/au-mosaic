@@ -6,7 +6,7 @@ import { waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, ProductGroupBlock, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Pool materials",
+  title: "Swimming pool materials and equipment in Lagos",
   description:
     "Pumps, filter tanks, skimmers, lights, ladders, waterfalls, gum cement. Astral pool equipment in stock in Lagos.",
 };

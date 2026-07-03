@@ -7,7 +7,7 @@ import ProjectCard from "@/components/ProjectCard";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Projects",
+  title: "Mosaic and pool projects in Lagos",
   description:
     "Pools, hammams, and commissioned mosaic murals by AU Mosaic. The work behind the collection.",
 };

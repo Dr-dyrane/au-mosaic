@@ -5,7 +5,7 @@ import { waGeneral, waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Contact and showroom, Agric Market Lagos",
   description: "Visit the showroom at Agric Market, Lagos, or chat with AU Mosaic on WhatsApp.",
 };
 

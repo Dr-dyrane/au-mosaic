@@ -5,7 +5,7 @@ import { waPool } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Pool construction",
+  title: "Swimming pool construction in Lagos",
   description:
     "New swimming pools built from scratch, renovations, and mosaic replacement in Lagos and beyond.",
 };

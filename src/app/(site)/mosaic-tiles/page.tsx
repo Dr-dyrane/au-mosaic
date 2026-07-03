@@ -5,7 +5,7 @@ import { waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, ProductGroupBlock, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Mosaic tiles",
+  title: "Mosaic tiles in Lagos, Nigeria",
   description:
     "Pool mosaics, glass mosaics, art mosaics, and bulk factory orders. Every colour, largest stock in Lagos.",
 };
