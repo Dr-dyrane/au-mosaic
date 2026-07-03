@@ -10,9 +10,6 @@ const px = (path: string, w = 2000) =>
   `https://images.pexels.com/photos/${path}?auto=compress&w=${w}`;
 
 export const IMG = {
-  /* mosaic tiles */
-  bluePatternTiles: px("14579397/pexels-photo-14579397.jpeg"),
-  beetleMosaicArt: px("32325318/pexels-photo-32325318/free-photo-of-intricate-beetle-mosaic-artwork-detail.jpeg"),
   /* pools and water */
   rippledLaneWater: px("6110597/pexels-photo-6110597.jpeg"),
 };
@@ -29,6 +26,9 @@ export const OWN = {
   hammam: "/media/hammam.jpg",
   darkBath: "/media/dark-bath.jpg",
   koiMural: "/media/koi-mural.jpg",
+  beetleMural: "/media/beetle-mural.jpg",
+  borders: "/media/borders.jpg",
+  villaPalms: "/media/villa-palms.jpg",
 };
 
 /* Film: slow ambient loops, owned. The hero film's poster is its own first
@@ -37,10 +37,6 @@ export const OWN = {
    the owner's generated shot: seamless by construction. */
 export const FILM = {
   heroLoop: "/media/dusk-villa-loop.mp4",
-};
-
-export const LUX = {
-  villaPalms: px("30195980/pexels-photo-30195980/free-photo-of-serene-villa-by-infinity-pool-with-palms.jpeg", 2600),
 };
 
 /* Environments: the dream first. Materials follow. */

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { getMosaicRanges } from "@/lib/catalog";
-import { ENVIRONMENTS, FILM, LUX, OWN } from "@/lib/images";
+import { ENVIRONMENTS, FILM, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
 import { ProductCard } from "@/components/ui";
@@ -161,8 +161,8 @@ export default async function Home() {
       {/* Lifestyle: one full-bleed breath */}
       <section className="relative flex min-h-[70svh] items-center overflow-hidden">
         <Image
-          src={LUX.villaPalms}
-          alt="A villa resting beside still water"
+          src={OWN.villaPalms}
+          alt="A stone villa and palms mirrored in still mosaic water"
           fill
           quality={90}
           sizes="100vw"

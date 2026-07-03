@@ -107,6 +107,9 @@ In use, verified live (Pexels, free licence, hotlink):
 | hammam | owned, /media/hammam.jpg | Private Hammam env card, contact page hero, feature-mosaic scene. Retired Pexels 7031713. |
 | darkBath | owned, /media/dark-bath.jpg | Dark Bath env card, glass-mosaic scene. Water film, brass sconce, warm blacks. Retired Pexels 35189678. |
 | koiMural | owned, /media/koi-mural.jpg | the identity frame: Pattern and picture mosaics card and reveal, Art mosaic tile on home. Retired Pexels 10231663. |
+| beetleMural | owned, /media/beetle-mural.jpg | Custom murals card and reveal. Retired Pexels 32325318. |
+| borders | owned, /media/borders.jpg | Patterned pool borders card and reveal, collection page hero. Retired Pexels 14579397. |
+| villaPalms | owned, /media/villa-palms.jpg | the lifestyle breath on home. Retired Pexels 30195980. |
 | bluePatternTiles | 14579397 | blue and white patterned tiles |
 | vibrantGlassMosaic | 28408521 | pixelated sunset glass mosaic |
 | beetleMosaicArt | 32325318 | beetle mosaic artwork |

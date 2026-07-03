@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
-import { LUX } from "@/lib/images";
+import { OWN } from "@/lib/images";
 import { waGeneral } from "@/lib/wa";
 import { MosaicBand } from "@/components/Mosaic";
 import { CtaRow, PageHero, Section } from "@/components/ui";
@@ -17,8 +17,8 @@ export default function AboutPage() {
       <PageHero
         eyebrow="The house"
         title="It started with creativity."
-        image={LUX.villaPalms}
-        alt="A villa resting beside still water"
+        image={OWN.villaPalms}
+        alt="A stone villa and palms mirrored in still mosaic water"
       />
 
       <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-24">
