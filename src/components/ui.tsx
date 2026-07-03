@@ -86,6 +86,22 @@ export function PageHero({
    -mx-5 sm:mx-0); the words keep their margin. */
 export function ProductCard({ item, collection }: { item: Product; collection?: string }) {
   const label = item.variants ? `${item.name} (${item.variants.join(", ")})` : item.name;
+  /* Equipment has no portrait: no image, no colourway. It gets a quiet
+     panel instead of an empty frame. */
+  if (!item.image && !item.colors) {
+    return (
+      <div className="panel mx-5 flex h-full flex-col sm:mx-0">
+        <h3 className="font-serif text-[20px] leading-snug">{item.name}</h3>
+        {item.variants && (
+          <p className="mt-1.5 text-[12px] uppercase tracking-[0.14em] text-mist">{item.variants.join(" · ")}</p>
+        )}
+        {item.note && <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">{item.note}</p>}
+        <a href={waProduct(label)} target="_blank" rel="noopener" data-wa="card" className="link-hair mt-auto pt-4 text-dusk">
+          Enquire
+        </a>
+      </div>
+    );
+  }
   const media = (
     <>
       <div className="relative aspect-[4/5] overflow-hidden rounded-none bg-shell sm:rounded-[22px]">

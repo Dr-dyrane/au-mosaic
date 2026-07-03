@@ -140,6 +140,15 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Icons | favicon, icon, apple-icon regenerated from the same bitmap via scripts/brand-icons.py. One mark everywhere. |
 | Colours | House blues until Nonso's correction arrives; any brand palette then enters through docs/THEMING.md and the theme gate. |
 
+## Premium parity sweep (every page to the same bar)
+
+| Page | Was | Now |
+|---|---|---|
+| Pool materials | 18 equipment cards rendered empty 4:5 grey frames, the weakest page on the site | Imageless products render quiet panels: name, variants, note, enquire. No empty frames anywhere. |
+| 404 | Default Next error page | Maison 404: "This room does not exist," gold action home, WhatsApp aside, wa_tap tagged. |
+| About | Legacy MosaicBand with hardcoded v1 colours, blind to the palette system | The owned craft scene (night and day pair) in a 21:9 band. MosaicBand and MosaicMark now have zero users. |
+| Imageless piece reveals | Full-screen TileSheet | Accepted as systematic; upgrades when per-range photography arrives. TileSheet grout stays pale by intent: real sheets have pale grout in any theme. |
+
 ## The four houses (palette axis)
 
 | Item | Status |

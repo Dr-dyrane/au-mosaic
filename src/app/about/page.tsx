@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
 import { DAY, OWN } from "@/lib/images";
 import { waGeneral } from "@/lib/wa";
-import { MosaicBand } from "@/components/Mosaic";
+import ThemeImage from "@/components/ThemeImage";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -39,8 +39,16 @@ export default function AboutPage() {
             Watch us.
           </p>
         </div>
-        <div className="-mx-5 sm:mx-0">
-          <MosaicBand rows={3} className="h-24 w-full rounded-none sm:rounded-[22px]" />
+        <div className="relative -mx-5 mt-16 aspect-[21/9] overflow-hidden rounded-none sm:mx-0 sm:rounded-[26px]">
+          <ThemeImage
+            dark={OWN.craftHands}
+            light={DAY.craftHands}
+            alt="Hands pressing mosaic into fresh adhesive"
+            fill
+            quality={90}
+            sizes="(max-width: 640px) 100vw, 60vw"
+            className="media-lux object-cover"
+          />
         </div>
       </section>
 
