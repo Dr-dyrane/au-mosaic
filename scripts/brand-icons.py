@@ -7,7 +7,8 @@ from PIL import Image, ImageDraw
 A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"]
 U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"]
 GRID = [A[r] + "." + U[r] for r in range(7)]
-BLUES = ["#a8def2", "#6cc4e6", "#3aa9d6", "#1e8fc0", "#1179a8", "#123f66", "#e8f6fb"]
+# The house metals, night values (icons live on the night canvas).
+TONES = ["#c2a15c", "#a79e8f", "#8f7434", "#f3efe6", "#8a8172"]
 NIGHT = (12, 11, 9)
 
 
@@ -26,7 +27,7 @@ def draw_mark(size):
                 continue
             x, y = pad + c * T, top + r * T
             g = min(max(0.5, T * 0.1), T * 0.35)
-            col = BLUES[(i * 13 + 5) % len(BLUES)]
+            col = TONES[(i * 13 + 5) % len(TONES)]
             d.rounded_rectangle([x + g, y + g, x + T - g, y + T - g], radius=max(0.5, T * 0.15), fill=col)
     return img
 

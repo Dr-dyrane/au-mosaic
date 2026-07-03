@@ -135,8 +135,8 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 
 | Item | Status |
 |---|---|
-| AuMark | Nonso's mosaic "au" sign rebuilt as deterministic SVG tesserae: mixed blues like a real sheet, no period per the client logo, sized to the wordmark so it reads as one name. |
-| No double AU | The mark says au, so the wordmark beside it says only Mosaic. Header and footer updated; aria labels still read AU Mosaic in full. |
+| AuMark | Nonso's au sign in the house metals: theme-token fills so the mark relights itself per theme (brass, stone, ivory at night; deep gold and umber by day). au is the chemical symbol for gold. No period, sized to the wordmark, reads as one name. |
+| No double AU | The mark says au; beside it, lowercase sans mosaic in the system stack (SF Pro on Apple), matching his logo type. Aria labels still read AU Mosaic in full. |
 | Icons | favicon, icon, apple-icon regenerated from the same bitmap via scripts/brand-icons.py. One mark everywhere. |
 | Colours | House blues until Nonso's correction arrives; any brand palette then enters through docs/THEMING.md and the theme gate. |
 

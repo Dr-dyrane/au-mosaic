@@ -10,8 +10,8 @@ export default function Footer() {
         <div className="mx-auto grid max-w-6xl gap-14 px-5 pb-10 pt-16 sm:px-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-2">
-            <AuMark className="h-[21px] w-auto" />
-            <span className="font-serif text-[20px] tracking-wide">Mosaic</span>
+            <AuMark className="h-[19px] w-auto" />
+            <span className="text-[20px] font-semibold tracking-tight">mosaic</span>
           </div>
           <p className="font-serif mt-6 max-w-xs text-[20px] leading-snug text-dusk">
             Everything mosaic, and the water it belongs to.

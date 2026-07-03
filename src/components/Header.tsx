@@ -39,7 +39,7 @@ export default function Header() {
             {/* The mark already says au; sized to the word so it reads
                 as one name: aumosaic. */}
             <AuMark className={`w-auto self-center transition-all duration-500 ${scrolled ? "h-[15px]" : "h-[17px]"}`} />
-            <span className="font-serif whitespace-nowrap text-[16px] tracking-wide">Mosaic</span>
+            <span className="whitespace-nowrap text-[17px] font-semibold tracking-tight">mosaic</span>
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary">
