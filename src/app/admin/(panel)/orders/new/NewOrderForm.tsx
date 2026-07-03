@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import { createOrder, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 
 /* One select, one Save. The order opens as an enquiry and the page
    turns straight to its record, where the lines go on. */
@@ -16,7 +18,7 @@ export default function NewOrderForm({ customers }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(createOrder, null);
 
   return (
-    <form action={action} className="mt-10 grid max-w-xl gap-8">
+    <form onSubmit={keepValues(action)} className="mt-10 grid max-w-xl gap-8">
       <div className="panel grid gap-6">
         <p className="font-serif text-[20px]">Who is buying</p>
         <div>
@@ -59,11 +61,7 @@ export default function NewOrderForm({ customers }: Props) {
         <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the order"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

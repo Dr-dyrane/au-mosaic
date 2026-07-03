@@ -2,20 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { AuMark } from "@/components/Mosaic";
+import { IconEye } from "../(panel)/icons";
 import { login } from "./actions";
 
 /* The back door of the maison. One field, no ceremony, and an eye so
    a long password typed on a phone can be checked before Enter. */
-
-function Eye({ open }: { open: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
-      <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z" />
-      <circle cx="12" cy="12" r="2.6" />
-      {!open && <path d="M4 4l16 16" />}
-    </svg>
-  );
-}
 
 export default function AdminLogin() {
   const [state, action, pending] = useActionState(login, null);
@@ -48,7 +39,7 @@ export default function AdminLogin() {
               aria-pressed={show}
               className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
             >
-              <Eye open={show} />
+              <IconEye open={show} className="h-5 w-5" />
             </button>
           </div>
           {state?.error && (

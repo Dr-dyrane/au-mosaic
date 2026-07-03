@@ -2,19 +2,42 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import ColorsField from "../ColorsField";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 import { buzz } from "@/lib/backoffice";
 import { savePiece, type SaveState } from "../actions";
 
-/* The unsaved guard: touch the form and the browser will ask before
-   the tab closes or reloads. Saving clears it. */
+/* The unsaved guard, both doors: touch the form and the browser asks
+   before the tab closes or reloads, and any in-app link asks before
+   the router walks. Saving clears it; choosing to leave is respected
+   once, not questioned twice. */
 function useUnsavedGuard(saved: boolean) {
   const dirty = useRef(false);
   useEffect(() => {
     const warn = (e: BeforeUnloadEvent) => {
       if (dirty.current) e.preventDefault();
     };
+    /* Capture phase, so the question lands before the router moves.
+       New-tab clicks and modifier clicks keep this page, so they
+       pass unasked. */
+    const guard = (e: MouseEvent) => {
+      if (!dirty.current) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      const a = (e.target as HTMLElement | null)?.closest?.("a[href]");
+      if (!a || a.getAttribute("target") === "_blank") return;
+      if (window.confirm("Leave without saving? The edits on this page will be lost.")) {
+        dirty.current = false;
+      } else {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
     window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
+    document.addEventListener("click", guard, true);
+    return () => {
+      window.removeEventListener("beforeunload", warn);
+      document.removeEventListener("click", guard, true);
+    };
   }, []);
   useEffect(() => {
     if (saved) dirty.current = false;
@@ -51,7 +74,7 @@ export default function PieceForm({ piece, stock }: Props) {
   const markDirty = useUnsavedGuard(!!state?.ok);
 
   return (
-    <form action={action} onChange={markDirty} className="mt-10 grid max-w-3xl gap-8">
+    <form onSubmit={keepValues(action)} onChange={markDirty} className="mt-10 grid max-w-3xl gap-8">
       <input type="hidden" name="slug" value={piece.slug} />
 
       <div className="panel grid gap-6">
@@ -116,11 +139,7 @@ export default function PieceForm({ piece, stock }: Props) {
         <button type="submit" disabled={pending} onClick={() => buzz(5)} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the piece"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

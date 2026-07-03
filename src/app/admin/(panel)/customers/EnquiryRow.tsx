@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState, useOptimistic } from "react";
 import { setEnquiryStatus, type SaveState } from "./actions";
 import { buzz } from "@/lib/backoffice";
 
 /* One fresh enquiry, two quiet answers: replied, or close it. The
+   row clears the instant he taps, the server confirms behind it,
+   and on failure the enquiry walks back with a sentence. The
    conversation itself lives in WhatsApp; this only clears the desk. */
 
 export default function EnquiryRow({
@@ -17,13 +19,33 @@ export default function EnquiryRow({
   when: string;
 }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(setEnquiryStatus, null);
+  const [cleared, clearNow] = useOptimistic<"replied" | "closed" | null, "replied" | "closed">(
+    null,
+    (_c, v) => v
+  );
+
+  const submit = (form: FormData) => {
+    startTransition(() => {
+      clearNow(form.get("to") as "replied" | "closed");
+      action(form);
+    });
+  };
+
+  if (cleared) {
+    return (
+      <p className="py-3 text-[13px] text-dusk" role="status">
+        {cleared === "replied" ? "Marked replied." : "Closed."}
+      </p>
+    );
+  }
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 py-3">
       <div className="min-w-0">
         <p className="truncate text-[14px] text-ink">{line}</p>
         <p className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-mist">{when}</p>
       </div>
-      <form action={action} className="flex shrink-0 items-center gap-5">
+      <form action={submit} className="flex shrink-0 items-center gap-5">
         <input type="hidden" name="id" value={id} />
         <button
           type="submit"
@@ -45,7 +67,11 @@ export default function EnquiryRow({
         >
           Close
         </button>
-        {state && !state.ok && <p className="text-[12px] text-gold">{state.message}</p>}
+        {state && !state.ok && (
+          <p className="text-[12px] text-gold" role="status">
+            {state.message}
+          </p>
+        )}
       </form>
     </div>
   );

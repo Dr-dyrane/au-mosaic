@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import { saveSettings, type SaveState } from "./actions";
+import Sentence from "../Sentence";
+import { keepValues } from "../keep";
 
 /* The facts of the house, one form. WhatsApp is the bloodstream, so
    its number leads. */
@@ -13,7 +15,7 @@ const label = "eyebrow mb-2.5 block";
 export default function SettingsForm({ values }: { values: Record<string, string> }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveSettings, null);
   return (
-    <form action={action} className="panel mt-10 grid max-w-xl gap-6">
+    <form onSubmit={keepValues(action)} className="panel mt-10 grid max-w-xl gap-6">
       <div>
         <label htmlFor="whatsapp" className={label}>WhatsApp number (digits, 234...)</label>
         <input id="whatsapp" name="whatsapp" inputMode="numeric" defaultValue={values.whatsapp ?? ""} aria-label="WhatsApp number" className={field} />
@@ -38,11 +40,7 @@ export default function SettingsForm({ values }: { values: Record<string, string
         <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the facts"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

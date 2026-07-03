@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import { createRange, saveRange, type SaveState } from "./actions";
+import Sentence from "../Sentence";
+import { keepValues } from "../keep";
 
 /* One form for a shelf, new or old. The address is minted once and
    shown, never edited; the name can change any day. */
@@ -20,7 +22,7 @@ export default function RangeForm({ range }: Props) {
     null
   );
   return (
-    <form action={action} className="panel mt-10 grid max-w-xl gap-6">
+    <form onSubmit={keepValues(action)} className="panel mt-10 grid max-w-xl gap-6">
       {range && <input type="hidden" name="slug" value={range.slug} />}
       <div>
         <label htmlFor="name" className={label}>Name</label>
@@ -45,11 +47,7 @@ export default function RangeForm({ range }: Props) {
         <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : range ? "Save the range" : "Create the range"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

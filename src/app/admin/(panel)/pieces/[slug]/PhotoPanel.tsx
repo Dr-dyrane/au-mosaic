@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { removePhoto, uploadPhoto, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 
 /* The face of the piece, in both suns. Two slots, night and day,
    each its own quiet form: pick a file, it uploads on Save, the
@@ -24,8 +26,15 @@ function Slot({
 }) {
   const [upState, upAction, upPending] = useActionState<SaveState, FormData>(uploadPhoto, null);
   const [rmState, rmAction, rmPending] = useActionState<SaveState, FormData>(removePhoto, null);
+  const upRef = useRef<HTMLFormElement>(null);
   const state = upState ?? rmState;
   const isBlob = current?.includes("blob.vercel-storage.com");
+
+  /* A landed photograph clears the picker; a failed one keeps the
+     file he chose. */
+  useEffect(() => {
+    if (upState?.ok) upRef.current?.reset();
+  }, [upState]);
 
   return (
     <div>
@@ -45,7 +54,7 @@ function Slot({
           </p>
         )}
       </div>
-      <form action={upAction} className="mt-4 flex flex-wrap items-center gap-5">
+      <form ref={upRef} onSubmit={keepValues(upAction)} className="mt-4 flex flex-wrap items-center gap-5">
         <input type="hidden" name="slug" value={slug} />
         <input type="hidden" name="which" value={which} />
         <input
@@ -68,11 +77,9 @@ function Slot({
           </button>
         </form>
       )}
-      {state && (
-        <p className={`mt-3 text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-          {state.message}
-        </p>
-      )}
+      <div className="mt-3">
+        <Sentence state={state} />
+      </div>
     </div>
   );
 }

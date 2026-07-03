@@ -8,6 +8,7 @@ import StatusForm from "./StatusForm";
 import AddLineForm from "./AddLineForm";
 import AddPaymentForm from "./AddPaymentForm";
 import Back from "../../Back";
+import { Touch } from "../../touched";
 
 /* The order record: one page that holds the whole sale. The steps
    across the top, every line with list beside given, the money
@@ -56,6 +57,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     <main>
       <Back href="/admin/orders" label="All orders" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
+      <Touch href={`/admin/orders/${id}`} label={`${customer.name}'s order`} room="Orders" />
       <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
         Opened {fmtDate(order.createdAt)} · {STATUS_LABEL[order.status]}
       </p>

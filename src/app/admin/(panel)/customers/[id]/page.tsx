@@ -5,6 +5,8 @@ import { getDb, schema } from "@/db";
 import { naira, waChat } from "@/lib/backoffice";
 import CustomerForm from "./CustomerForm";
 import Back from "../../Back";
+import { IconShare } from "../../icons";
+import { Touch } from "../../touched";
 
 /* The customer record: who they are, what they ordered, what is still
    owed, and their chat one tap away. Billed and paid are summed fresh
@@ -74,6 +76,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     <main>
       <Back href="/admin/customers" label="All customers" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
+      <Touch href={`/admin/customers/${id}`} label={customer.name} room="Customers" />
       {customer.area && (
         <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
           {customer.area}
@@ -84,8 +87,9 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
           href={waChat(customer.phone)}
           target="_blank"
           rel="noreferrer"
-          className="link-hair mt-4 inline-block text-dusk text-[13px]"
+          className="link-hair mt-4 inline-flex items-center gap-1.5 text-dusk text-[13px]"
         >
+          <IconShare className="h-3.5 w-3.5" />
           WhatsApp them
         </a>
       )}

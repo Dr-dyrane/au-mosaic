@@ -1,12 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { addLine, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 import { buzz } from "@/lib/backoffice";
 
 /* Every line carries two prices, list and given. The gap between them
    is the discount, finally a visible number. Given left empty means
-   no discount: it takes the list price. */
+   no discount: it takes the list price. A failure keeps what he
+   typed; a success clears the desk for the next line. */
 
 type Props = {
   orderId: string;
@@ -19,9 +22,14 @@ const label = "eyebrow mb-2.5 block";
 
 export default function AddLineForm({ orderId, pieces }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(addLine, null);
+  const ref = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (state?.ok) ref.current?.reset();
+  }, [state]);
 
   return (
-    <form action={action} className="panel mt-8 grid gap-6">
+    <form ref={ref} onSubmit={keepValues(action)} className="panel mt-8 grid gap-6">
       <p className="font-serif text-[20px]">Add a line</p>
       <input type="hidden" name="orderId" value={orderId} />
       <div className="grid gap-6 sm:grid-cols-2">
@@ -104,11 +112,7 @@ export default function AddLineForm({ orderId, pieces }: Props) {
         <button type="submit" disabled={pending} onClick={() => buzz(5)} className="btn-gold disabled:opacity-60">
           {pending ? "Adding..." : "Add the line"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

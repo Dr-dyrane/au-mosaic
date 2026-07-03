@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { IconRefresh } from "./icons";
 import { buzz } from "@/lib/backoffice";
 
 /* The installed app hides the browser's reload, so the glance carries
@@ -19,8 +20,9 @@ export default function RefreshLine() {
           router.refresh();
           setAt(new Date().toLocaleTimeString("en-NG", { hour: "numeric", minute: "2-digit" }));
         }}
-        className="link-hair ml-3 text-dusk"
+        className="link-hair ml-3 inline-flex items-center gap-1.5 align-bottom text-dusk"
       >
+        <IconRefresh className="h-3 w-3" />
         refresh
       </button>
     </p>

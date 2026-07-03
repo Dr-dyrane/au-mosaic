@@ -1,11 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { addPayment, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 import { buzz } from "@/lib/backoffice";
 
 /* Money in, balance down. Amounts arrive in naira and are kept in
-   kobo, so the arithmetic never loses a coin. */
+   kobo, so the arithmetic never loses a coin. A failure keeps what
+   he typed; a success clears the desk for the next payment. */
 
 const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
@@ -13,9 +16,14 @@ const label = "eyebrow mb-2.5 block";
 
 export default function AddPaymentForm({ orderId }: { orderId: string }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(addPayment, null);
+  const ref = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (state?.ok) ref.current?.reset();
+  }, [state]);
 
   return (
-    <form action={action} className="panel mt-8 grid gap-6">
+    <form ref={ref} onSubmit={keepValues(action)} className="panel mt-8 grid gap-6">
       <p className="font-serif text-[20px]">Record a payment</p>
       <input type="hidden" name="orderId" value={orderId} />
       <div className="grid gap-6 sm:grid-cols-2">
@@ -69,11 +77,7 @@ export default function AddPaymentForm({ orderId }: { orderId: string }) {
         >
           {pending ? "Recording..." : "Record the payment"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

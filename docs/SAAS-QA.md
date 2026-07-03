@@ -27,12 +27,14 @@ means not built yet. Update the verdicts as passes land.
 |---|---|
 | Inline validation with sentences | Pass |
 | Pending states on submit | Pass (Saving..., disabled) |
-| Optimistic where safe | Partial (order status only, by design) |
+| Optimistic where safe | Pass (order status, delivery steps, enquiry clears; adds stay confirmed by design) |
 | Server-side auth on every action | Pass (hasSession first line) |
 | Server-side input validation | Pass (enums, ints, hex, uuid guards) |
 | Idempotent seeds and migrations | Pass |
 | No destructive actions | Pass (no hard deletes anywhere, by law) |
-| Unsaved-changes warning | Partial (piece record, browser-level) |
+| Unsaved-changes warning | Pass (piece record: browser reload and in-app links both ask) |
+| Failures keep typed values | Pass (onSubmit transition sidesteps the action auto-reset; add-forms clear on success only) |
+| Saves answer accessibly | Pass (Sentence takes focus, role=status; successes fade, failures stay) |
 | Keyboard submit (Enter) | Pass (native forms) |
 
 ## Navigation and IA
@@ -104,31 +106,31 @@ The senior review's ten and the owner's seven, merged, deduplicated,
 and tiered by ship order. This is the UI/UX sprint board; move items
 up as they land, never delete them.
 
-### Now (the Feel sprint)
+### Now (the Feel sprint) · SHIPPED, all seven
 
 | # | Item | Size |
 |---|---|---|
-| 1 | Sticky Save bar in thumb reach on long forms (piece record first), like the site's piece-bar | M |
-| 2 | Haptics on every mutation: save, status move, delivery step, enquiry clear (buzz pattern from the visualizer) | S |
-| 3 | Press states on every tappable: chips, cards, links; nothing is inert under the finger | S |
-| 4 | Per-room skeletons that mirror the real layout (stock as range headers plus card pairs, record as photo panel plus form blocks), fade in after 250ms so fast loads never flash, sweep shimmer, reduced-motion safe | M |
-| 5 | Stock filters: desktop chip row (All, Tiles, Materials, Running low, hue dots bucketed from first colour); mobile Filter chip opens a glass bottom sheet with big touch rows; all URL-carried | M |
-| 6 | Tabular numerals on all money and counts (font-variant-numeric) so naira align digit for digit | S |
-| 7 | Designated CTA law: Title (what), one line (why), one gold (do), content (explore). Glance gains New order; Who owes what gains gold on the oldest debt's reminder; read-only archives exempt | S |
+| 1 | SHIPPED. Sticky Save bar in thumb reach on long forms (piece record first), like the site's piece-bar | M |
+| 2 | SHIPPED. Haptics on every mutation: save, status move, delivery step, enquiry clear (buzz pattern from the visualizer) | S |
+| 3 | SHIPPED. Press states on every tappable: chips, cards, links; nothing is inert under the finger | S |
+| 4 | SHIPPED. Per-room skeletons that mirror the real layout, fade in after 250ms so fast loads never flash, sweep shimmer, reduced-motion safe | M |
+| 5 | SHIPPED. Stock filters: desktop chip row (All, Tiles, Materials, Running low, hue dots); mobile glass bottom sheet; all URL-carried | M |
+| 6 | SHIPPED. Tabular numerals on all money and counts so naira align digit for digit | S |
+| 7 | SHIPPED. Designated CTA law: glance gains New order; the oldest debt wears the ledger's one gold; read-only archives exempt | S |
 
-### Next
+### Next · SHIPPED, all nine
 
 | # | Item | Size |
 |---|---|---|
-| 8 | Doherty threshold: every mutation answers visibly inside 100ms; optimistic deliveries and enquiry clears join the status chips | M |
-| 9 | Success sentences take focus (VoiceOver hears them) and fade after a few seconds; failures always keep typed values | S |
-| 10 | Search consistency: type=search everywhere (native clear), pending affordance while the page answers | S |
-| 11 | Insights visualisation: inline SVG sparklines, delta sentences in words ("June up 34% on May"), trailing-3-month pace, honest projection ("If the pace holds: ₦X this month"), Steady or Watch state chips per panel | M |
-| 12 | Zeigarnik open loops: "No lines yet" badge on enquiry-stage order cards, draft count in the stockroom; unfinished work pulls him back | S |
-| 13 | Recognition over recall: the glance lists the last three records he touched, so morning starts where yesterday ended | M |
-| 14 | Refresh affordance in the installed app: quiet "Updated 9:41 · refresh" line on the glance (standalone hides the browser reload) | S |
-| 15 | Functional micro-icon set, six at most, house-drawn inline SVG (back, eye, filter, close, share, refresh); typography stays the identity; icons only for verbs the thumb knows | S |
-| 16 | Unsaved-changes guard on long forms | SHIPPED at browser level on the piece record (beforeunload when dirty, cleared by Save); in-app nav guard remains | M |
+| 8 | SHIPPED. Doherty threshold: optimistic deliveries and enquiry clears join the status chips; every mutation answers inside 100ms | M |
+| 9 | SHIPPED. Success sentences take focus (VoiceOver hears them) and fade after four seconds; failures always keep typed values (submits ride onSubmit transitions so the action auto-reset never eats a field) | S |
+| 10 | SHIPPED. Search consistency: type=search everywhere (native clear) | S |
+| 11 | SHIPPED. Insights visualisation: inline SVG sparkline on the month bars, delta sentences in words, trailing-3-month pace, honest projection, Steady or Watch chips on the four panels that carry a state (billed, leak, debts, stock) | M |
+| 12 | SHIPPED. Zeigarnik open loops: "No lines yet" on enquiry-stage order cards, draft count in the stockroom | S |
+| 13 | SHIPPED. Recognition over recall: the glance lists the last three records he touched (his device remembers, the database is never asked) | M |
+| 14 | SHIPPED. Refresh affordance in the installed app: "Updated 9:41 · refresh" line on the glance | S |
+| 15 | SHIPPED. Functional micro-icon set, six house-drawn inline SVG verbs: back, eye, filter, close, share, refresh; typography stays the identity | S |
+| 16 | SHIPPED, both doors. Unsaved-changes guard on the piece record: beforeunload for reload and close, a capture-phase ask on in-app links, saving clears it, choosing to leave is asked once | M |
 
 ### Later and ongoing
 
@@ -156,5 +158,6 @@ up as they land, never delete them.
 2. Sort controls where the fixed sort stops being enough.
 3. CSV export (orders, debts) for his accountant.
 4. Date-range picker on insights.
-5. Unsaved-changes guard on long forms.
-6. Rate limiting and audit trail, with staff accounts.
+5. Rate limiting and audit trail, with staff accounts.
+
+(Unsaved-changes guard shipped with feel item 16.)

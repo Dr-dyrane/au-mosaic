@@ -2,6 +2,7 @@ import Link from "next/link";
 import { count, eq, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import RefreshLine from "./RefreshLine";
+import { LastTouched } from "./touched";
 
 /* The morning glance: five numbers that used to live on paper.
    Force-dynamic because a back office is never stale; the queries run
@@ -67,6 +68,7 @@ export default async function AdminHome() {
           New order
         </Link>
       </div>
+      <LastTouched />
 
       {!p.ok && (
         <div className="panel mt-10 max-w-md">

@@ -2,9 +2,12 @@
 
 import { useActionState } from "react";
 import { saveCustomer, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 
 /* The same fields he met on the way in, one Save. The action answers
-   in a sentence and the record above stays fresh. */
+   in a sentence and the record above stays fresh. A failure never
+   eats what he typed. */
 
 type Props = {
   customer: { id: string; name: string; phone: string; area: string; note: string };
@@ -18,7 +21,7 @@ export default function CustomerForm({ customer }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveCustomer, null);
 
   return (
-    <form action={action} className="mt-4 grid gap-8">
+    <form onSubmit={keepValues(action)} className="mt-4 grid gap-8">
       <input type="hidden" name="id" value={customer.id} />
 
       <div className="panel grid gap-6">
@@ -76,11 +79,7 @@ export default function CustomerForm({ customer }: Props) {
         <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the customer"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

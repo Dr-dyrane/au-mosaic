@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import { createDelivery, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 
 /* One form, one Save. Labels speak shop floor: the order it belongs
    to, where it is going, who carries it, the day it goes. On success
@@ -17,7 +19,7 @@ export default function NewDeliveryForm({ orders }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(createDelivery, null);
 
   return (
-    <form action={action} className="mt-10 grid max-w-3xl gap-8">
+    <form onSubmit={keepValues(action)} className="mt-10 grid max-w-3xl gap-8">
       <div className="panel grid gap-6">
         <p className="font-serif text-[20px]">The job</p>
         <div>
@@ -79,11 +81,7 @@ export default function NewDeliveryForm({ orders }: Props) {
         <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the delivery"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

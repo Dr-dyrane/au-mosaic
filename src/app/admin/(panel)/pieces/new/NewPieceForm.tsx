@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import ColorsField from "../ColorsField";
 import { createPiece, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 
 /* Birth certificate for a piece: a name and a shelf. Everything else
    can wait for the record page. Drafts by default; the window is a
@@ -15,7 +17,7 @@ const label = "eyebrow mb-2.5 block";
 export default function NewPieceForm({ ranges }: { ranges: { slug: string; name: string }[] }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(createPiece, null);
   return (
-    <form action={action} className="panel mt-10 grid max-w-xl gap-6">
+    <form onSubmit={keepValues(action)} className="panel mt-10 grid max-w-xl gap-6">
       <div>
         <label htmlFor="name" className={label}>Name</label>
         <input id="name" name="name" required aria-label="Piece name" placeholder="Emerald pool blend" className={field} />
@@ -51,11 +53,7 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
         <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
           {pending ? "Creating..." : "Create the piece"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

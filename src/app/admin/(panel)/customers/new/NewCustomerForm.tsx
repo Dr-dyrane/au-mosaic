@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import { createCustomer, type SaveState } from "../actions";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 
 /* One form, one Save. The action answers in a sentence, and on
    success walks him straight into the new record. */
@@ -14,7 +16,7 @@ export default function NewCustomerForm() {
   const [state, action, pending] = useActionState<SaveState, FormData>(createCustomer, null);
 
   return (
-    <form action={action} className="mt-10 grid max-w-3xl gap-8">
+    <form onSubmit={keepValues(action)} className="mt-10 grid max-w-3xl gap-8">
       <div className="panel grid gap-6">
         <p className="font-serif text-[20px]">Who they are</p>
         <div>
@@ -56,11 +58,7 @@ export default function NewCustomerForm() {
         <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the customer"}
         </button>
-        {state && (
-          <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-            {state.message}
-          </p>
-        )}
+        <Sentence state={state} />
       </div>
     </form>
   );

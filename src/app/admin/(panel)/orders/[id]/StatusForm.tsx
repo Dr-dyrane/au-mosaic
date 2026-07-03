@@ -1,8 +1,10 @@
 "use client";
 
-import { startTransition, useActionState, useOptimistic } from "react";
+import { useActionState, useOptimistic } from "react";
 import { setStatus, type SaveState } from "../actions";
 import { PIPELINE, STATUS_LABEL, type OrderStatus as Step } from "../pipeline";
+import Sentence from "../../Sentence";
+import { keepValues } from "../../keep";
 import { buzz } from "@/lib/backoffice";
 
 /* The one lever on the record: where the order stands. Optimistic on
@@ -18,12 +20,10 @@ export default function StatusForm({ orderId, status }: { orderId: string; statu
   const [state, action, pending] = useActionState<SaveState, FormData>(setStatus, null);
   const [shown, showNow] = useOptimistic<Step, Step>(status, (_current, next) => next);
 
-  const submit = (form: FormData) => {
-    startTransition(() => {
-      showNow(form.get("status") as Step);
-      action(form);
-    });
-  };
+  const submit = keepValues((form) => {
+    showNow(form.get("status") as Step);
+    action(form);
+  });
 
   return (
     <div>
@@ -35,7 +35,7 @@ export default function StatusForm({ orderId, status }: { orderId: string; statu
           </span>
         ))}
       </div>
-      <form action={submit} className="mt-6 grid gap-4 sm:max-w-xs">
+      <form onSubmit={submit} className="mt-6 grid gap-4 sm:max-w-xs">
         <input type="hidden" name="id" value={orderId} />
         <div>
           <label htmlFor="status" className="eyebrow mb-2.5 block">
@@ -64,11 +64,7 @@ export default function StatusForm({ orderId, status }: { orderId: string; statu
           >
             {pending ? "Saving..." : "Save the step"}
           </button>
-          {state && (
-            <p className={`text-[13px] ${state.ok ? "text-dusk" : "text-gold"}`} role="status">
-              {state.message}
-            </p>
-          )}
+          <Sentence state={state} />
         </div>
       </form>
     </div>

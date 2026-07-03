@@ -23,6 +23,43 @@ function Bar({ frac }: { frac: number }) {
   );
 }
 
+/* The six months as one line, drawn on the server. The bars carry
+   the numbers; this carries the shape. */
+function Spark({ values }: { values: number[] }) {
+  if (values.length < 2) return null;
+  const max = Math.max(1, ...values);
+  const pts = values
+    .map((v, i) => `${((i / (values.length - 1)) * 112 + 4).toFixed(1)},${(24 - (v / max) * 18).toFixed(1)}`)
+    .join(" ");
+  return (
+    <svg viewBox="0 0 120 28" className="h-7 w-[7.5rem]" aria-hidden>
+      <polyline
+        points={pts}
+        fill="none"
+        stroke="var(--color-gold)"
+        strokeOpacity="0.7"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/* One word of judgement per panel, earned from the data behind it:
+   Steady when the number behaves, Watch when it asks for his eye. */
+function State({ watch }: { watch: boolean }) {
+  return (
+    <span
+      className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+        watch ? "bg-gold/15 text-gold" : "bg-shell/55 text-mist"
+      }`}
+    >
+      {watch ? "Watch" : "Steady"}
+    </span>
+  );
+}
+
 export default async function InsightsPage() {
   const db = getDb();
 
@@ -43,7 +80,8 @@ export default async function InsightsPage() {
 
   const leak = await db.execute(sql`
     select coalesce(sum(case when i.given_price_kobo < i.list_price_kobo
-             then (i.list_price_kobo - i.given_price_kobo) * i.quantity else 0 end), 0)::bigint as total
+             then (i.list_price_kobo - i.given_price_kobo) * i.quantity else 0 end), 0)::bigint as total,
+           coalesce(sum(i.given_price_kobo * i.quantity), 0)::bigint as billed
     from order_items i`);
 
   const aging = await db.execute(sql`
@@ -74,7 +112,11 @@ export default async function InsightsPage() {
   const pieces = rowsOf<{ name: string; revenue: number }>(topPieces);
   const buckets = rowsOf<{ bucket: string; n: number; owed: number }>(aging);
   const taps = rowsOf<{ source: string; n: number }>(sources);
-  const leakTotal = Number(rowsOf<{ total: number }>(leak)[0]?.total ?? 0);
+  const leakRow = rowsOf<{ total: number; billed: number }>(leak)[0];
+  const leakTotal = Number(leakRow?.total ?? 0);
+  const billedAll = Number(leakRow?.billed ?? 0);
+  /* A tenth of billed walking away is worth an eye. */
+  const leakWatch = billedAll > 0 && leakTotal >= billedAll / 10;
   const maxMonth = Math.max(1, ...months.map((m) => Number(m.billed)));
   const maxPiece = Math.max(1, ...pieces.map((p) => Number(p.revenue)));
   const maxTap = Math.max(1, ...taps.map((t) => t.n));
@@ -109,7 +151,13 @@ export default async function InsightsPage() {
 
       <div className="mt-10 grid gap-5 lg:grid-cols-2">
         <section className="panel">
-          <p className="font-serif text-[20px]">Billed, month by month</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-serif text-[20px]">Billed, month by month</p>
+            <span className="flex items-center gap-3">
+              <Spark values={months.map((m) => Number(m.billed))} />
+              {delta !== null && <State watch={delta < 0} />}
+            </span>
+          </div>
           {months.length === 0 && (
             <p className="mt-3 text-[14px] leading-relaxed text-dusk">
               The first order draws the first bar.
@@ -157,7 +205,10 @@ export default async function InsightsPage() {
         </section>
 
         <section className="panel">
-          <p className="font-serif text-[20px]">The discount leak</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-serif text-[20px]">The discount leak</p>
+            {billedAll > 0 && <State watch={leakWatch} />}
+          </div>
           <p className="font-serif mt-4 text-[26px]">{naira(leakTotal)}</p>
           <p className="mt-2 text-[13px] leading-relaxed text-dusk">
             Given below list, all time. If this number grows faster than
@@ -167,7 +218,10 @@ export default async function InsightsPage() {
         </section>
 
         <section className="panel">
-          <p className="font-serif text-[20px]">How old the debts are</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-serif text-[20px]">How old the debts are</p>
+            <State watch={buckets.some((b) => b.bucket === "Older than two months")} />
+          </div>
           {buckets.length === 0 && (
             <p className="mt-3 text-[14px] leading-relaxed text-dusk">
               Nobody owes the house today.
@@ -207,7 +261,10 @@ export default async function InsightsPage() {
         </section>
 
         <section className="panel">
-          <p className="font-serif text-[20px]">Stock pressure</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-serif text-[20px]">Stock pressure</p>
+            <State watch={lowStock.length > 0} />
+          </div>
           {lowStock.length === 0 && (
             <p className="mt-3 text-[14px] leading-relaxed text-dusk">
               Nothing is running low. The shelves are calm.

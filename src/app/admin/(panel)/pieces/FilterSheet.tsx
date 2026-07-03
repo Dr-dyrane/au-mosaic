@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { buzz } from "@/lib/backoffice";
 
+import { IconClose, IconFilter } from "../icons";
 import { HUES, makeStockHref, type StockFilters } from "./stock-filters";
 
 /* The phone's filter: one chip opens a glass sheet from the bottom
@@ -54,6 +55,7 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
         className={`chip-solid ${active > 0 ? "is-on" : ""}`}
         aria-expanded={open}
       >
+        <IconFilter className="h-3.5 w-3.5" />
         Filter{active > 0 ? ` · ${active}` : ""}
       </button>
       {open && (
@@ -64,7 +66,16 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
           />
           <div className="glass absolute inset-x-0 bottom-0 rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
-            <p className="eyebrow px-2">Show</p>
+            <div className="flex items-center justify-between px-2">
+              <p className="eyebrow">Show</p>
+              <button
+                onClick={close}
+                aria-label="Close filters"
+                className="-mr-2 flex h-9 w-9 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
+              >
+                <IconClose className="h-4 w-4" />
+              </button>
+            </div>
             <div className="mt-3 grid gap-1">
               <Row onPick={close} href={makeStockHref(current, { family: undefined })} on={!current.family}>
                 Everything
