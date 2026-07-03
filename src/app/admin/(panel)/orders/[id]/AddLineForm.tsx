@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { addLine, type SaveState } from "../actions";
+import { buzz } from "@/lib/backoffice";
 
 /* Every line carries two prices, list and given. The gap between them
    is the discount, finally a visible number. Given left empty means
@@ -100,7 +101,7 @@ export default function AddLineForm({ orderId, pieces }: Props) {
         </div>
       </div>
       <div className="flex items-center gap-6">
-        <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
+        <button type="submit" disabled={pending} onClick={() => buzz(5)} className="btn-gold disabled:opacity-60">
           {pending ? "Adding..." : "Add the line"}
         </button>
         {state && (

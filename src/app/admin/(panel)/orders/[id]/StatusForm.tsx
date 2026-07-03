@@ -3,6 +3,7 @@
 import { startTransition, useActionState, useOptimistic } from "react";
 import { setStatus, type SaveState } from "../actions";
 import { PIPELINE, STATUS_LABEL, type OrderStatus as Step } from "../pipeline";
+import { buzz } from "@/lib/backoffice";
 
 /* The one lever on the record: where the order stands. Optimistic on
    purpose: the chip moves the instant he saves, the server confirms
@@ -58,6 +59,7 @@ export default function StatusForm({ orderId, status }: { orderId: string; statu
           <button
             type="submit"
             disabled={pending}
+            onClick={() => buzz(5)}
             className="link-hair text-[13px] disabled:opacity-60"
           >
             {pending ? "Saving..." : "Save the step"}

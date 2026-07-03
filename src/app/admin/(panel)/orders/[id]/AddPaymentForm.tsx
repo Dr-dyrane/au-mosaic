@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { addPayment, type SaveState } from "../actions";
+import { buzz } from "@/lib/backoffice";
 
 /* Money in, balance down. Amounts arrive in naira and are kept in
    kobo, so the arithmetic never loses a coin. */
@@ -63,7 +64,7 @@ export default function AddPaymentForm({ orderId }: { orderId: string }) {
       <div className="flex items-center gap-6">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending} onClick={() => buzz(5)}
           className="link-hair text-[13px] disabled:opacity-60"
         >
           {pending ? "Recording..." : "Record the payment"}

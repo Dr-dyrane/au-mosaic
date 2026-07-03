@@ -55,7 +55,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!(await hasSession())) redirect("/admin/login");
   const owed = await owedCount();
   return (
-    <div className="mx-auto min-h-svh max-w-6xl px-5 pb-32 sm:px-8 sm:pb-24">
+    <div className="tabular-nums mx-auto min-h-svh max-w-6xl px-5 pb-32 sm:px-8 sm:pb-24">
       <header className="flex items-center justify-between gap-6 pb-10 pt-8">
         <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
           <AuMark className="h-[14px] w-auto" />

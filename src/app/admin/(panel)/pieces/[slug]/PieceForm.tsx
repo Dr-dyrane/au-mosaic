@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import ColorsField from "../ColorsField";
+import { buzz } from "@/lib/backoffice";
 import { savePiece, type SaveState } from "../actions";
 
 /* One form, one Save. Labels speak shop floor, not database: sheets in
@@ -89,8 +90,10 @@ export default function PieceForm({ piece, stock }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
-        <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
+      {/* The Save lives under the thumb on a long page: a glass bar
+          that rides above the tab bar until the desk takes over. */}
+      <div className="glass sticky bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 -mx-2 flex items-center gap-6 rounded-full px-4 py-3 sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-filter-none">
+        <button type="submit" disabled={pending} onClick={() => buzz(5)} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the piece"}
         </button>
         {state && (

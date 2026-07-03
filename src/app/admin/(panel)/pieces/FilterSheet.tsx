@@ -1,0 +1,124 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { buzz } from "@/lib/backoffice";
+
+/* The phone's filter: one chip opens a glass sheet from the bottom
+   edge, big rows, each a link so the URL carries the view. Tapping a
+   row navigates and the sheet lets go. */
+
+export type StockFilters = { family?: string; low?: string; hue?: string };
+
+export function makeStockHref(cur: StockFilters, patch: Partial<StockFilters>) {
+  const next = { ...cur, ...patch };
+  const p = new URLSearchParams();
+  if (next.family) p.set("family", next.family);
+  if (next.low) p.set("low", "1");
+  if (next.hue) p.set("hue", next.hue);
+  const s = p.toString();
+  return s ? `/admin/pieces?${s}` : "/admin/pieces";
+}
+
+export const HUES = [
+  { key: "blue", dot: "#3aa9d6", label: "Blues" },
+  { key: "green", dot: "#4f8a6d", label: "Greens" },
+  { key: "earth", dot: "#b0703c", label: "Earth" },
+  { key: "neutral", dot: "#b8b2a6", label: "Neutrals" },
+];
+
+function Row({
+  href,
+  on,
+  onPick,
+  children,
+}: {
+  href: string;
+  on: boolean;
+  onPick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={() => {
+        buzz(3);
+        onPick();
+      }}
+      className={`flex min-h-12 items-center justify-between rounded-[18px] px-5 text-[15px] transition-colors duration-200 ${
+        on ? "bg-shell text-ink" : "text-dusk"
+      }`}
+    >
+      {children}
+      {on && <span className="text-[11px] uppercase tracking-[0.14em] text-gold">On</span>}
+    </Link>
+  );
+}
+
+export default function FilterSheet({ current }: { current: StockFilters }) {
+  const [open, setOpen] = useState(false);
+  const active =
+    (current.family ? 1 : 0) + (current.low ? 1 : 0) + (current.hue ? 1 : 0);
+  const close = () => setOpen(false);
+
+  return (
+    <div className="sm:hidden">
+      <button
+        onClick={() => {
+          buzz(3);
+          setOpen(true);
+        }}
+        className={`chip-solid ${active > 0 ? "is-on" : ""}`}
+        aria-expanded={open}
+      >
+        Filter{active > 0 ? ` · ${active}` : ""}
+      </button>
+      {open && (
+        <div className="fixed inset-0 z-50">
+          <button
+            aria-label="Close filters"
+            onClick={close}
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+          />
+          <div className="glass absolute inset-x-0 bottom-0 rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+            <p className="eyebrow px-2">Show</p>
+            <div className="mt-3 grid gap-1">
+              <Row onPick={close} href={makeStockHref(current, { family: undefined })} on={!current.family}>
+                Everything
+              </Row>
+              <Row onPick={close} href={makeStockHref(current, { family: "mosaic" })} on={current.family === "mosaic"}>
+                The tiles
+              </Row>
+              <Row onPick={close} href={makeStockHref(current, { family: "pool" })} on={current.family === "pool"}>
+                The pool materials
+              </Row>
+              <Row
+                onPick={close}
+                href={makeStockHref(current, { low: current.low ? undefined : "1" })}
+                on={!!current.low}
+              >
+                Running low only
+              </Row>
+            </div>
+            <p className="eyebrow mt-5 px-2">Colour</p>
+            <div className="mt-3 grid gap-1">
+              {HUES.map((h) => (
+                <Row
+                  key={h.key}
+                  onPick={close}
+                  href={makeStockHref(current, { hue: current.hue === h.key ? undefined : h.key })}
+                  on={current.hue === h.key}
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="h-4 w-4 rounded-full" style={{ background: h.dot }} />
+                    {h.label}
+                  </span>
+                </Row>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

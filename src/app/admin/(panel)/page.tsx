@@ -60,6 +60,11 @@ export default async function AdminHome() {
         </Link>
       </div>
       <h1 className="font-serif text-display-section mt-8">The house, in numbers.</h1>
+      <div className="mt-7">
+        <Link href="/admin/orders/new" className="btn-gold">
+          New order
+        </Link>
+      </div>
 
       {!p.ok && (
         <div className="panel mt-10 max-w-md">

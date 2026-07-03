@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { setEnquiryStatus, type SaveState } from "./actions";
+import { buzz } from "@/lib/backoffice";
 
 /* One fresh enquiry, two quiet answers: replied, or close it. The
    conversation itself lives in WhatsApp; this only clears the desk. */
@@ -28,6 +29,7 @@ export default function EnquiryRow({
           type="submit"
           name="to"
           value="replied"
+          onClick={() => buzz(4)}
           disabled={pending}
           className="link-hair text-dusk text-[12px] disabled:opacity-60"
         >
@@ -37,6 +39,7 @@ export default function EnquiryRow({
           type="submit"
           name="to"
           value="closed"
+          onClick={() => buzz(4)}
           disabled={pending}
           className="link-hair text-mist text-[12px] disabled:opacity-60"
         >

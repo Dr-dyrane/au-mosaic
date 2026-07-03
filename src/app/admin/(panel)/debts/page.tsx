@@ -110,12 +110,14 @@ export default async function DebtsPage() {
       )}
 
       <div className="mt-10 grid max-w-2xl gap-4">
-        {debtors.map((d) => (
+        {debtors.map((d, i) => (
           <section key={d.id} className="panel">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <p className="font-serif text-[20px]">{d.name}</p>
               <p className="font-serif text-[22px]">{naira(d.total)}</p>
             </div>
+            {/* The oldest debt wears the room's one gold: the decision
+                is made before the eye finishes the page. */}
             {d.phone && (
               <a
                 href={waChat(
@@ -124,9 +126,9 @@ export default async function DebtsPage() {
                 )}
                 target="_blank"
                 rel="noopener"
-                className="link-hair mt-2 text-[13px] text-dusk"
+                className={i === 0 ? "btn-gold mt-4 inline-flex" : "link-hair mt-2 text-[13px] text-dusk"}
               >
-                WhatsApp them
+                {i === 0 ? "Send the oldest reminder" : "WhatsApp them"}
               </a>
             )}
             <div className="mt-5 grid gap-3">

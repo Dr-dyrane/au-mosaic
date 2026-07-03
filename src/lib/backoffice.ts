@@ -15,6 +15,14 @@ export function parseNaira(input: string): number {
   return Math.round(n * 100);
 }
 
+/* A tick in the hand where the platform allows. Client-side only;
+   silently nothing elsewhere. */
+export function buzz(ms = 4) {
+  try {
+    if (typeof navigator !== "undefined") navigator.vibrate?.(ms);
+  } catch {}
+}
+
 /* Nigerian numbers arrive as 0803..., 803..., or 234803...; WhatsApp
    wants 234803... */
 export function waChat(phone: string, text?: string) {
