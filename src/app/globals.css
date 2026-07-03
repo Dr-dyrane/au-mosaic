@@ -78,6 +78,12 @@ p { text-wrap: pretty; }
 
 .font-serif { font-family: var(--font-serif); }
 
+/* The type ramp. Nine sizes, big jumps, one display leading. Displays live
+   here; static sizes are 11, 12, 14, 16, 20, 26 and nothing between. */
+.text-display-hero { font-size: clamp(2.8rem, 8vw, 5.5rem); line-height: 1.05; }
+.text-display-page { font-size: clamp(2.4rem, 6.5vw, 4.2rem); line-height: 1.05; }
+.text-display-section { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.15; }
+
 .eyebrow {
   font-size: 11px;
   font-weight: 600;
@@ -146,14 +152,14 @@ p { text-wrap: pretty; }
   color: #14110b;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 16px 30px;
   border-radius: 999px;
   transition: transform 0.3s var(--ease-glide), background 0.3s var(--ease-glide);
 }
 .btn-gold:hover { transform: translateY(-1px); background: #d3b26c; }
-.btn-gold:active { transform: translateY(0); }
+.btn-gold:active { transform: translateY(0) scale(0.97); }
 
 /* ---- keyboard focus ---------------------------------------------------------- */
 
@@ -173,7 +179,7 @@ p { text-wrap: pretty; }
   color: #14110b;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 12px 20px;
   border-radius: 999px;
@@ -225,14 +231,22 @@ p { text-wrap: pretty; }
 
 /* ---- floating piece bar ---------------------------------------------------------- */
 
+/* Rises when the hero action leaves; glides back out the way it came. */
 .piece-bar {
-  transform: translateX(-50%);
-  animation: bar-up 0.5s var(--ease-glide);
+  opacity: 0;
+  transform: translateX(-50%) translateY(16px);
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease-glide), transform 0.5s var(--ease-glide);
 }
-@keyframes bar-up {
-  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+.piece-bar.is-in {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }
+
+/* Capsules feel physical under the finger. */
+a:active .chip-glass,
+.chip-glass:active { transform: scale(0.97); }
 
 /* ---- cinema: every page arrives, nothing snaps ------------------------------------ */
 
@@ -267,7 +281,8 @@ p { text-wrap: pretty; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .kenburns { animation: none; }
   .img-glide, .group:hover .img-glide { transition: none; transform: none; }
-  .island-panel, .piece-bar { animation: none; }
+  .island-panel { animation: none; }
+  .piece-bar { transition: none; }
   .page-enter { animation: none; }
   .cap-reveal { opacity: 1; transform: none; transition: none; }
 }

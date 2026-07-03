@@ -47,14 +47,14 @@ export default function Home() {
         <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
           <Reveal>
             <p className="eyebrow">AU Mosaic · Lagos</p>
-            <h1 className="font-serif mt-5 max-w-3xl text-[clamp(2.8rem,8vw,5.5rem)] leading-[1.04] text-white">
+            <h1 className="font-serif text-display-hero mt-5 max-w-3xl text-white">
               Spaces that begin with water.
             </h1>
-            <p className="mt-6 max-w-md text-[17px] leading-relaxed text-white/80">
+            <p className="mt-6 max-w-md text-[16px] leading-relaxed text-white/80">
               Mosaic for pools, walls, and rooms people remember.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-8">
-              <a href={waQuote()} target="_blank" rel="noopener" className="btn-gold">
+              <a href={waQuote()} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
                 Begin a project
               </a>
               <Link href="/mosaic-tiles" className="link-hair text-white">
@@ -69,7 +69,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
         <Reveal>
           <p className="eyebrow">Environments</p>
-          <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+          <h2 className="font-serif text-display-section mt-4 max-w-xl">
             Begin with the dream.
           </h2>
           <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
@@ -119,7 +119,7 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
             <Reveal>
               <p className="eyebrow">Materials</p>
-              <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+              <h2 className="font-serif text-display-section mt-4 max-w-xl">
                 Three ways to build with light.
               </h2>
             </Reveal>
@@ -130,7 +130,7 @@ export default function Home() {
                     <div className="relative aspect-square overflow-hidden rounded-[22px]">
                       <Image src={m.src} alt={m.title} fill sizes="33vw" className="img-glide object-cover" />
                     </div>
-                    <h3 className="font-serif mt-6 text-[22px] transition-colors duration-300 group-hover:text-gold">{m.title}</h3>
+                    <h3 className="font-serif mt-6 text-[20px] transition-colors duration-300 group-hover:text-gold">{m.title}</h3>
                     <p className="mt-2 text-[14px] text-dusk">{m.line}</p>
                   </Link>
                 </Reveal>
@@ -152,7 +152,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[rgba(12,11,9,0.45)]" />
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
           <Reveal>
-            <p className="font-serif max-w-2xl text-[clamp(1.8rem,4.5vw,3.2rem)] leading-tight text-white">
+            <p className="font-serif text-display-section max-w-2xl text-white">
               The room people remember is the one you built slowly.
             </p>
           </Reveal>
@@ -163,7 +163,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
         <Reveal>
           <p className="eyebrow">The collection</p>
-          <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+          <h2 className="font-serif text-display-section mt-4 max-w-xl">
             Five pieces. The rest when you are ready.
           </h2>
         </Reveal>
@@ -175,7 +175,7 @@ export default function Home() {
           ))}
           <Reveal delay={160}>
             <Link href="/mosaic-tiles" className="panel group flex h-full min-h-64 flex-col justify-center">
-              <p className="font-serif text-[24px] leading-snug transition-colors duration-300 group-hover:text-gold">
+              <p className="font-serif text-[26px] leading-snug transition-colors duration-300 group-hover:text-gold">
                 Explore the collection
               </p>
               <p className="mt-2 text-[14px] text-mist">Every range, every colour, from stock.</p>
@@ -196,7 +196,7 @@ export default function Home() {
           <Reveal delay={120}>
             <div className="mt-10 sm:mt-0">
               <p className="eyebrow">Craft</p>
-              <h2 className="font-serif mt-4 text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+              <h2 className="font-serif text-display-section mt-4">
                 Why our surfaces last.
               </h2>
               <p className="mt-6 max-w-md text-[16px] leading-relaxed text-dusk">
@@ -208,7 +208,7 @@ export default function Home() {
                 Ten years in the market. Our own factory line in {SITE.factory}.
                 The largest mosaic stock on the ground in Lagos.
               </p>
-              <a href={waPool()} target="_blank" rel="noopener" className="link-hair mt-8 text-dusk">
+              <a href={waPool()} target="_blank" rel="noopener" data-wa="craft" className="link-hair mt-8 text-dusk">
                 Build a pool with us
               </a>
             </div>
@@ -221,18 +221,18 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 py-32 text-center sm:px-8 sm:py-44">
           <Reveal>
             <p className="eyebrow">{SITE.location}</p>
-            <h2 className="font-serif mx-auto mt-5 max-w-2xl text-[clamp(2.2rem,6vw,4rem)] leading-tight">
+            <h2 className="font-serif text-display-page mx-auto mt-5 max-w-2xl">
               Begin your project.
             </h2>
-            <p className="mx-auto mt-5 max-w-sm text-[15px] leading-relaxed text-dusk">
+            <p className="mx-auto mt-5 max-w-sm text-[14px] leading-relaxed text-dusk">
               One message starts it. Photos and a quote follow the same day.
             </p>
             <div className="mt-10">
-              <a href={waQuote()} target="_blank" rel="noopener" className="btn-gold">
+              <a href={waQuote()} target="_blank" rel="noopener" data-wa="close" className="btn-gold">
                 Speak with the house
               </a>
             </div>
-            <p className="mt-6 text-[13px] tracking-wide text-mist">{SITE.phoneDisplay} · {SITE.hours}</p>
+            <p className="mt-6 text-[12px] tracking-wide text-mist">{SITE.phoneDisplay} · {SITE.hours}</p>
           </Reveal>
         </div>
       </section>

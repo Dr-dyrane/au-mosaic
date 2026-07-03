@@ -11,9 +11,9 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-3">
             <MosaicMark className="h-7 w-7" />
-            <span className="font-serif text-[18px] tracking-wide">AU Mosaic</span>
+            <span className="font-serif text-[20px] tracking-wide">AU Mosaic</span>
           </div>
-          <p className="font-serif mt-6 max-w-xs text-[19px] leading-snug text-dusk">
+          <p className="font-serif mt-6 max-w-xs text-[20px] leading-snug text-dusk">
             Everything mosaic, and the water it belongs to.
           </p>
         </div>
@@ -23,7 +23,7 @@ export default function Footer() {
           <p className="mt-5 text-[14px] leading-relaxed text-dusk">{SITE.location}</p>
           <p className="mt-1 text-[14px] leading-relaxed text-dusk">{SITE.hours}</p>
           <p className="mt-1 text-[14px] leading-relaxed text-dusk">{SITE.phoneDisplay}</p>
-          <a href={waGeneral()} target="_blank" rel="noopener" className="link-hair mt-6 text-dusk">
+          <a href={waGeneral()} target="_blank" rel="noopener" data-wa="footer" className="link-hair mt-6 text-dusk">
             WhatsApp the house
           </a>
         </div>
@@ -42,8 +42,8 @@ export default function Footer() {
         </nav>
         </div>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 pb-8 pt-2 sm:px-8">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-mist">{SITE.name}</p>
-          <p className="text-[11px] uppercase tracking-[0.2em] text-mist">Lagos · Foshan</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-mist">{SITE.name}</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-mist">Lagos · Foshan</p>
         </div>
       </div>
     </footer>

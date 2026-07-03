@@ -26,8 +26,8 @@ export function Section({
   const inner = (
     <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
       {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.8rem,4vw,2.8rem)] leading-tight">{title}</h2>
-      {sub && <p className="mt-4 max-w-md text-[15px] leading-relaxed text-dusk">{sub}</p>}
+      <h2 className="font-serif text-display-section mt-4 max-w-xl">{title}</h2>
+      {sub && <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">{sub}</p>}
       {children && <div className="mt-14">{children}</div>}
     </div>
   );
@@ -58,7 +58,7 @@ export function PageHero({
 }) {
   return (
     <section className="relative flex min-h-[58svh] items-end overflow-hidden">
-      <Image src={image} alt={alt} fill priority sizes="100vw" className="object-cover" />
+      <Image src={image} alt={alt} fill priority sizes="100vw" className="kenburns object-cover" />
       <div
         className="absolute inset-0"
         style={{
@@ -69,13 +69,11 @@ export function PageHero({
       <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
         <Reveal>
           <p className="eyebrow">{eyebrow}</p>
-          <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6.5vw,4.2rem)] leading-[1.05] text-white">
-            {title}
-          </h1>
+          <h1 className="font-serif text-display-page mt-4 max-w-2xl text-white">{title}</h1>
           {sub && <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/75">{sub}</p>}
           {cta && (
             <div className="mt-9">
-              <a href={cta.href} target="_blank" rel="noopener" className="btn-gold">
+              <a href={cta.href} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
                 {cta.label}
               </a>
             </div>
@@ -127,7 +125,7 @@ export function ProductCard({ item, collection }: { item: Product; collection?: 
         <p className="mt-1.5 text-[12px] uppercase tracking-[0.14em] text-mist">{item.variants.join(" · ")}</p>
       )}
       {item.note && <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">{item.note}</p>}
-      <a href={waProduct(label)} target="_blank" rel="noopener" className="link-hair mt-4 text-dusk">
+      <a href={waProduct(label)} target="_blank" rel="noopener" data-wa="card" className="link-hair mt-4 text-dusk">
         Enquire
       </a>
     </div>
@@ -138,7 +136,7 @@ export function ProductGroupBlock({ group }: { group: ProductGroup }) {
   return (
     <div id={group.id} className="scroll-mt-24">
       <p className="eyebrow">{group.title}</p>
-      <p className="font-serif mt-3 max-w-lg text-[22px] leading-snug">{group.blurb}</p>
+      <p className="font-serif mt-3 max-w-lg text-[20px] leading-snug">{group.blurb}</p>
       <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
         {group.items.map((item) => (
           <ProductCard key={item.name} item={item} />
@@ -155,6 +153,7 @@ export function CtaRow({ href, label, secondary }: { href: string; label: string
         href={href}
         target={href.startsWith("http") ? "_blank" : undefined}
         rel="noopener"
+        data-wa="cta"
         className="btn-gold"
       >
         {label}

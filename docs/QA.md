@@ -50,6 +50,16 @@ Last pass: 2026-07-02.
 | Liquid glass and lucency | PASS | .glass (sand 42%, blur 28, saturate 1.6) for island, menu, piece bar; .panel (shell 62%, blur 20) for facts; chips at 32% with blur 18. All luminous, none lined. |
 | Subpages at par | PASS | All five subpages open with a cinematic PageHero (full-bleed image, words on it, gold action). Fact triads are lucent panels; tint sections float as inset 40px bands; footer floats as a band. |
 
+## Now tier (from the UX review)
+
+| Change | Status | Evidence |
+|---|---|---|
+| Type ramp shipped | PASS | 21 sizes collapsed to 9 (11, 12, 14, 16, 20, 26 + three display classes), one display leading, three trackings. Census verified by grep. |
+| Motion consistency | PASS | Ken-burns on every PageHero; piece bar now glides out as well as in (transition, not unmount). |
+| Native details | PASS | Piece bar and WhatsApp float respect env(safe-area-inset-bottom); active press states on every capsule and icon button. |
+| Wayfinding | PASS | /piece/* lights the Mosaic tiles tab, aria-current set; float names itself on hover. |
+| Measurement | PASS | wa_tap event on every WhatsApp link with placement source (hero, cta, card, piece-hero, piece-bar, float, nav, menu, footer, close, craft) and path. |
+
 ## The CRM upgrade path
 
 Ready. The seams are already cut:

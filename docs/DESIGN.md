@@ -69,9 +69,14 @@ Apple devices render true Didot; everywhere else falls to Georgia, which
 carries the tone. No webfont download, instant on any connection.
 
 Body: the native sans stack (SF Pro on Apple, Segoe/Roboto elsewhere).
-Eyebrows: 11px, uppercase, 0.25em tracking, gold.
-Hero: clamp(2.8rem, 8vw, 5.5rem), serif, tight leading.
-Section titles: clamp(1.9rem, 4vw, 3rem), serif.
+
+The ramp: nine sizes, big jumps, nothing between.
+11 micro caps · 12 links and meta · 14 body small · 16 body ·
+20 title small · 26 title · text-display-section clamp(1.9rem, 4vw, 3rem) ·
+text-display-page clamp(2.4rem, 6.5vw, 4.2rem) ·
+text-display-hero clamp(2.8rem, 8vw, 5.5rem).
+Display leading 1.05. Tracking: 0.25em eyebrows, 0.18em caps and links,
+0.14em variant meta. No other sizes, leadings, or trackings exist.
 
 ## Layout
 

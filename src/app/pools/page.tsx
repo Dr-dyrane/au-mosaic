@@ -33,7 +33,7 @@ export default function PoolsPage() {
         <div className="grid gap-5 md:grid-cols-3">
           {POOL_SERVICES.map((s) => (
             <div key={s.title} className="panel">
-              <h3 className="font-serif text-[21px]">{s.title}</h3>
+              <h3 className="font-serif text-[20px]">{s.title}</h3>
               <p className="mt-2.5 text-[14px] leading-relaxed text-dusk">{s.body}</p>
             </div>
           ))}

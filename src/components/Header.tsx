@@ -21,6 +21,11 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const scrolled = useSyncExternalStore(subscribe, getScrolled, () => false);
+  /* Pieces belong to the collection: /piece/* lights the Mosaic tiles tab. */
+  const isActive = (href: string) =>
+    pathname === href ||
+    pathname.startsWith(`${href}/`) ||
+    (href === "/mosaic-tiles" && pathname.startsWith("/piece"));
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
@@ -32,7 +37,7 @@ export default function Header() {
         >
           <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
             <MosaicMark className={`transition-all duration-500 ${scrolled ? "h-5 w-5" : "h-6 w-6"}`} />
-            <span className="font-serif whitespace-nowrap text-[15px] tracking-wide">AU Mosaic</span>
+            <span className="font-serif whitespace-nowrap text-[16px] tracking-wide">AU Mosaic</span>
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary">
@@ -40,8 +45,9 @@ export default function Header() {
               <Link
                 key={n.href}
                 href={n.href}
-                className={`whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
-                  pathname === n.href ? "text-gold" : "text-dusk hover:text-ink"
+                aria-current={isActive(n.href) ? "page" : undefined}
+                className={`whitespace-nowrap py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
+                  isActive(n.href) ? "text-gold" : "text-dusk hover:text-ink"
                 }`}
               >
                 {n.label}
@@ -54,13 +60,14 @@ export default function Header() {
             href={waQuote()}
             target="_blank"
             rel="noopener"
+            data-wa="nav"
             className="link-hair hidden whitespace-nowrap text-ink lg:inline-block"
           >
             Enquire
           </a>
 
           <button
-            className="flex h-9 w-9 items-center justify-center text-ink lg:hidden"
+            className="flex h-9 w-9 items-center justify-center text-ink transition-transform active:scale-90 lg:hidden"
             onClick={() => setOpen(!open)}
             aria-label="Menu"
             aria-expanded={open}
@@ -85,14 +92,14 @@ export default function Header() {
                 key={n.href}
                 href={n.href}
                 onClick={() => setOpen(false)}
-                className={`font-serif block py-3 text-[21px] transition-colors duration-300 ${
-                  pathname === n.href ? "text-gold" : "text-ink"
+                className={`font-serif block py-3 text-[20px] transition-colors duration-300 ${
+                  isActive(n.href) ? "text-gold" : "text-ink"
                 }`}
               >
                 {n.label}
               </Link>
             ))}
-            <a href={waQuote()} target="_blank" rel="noopener" className="btn-gold mt-5 inline-block">
+            <a href={waQuote()} target="_blank" rel="noopener" data-wa="menu" className="btn-gold mt-5 inline-block">
               Enquire on WhatsApp
             </a>
             <p className="mt-5 text-[12px] tracking-wide text-mist">{SITE.location} · {SITE.hours}</p>

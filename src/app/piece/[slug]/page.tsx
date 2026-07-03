@@ -60,14 +60,14 @@ export default async function PiecePage({ params }: { params: Params }) {
         <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
           <Reveal>
             <p className="eyebrow">{piece.collection}</p>
-            <h1 className="font-serif mt-4 max-w-3xl text-[clamp(2.6rem,7vw,5rem)] leading-[1.05] text-white">
+            <h1 className="font-serif text-display-hero mt-4 max-w-3xl text-white">
               {piece.name}
             </h1>
             {piece.note && (
-              <p className="mt-5 max-w-md text-[17px] leading-relaxed text-white/80">{piece.note}.</p>
+              <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/80">{piece.note}.</p>
             )}
             <div className="mt-9 flex flex-wrap items-center gap-8">
-              <a href={waProduct(piece.name)} target="_blank" rel="noopener" className="btn-gold">
+              <a href={waProduct(piece.name)} target="_blank" rel="noopener" data-wa="piece-hero" className="btn-gold">
                 Enquire about this piece
               </a>
               <Link href={`/mosaic-tiles#${piece.groupId}`} className="link-hair text-white">
@@ -94,7 +94,7 @@ export default async function PiecePage({ params }: { params: Params }) {
         <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
           <Reveal>
             <p className="eyebrow">Seen in</p>
-            <p className="font-serif mt-3 max-w-xl text-[clamp(1.7rem,4vw,2.6rem)] leading-tight text-white">
+            <p className="font-serif text-display-section mt-3 max-w-xl text-white">
               {scene.place}. {scene.line}
             </p>
           </Reveal>

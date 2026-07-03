@@ -26,7 +26,7 @@ export default function ThemeToggle() {
     <button
       onClick={flip}
       aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
-      className="flex h-10 w-10 items-center justify-center rounded-full text-dusk transition-colors hover:text-ink"
+      className="flex h-10 w-10 items-center justify-center rounded-full text-dusk transition-[color,transform] duration-300 hover:text-ink active:scale-90"
     >
       {light ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>

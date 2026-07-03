@@ -22,7 +22,7 @@ export default function AboutPage() {
       />
 
       <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-24">
-        <div className="max-w-xl space-y-6 text-[17px] leading-relaxed text-dusk">
+        <div className="max-w-xl space-y-6 text-[16px] leading-relaxed text-dusk">
           <p>
             There are many tiles in the construction business. Mosaic is not the
             common one. That was the point. Mosaic keeps creativity alive while

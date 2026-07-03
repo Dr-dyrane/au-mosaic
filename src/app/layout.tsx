@@ -5,6 +5,7 @@ import { SITE } from "@/lib/site";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import WaTracker from "@/components/WaTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -68,6 +69,7 @@ export default function RootLayout({
         <Footer />
         <WhatsAppFloat />
         <Analytics />
+        <WaTracker />
       </body>
     </html>
   );
