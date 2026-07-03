@@ -5,8 +5,8 @@ import { MosaicMark } from "./Mosaic";
 
 export default function Footer() {
   return (
-    <footer className="mt-32 px-4 pb-4 sm:px-6">
-      <div className="mx-auto max-w-[1400px] rounded-[40px] bg-shell/70">
+    <footer className="mt-32 px-2 pb-2 sm:px-6 sm:pb-4">
+      <div className="mx-auto max-w-[1400px] rounded-[28px] bg-shell/70 sm:rounded-[40px]">
         <div className="mx-auto grid max-w-6xl gap-14 px-5 pb-10 pt-16 sm:px-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">

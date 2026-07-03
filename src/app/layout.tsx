@@ -30,6 +30,10 @@ export const metadata: Metadata = {
 
 export const viewport = {
   themeColor: "#0c0b09",
+  /* Edge to edge on notched phones; safe-area insets take over. */
+  viewportFit: "cover" as const,
+  width: "device-width",
+  initialScale: 1,
 };
 
 const jsonLd = {

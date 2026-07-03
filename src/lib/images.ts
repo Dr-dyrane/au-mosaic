@@ -3,8 +3,11 @@
    images.pexels.com with size params; swapped for Nonso's own photos at
    launch. Keep this the ONLY place image URLs live. */
 
-const px = (path: string, w = 1400) =>
-  `https://images.pexels.com/photos/${path}?auto=compress&cs=tinysrgb&w=${w}`;
+/* Large, rich masters: no tinysrgb colour flattening, generous widths.
+   The Next optimizer sizes and re-encodes per device and DPR, so visitors
+   get crisp AVIF at their exact size while the mosaic keeps its colour. */
+const px = (path: string, w = 2000) =>
+  `https://images.pexels.com/photos/${path}?auto=compress&w=${w}`;
 
 export const IMG = {
   /* mosaic tiles */
@@ -26,11 +29,11 @@ export const FILM = {
 };
 
 export const LUX = {
-  villaDusk: px("28054849/pexels-photo-28054849/free-photo-of-a-luxury-villa-with-a-swimming-pool-at-dusk.jpeg", 2200),
-  villaPalms: px("30195980/pexels-photo-30195980/free-photo-of-serene-villa-by-infinity-pool-with-palms.jpeg", 1800),
-  infinityTerrace: px("20975726/pexels-photo-20975726/free-photo-of-infinity-pool-and-patio-of-a-mountain-resort.jpeg", 1800),
-  hammam: px("7031713/pexels-photo-7031713.jpeg", 1600),
-  darkBath: px("35189678/pexels-photo-35189678/free-photo-of-luxurious-modern-shower-with-dark-textured-tiles.jpeg", 1600),
+  villaDusk: px("28054849/pexels-photo-28054849/free-photo-of-a-luxury-villa-with-a-swimming-pool-at-dusk.jpeg", 3200),
+  villaPalms: px("30195980/pexels-photo-30195980/free-photo-of-serene-villa-by-infinity-pool-with-palms.jpeg", 2600),
+  infinityTerrace: px("20975726/pexels-photo-20975726/free-photo-of-infinity-pool-and-patio-of-a-mountain-resort.jpeg", 2600),
+  hammam: px("7031713/pexels-photo-7031713.jpeg", 2200),
+  darkBath: px("35189678/pexels-photo-35189678/free-photo-of-luxurious-modern-shower-with-dark-textured-tiles.jpeg", 2200),
 };
 
 /* Environments: the dream first. Materials follow. */

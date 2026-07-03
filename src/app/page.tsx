@@ -34,14 +34,15 @@ export default function Home() {
           alt="A villa pool holding the last light of dusk"
           fill
           priority
+          quality={90}
           sizes="100vw"
-          className="kenburns object-cover"
+          className="kenburns media-lux object-cover"
         />
         {/* The film: water moving over the same frame. Poster matches the
             still beneath, so blocked autoplay or reduced motion changes
             nothing visitors can notice. */}
         <video
-          className="hero-film absolute inset-0 h-full w-full object-cover"
+          className="hero-film media-lux absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
           loop
@@ -93,17 +94,18 @@ export default function Home() {
           </p>
         </Reveal>
 
-        <div className="mt-16 grid gap-x-8 gap-y-20 sm:grid-cols-2">
+        <div className="-mx-5 mt-16 grid gap-x-8 gap-y-20 sm:mx-0 sm:grid-cols-2">
           {ENVIRONMENTS.map((e, i) => (
             <Reveal key={e.place} delay={(i % 2) * 90} className={i % 2 === 1 ? "sm:mt-24" : ""}>
               <Link href={e.href} className="group block">
-                <div className="relative aspect-[4/5] overflow-hidden rounded-[26px]">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px]">
                   <Image
                     src={e.src}
                     alt={e.place}
                     fill
+                    quality={90}
                     sizes="(max-width: 640px) 100vw, 50vw"
-                    className="img-glide object-cover"
+                    className="img-glide media-lux object-cover"
                   />
                   <div
                     className="absolute inset-0"
@@ -138,15 +140,17 @@ export default function Home() {
                 Three ways to build with light.
               </h2>
             </Reveal>
-            <div className="mt-16 grid gap-10 sm:grid-cols-3">
+            <div className="-mx-5 mt-16 grid gap-10 sm:mx-0 sm:grid-cols-3">
               {MATERIALS.map((m, i) => (
                 <Reveal key={m.title} delay={i * 90}>
                   <Link href={m.href} className="group block">
-                    <div className="relative aspect-square overflow-hidden rounded-[22px]">
-                      <Image src={m.src} alt={m.title} fill sizes="33vw" className="img-glide object-cover" />
+                    <div className="relative aspect-square overflow-hidden rounded-none sm:rounded-[22px]">
+                      <Image src={m.src} alt={m.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="img-glide media-lux object-cover" />
                     </div>
-                    <h3 className="font-serif mt-6 text-[20px] transition-colors duration-300 group-hover:text-gold">{m.title}</h3>
-                    <p className="mt-2 text-[14px] text-dusk">{m.line}</p>
+                    <div className="px-5 sm:px-0">
+                      <h3 className="font-serif mt-6 text-[20px] transition-colors duration-300 group-hover:text-gold">{m.title}</h3>
+                      <p className="mt-2 text-[14px] text-dusk">{m.line}</p>
+                    </div>
                   </Link>
                 </Reveal>
               ))}
@@ -161,8 +165,9 @@ export default function Home() {
           src={LUX.villaPalms}
           alt="A villa resting beside still water"
           fill
+          quality={90}
           sizes="100vw"
-          className="parallax-y object-cover"
+          className="parallax-y media-lux object-cover"
         />
         <div className="absolute inset-0 bg-[rgba(12,11,9,0.45)]" />
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
@@ -182,13 +187,13 @@ export default function Home() {
             Five pieces. The rest when you are ready.
           </h2>
         </Reveal>
-        <div className="mt-16 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="-mx-5 mt-16 grid gap-x-8 gap-y-16 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3">
           {COLLECTION_PICKS.map((p, i) => (
             <Reveal key={p.name} delay={(i % 3) * 80}>
               <ProductCard item={p} collection={p.collection} />
             </Reveal>
           ))}
-          <Reveal delay={160}>
+          <Reveal delay={160} className="mx-5 sm:mx-0">
             <Link href="/mosaic-tiles" className="panel group flex h-full min-h-64 flex-col justify-center">
               <p className="font-serif text-[26px] leading-snug transition-colors duration-300 group-hover:text-gold">
                 Explore the collection
@@ -203,9 +208,9 @@ export default function Home() {
       {/* Craftsmanship */}
       <section>
         <div className="mx-auto max-w-6xl gap-16 px-5 py-28 sm:grid sm:grid-cols-2 sm:px-8 sm:py-36">
-          <Reveal>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[26px]">
-              <Image src={IMG.bluePatternTiles} alt="Patterned mosaic, laid by hand" fill sizes="50vw" className="object-cover" />
+          <Reveal className="-mx-5 sm:mx-0">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px]">
+              <Image src={IMG.bluePatternTiles} alt="Patterned mosaic, laid by hand" fill quality={90} sizes="(max-width: 640px) 100vw, 50vw" className="media-lux object-cover" />
             </div>
           </Reveal>
           <Reveal delay={120}>

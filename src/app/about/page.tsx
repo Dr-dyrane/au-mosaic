@@ -40,7 +40,9 @@ export default function AboutPage() {
             largest mosaic artwork in the world. Watch us.
           </p>
         </div>
-        <MosaicBand rows={3} className="mt-16 h-24 w-full rounded-[22px]" />
+        <div className="-mx-5 sm:mx-0">
+          <MosaicBand rows={3} className="h-24 w-full rounded-none sm:rounded-[22px]" />
+        </div>
       </section>
 
       <Section

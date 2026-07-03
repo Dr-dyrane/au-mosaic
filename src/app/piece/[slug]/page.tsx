@@ -47,8 +47,9 @@ export default async function PiecePage({ params }: { params: Params }) {
                 alt={piece.name}
                 fill
                 priority
+                quality={90}
                 sizes="100vw"
-                className="kenburns object-cover"
+                className="kenburns media-lux object-cover"
               />
             ) : (
               <TileSheet colors={piece.colors || []} rows={12} cols={16} className="kenburns absolute inset-0 h-full w-full" />
@@ -89,7 +90,7 @@ export default async function PiecePage({ params }: { params: Params }) {
 
       {/* The piece in its room */}
       <section className="relative flex min-h-[62svh] items-end overflow-hidden">
-        <Image src={scene.src} alt={scene.place} fill sizes="100vw" className="parallax-y object-cover" />
+        <Image src={scene.src} alt={scene.place} fill quality={90} sizes="100vw" className="parallax-y media-lux object-cover" />
         <div
           className="absolute inset-0"
           style={{

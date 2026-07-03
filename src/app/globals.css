@@ -57,7 +57,13 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
+
+a, button { touch-action: manipulation; }
+
+/* The gallery grade: a breath more colour on the works themselves. */
+.media-lux { filter: saturate(1.08) contrast(1.02); }
 
 body {
   background: var(--color-sand);
