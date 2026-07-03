@@ -132,6 +132,11 @@ export default async function OrdersPage({
                       <p className="text-[13px] text-dusk">Billed {naira(billed)}</p>
                       <p className="text-[13px] font-medium text-ink">Balance {naira(balance)}</p>
                     </div>
+                    {st === "enquiry" && billed === 0 && (
+                      <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">
+                        No lines yet
+                      </p>
+                    )}
                     {gap > 0 && (
                       <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
                         Discount given · {naira(gap)} below list

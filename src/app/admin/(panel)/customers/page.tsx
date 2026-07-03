@@ -62,6 +62,7 @@ export default async function CustomersPage({
       <div className="mt-8 flex flex-wrap items-center gap-4">
         <form action="/admin/customers" method="get" className="min-w-0 flex-1 basis-64">
           <input
+            type="search"
             name="q"
             defaultValue={q}
             placeholder="Search name or phone"

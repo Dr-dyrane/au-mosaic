@@ -79,6 +79,21 @@ export default async function InsightsPage() {
   const maxPiece = Math.max(1, ...pieces.map((p) => Number(p.revenue)));
   const maxTap = Math.max(1, ...taps.map((t) => t.n));
 
+  /* Inference in plain words: the last full month against the one
+     before it, and an honest projection from the recent pace. */
+  const full = months.slice(0, -1);
+  const lastFull = full[full.length - 1];
+  const prevFull = full[full.length - 2];
+  const delta =
+    lastFull && prevFull && Number(prevFull.billed) > 0
+      ? Math.round(((Number(lastFull.billed) - Number(prevFull.billed)) / Number(prevFull.billed)) * 100)
+      : null;
+  const paceMonths = full.slice(-3);
+  const pace =
+    paceMonths.length > 0
+      ? Math.round(paceMonths.reduce((a, m) => a + Number(m.billed), 0) / paceMonths.length)
+      : 0;
+
   return (
     <main>
       <div className="flex gap-2">
@@ -109,6 +124,16 @@ export default async function InsightsPage() {
               </div>
             ))}
           </div>
+          {delta !== null && lastFull && (
+            <p className="mt-4 text-[13px] leading-relaxed text-dusk">
+              {lastFull.label} came in {Math.abs(delta)}% {delta >= 0 ? "up on" : "below"} the month before.
+            </p>
+          )}
+          {pace > 0 && (
+            <p className="mt-1.5 text-[13px] leading-relaxed text-gold">
+              If the pace holds: {naira(pace)} this month.
+            </p>
+          )}
         </section>
 
         <section className="panel">

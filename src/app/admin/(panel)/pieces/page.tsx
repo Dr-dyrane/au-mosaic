@@ -52,6 +52,8 @@ export default async function PiecesPage({
       <h1 className="font-serif text-display-section mt-3">The book.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         Everything you stock. The window shows only what you choose.
+        {rows.filter((r) => !r.piece.published).length > 0 &&
+          ` ${rows.filter((r) => !r.piece.published).length} waiting off the site.`}
       </p>
       <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
         <Link href="/admin/pieces/new" className="btn-gold">

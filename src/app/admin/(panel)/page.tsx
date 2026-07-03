@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { count, eq, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import RefreshLine from "./RefreshLine";
 
 /* The morning glance: five numbers that used to live on paper.
    Force-dynamic because a back office is never stale; the queries run
@@ -60,6 +61,7 @@ export default async function AdminHome() {
         </Link>
       </div>
       <h1 className="font-serif text-display-section mt-8">The house, in numbers.</h1>
+      <RefreshLine />
       <div className="mt-7">
         <Link href="/admin/orders/new" className="btn-gold">
           New order
