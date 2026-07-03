@@ -136,7 +136,7 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Pair | Status |
 |---|---|
 | hero-dusk + hero-day | PAIRED. Same villa, same tree, same grid; brass streaks become sky reflections. |
-| glass-jewels | night only, day pending |
+| glass-jewels + glass-day | PAIRED. The jewel case at noon: daylight transmission, ivory room behind. |
 | koi-mural, beetle-mural | night only, day pending |
 | hammam | night only, day pending |
 | dusk-villa | night only, day pending |

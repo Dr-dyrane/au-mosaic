@@ -26,6 +26,7 @@ export const OWN = {
    daylight (borders, villaPalms, privatePool, poolBlues) need no pair. */
 export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   heroDusk: "/media/hero-day.jpg",
+  glassJewels: "/media/glass-day.jpg",
 };
 
 /* Film slot: dormant. The 720p loop softened the one surface that must be
