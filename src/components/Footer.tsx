@@ -5,8 +5,9 @@ import { MosaicMark } from "./Mosaic";
 
 export default function Footer() {
   return (
-    <footer className="hairline mt-32">
-      <div className="mx-auto grid max-w-6xl gap-14 px-5 py-20 sm:px-8 md:grid-cols-3">
+    <footer className="mt-32 px-4 pb-4 sm:px-6">
+      <div className="mx-auto max-w-[1400px] rounded-[40px] bg-shell/70">
+        <div className="mx-auto grid max-w-6xl gap-14 px-5 pb-10 pt-16 sm:px-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
             <MosaicMark className="h-7 w-7" />
@@ -39,9 +40,8 @@ export default function Footer() {
             ))}
           </ul>
         </nav>
-      </div>
-      <div className="hairline">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 sm:px-8">
+        </div>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 pb-8 pt-2 sm:px-8">
           <p className="text-[11px] uppercase tracking-[0.2em] text-mist">{SITE.name}</p>
           <p className="text-[11px] uppercase tracking-[0.2em] text-mist">Lagos · Foshan</p>
         </div>

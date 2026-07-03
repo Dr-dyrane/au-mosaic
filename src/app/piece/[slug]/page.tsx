@@ -103,8 +103,8 @@ export default async function PiecePage({ params }: { params: Params }) {
 
       {/* The quiet facts */}
       <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
-        <div className="grid gap-4 md:grid-cols-3">
-          <Reveal className="hairline pt-6">
+        <div className="grid gap-5 md:grid-cols-3">
+          <Reveal className="panel">
             <p className="eyebrow">Colourways</p>
             {piece.colors && (
               <div className="mt-4 flex gap-2.5">
@@ -117,14 +117,14 @@ export default async function PiecePage({ params }: { params: Params }) {
               {piece.variants ? piece.variants.join(" · ") : "Every shade, by the sheet. Ask for the range."}
             </p>
           </Reveal>
-          <Reveal delay={90} className="hairline pt-6">
+          <Reveal delay={90} className="panel">
             <p className="eyebrow">From stock</p>
             <p className="font-serif mt-3 text-[20px]">Agric Market, Lagos</p>
             <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
               Real photos and today&apos;s price on WhatsApp, same day.
             </p>
           </Reveal>
-          <Reveal delay={180} className="hairline pt-6">
+          <Reveal delay={180} className="panel">
             <p className="eyebrow">For projects</p>
             <p className="font-serif mt-3 text-[20px]">Factory direct</p>
             <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">

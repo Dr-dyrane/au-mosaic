@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { POOL_MATERIALS } from "@/lib/products";
 import { SITE } from "@/lib/site";
+import { IMG } from "@/lib/images";
 import { waQuote } from "@/lib/wa";
-import { CtaRow, ProductGroupBlock, Section } from "@/components/ui";
+import { CtaRow, PageHero, ProductGroupBlock, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Pool materials",
@@ -13,19 +14,14 @@ export const metadata: Metadata = {
 export default function PoolMaterialsPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
-        <p className="eyebrow">{SITE.poolBrand} equipment · in stock</p>
-        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
-          Everything a pool needs.
-        </h1>
-        <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
-          From the pump to the waterfall. Any item, photos and today&apos;s
-          price on WhatsApp.
-        </p>
-        <div className="mt-8">
-          <CtaRow href={waQuote()} label="Send us your materials list" />
-        </div>
-      </section>
+      <PageHero
+        eyebrow={`${SITE.poolBrand} equipment · in stock`}
+        title="Everything a pool needs."
+        sub="From the pump to the waterfall. Any item, photos and today's price on WhatsApp."
+        image={IMG.rippledLaneWater}
+        alt="Clear rippled pool water"
+        cta={{ href: waQuote(), label: "Send us your materials list" }}
+      />
 
       <Section title="The shelf">
         <div className="space-y-14">

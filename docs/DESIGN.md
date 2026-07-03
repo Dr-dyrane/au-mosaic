@@ -8,8 +8,9 @@ whispers; it never screams.
 
 1. Story first, products second. Environments open every journey; the
    materials that made them follow.
-2. Photography creates separation. No cards, no borders, almost no shadows.
-   Hairlines and whitespace do the structural work.
+2. Photography creates separation. No borders, no hairlines, no lines of
+   any kind. Whitespace, imagery, and lucent surfaces do the structural
+   work; a soft inner glow stands where an edge would have been.
 3. Progressive disclosure. Five pieces, then "Explore the collection."
    Never five hundred.
 4. Motion glides. 240 to 500ms, opacity and 0.985 to 1 scale, one slow
@@ -33,10 +34,27 @@ Warm near-black, not blue-black. Stone and brass, one breath of water.
 | gold (accent) | #C2A15C | #856A30 |
 | gold-deep | #8F7434 | #8F7434 |
 | water (reserved) | #7FD0DB | #2E7E8C |
-| hairline | gold at 22% | ink at 14% |
 
-Gold is for eyebrows, hairlines, and the words that matter. Water appears
+Gold is for eyebrows, actions, and the words that matter. Water appears
 only where water is the subject. No saturated fills, no gradient washes.
+
+## Geometry and glass
+
+Concentric or nothing: never a sharp rectangle inside a rounded parent.
+
+| Element | Shape |
+|---|---|
+| Interactive chrome (buttons, chips, island, bar, toggle) | capsule (999px) |
+| Panels and menus | squircle 28px |
+| Card and inline media | squircle 22 to 26px |
+| Inset section bands, footer | squircle 40px |
+| Heroes and scenes | full-bleed, square: they are screens, not elements |
+
+Two lucent materials, defined once in globals.css:
+glass (floating chrome): sand at 42%, blur 28 saturate 1.6, inner glow.
+panel (resting surface): shell at 62%, blur 20 saturate 1.3, inner glow.
+Tinted sections are inset bands: shell at 70%, radius 40, floating in the
+canvas rather than striping it edge to edge.
 
 Every text token clears WCAG AA (4.5:1) on sand in both themes; the exact
 ratios live in docs/QA.md. The gold button is brass hardware: #C2A15C with

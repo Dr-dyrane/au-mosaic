@@ -82,7 +82,7 @@ export default function Home() {
           {ENVIRONMENTS.map((e, i) => (
             <Reveal key={e.place} delay={(i % 2) * 90} className={i % 2 === 1 ? "sm:mt-24" : ""}>
               <Link href={e.href} className="group block">
-                <div className="relative aspect-[4/5] overflow-hidden">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[26px]">
                   <Image
                     src={e.src}
                     alt={e.place}
@@ -114,26 +114,28 @@ export default function Home() {
       </section>
 
       {/* Materials: three ways to build with light */}
-      <section className="hairline">
-        <div className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
-          <Reveal>
-            <p className="eyebrow">Materials</p>
-            <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
-              Three ways to build with light.
-            </h2>
-          </Reveal>
-          <div className="mt-16 grid gap-10 sm:grid-cols-3">
-            {MATERIALS.map((m, i) => (
-              <Reveal key={m.title} delay={i * 90}>
-                <Link href={m.href} className="group block">
-                  <div className="relative aspect-square overflow-hidden">
-                    <Image src={m.src} alt={m.title} fill sizes="33vw" className="img-glide object-cover" />
-                  </div>
-                  <h3 className="font-serif mt-6 text-[22px]">{m.title}</h3>
-                  <p className="mt-2 text-[14px] text-dusk">{m.line}</p>
-                </Link>
-              </Reveal>
-            ))}
+      <section className="px-4 sm:px-6">
+        <div className="mx-auto max-w-[1400px] rounded-[40px] bg-shell/70">
+          <div className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
+            <Reveal>
+              <p className="eyebrow">Materials</p>
+              <h2 className="font-serif mt-4 max-w-xl text-[clamp(1.9rem,4vw,3rem)] leading-tight">
+                Three ways to build with light.
+              </h2>
+            </Reveal>
+            <div className="mt-16 grid gap-10 sm:grid-cols-3">
+              {MATERIALS.map((m, i) => (
+                <Reveal key={m.title} delay={i * 90}>
+                  <Link href={m.href} className="group block">
+                    <div className="relative aspect-square overflow-hidden rounded-[22px]">
+                      <Image src={m.src} alt={m.title} fill sizes="33vw" className="img-glide object-cover" />
+                    </div>
+                    <h3 className="font-serif mt-6 text-[22px] transition-colors duration-300 group-hover:text-gold">{m.title}</h3>
+                    <p className="mt-2 text-[14px] text-dusk">{m.line}</p>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -172,8 +174,10 @@ export default function Home() {
             </Reveal>
           ))}
           <Reveal delay={160}>
-            <Link href="/mosaic-tiles" className="group flex h-full min-h-64 flex-col justify-center hairline p-8">
-              <p className="font-serif text-[24px] leading-snug">Explore the collection</p>
+            <Link href="/mosaic-tiles" className="panel group flex h-full min-h-64 flex-col justify-center">
+              <p className="font-serif text-[24px] leading-snug transition-colors duration-300 group-hover:text-gold">
+                Explore the collection
+              </p>
               <p className="mt-2 text-[14px] text-mist">Every range, every colour, from stock.</p>
               <span className="link-hair mt-6 text-dusk">Enter</span>
             </Link>
@@ -182,10 +186,10 @@ export default function Home() {
       </section>
 
       {/* Craftsmanship */}
-      <section className="hairline">
+      <section>
         <div className="mx-auto max-w-6xl gap-16 px-5 py-28 sm:grid sm:grid-cols-2 sm:px-8 sm:py-36">
           <Reveal>
-            <div className="relative aspect-[4/5] overflow-hidden">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[26px]">
               <Image src={IMG.bluePatternTiles} alt="Patterned mosaic, laid by hand" fill sizes="50vw" className="object-cover" />
             </div>
           </Reveal>
@@ -213,7 +217,7 @@ export default function Home() {
       </section>
 
       {/* Final invitation */}
-      <section className="hairline">
+      <section>
         <div className="mx-auto max-w-6xl px-5 py-32 text-center sm:px-8 sm:py-44">
           <Reveal>
             <p className="eyebrow">{SITE.location}</p>

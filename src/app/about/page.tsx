@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
+import { LUX } from "@/lib/images";
 import { waGeneral } from "@/lib/wa";
 import { MosaicBand } from "@/components/Mosaic";
-import { CtaRow, Section } from "@/components/ui";
+import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "About",
@@ -13,12 +14,15 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
-        <p className="eyebrow">The house</p>
-        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
-          It started with creativity.
-        </h1>
-        <div className="mt-8 max-w-xl space-y-6 text-[17px] leading-relaxed text-dusk">
+      <PageHero
+        eyebrow="The house"
+        title="It started with creativity."
+        image={LUX.villaPalms}
+        alt="A villa resting beside still water"
+      />
+
+      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-24">
+        <div className="max-w-xl space-y-6 text-[17px] leading-relaxed text-dusk">
           <p>
             There are many tiles in the construction business. Mosaic is not the
             common one. That was the point. Mosaic keeps creativity alive while
@@ -36,7 +40,7 @@ export default function AboutPage() {
             largest mosaic artwork in the world. Watch us.
           </p>
         </div>
-        <MosaicBand rows={3} className="mt-16 h-24 w-full" />
+        <MosaicBand rows={3} className="mt-16 h-24 w-full rounded-[22px]" />
       </section>
 
       <Section

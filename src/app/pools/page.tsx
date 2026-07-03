@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { POOL_SERVICES } from "@/lib/products";
-import { IMG } from "@/lib/images";
+import { LUX } from "@/lib/images";
 import { waPool } from "@/lib/wa";
-import { CtaRow, Section } from "@/components/ui";
+import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Pool construction",
@@ -21,27 +20,19 @@ const PROCESS = [
 export default function PoolsPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
-        <p className="eyebrow">Pool construction</p>
-        <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
-          From first sketch to first swim.
-        </h1>
-        <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
-          The tiles, the materials, and the pool itself. One house, one
-          responsibility.
-        </p>
-        <div className="mt-8">
-          <CtaRow href={waPool()} label="Talk pools on WhatsApp" />
-        </div>
-        <div className="relative mt-16 aspect-[21/9] overflow-hidden">
-          <Image src={IMG.rippledLaneWater} alt="Clear rippled pool water" fill sizes="100vw" className="object-cover" />
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Pool construction"
+        title="From first sketch to first swim."
+        sub="The tiles, the materials, and the pool itself. One house, one responsibility."
+        image={LUX.infinityTerrace}
+        alt="An infinity pool meeting the mountains"
+        cta={{ href: waPool(), label: "Talk pools on WhatsApp" }}
+      />
 
       <Section title="What we take on">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3">
           {POOL_SERVICES.map((s) => (
-            <div key={s.title} className="hairline pt-6">
+            <div key={s.title} className="panel">
               <h3 className="font-serif text-[21px]">{s.title}</h3>
               <p className="mt-2.5 text-[14px] leading-relaxed text-dusk">{s.body}</p>
             </div>
@@ -50,12 +41,12 @@ export default function PoolsPage() {
       </Section>
 
       <Section tint eyebrow="How it goes" title="Four steps to water.">
-        <ol className="grid gap-4 md:grid-cols-4">
+        <ol className="grid gap-5 md:grid-cols-4">
           {PROCESS.map((s, i) => (
-            <li key={s.title} className="rounded-3xl bg-sand p-5 shadow-lift">
-              <p className="text-sm font-semibold text-terra">Step {i + 1}</p>
-              <p className="mt-1 font-semibold tracking-tight">{s.title}</p>
-              <p className="mt-1 text-sm leading-relaxed text-dusk">{s.body}</p>
+            <li key={s.title} className="rounded-[24px] bg-sand/80 p-6">
+              <p className="eyebrow">Step {i + 1}</p>
+              <p className="font-serif mt-3 text-[20px]">{s.title}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-dusk">{s.body}</p>
             </li>
           ))}
         </ol>

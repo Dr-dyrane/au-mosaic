@@ -41,6 +41,15 @@ Last pass: 2026-07-02.
 | Floating CTAs | PASS | Piece bar rises after the hero action leaves the viewport (IntersectionObserver); WhatsApp float site-wide. |
 | Cinematic immersion | PASS | Home and piece heroes own the full viewport (min-h-svh). Piece pages add a full-bleed "Seen in" environment scene. Every navigation glides in via app/template.tsx. Zero animation libraries. |
 
+## Geometry and glass pass
+
+| Pattern | Status | Evidence |
+|---|---|---|
+| Element relationships | PASS | Concentric geometry law: capsules inside islands, squircle panels inside squircle bands, no rectangle ever sits in a rounded parent. btn-gold is a capsule everywhere. |
+| No lines | PASS | Hairline token and classes deleted from the codebase. Separation by whitespace, imagery, lucent bands, and inner glow only. |
+| Liquid glass and lucency | PASS | .glass (sand 42%, blur 28, saturate 1.6) for island, menu, piece bar; .panel (shell 62%, blur 20) for facts; chips at 32% with blur 18. All luminous, none lined. |
+| Subpages at par | PASS | All five subpages open with a cinematic PageHero (full-bleed image, words on it, gold action). Fact triads are lucent panels; tint sections float as inset 40px bands; footer floats as a band. |
+
 ## The CRM upgrade path
 
 Ready. The seams are already cut:

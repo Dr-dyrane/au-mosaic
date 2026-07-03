@@ -26,8 +26,8 @@ export default function Header() {
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
       <div className="pointer-events-auto relative">
         <div
-          className={`flex items-center rounded-full border border-hairline bg-sand/75 backdrop-blur-xl transition-all duration-500 ${
-            scrolled ? "gap-4 px-4 py-2 shadow-lift" : "gap-5 px-5 py-2.5"
+          className={`glass flex items-center rounded-full transition-all duration-500 ${
+            scrolled ? "gap-4 px-4 py-2" : "gap-5 px-5 py-2.5"
           }`}
         >
           <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
@@ -49,7 +49,6 @@ export default function Header() {
             ))}
           </nav>
 
-          <span className="hidden h-4 w-px bg-hairline lg:block" aria-hidden />
           <ThemeToggle />
           <a
             href={waQuote()}
@@ -78,7 +77,7 @@ export default function Header() {
 
         {open && (
           <nav
-            className="island-panel absolute left-1/2 top-full mt-2 w-[min(92vw,340px)] rounded-[28px] border border-hairline bg-sand/90 p-7 backdrop-blur-xl lg:hidden"
+            className="island-panel glass absolute left-1/2 top-full mt-2 w-[min(92vw,340px)] rounded-[28px] p-7 lg:hidden"
             aria-label="Menu"
           >
             {NAV.map((n) => (
