@@ -106,7 +106,7 @@ or a log on production. The digest panel, the runtime logs, and
 | Insights | The business in bars, sentences, and windows | Open |
 | The key rack | Named staff keys, owner only, nothing deleted | Open |
 | The book's history | Append-only audit in sentences, per law 8 | Open |
-| Invoices | A PDF from an order | Planned |
+| Invoices | Paper from an order: in-app print sheet, and the exclusive document via scripts/invoice.py | Open |
 | Photos | Phone upload to Vercel Blob, night and day | Open |
 | The seam flip | Flagship reads the database | Last, deliberately |
 

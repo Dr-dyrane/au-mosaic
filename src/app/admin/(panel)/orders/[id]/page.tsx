@@ -68,6 +68,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         <Link href={`/admin/customers/${customer.id}`} className="link-hair text-dusk text-[13px]">
           Their record
         </Link>
+        <Link href={`/admin/invoice/${order.id}`} className="link-hair text-dusk text-[13px]">
+          The invoice
+        </Link>
         {/* Compose from the book: the message reads the order fresh
             on the way out, and WhatsApp opens with it written. */}
         {customer.phone && (

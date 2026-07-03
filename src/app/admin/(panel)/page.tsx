@@ -42,7 +42,9 @@ async function pulse() {
         { label: "Pieces in the catalogue", value: String(pieces.n), note: "published and drafts", href: "/admin/pieces" },
         { label: "Stock warnings", value: String(low.n), note: "at or below reorder level", href: "/admin/pieces" },
         { label: "Open orders", value: String(open.n), note: "quoted through delivered", href: "/admin/orders" },
-        { label: "Outstanding", value: naira(Number(owed.kobo)), note: "billed minus paid, open orders", href: "/admin/debts" },
+        /* Never a negative on the glance: net overpayment reads as
+           nothing owed, and the credit story lives on the order. */
+        { label: "Outstanding", value: naira(Math.max(0, Number(owed.kobo))), note: "billed minus paid, open orders", href: "/admin/debts" },
         { label: "New enquiries", value: String(fresh.n), note: "unanswered", href: "/admin/customers" },
       ],
     };

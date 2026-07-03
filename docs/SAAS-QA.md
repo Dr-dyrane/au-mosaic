@@ -156,14 +156,36 @@ up as they land, never delete them.
 | Raw driver shapes normalised at every execute | Pass (one rowsOf, owned by src/db, imported at all four call sites: insights, panel layout, digest; no room maps the envelope itself) |
 | Actions answer in sentences, never throw at the UI | Pass (every action catches and returns ok/message; the boundary is the last resort, not the pattern) |
 
-## Checklists to write next (owner's ask, stacked)
+## The API contract · the audit (checklist 2, done)
 
-1. DONE: error-boundary audit, table above.
-2. API contract checklist: response shapes, status codes, input caps,
-   and what each public endpoint promises the funnel.
-3. CRM domain checklists: order lifecycle edge cases, stock movement
-   truths, money reconciliation (billed = lines, paid = payments,
-   balance never negative in display).
+What each endpoint promises, verified in code. Server actions are
+POST endpoints whatever the UI hides; every one re-checks the
+session on its first line, validates enums, ints, uuids, and hex,
+and answers in a sentence instead of throwing.
+
+| Endpoint | Promise |
+|---|---|
+| POST /api/enquiry | Always 204, no body, whatever happens: the funnel never feels the back office. Caps: source 40 chars, path 120, sid kept only when it reads as a uuid. Sheds floods past 30 fresh rows in 10 minutes, still 204. Stores no name, number, or message. |
+| GET /api/digest | 401 without the cron bearer; {"sent": boolean} with it. Never errors loud: a broken morning answers {"sent": false} and the glance still tells the truth. |
+| GET /admin/export/orders.csv, debts.csv | 302 to the login without a session. With one: UTF-8 CSV with BOM, CRLF lines, integer-split naira (never floats), no-store, dated filename. Negative balances print as negatives here on purpose: the accountant wants the credit. |
+| GET /admin/compose | 302 everywhere: to login without a session, to the orders room on a bad kind or id, to the order on a missing phone, and to wa.me with the message written when all is well. Signs the history on the way out. |
+| GET /admin/share | A page behind the door (layout redirects without a session). Reads title, text, url; matches any 234 or 0-prefixed number; never stores anything until he taps keep. |
+| Server actions (all rooms) | hasSession first line, refuse in a sentence. Inputs guarded: enums for statuses and methods, parseNaira for money, uuid regexes for ids, caps on audit strings. redirect and notFound throw outside every try. |
+
+## The domain truths · the audit (checklist 3, done)
+
+| Truth | Verdict |
+|---|---|
+| Nothing is ever deleted | Pass (zero .delete() calls against the database in the whole tree; statuses and active flags only) |
+| Billed is always sum of lines, paid always sum of payments, computed fresh | Pass (no stored balances anywhere; every open recomputes; "never stale by construction") |
+| Balance never negative in display | Pass (order page says Settled in full past zero; customer cards say Paid in full; debts filters balance > 0; the glance now clamps its Outstanding at zero, fixed this pass; the CSV alone shows negatives, deliberately, for the accountant) |
+| Money is integer kobo, always | Pass (parseNaira is the only entry, naira the only exit, nairaPlain splits digits for CSV; no float arithmetic anywhere on money) |
+| Order lifecycle is an enum walk | Pass (five statuses guarded by enum on write; optimistic chips walk back on failure with a sentence) |
+| Stock moves only at the door | Pass (crossing into delivered or settled subtracts each line's quantity, clamped at zero; walking back out returns it; delivered to settled moves nothing twice; enquiry to deposit never touches a shelf) |
+| Stock movements are audited and speak | Pass (per-line history sentences: taken for a delivery, returned to the shelf; a reorder crossing answers in the save sentence and taps the phone once, guarded by the before-above, after-at-or-below test) |
+| Deliveries walk one step, server-verified | Pass (the action reads true status first; a stale screen cannot push a delivery two steps) |
+| Enquiries convert themselves | Pass (opening an order marks that customer's new and replied enquiries converted; attach ties a name without touching status) |
+| Settled orders leave the ledger | Pass (debts and the glance exclude enquiry and settled everywhere, including the owed badge) |
 
 ## The missing list · CLOSED
 

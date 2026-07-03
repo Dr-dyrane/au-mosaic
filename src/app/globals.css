@@ -583,3 +583,20 @@ a:active .chip-glass,
   .cap-reveal { opacity: 1; transform: none; transition: none; }
   .tilt > * { transform: none; transition: none; }
 }
+
+/* ---- paper -------------------------------------------------------------------------- */
+
+/* The invoice prints as the sheet alone: helper chrome hides, the
+   screen's shadow and radius stand down, and the page owns its own
+   margins. Toner has one theme. */
+@media print {
+  .print-hide { display: none !important; }
+  .print-sheet {
+    max-width: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  body { background: #fff !important; }
+  @page { margin: 14mm; }
+}
