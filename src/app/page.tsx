@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/ui";
    screen; everything else whispers. */
 
 const MATERIALS = [
-  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: IMG.poolBlueMosaic },
+  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues },
   { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: IMG.vibrantGlassMosaic },
   { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: IMG.fishMosaicPool },
 ];
@@ -209,7 +209,7 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl gap-16 px-5 py-28 sm:grid sm:grid-cols-2 sm:px-8 sm:py-36">
           <Reveal className="-mx-5 sm:mx-0">
             <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px]">
-              <Image src={IMG.bluePatternTiles} alt="Patterned mosaic, laid by hand" fill quality={90} sizes="(max-width: 640px) 100vw, 50vw" className="media-lux object-cover" />
+              <Image src={OWN.craftHands} alt="Gloved hands pressing blue mosaic into fresh adhesive" fill quality={90} sizes="(max-width: 640px) 100vw, 50vw" className="media-lux object-cover" />
             </div>
           </Reveal>
           <Reveal delay={120}>

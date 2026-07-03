@@ -11,7 +11,6 @@ const px = (path: string, w = 2000) =>
 
 export const IMG = {
   /* mosaic tiles */
-  poolBlueMosaic: px("28287770/pexels-photo-28287770.jpeg"),
   bluePatternTiles: px("14579397/pexels-photo-14579397.jpeg"),
   vibrantGlassMosaic: px("28408521/pexels-photo-28408521/free-photo-of-pixelated-sunset.jpeg"),
   beetleMosaicArt: px("32325318/pexels-photo-32325318/free-photo-of-intricate-beetle-mosaic-artwork-detail.jpeg"),
@@ -25,6 +24,8 @@ export const IMG = {
 export const OWN = {
   duskVilla: "/media/dusk-villa.jpg",
   duskVillaPoster: "/media/dusk-villa-poster.jpg",
+  poolBlues: "/media/pool-blues.jpg",
+  craftHands: "/media/craft-hands.jpg",
 };
 
 /* Film: slow ambient loops, owned. The hero film's poster is its own first
