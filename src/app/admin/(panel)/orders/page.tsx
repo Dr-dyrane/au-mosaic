@@ -82,6 +82,10 @@ export default async function OrdersPage({
             className="w-full rounded-full bg-shell/60 px-5 py-3 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell"
           />
         </form>
+        {/* A plain link, so the book prints itself with no script. */}
+        <a href="/admin/export/orders.csv" className="link-hair text-dusk text-[13px]">
+          CSV for the accountant
+        </a>
       </div>
 
       {/* Filter by step: links, so the URL remembers the view. */}

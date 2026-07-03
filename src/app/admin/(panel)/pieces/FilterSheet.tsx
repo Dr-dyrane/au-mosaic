@@ -5,7 +5,7 @@ import { useState } from "react";
 import { buzz } from "@/lib/backoffice";
 
 import { IconClose, IconFilter } from "../icons";
-import { HUES, makeStockHref, type StockFilters } from "./stock-filters";
+import { HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
 
 /* The phone's filter: one chip opens a glass sheet from the bottom
    edge, big rows, each a link so the URL carries the view. Tapping a
@@ -107,6 +107,19 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
                     <span className="h-4 w-4 rounded-full" style={{ background: h.dot }} />
                     {h.label}
                   </span>
+                </Row>
+              ))}
+            </div>
+            <p className="eyebrow mt-5 px-2">Order by</p>
+            <div className="mt-3 grid gap-1">
+              {SORTS.map((s) => (
+                <Row
+                  key={s.label}
+                  onPick={close}
+                  href={makeStockHref(current, { sort: s.key })}
+                  on={(current.sort === "name" || current.sort === "low" ? current.sort : undefined) === s.key}
+                >
+                  {s.label}
                 </Row>
               ))}
             </div>

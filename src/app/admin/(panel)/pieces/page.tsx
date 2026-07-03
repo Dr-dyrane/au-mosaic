@@ -2,7 +2,7 @@ import Link from "next/link";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import FilterSheet from "./FilterSheet";
-import { HUES, makeStockHref, type StockFilters } from "./stock-filters";
+import { HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
 
 /* First colour decides the hue shelf: low saturation is neutral,
    then blue, green, or earth by the wheel. */
@@ -58,6 +58,24 @@ export default async function PiecesPage({
       (!filters.hue || hueOf(row.piece.colors) === filters.hue)
   );
   const filtering = Boolean(filters.family || filters.low || filters.hue);
+  const sort = filters.sort === "name" || filters.sort === "low" ? filters.sort : undefined;
+
+  /* Sorting rearranges inside each range; the shelves themselves
+     stay where the shop floor knows them. */
+  type Row = (typeof visible)[number];
+  const arrange = (items: Row[]) => {
+    if (sort === "name") {
+      return [...items].sort((a, b) => a.piece.name.localeCompare(b.piece.name));
+    }
+    if (sort === "low") {
+      const qty = (r: Row) => r.stock?.quantitySheets ?? 0;
+      const isLow = (r: Row) => (r.stock ? qty(r) <= r.stock.reorderAt : false);
+      return [...items].sort(
+        (a, b) => Number(isLow(b)) - Number(isLow(a)) || qty(a) - qty(b)
+      );
+    }
+    return items;
+  };
 
   return (
     <main>
@@ -104,6 +122,16 @@ export default async function PiecesPage({
             <span className="h-3.5 w-3.5 rounded-full" style={{ background: h.dot }} />
           </Link>
         ))}
+        <span aria-hidden className="mx-1.5" />
+        {SORTS.map((s) => (
+          <Link
+            key={s.label}
+            href={makeStockHref(filters, { sort: s.key })}
+            className={`chip-solid ${sort === s.key ? "is-on" : ""}`}
+          >
+            {s.label}
+          </Link>
+        ))}
       </div>
 
       {[
@@ -122,7 +150,9 @@ export default async function PiecesPage({
           <section key={tier.family} className="mt-14">
             <h2 className="font-serif text-[26px]">{tier.title}</h2>
             {tierRanges.map((r) => {
-              const items = tierItems.filter((row) => row.piece.rangeSlug === r.slug);
+              const items = arrange(
+                tierItems.filter((row) => row.piece.rangeSlug === r.slug)
+              );
               if (items.length === 0) return null;
               return (
                 <section key={r.slug} className="mt-8">

@@ -1,31 +1,54 @@
 import Link from "next/link";
-import { count, desc, eq, ilike, or } from "drizzle-orm";
+import { asc, count, desc, eq, ilike, or } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import EnquiryRow from "./EnquiryRow";
 import Pager from "../Pager";
 
 const PER_PAGE = 24;
+const ENQ_PER_PAGE = 12;
 
 /* Everyone he sells to, one search away. Cards lead with the name and
-   the number he will tap next, newest people first. Search is a plain
-   GET form, so it answers on the weakest connection before any script
-   arrives. */
+   the number he will tap next, newest people first, A to Z one tap
+   away. Search is a plain GET form, so it answers on the weakest
+   connection before any script arrives. */
 
 export const dynamic = "force-dynamic";
 
 const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
+type Params = { q?: string; page?: string; enq?: string; sort?: string };
+
+/* One href builder so every link carries the whole view. */
+function makeHref(cur: Params, patch: Partial<Params>) {
+  const next = { ...cur, ...patch };
+  const p = new URLSearchParams();
+  if (next.q) p.set("q", next.q);
+  if (next.sort === "name") p.set("sort", "name");
+  if (next.page && next.page !== "1") p.set("page", next.page);
+  if (next.enq && next.enq !== "1") p.set("enq", next.enq);
+  const s = p.toString();
+  return s ? `/admin/customers?${s}` : "/admin/customers";
+}
+
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<Params>;
 }) {
-  const { q: raw, page: pageRaw } = await searchParams;
-  const q = (raw ?? "").trim();
-  const page = Math.max(1, parseInt(pageRaw ?? "1", 10) || 1);
+  const params = await searchParams;
+  const q = (params.q ?? "").trim();
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const enqPage = Math.max(1, parseInt(params.enq ?? "1", 10) || 1);
+  const sort = params.sort === "name" ? "name" : "newest";
 
   const db = getDb();
+  const [freshRow] = await db
+    .select({ n: count() })
+    .from(schema.enquiries)
+    .where(eq(schema.enquiries.status, "new"));
+  const freshTotal = freshRow.n;
+  const enqPages = Math.max(1, Math.ceil(freshTotal / ENQ_PER_PAGE));
   const fresh = await db
     .select({
       enquiry: schema.enquiries,
@@ -35,7 +58,8 @@ export default async function CustomersPage({
     .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.enquiries.pieceSlug))
     .where(eq(schema.enquiries.status, "new"))
     .orderBy(desc(schema.enquiries.createdAt))
-    .limit(12);
+    .limit(ENQ_PER_PAGE)
+    .offset((Math.min(enqPage, enqPages) - 1) * ENQ_PER_PAGE);
   const where = q
     ? or(ilike(schema.customers.name, `%${q}%`), ilike(schema.customers.phone, `%${q}%`))
     : undefined;
@@ -46,7 +70,7 @@ export default async function CustomersPage({
     .select()
     .from(schema.customers)
     .where(where)
-    .orderBy(desc(schema.customers.createdAt))
+    .orderBy(sort === "name" ? asc(schema.customers.name) : desc(schema.customers.createdAt))
     .limit(PER_PAGE)
     .offset((page - 1) * PER_PAGE);
 
@@ -75,6 +99,23 @@ export default async function CustomersPage({
         </Link>
       </div>
 
+      {/* Two ways to hold the list: as it grew, or as the alphabet
+          holds it. Links, so the URL remembers. */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link
+          href={makeHref(params, { sort: undefined, page: undefined })}
+          className={`chip-solid ${sort === "newest" ? "is-on" : ""}`}
+        >
+          Newest
+        </Link>
+        <Link
+          href={makeHref(params, { sort: "name", page: undefined })}
+          className={`chip-solid ${sort === "name" ? "is-on" : ""}`}
+        >
+          A to Z
+        </Link>
+      </div>
+
       {/* The site's WhatsApp taps land here until they are cleared.
           The chat itself lives in WhatsApp; this remembers it began. */}
       {fresh.length > 0 && (
@@ -82,6 +123,7 @@ export default async function CustomersPage({
           <p className="font-serif text-[20px]">Fresh from the window</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">
             Site taps. Check the chat, then clear.
+            {freshTotal > ENQ_PER_PAGE && ` ${freshTotal} waiting.`}
           </p>
           <div className="mt-4 divide-y divide-transparent">
             {fresh.map(({ enquiry, pieceName }) => (
@@ -102,6 +144,11 @@ export default async function CustomersPage({
               />
             ))}
           </div>
+          <Pager
+            page={Math.min(enqPage, enqPages)}
+            pages={enqPages}
+            makeHref={(p) => makeHref(params, { enq: String(p) })}
+          />
         </section>
       )}
 
@@ -127,7 +174,7 @@ export default async function CustomersPage({
       <Pager
         page={page}
         pages={pages}
-        makeHref={(p) => `/admin/customers?${new URLSearchParams({ ...(q ? { q } : {}), page: String(p) })}`}
+        makeHref={(p) => makeHref(params, { page: String(p), enq: undefined })}
       />
 
       {customers.length === 0 && (

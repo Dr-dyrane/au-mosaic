@@ -1,13 +1,17 @@
 import Link from "next/link";
-import { asc, eq } from "drizzle-orm";
+import { asc, count, desc, eq, inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import StatusStep from "./StatusStep";
+import Pager from "../Pager";
 
 /* The road, at a glance. Jobs waiting to go, jobs out with a driver,
    jobs landed. Each one moves forward a single step per tap, and the
-   house keeps the day it landed. */
+   house keeps the day it landed. Active jobs show whole; the landed
+   archive turns pages. */
 
 export const dynamic = "force-dynamic";
+
+const LANDED_PER_PAGE = 10;
 
 function fmtDate(d: Date | string) {
   return new Date(d).toLocaleDateString("en-NG", {
@@ -17,9 +21,16 @@ function fmtDate(d: Date | string) {
   });
 }
 
-export default async function DeliveriesPage() {
+export default async function DeliveriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageRaw } = await searchParams;
+  const pageAsked = Math.max(1, parseInt(pageRaw ?? "1", 10) || 1);
+
   const db = getDb();
-  const rows = await db
+  const active = await db
     .select({
       d: schema.deliveries,
       customerName: schema.customers.name,
@@ -27,23 +38,39 @@ export default async function DeliveriesPage() {
     .from(schema.deliveries)
     .innerJoin(schema.orders, eq(schema.deliveries.orderId, schema.orders.id))
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
+    .where(inArray(schema.deliveries.status, ["pending", "out"]))
     .orderBy(asc(schema.deliveries.scheduledFor));
 
-  const pending = rows.filter((r) => r.d.status === "pending");
-  const out = rows.filter((r) => r.d.status === "out");
-  const delivered = rows
-    .filter((r) => r.d.status === "delivered")
-    .sort(
-      (a, b) =>
-        (b.d.deliveredAt ? new Date(b.d.deliveredAt).getTime() : 0) -
-        (a.d.deliveredAt ? new Date(a.d.deliveredAt).getTime() : 0)
-    )
-    .slice(0, 10);
+  const [landedRow] = await db
+    .select({ n: count() })
+    .from(schema.deliveries)
+    .where(eq(schema.deliveries.status, "delivered"));
+  const landedTotal = landedRow.n;
+  const landedPages = Math.max(1, Math.ceil(landedTotal / LANDED_PER_PAGE));
+  /* A page past the end walks back to the last one, never a dead end. */
+  const page = Math.min(pageAsked, landedPages);
+
+  const landed = await db
+    .select({
+      d: schema.deliveries,
+      customerName: schema.customers.name,
+    })
+    .from(schema.deliveries)
+    .innerJoin(schema.orders, eq(schema.deliveries.orderId, schema.orders.id))
+    .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
+    .where(eq(schema.deliveries.status, "delivered"))
+    .orderBy(desc(schema.deliveries.deliveredAt))
+    .limit(LANDED_PER_PAGE)
+    .offset((page - 1) * LANDED_PER_PAGE);
 
   const groups = [
-    { key: "pending", title: "Waiting to go", items: pending },
-    { key: "out", title: "On the road", items: out },
-    { key: "delivered", title: "Landed", items: delivered },
+    { key: "pending", title: "Waiting to go", items: active.filter((r) => r.d.status === "pending") },
+    { key: "out", title: "On the road", items: active.filter((r) => r.d.status === "out") },
+    {
+      key: "delivered",
+      title: landedTotal > 0 ? `Landed · ${landedTotal}` : "Landed",
+      items: landed,
+    },
   ];
 
   return (
@@ -104,11 +131,18 @@ export default async function DeliveriesPage() {
                 </article>
               ))}
             </div>
+            {g.key === "delivered" && (
+              <Pager
+                page={page}
+                pages={landedPages}
+                makeHref={(p) => (p === 1 ? "/admin/deliveries" : `/admin/deliveries?page=${p}`)}
+              />
+            )}
           </section>
         );
       })}
 
-      {rows.length === 0 && (
+      {active.length === 0 && landedTotal === 0 && (
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">Nothing is on the road.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">

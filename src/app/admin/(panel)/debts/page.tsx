@@ -106,6 +106,12 @@ export default async function DebtsPage() {
         <div className="mt-8">
           <p className="font-serif text-[40px] leading-none">{naira(grand)}</p>
           <p className="mt-2 text-[13px] text-dusk">owed across everyone</p>
+          <a
+            href="/admin/export/debts.csv"
+            className="link-hair mt-4 inline-block text-dusk text-[13px]"
+          >
+            CSV for the accountant
+          </a>
         </div>
       )}
 

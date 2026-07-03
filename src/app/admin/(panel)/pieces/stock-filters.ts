@@ -3,7 +3,7 @@
    (The server may not call a client module's functions; it may only
    render its components. Production taught this the hard way.) */
 
-export type StockFilters = { family?: string; low?: string; hue?: string };
+export type StockFilters = { family?: string; low?: string; hue?: string; sort?: string };
 
 export function makeStockHref(cur: StockFilters, patch: Partial<StockFilters>) {
   const next = { ...cur, ...patch };
@@ -11,9 +11,18 @@ export function makeStockHref(cur: StockFilters, patch: Partial<StockFilters>) {
   if (next.family) p.set("family", next.family);
   if (next.low) p.set("low", "1");
   if (next.hue) p.set("hue", next.hue);
+  if (next.sort === "name" || next.sort === "low") p.set("sort", next.sort);
   const s = p.toString();
   return s ? `/admin/pieces?${s}` : "/admin/pieces";
 }
+
+/* The three ways a shelf reads: as he arranged it, by name, or with
+   the empties shouting first. */
+export const SORTS = [
+  { key: undefined, label: "Shelf order" },
+  { key: "name", label: "By name" },
+  { key: "low", label: "Low first" },
+] as const;
 
 export const HUES = [
   { key: "blue", dot: "#3aa9d6", label: "Blues" },

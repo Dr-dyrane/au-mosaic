@@ -60,15 +60,30 @@ function State({ watch }: { watch: boolean }) {
   );
 }
 
-export default async function InsightsPage() {
+/* The windows the book will open: a quarter, half a year, a year. */
+const WINDOWS = [
+  { months: 3, label: "Three months" },
+  { months: 6, label: "Six months" },
+  { months: 12, label: "A year" },
+] as const;
+
+export default async function InsightsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ months?: string }>;
+}) {
+  const { months: monthsRaw } = await searchParams;
+  const win = WINDOWS.find((w) => String(w.months) === monthsRaw) ?? WINDOWS[1];
+
   const db = getDb();
 
+  /* The interval comes from the whitelist above, never the URL. */
   const monthly = await db.execute(sql`
     select to_char(date_trunc('month', o.created_at), 'Mon') as label,
            date_trunc('month', o.created_at) as m,
            coalesce(sum(i.given_price_kobo * i.quantity), 0)::bigint as billed
     from orders o join order_items i on i.order_id = o.id
-    where o.created_at > now() - interval '6 months'
+    where o.created_at > now() - ${sql.raw(`interval '${win.months} months'`)}
     group by 2 order by 2`);
 
   const topPieces = await db.execute(sql`
@@ -149,7 +164,21 @@ export default async function InsightsPage() {
         The business, not the traffic.
       </p>
 
-      <div className="mt-10 grid gap-5 lg:grid-cols-2">
+      {/* How far back the month bars look. Links, so the URL
+          remembers the window. */}
+      <div className="mt-8 flex flex-wrap gap-2">
+        {WINDOWS.map((w) => (
+          <Link
+            key={w.months}
+            href={w.months === 6 ? "/admin/insights" : `/admin/insights?months=${w.months}`}
+            className={`chip-solid ${win.months === w.months ? "is-on" : ""}`}
+          >
+            {w.label}
+          </Link>
+        ))}
+      </div>
+
+      <div className="mt-8 grid gap-5 lg:grid-cols-2">
         <section className="panel">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="font-serif text-[20px]">Billed, month by month</p>
