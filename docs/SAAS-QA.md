@@ -98,6 +98,17 @@ means not built yet. Update the verdicts as passes land.
 | Export (CSV) | Missing |
 | Date-range control | Missing (fixed windows for now) |
 
+## Checklists to write next (owner's ask, stacked)
+
+1. Error-boundary audit: every boundary offers a way home, never a
+   dead end; boundaries never swallow auth redirects; raw driver
+   result shapes (rows vs array) normalised at every execute call.
+2. API contract checklist: response shapes, status codes, input caps,
+   and what each public endpoint promises the funnel.
+3. CRM domain checklists: order lifecycle edge cases, stock movement
+   truths, money reconciliation (billed = lines, paid = payments,
+   balance never negative in display).
+
 ## The missing list, prioritised
 
 1. Pagination for deliveries and enquiries when volume demands it.

@@ -33,8 +33,8 @@ async function owedCount(): Promise<number> {
               and op.status not in ('enquiry','settled')), 0)
           > 0
       ) t`);
-    const row = (rows as unknown as { n?: number }[])[0];
-    return Number(row?.n ?? 0);
+    const list = Array.isArray(rows) ? rows : ((rows as { rows?: { n?: number }[] }).rows ?? []);
+    return Number(list[0]?.n ?? 0);
   } catch {
     return 0;
   }

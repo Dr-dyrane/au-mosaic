@@ -9,6 +9,9 @@ import { naira } from "@/lib/backoffice";
 
 export const dynamic = "force-dynamic";
 
+const rowsOf = <T,>(r: unknown): T[] =>
+  Array.isArray(r) ? (r as T[]) : ((r as { rows?: T[] }).rows ?? []);
+
 function Bar({ frac }: { frac: number }) {
   return (
     <span className="block h-2 w-full rounded-full bg-shell/50">
@@ -67,11 +70,11 @@ export default async function InsightsPage() {
     .orderBy(desc(schema.stockLevels.updatedAt))
     .limit(8);
 
-  const months = monthly as unknown as { label: string; billed: number }[];
-  const pieces = topPieces as unknown as { name: string; revenue: number }[];
-  const buckets = aging as unknown as { bucket: string; n: number; owed: number }[];
-  const taps = sources as unknown as { source: string; n: number }[];
-  const leakTotal = Number((leak as unknown as { total: number }[])[0]?.total ?? 0);
+  const months = rowsOf<{ label: string; billed: number }>(monthly);
+  const pieces = rowsOf<{ name: string; revenue: number }>(topPieces);
+  const buckets = rowsOf<{ bucket: string; n: number; owed: number }>(aging);
+  const taps = rowsOf<{ source: string; n: number }>(sources);
+  const leakTotal = Number(rowsOf<{ total: number }>(leak)[0]?.total ?? 0);
   const maxMonth = Math.max(1, ...months.map((m) => Number(m.billed)));
   const maxPiece = Math.max(1, ...pieces.map((p) => Number(p.revenue)));
   const maxTap = Math.max(1, ...taps.map((t) => t.n));

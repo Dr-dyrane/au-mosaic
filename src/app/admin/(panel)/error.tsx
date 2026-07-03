@@ -14,9 +14,14 @@ export default function AdminError({ reset }: { error: Error; reset: () => void 
         Nothing is lost. Try again; if it keeps happening, close the app
         and open it once more.
       </p>
-      <button onClick={reset} className="btn-gold mt-8">
-        Try again
-      </button>
+      <div className="mt-8 flex flex-wrap items-center gap-7">
+        <button onClick={reset} className="btn-gold">
+          Try again
+        </button>
+        <a href="/admin" className="link-hair text-dusk text-[13px]">
+          Back to the glance
+        </a>
+      </div>
     </main>
   );
 }
