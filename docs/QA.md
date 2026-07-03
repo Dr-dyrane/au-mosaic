@@ -141,7 +141,7 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | beetle-mural + beetle-day | PAIRED. Iridescence shifts emerald to teal in daylight; gold glints. |
 | hammam + hammam-day | PAIRED. The oculus pours morning; wet honey mosaic, no steam, the drip survives. |
 | dusk-villa + dusk-villa-day | PAIRED. The same address before breakfast: gold horizon, mosaic through glassy water. |
-| terrace | golden hour, day pending |
+| terrace + terrace-day | PAIRED. Swimming-hour midday: crisp caustics, white sparkle on the spill, true blue sea. |
 | craft-hands | lamp lit, day pending |
 | dark-bath | stays dark in both themes by identity |
 | borders, villa-palms, private-pool, pool-blues | already daylight, no pair needed |
