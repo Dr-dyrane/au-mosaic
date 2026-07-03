@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import ColorsField from "../ColorsField";
 import { createPiece, type SaveState } from "../actions";
 
 /* Birth certificate for a piece: a name and a shelf. Everything else
@@ -36,10 +37,7 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
         <label htmlFor="line" className={label}>One line under the name</label>
         <input id="line" name="line" aria-label="Piece line" className={field} />
       </div>
-      <div>
-        <label htmlFor="colors" className={label}>Tile colours (hex codes, optional)</label>
-        <input id="colors" name="colors" aria-label="Tile colours" placeholder="#1179a8, #3aa9d6" className={field} />
-      </div>
+      <ColorsField initial={[]} />
       <label className="flex cursor-pointer items-center justify-between">
         <span>
           <span className="block text-[15px] font-medium">Put it in the window now</span>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
+import ColorsField from "../ColorsField";
 import { savePiece, type SaveState } from "../actions";
 
 /* One form, one Save. Labels speak shop floor, not database: sheets in
@@ -26,11 +27,6 @@ const label = "eyebrow mb-2.5 block";
 
 export default function PieceForm({ piece, stock }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(savePiece, null);
-  const [colors, setColors] = useState((piece.colors ?? []).join(", "));
-  const preview = colors
-    .split(/[,\s]+/)
-    .map((c) => c.trim())
-    .filter((c) => /^#[0-9a-fA-F]{3,8}$/.test(c));
 
   return (
     <form action={action} className="mt-10 grid max-w-3xl gap-8">
@@ -58,17 +54,7 @@ export default function PieceForm({ piece, stock }: Props) {
 
       <div className="panel grid gap-6">
         <p className="font-serif text-[20px]">The look</p>
-        <div>
-          <label htmlFor="colors" className={label}>Tile colours (hex codes)</label>
-          <input id="colors" name="colors" value={colors} onChange={(e) => setColors(e.target.value)} className={field} />
-          {preview.length > 0 && (
-            <span className="mt-3 flex gap-1">
-              {preview.map((c, i) => (
-                <span key={`${c}${i}`} className="h-6 w-6 rounded-[6px]" style={{ background: c }} />
-              ))}
-            </span>
-          )}
-        </div>
+        <ColorsField initial={piece.colors ?? []} />
         <label className="flex cursor-pointer items-center justify-between">
           <span>
             <span className="block text-[15px] font-medium">Show on the site</span>
