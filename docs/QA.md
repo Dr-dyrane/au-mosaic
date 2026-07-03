@@ -139,7 +139,7 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | glass-jewels + glass-day | PAIRED. The jewel case at noon: daylight transmission, ivory room behind. |
 | koi-mural + koi-day | PAIRED. Same fish, same swirls, skylight morning; gold flecks glint in daylight. |
 | beetle-mural + beetle-day | PAIRED. Iridescence shifts emerald to teal in daylight; gold glints. |
-| hammam | night only, day pending |
+| hammam + hammam-day | PAIRED. The oculus pours morning; wet honey mosaic, no steam, the drip survives. |
 | dusk-villa | night only, day pending |
 | terrace | golden hour, day pending |
 | craft-hands | lamp lit, day pending |
