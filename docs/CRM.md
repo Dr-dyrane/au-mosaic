@@ -182,11 +182,20 @@ his phone with the same calm as browsing his own gallery.
 
 Assistant memory folders are session-scoped and unreliable across
 sessions; this section is the durable copy. Any session continuing
-the CRM reads this whole document first, then SAAS-QA.md, then
-QA.md, and RECITES THE ORDERED PLAN BACK TO DYRANE for a yes before
-touching code. One item at a time: build, lint (max-warnings=0),
-ledger row in QA.md, story commit, remind Dyrane to push. Move board
-verdicts as things land; never claim a pass that was not verified.
+the CRM reads this whole document first, then SAAS-QA.md, then QA.md,
+and recites the ordered plan once at session start, for the record.
+
+STANDING YES (Dyrane, 2026-07-03): the CRM is a goal, not a list of
+requests. Work the queue CONTINUOUSLY, item after item, without
+pausing to ask permission between items. Stop only for three things:
+(a) a domain decision the boards do not cover, (b) steps that need
+Dyrane's machine or accounts (git push, db:push, Vercel env,
+recordings, Google profiles), listed for him in one batch at the end,
+(c) context running out, in which case update this handoff and close
+cleanly so the next session continues without a word. Per item, the
+ritual is unchanged: build, lint (max-warnings=0), ledger row in
+QA.md, story commit, continue. Move board verdicts as things land;
+never claim a pass that was not verified.
 
 **Where things stood at handoff.** CRM live at www.aumosaic.com/admin,
 password auth, installable PWA. Rooms open: glance (Today and
