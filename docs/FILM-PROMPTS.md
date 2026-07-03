@@ -4,6 +4,24 @@ Generation brief for the site's film slots. One shared style block, then
 one prompt per slot. Every film must loop: ask the generator for a
 seamless loop, or make the last frame match the first.
 
+## When video is hard: the dimensional still
+
+Stills are enough. The site already supplies the motion: ken-burns
+drift, pointer and gyroscope tilt, gallery vignette, scroll parallax.
+What a still must bring is DEPTH, so the motion has something to move.
+Take any slot prompt below, drop the motion sentences, and append this:
+
+"Ultra detailed photoreal still. Strong depth of field: one sharp
+subject in the foreground, softly blurred distance behind it. Raking
+warm light travels across the mosaic so every tessera casts a tiny
+shadow and the surface reads as relief, not print. Clear foreground,
+midground, and background layers. 4K. Portrait 4:5 for piece cards,
+16:9 for scenes."
+
+Same reference frames, same style block, same rules. One good
+dimensional still per slot upgrades the site today; films replace them
+whenever generation cooperates, one at a time.
+
 ## The style block (prepend to every prompt)
 
 Cinematic luxury interior film, photoreal, shot on a locked tripod with

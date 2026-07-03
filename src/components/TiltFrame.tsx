@@ -1,12 +1,31 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 /* The museum hold: media leans a degree or two toward the pointer, like a
-   piece under glass. Hover devices only, still under reduced motion, and
-   the slight overscale means edges never show. */
+   piece under glass. On phones the gyroscope does it physically, where the
+   browser allows it without a permission dance (Android does; iOS stays
+   still rather than interrupt). Reduced motion stands everything down,
+   and the slight overscale means edges never show. */
 export default function TiltFrame({ children, className = "" }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+    type DOE = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
+    if (typeof (DeviceOrientationEvent as unknown as DOE).requestPermission === "function") return;
+    const el = ref.current;
+    if (!el) return;
+    const onOrient = (e: DeviceOrientationEvent) => {
+      if (e.beta == null || e.gamma == null) return;
+      const ry = Math.max(-3, Math.min(3, e.gamma / 12));
+      const rx = Math.max(-3, Math.min(3, (45 - e.beta) / 14));
+      el.style.setProperty("--rx", `${rx.toFixed(2)}deg`);
+      el.style.setProperty("--ry", `${ry.toFixed(2)}deg`);
+    };
+    window.addEventListener("deviceorientation", onOrient);
+    return () => window.removeEventListener("deviceorientation", onOrient);
+  }, []);
 
   const onMove = (e: React.PointerEvent) => {
     const el = ref.current;
