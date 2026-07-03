@@ -93,7 +93,7 @@ In use, verified live (Pexels, free licence, hotlink):
 | fishMosaicPool | 10231663 | fish mural under water |
 | rippledLaneWater | 6110597 | clear rippled pool water |
 | duskVilla | owned, /media/dusk-villa.jpg | generated for the house: Dusk Villa card, Seen-in scene, OG card |
-| duskVillaPoster + heroLoop | owned, /media | the hero: 8s seamless ping-pong film, its first frame as still and poster. Retired Pexels 28054849. |
+| duskVillaPoster + heroLoop | owned, /media | the hero: 10s warm dusk film, generator watermark erased, first frame as still and poster. Retired Pexels 28054849; the cooler 8s cut lives in git history. |
 | villaPalms | 30195980 | villa beside still water |
 | infinityTerrace | 20975726 | infinity pool, mountain resort |
 | hammam | 7031713 | warm stone hammam |

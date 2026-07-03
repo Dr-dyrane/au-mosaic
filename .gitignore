@@ -44,3 +44,7 @@ public/media/davinci_cinematic_luxury_architectural_film__ultra_photore.png
 public/media/davinci_cinematic_luxury_architectural_film__ultra_photore.mp4
 .DS_Store
 public/media/.gitkeep
+public/media/*
+!public/media/dusk-villa.jpg
+!public/media/dusk-villa-loop.mp4
+!public/media/dusk-villa-poster.jpg
