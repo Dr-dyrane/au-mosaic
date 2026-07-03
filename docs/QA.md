@@ -140,6 +140,15 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Icons | favicon, icon, apple-icon regenerated from the same bitmap via scripts/brand-icons.py. One mark everywhere. |
 | Colours | House blues until Nonso's correction arrives; any brand palette then enters through docs/THEMING.md and the theme gate. |
 
+## The four houses (palette axis)
+
+| Item | Status |
+|---|---|
+| Palettes | Maison, Lagoon, Terracotta, Onyx: each with night and day token sets, brass, scene golds, and scrim bases. All 64 text pairs plus 16 scene and button checks pass the extended gate. |
+| Hardware follows | Logo tesserae, brass button, skip link, glass, scrims, and scene typography all read tokens, so every house restyles the whole site including the mark, no component edits. |
+| Picker | Footer swatch row (radiogroup, labelled, ringed active state), persisted to localStorage, applied before first paint. Default remains Maison. |
+| One failure caught | Lagoon day mist shipped at 4.30 on first draft; the gate refused it, darkened to 4.5+. The gate works. |
+
 ## External lockup review, adjudicated
 
 A second opinion on the logo lockup, checked against the code rather

@@ -56,9 +56,19 @@ If the media should follow the brand too (a different mood, not just
 different chrome), the DAY pipeline already exists: generate twins
 per MEDIA-BRIEF, drop, wire, done.
 
-## Adding a third theme (only if ever asked)
+## The houses (the second axis, built)
 
-Today the system is two suns: default light, `data-theme` absent
-means night. A third theme means: a theme name in the store instead
-of a boolean, a cycle or menu on the toggle, a media map per theme.
-Half a day, not an afternoon; priced work, not a favour.
+The system is now two axes. Mode (night or day, `data-theme`) drives
+media and scenes. Palette (which house, `data-palette`) drives the
+tokens: Maison, Lagoon, Terracotta, Onyx, each defining both modes
+plus its hardware (brass, the two scene golds, and the scrim sand
+triplets). The footer picker sets it, localStorage keeps it, the
+pre-paint script applies it before first paint, and the logo, glass,
+scrims, and button all follow automatically because they read tokens.
+Every house passes the gate in both modes before it ships. A new
+house is one CSS block plus one swatch entry in PalettePicker.
+
+Media stays the maison photography across palettes on purpose:
+photographs do not recolour, and the warm water frames sit well under
+every house. If a client palette ever demands its own mood, the DAY
+pipeline shows the way: generate, gate, wire.

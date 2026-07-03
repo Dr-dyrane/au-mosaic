@@ -38,6 +38,13 @@
   --t-gold-deep: #8f7434;
   --t-water: #7fd0db;
   --t-lift: 0 20px 60px -30px rgb(0 0 0 / 0.8);
+  /* Mode-invariant palette hardware: the button metal, the scene golds,
+     and the scrim bases (night and day sand as rgb triplets). */
+  --t-brass: #c2a15c;
+  --t-scene-gold-night: #c2a15c;
+  --t-scene-gold-day: #7a6128;
+  --sand-night-rgb: 12 11 9;
+  --sand-day-rgb: 246 243 236;
   color-scheme: dark;
 }
 
@@ -52,6 +59,98 @@
   --t-gold-deep: #8f7434;
   --t-water: #2e7e8c;
   --t-lift: 0 18px 50px -28px rgb(23 21 15 / 0.25);
+  color-scheme: light;
+}
+
+/* ---- the other houses: three more palettes, each with two suns -------------
+
+   Same bones, different stone. Every block passes scripts/theme-check.py
+   before it ships; the footer picker sets data-palette. */
+
+[data-palette="lagoon"] {
+  --t-sand: #071618;
+  --t-shell: #0d2226;
+  --t-ink: #edf6f3;
+  --t-dusk: #9fbcb5;
+  --t-mist: #7e9a93;
+  --t-gold: #63cfbf;
+  --t-gold-deep: #2f8a7d;
+  --t-water: #7fd0db;
+  --t-brass: #63cfbf;
+  --t-scene-gold-night: #63cfbf;
+  --t-scene-gold-day: #135e50;
+  --sand-night-rgb: 7 22 24;
+  --sand-day-rgb: 238 246 243;
+  color-scheme: dark;
+}
+[data-palette="lagoon"][data-theme="light"] {
+  --t-sand: #eef6f3;
+  --t-shell: #ffffff;
+  --t-ink: #0c211e;
+  --t-dusk: #40655d;
+  --t-mist: #4f7069;
+  --t-gold: #14685a;
+  --t-gold-deep: #2f8a7d;
+  --t-water: #14685a;
+  --t-lift: 0 18px 50px -28px rgb(12 33 30 / 0.25);
+  color-scheme: light;
+}
+
+[data-palette="terracotta"] {
+  --t-sand: #150c08;
+  --t-shell: #20140d;
+  --t-ink: #f6efe8;
+  --t-dusk: #b5a08f;
+  --t-mist: #97826d;
+  --t-gold: #d99a6c;
+  --t-gold-deep: #a45f33;
+  --t-water: #d99a6c;
+  --t-brass: #d99a6c;
+  --t-scene-gold-night: #d99a6c;
+  --t-scene-gold-day: #7e4a20;
+  --sand-night-rgb: 21 12 8;
+  --sand-day-rgb: 248 241 234;
+  color-scheme: dark;
+}
+[data-palette="terracotta"][data-theme="light"] {
+  --t-sand: #f8f1ea;
+  --t-shell: #ffffff;
+  --t-ink: #1b110b;
+  --t-dusk: #6b5546;
+  --t-mist: #7d6753;
+  --t-gold: #8f5121;
+  --t-gold-deep: #a45f33;
+  --t-water: #8f5121;
+  --t-lift: 0 18px 50px -28px rgb(27 17 11 / 0.25);
+  color-scheme: light;
+}
+
+[data-palette="onyx"] {
+  --t-sand: #0b0b0c;
+  --t-shell: #151517;
+  --t-ink: #f2f1ee;
+  --t-dusk: #a5a29b;
+  --t-mist: #8b8880;
+  --t-gold: #c9c4b8;
+  --t-gold-deep: #8f8a7d;
+  --t-water: #9fb9bd;
+  --t-brass: #c9c4b8;
+  --t-scene-gold-night: #c9c4b8;
+  --t-scene-gold-day: #5c5850;
+  --sand-night-rgb: 11 11 12;
+  --sand-day-rgb: 244 243 241;
+  color-scheme: dark;
+}
+[data-palette="onyx"][data-theme="light"] {
+  --t-sand: #f4f3f1;
+  --t-shell: #ffffff;
+  --t-ink: #131312;
+  --t-dusk: #56534d;
+  --t-mist: #6e6a62;
+  --t-gold: #5c5850;
+  --t-gold-deep: #8f8a7d;
+  --t-water: #3d6d74;
+  --t-lift: 0 18px 50px -28px rgb(19 19 18 / 0.25);
   color-scheme: light;
 }
 
@@ -161,7 +260,7 @@ p { text-wrap: pretty; }
    A capsule, so it nests concentric inside any island or panel. */
 .btn-gold {
   display: inline-block;
-  background: #c2a15c;
+  background: var(--t-brass);
   color: #14110b;
   font-size: 12px;
   font-weight: 700;
@@ -171,7 +270,7 @@ p { text-wrap: pretty; }
   border-radius: 999px;
   transition: transform 0.3s var(--ease-glide), background 0.3s var(--ease-glide);
 }
-.btn-gold:hover { transform: translateY(-1px); background: #d3b26c; }
+.btn-gold:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--t-brass) 86%, white); }
 .btn-gold:active { transform: translateY(0) scale(0.97); }
 
 /* ---- keyboard focus ---------------------------------------------------------- */
@@ -188,7 +287,7 @@ p { text-wrap: pretty; }
   top: 14px;
   left: -100vw;
   z-index: 100;
-  background: #c2a15c;
+  background: var(--t-brass);
   color: #14110b;
   font-size: 12px;
   font-weight: 700;
@@ -231,7 +330,7 @@ p { text-wrap: pretty; }
   gap: 8px;
   border-radius: 999px;
   padding: 10px 18px;
-  background: rgb(12 11 9 / 0.32);
+  background: rgb(var(--sand-night-rgb) / 0.32);
   backdrop-filter: blur(18px) saturate(1.5);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
@@ -279,7 +378,7 @@ a:active .chip-glass,
 
 /* Gallery light: a spotlight falloff over full-bleed pieces. */
 .vignette {
-  background: radial-gradient(120% 90% at 50% 32%, rgba(12, 11, 9, 0) 42%, rgba(12, 11, 9, 0.42) 100%);
+  background: radial-gradient(120% 90% at 50% 32%, rgb(var(--sand-night-rgb) / 0) 42%, rgb(var(--sand-night-rgb) / 0.42) 100%);
 }
 
 /* ---- scenes: image, scrim, and type flip together ---------------------------
@@ -294,14 +393,14 @@ a:active .chip-glass,
 .scene-vars {
   --scene-ink: #ffffff;
   --scene-ink-soft: rgb(255 255 255 / 0.78);
-  --scene-gold: #c2a15c;
-  --scene-deepen: rgb(12 11 9 / 0.22);
+  --scene-gold: var(--t-scene-gold-night);
+  --scene-deepen: rgb(var(--sand-night-rgb) / 0.22);
 }
 .scene-vars.scene-day {
   --scene-ink: #17150f;
   --scene-ink-soft: #4d463b;
-  --scene-gold: #7a6128;
-  --scene-deepen: rgb(246 243 236 / 0.24);
+  --scene-gold: var(--t-scene-gold-day);
+  --scene-deepen: rgb(var(--sand-day-rgb) / 0.24);
 }
 
 .scene-title { color: var(--scene-ink); }
@@ -310,28 +409,28 @@ a:active .chip-glass,
 .scene-link { color: var(--scene-ink); }
 
 .scrim-hero {
-  background: linear-gradient(180deg, rgb(12 11 9 / 0.55) 0%, rgb(12 11 9 / 0.12) 40%, rgb(12 11 9 / 0.84) 100%);
+  background: linear-gradient(180deg, rgb(var(--sand-night-rgb) / 0.55) 0%, rgb(var(--sand-night-rgb) / 0.12) 40%, rgb(var(--sand-night-rgb) / 0.84) 100%);
 }
 .scene-day .scrim-hero {
-  background: linear-gradient(180deg, rgb(246 243 236 / 0.5) 0%, rgb(246 243 236 / 0.08) 40%, rgb(246 243 236 / 0.9) 100%);
+  background: linear-gradient(180deg, rgb(var(--sand-day-rgb) / 0.5) 0%, rgb(var(--sand-day-rgb) / 0.08) 40%, rgb(var(--sand-day-rgb) / 0.9) 100%);
 }
 .scrim-card {
-  background: linear-gradient(180deg, rgb(12 11 9 / 0) 42%, rgb(12 11 9 / 0.16) 62%, rgb(12 11 9 / 0.82) 100%);
+  background: linear-gradient(180deg, rgb(var(--sand-night-rgb) / 0) 42%, rgb(var(--sand-night-rgb) / 0.16) 62%, rgb(var(--sand-night-rgb) / 0.82) 100%);
 }
 .scene-day .scrim-card {
-  background: linear-gradient(180deg, rgb(246 243 236 / 0) 42%, rgb(246 243 236 / 0.14) 62%, rgb(246 243 236 / 0.88) 100%);
+  background: linear-gradient(180deg, rgb(var(--sand-day-rgb) / 0) 42%, rgb(var(--sand-day-rgb) / 0.14) 62%, rgb(var(--sand-day-rgb) / 0.88) 100%);
 }
 .scrim-scene {
-  background: linear-gradient(180deg, rgb(12 11 9 / 0.3) 0%, rgb(12 11 9 / 0.05) 45%, rgb(12 11 9 / 0.74) 100%);
+  background: linear-gradient(180deg, rgb(var(--sand-night-rgb) / 0.3) 0%, rgb(var(--sand-night-rgb) / 0.05) 45%, rgb(var(--sand-night-rgb) / 0.74) 100%);
 }
 .scene-day .scrim-scene {
-  background: linear-gradient(180deg, rgb(246 243 236 / 0.3) 0%, rgb(246 243 236 / 0.05) 45%, rgb(246 243 236 / 0.86) 100%);
+  background: linear-gradient(180deg, rgb(var(--sand-day-rgb) / 0.3) 0%, rgb(var(--sand-day-rgb) / 0.05) 45%, rgb(var(--sand-day-rgb) / 0.86) 100%);
 }
-.scrim-wash { background: rgb(12 11 9 / 0.45); }
-.scene-day .scrim-wash { background: rgb(246 243 236 / 0.4); }
+.scrim-wash { background: rgb(var(--sand-night-rgb) / 0.45); }
+.scene-day .scrim-wash { background: rgb(var(--sand-day-rgb) / 0.4); }
 .scene-deepen { background: var(--scene-deepen); }
 .scene-day .vignette {
-  background: radial-gradient(120% 90% at 50% 32%, rgb(246 243 236 / 0) 42%, rgb(246 243 236 / 0.4) 100%);
+  background: radial-gradient(120% 90% at 50% 32%, rgb(var(--sand-day-rgb) / 0) 42%, rgb(var(--sand-day-rgb) / 0.4) 100%);
 }
 
 /* Scenes drift slower than the page: depth without a library. */

@@ -54,11 +54,12 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans">
-        {/* Daylight is the default; apply a saved night preference before paint. */}
+        {/* Daylight is the default; apply saved night and palette
+            preferences before paint. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('aumosaic.theme')==='dark')delete document.documentElement.dataset.theme}catch(e){}",
+              "try{if(localStorage.getItem('aumosaic.theme')==='dark')delete document.documentElement.dataset.theme;var p=localStorage.getItem('aumosaic.palette');if(p&&p!=='maison')document.documentElement.dataset.palette=p}catch(e){}",
           }}
         />
         <script

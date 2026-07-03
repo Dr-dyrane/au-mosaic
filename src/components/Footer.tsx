@@ -2,6 +2,7 @@ import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
 import { waGeneral } from "@/lib/wa";
 import { AuMark } from "./Mosaic";
+import PalettePicker from "./PalettePicker";
 
 export default function Footer() {
   return (
@@ -41,8 +42,9 @@ export default function Footer() {
           </ul>
         </nav>
         </div>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 pb-8 pt-2 sm:px-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 pb-8 pt-2 sm:px-8">
           <p className="text-[11px] uppercase tracking-[0.18em] text-mist">{SITE.name}</p>
+          <PalettePicker />
           <p className="text-[11px] uppercase tracking-[0.18em] text-mist">Lagos · Foshan</p>
         </div>
       </div>
