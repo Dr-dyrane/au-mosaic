@@ -105,6 +105,7 @@ In use, verified live (Pexels, free licence, hotlink):
 | glassJewels | owned, /media/glass-jewels.jpg | glass mosaic card, reveal, home materials tile. Retired Pexels 28408521. |
 | terrace | owned, /media/terrace.jpg | Infinity Terrace env card, pools page hero, bulk-order scene fallback. Retired Pexels 20975726. |
 | hammam | owned, /media/hammam.jpg | Private Hammam env card, contact page hero, feature-mosaic scene. Retired Pexels 7031713. |
+| darkBath | owned, /media/dark-bath.jpg | Dark Bath env card, glass-mosaic scene. Water film, brass sconce, warm blacks. Retired Pexels 35189678. |
 | bluePatternTiles | 14579397 | blue and white patterned tiles |
 | vibrantGlassMosaic | 28408521 | pixelated sunset glass mosaic |
 | beetleMosaicArt | 32325318 | beetle mosaic artwork |

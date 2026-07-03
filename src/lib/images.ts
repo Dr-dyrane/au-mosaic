@@ -28,6 +28,7 @@ export const OWN = {
   glassJewels: "/media/glass-jewels.jpg",
   terrace: "/media/terrace.jpg",
   hammam: "/media/hammam.jpg",
+  darkBath: "/media/dark-bath.jpg",
 };
 
 /* Film: slow ambient loops, owned. The hero film's poster is its own first
@@ -40,7 +41,6 @@ export const FILM = {
 
 export const LUX = {
   villaPalms: px("30195980/pexels-photo-30195980/free-photo-of-serene-villa-by-infinity-pool-with-palms.jpeg", 2600),
-  darkBath: px("35189678/pexels-photo-35189678/free-photo-of-luxurious-modern-shower-with-dark-textured-tiles.jpeg", 2200),
 };
 
 /* Environments: the dream first. Materials follow. */
@@ -67,7 +67,7 @@ export const ENVIRONMENTS = [
     href: "/mosaic-tiles#feature-mosaics",
   },
   {
-    src: LUX.darkBath,
+    src: OWN.darkBath,
     place: "The Dark Bath",
     line: "Shadow, texture, calm.",
     materials: "Textured dark mosaic, matte grout, warm light",
