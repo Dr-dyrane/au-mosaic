@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PIECES, pieceBySlug } from "@/lib/products";
+import { getPiece, getPieces } from "@/lib/catalog";
 import { ENVIRONMENTS } from "@/lib/images";
 import { waProduct } from "@/lib/wa";
 import { TileSheet } from "@/components/Mosaic";
@@ -16,12 +16,13 @@ import TiltFrame from "@/components/TiltFrame";
 
 type Params = Promise<{ slug: string }>;
 
-export function generateStaticParams() {
-  return PIECES.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const pieces = await getPieces();
+  return pieces.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const piece = pieceBySlug((await params).slug);
+  const piece = await getPiece((await params).slug);
   if (!piece) return {};
   return {
     title: piece.name,
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function PiecePage({ params }: { params: Params }) {
-  const piece = pieceBySlug((await params).slug);
+  const piece = await getPiece((await params).slug);
   if (!piece) notFound();
   const scene = ENVIRONMENTS.find((e) => e.href.endsWith(piece.groupId)) ?? ENVIRONMENTS[1];
 

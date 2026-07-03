@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
-import { MOSAIC_RANGES } from "@/lib/products";
+import { getMosaicRanges } from "@/lib/catalog";
 import { ENVIRONMENTS, FILM, IMG, LUX, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
@@ -10,21 +10,21 @@ import { ProductCard } from "@/components/ui";
 /* The Mosaic Maison. Story first, products second. One loud thing per
    screen; everything else whispers. */
 
-const COLLECTION_PICKS = [
-  { ...MOSAIC_RANGES[0].items[0], collection: "Pool mosaic" },
-  { ...MOSAIC_RANGES[0].items[3], collection: "Pool mosaic" },
-  { ...MOSAIC_RANGES[1].items[0], collection: "Glass mosaic" },
-  { ...MOSAIC_RANGES[2].items[0], collection: "Art mosaic" },
-  { ...MOSAIC_RANGES[2].items[1], collection: "Art mosaic" },
-];
-
 const MATERIALS = [
   { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: IMG.poolBlueMosaic },
   { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: IMG.vibrantGlassMosaic },
   { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: IMG.fishMosaicPool },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const ranges = await getMosaicRanges();
+  const picks = [
+    { ...ranges[0].items[0], collection: "Pool mosaic" },
+    { ...ranges[0].items[3], collection: "Pool mosaic" },
+    { ...ranges[1].items[0], collection: "Glass mosaic" },
+    { ...ranges[2].items[0], collection: "Art mosaic" },
+    { ...ranges[2].items[1], collection: "Art mosaic" },
+  ];
   return (
     <>
       {/* Cinematic hero: the island floats over it, the image owns the screen */}
@@ -187,7 +187,7 @@ export default function Home() {
           </h2>
         </Reveal>
         <div className="-mx-5 mt-16 grid gap-x-8 gap-y-16 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3">
-          {COLLECTION_PICKS.map((p, i) => (
+          {picks.map((p, i) => (
             <Reveal key={p.name} delay={(i % 3) * 80}>
               <ProductCard item={p} collection={p.collection} />
             </Reveal>

@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/site";
-import { PIECES } from "@/lib/products";
+import { getPieces } from "@/lib/catalog";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const PIECES = await getPieces();
   const base = SITE.url.replace(/\/$/, "");
   const pages = ["/", "/mosaic-tiles", "/pool-materials", "/pools", "/about", "/contact"];
   return [

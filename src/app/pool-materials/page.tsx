@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { POOL_MATERIALS } from "@/lib/products";
+import { getPoolMaterials } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
 import { IMG } from "@/lib/images";
 import { waQuote } from "@/lib/wa";
@@ -11,7 +11,8 @@ export const metadata: Metadata = {
     "Pumps, filter tanks, skimmers, lights, ladders, waterfalls, gum cement. Astral pool equipment in stock in Lagos.",
 };
 
-export default function PoolMaterialsPage() {
+export default async function PoolMaterialsPage() {
+  const materials = await getPoolMaterials();
   return (
     <>
       <PageHero
@@ -25,7 +26,7 @@ export default function PoolMaterialsPage() {
 
       <Section title="The shelf">
         <div className="space-y-14">
-          {POOL_MATERIALS.map((g) => (
+          {materials.map((g) => (
             <ProductGroupBlock key={g.id} group={g} />
           ))}
         </div>

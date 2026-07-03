@@ -79,17 +79,20 @@ Last pass: 2026-07-02.
 | Overlay hit-testing | PASS | Vignette and gradients are pointer-events-none where content sits above; CTAs and links all reachable. |
 | Focus and keyboard | PASS | Gold focus rings and skip link unaffected by the glass pass; piece bar untabbable while hidden. |
 
-## The CRM upgrade path
+## The CRM and CMS upgrade path
 
-Ready. The seams are already cut:
+Ready, and now mechanical:
 
 - `slug` on every piece is the stable product key a database inherits.
-- `PIECES` in `src/lib/products.ts` is the single swap point: replace the
-  array with a table read and nothing above the data layer changes.
-- Every enquiry deep link already carries the piece name into WhatsApp,
-  so conversations map to products from day one.
-- The dashboard (Phase 2) bolts onto the same data layer; pages, cards,
-  and piece routes stay untouched.
+- `src/lib/catalog.ts` is the read path: every page and the sitemap ask
+  it, never the file. Its four async functions keep their signatures and
+  change their source; the Phase 2 swap touches one module.
+- Every enquiry deep link carries the piece name into WhatsApp, and
+  wa_tap events record which placements convert, so the dashboard opens
+  with real data on day one.
+- Still Phase 2, on purpose: the store (KV or Postgres), the editor UI,
+  auth, media uploads, and on-demand revalidation. That is the paid
+  dashboard, not the free site.
 
 ## Imagery ledger
 
