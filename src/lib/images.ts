@@ -32,6 +32,7 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   hammam: "/media/hammam-day.jpg",
   duskVilla: "/media/dusk-villa-day.jpg",
   terrace: "/media/terrace-day.jpg",
+  craftHands: "/media/craft-day.jpg",
 };
 
 /* Film slot: dormant. The 720p loop softened the one surface that must be

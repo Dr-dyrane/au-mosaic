@@ -131,7 +131,11 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Day frames under night scrims would look like fog at morning | FIXED: scrims flip to ivory morning haze only when the day image is active; ink flips with them. Day: ink 15:1, sub 6:1, gold #7A6128 4.9:1 |
 | Night frames in light mode | Keep full night treatment: image, scrim, and type stay together, contrast never depends on which pairs have shipped |
 
-## Daylight pairs (the theme follows the sun)
+## Daylight pairs (the theme follows the sun) · COMPLETE
+
+Every night frame has its daylight twin, every twin eye-gated for
+same scene, same tiles, believable morning. The toggle is a sunrise
+across the entire maison.
 
 | Pair | Status |
 |---|---|
@@ -142,6 +146,6 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | hammam + hammam-day | PAIRED. The oculus pours morning; wet honey mosaic, no steam, the drip survives. |
 | dusk-villa + dusk-villa-day | PAIRED. The same address before breakfast: gold horizon, mosaic through glassy water. |
 | terrace + terrace-day | PAIRED. Swimming-hour midday: crisp caustics, white sparkle on the spill, true blue sea. |
-| craft-hands | lamp lit, day pending |
+| craft-hands + craft-day | PAIRED. Honest work at ten in the morning; the adhesive ridges throw crisp daylight shadows. |
 | dark-bath | stays dark in both themes by identity |
 | borders, villa-palms, private-pool, pool-blues | already daylight, no pair needed |
