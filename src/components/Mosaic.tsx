@@ -12,6 +12,46 @@ const PALETTE = [
 
 const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
 
+/* The brand mark: Nonso's "au" mosaic sign, rebuilt as deterministic
+   tesserae. Blues cycle like a real mixed sheet; the period is brass.
+   Keep the bitmap in sync with scripts/brand-icons.py. */
+
+const AU_A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"];
+const AU_U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"];
+const AU_GRID = AU_A.map((row, r) => row + "." + AU_U[r] + "." + (r >= 5 ? "##" : ".."));
+const AU_BLUES = ["#a8def2", "#6cc4e6", "#3aa9d6", "#1e8fc0", "#1179a8", "#123f66", "#e8f6fb"];
+
+export function AuMark({ className = "" }: { className?: string }) {
+  const T = 10;
+  const w = AU_GRID[0].length * T;
+  const h = AU_GRID.length * T;
+  const tiles: React.ReactNode[] = [];
+  let i = 0;
+  for (let r = 0; r < AU_GRID.length; r++) {
+    for (let c = 0; c < AU_GRID[r].length; c++) {
+      i++;
+      if (AU_GRID[r][c] !== "#") continue;
+      const brass = c >= AU_GRID[r].length - 2;
+      tiles.push(
+        <rect
+          key={`${r}-${c}`}
+          x={c * T + 1}
+          y={r * T + 1}
+          width={T - 2}
+          height={T - 2}
+          rx="2"
+          fill={brass ? "#c2a15c" : AU_BLUES[(i * 13 + 5) % AU_BLUES.length]}
+        />
+      );
+    }
+  }
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className={className} aria-hidden>
+      {tiles}
+    </svg>
+  );
+}
+
 /** Small square logo mark: a 3x3 mosaic. */
 export function MosaicMark({ className = "" }: { className?: string }) {
   return (

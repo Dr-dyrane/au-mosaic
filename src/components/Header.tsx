@@ -5,7 +5,7 @@ import { useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { NAV, SITE } from "@/lib/site";
 import { waQuote } from "@/lib/wa";
-import { MosaicMark } from "./Mosaic";
+import { AuMark } from "./Mosaic";
 import ThemeToggle from "./ThemeToggle";
 
 /* Island navigation. A floating glass pill; the page moves beneath it.
@@ -36,8 +36,9 @@ export default function Header() {
           }`}
         >
           <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
-            <MosaicMark className={`transition-all duration-500 ${scrolled ? "h-5 w-5" : "h-6 w-6"}`} />
-            <span className="font-serif whitespace-nowrap text-[16px] tracking-wide">AU Mosaic</span>
+            {/* The mark already says au; the word beside it says the rest. */}
+            <AuMark className={`w-auto transition-all duration-500 ${scrolled ? "h-5" : "h-6"}`} />
+            <span className="font-serif whitespace-nowrap text-[16px] tracking-wide">Mosaic</span>
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary">

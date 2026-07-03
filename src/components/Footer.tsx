@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
 import { waGeneral } from "@/lib/wa";
-import { MosaicMark } from "./Mosaic";
+import { AuMark } from "./Mosaic";
 
 export default function Footer() {
   return (
@@ -10,8 +10,8 @@ export default function Footer() {
         <div className="mx-auto grid max-w-6xl gap-14 px-5 pb-10 pt-16 sm:px-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
-            <MosaicMark className="h-7 w-7" />
-            <span className="font-serif text-[20px] tracking-wide">AU Mosaic</span>
+            <AuMark className="h-7 w-auto" />
+            <span className="font-serif text-[20px] tracking-wide">Mosaic</span>
           </div>
           <p className="font-serif mt-6 max-w-xs text-[20px] leading-snug text-dusk">
             Everything mosaic, and the water it belongs to.

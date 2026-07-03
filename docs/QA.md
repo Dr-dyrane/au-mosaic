@@ -131,6 +131,15 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Day frames under night scrims would look like fog at morning | FIXED: scrims flip to ivory morning haze only when the day image is active; ink flips with them. Day: ink 15:1, sub 6:1, gold #7A6128 4.9:1 |
 | Night frames in light mode | Keep full night treatment: image, scrim, and type stay together, contrast never depends on which pairs have shipped |
 
+## The brand mark (client's au sign, professionalized)
+
+| Item | Status |
+|---|---|
+| AuMark | Nonso's mosaic "au" sign rebuilt as deterministic SVG tesserae: mixed blues like a real sheet, brass period, no font dependency, no hydration drift. |
+| No double AU | The mark says au, so the wordmark beside it says only Mosaic. Header and footer updated; aria labels still read AU Mosaic in full. |
+| Icons | favicon, icon, apple-icon regenerated from the same bitmap via scripts/brand-icons.py. One mark everywhere. |
+| Colours | House blues until Nonso's correction arrives; any brand palette then enters through docs/THEMING.md and the theme gate. |
+
 ## The theme gate (scripts/theme-check.py)
 
 The contrast matrix is now a script, not a ritual: it reads the token
