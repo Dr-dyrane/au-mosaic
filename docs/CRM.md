@@ -82,6 +82,52 @@ CRM; the CRM is the gallery's back room.
 | Photos | Phone upload to Vercel Blob, night and day | Planned |
 | The seam flip | Flagship reads the database | Last, deliberately |
 
+## Guardrails for builders
+
+Any builder (human or agent) shipping a room obeys these. They exist
+so several rooms can be built in parallel without collision, and so
+every room comes out of the same house.
+
+**Read before building.** This document top to bottom. Then
+src/db/schema.ts (the contract; never edit it). Then the stockroom as
+canon: src/app/admin/(panel)/pieces/page.tsx, [slug]/page.tsx,
+[slug]/PieceForm.tsx, and actions.ts. Your room copies those shapes.
+
+**Stay in your room.** Write only inside your room's directory under
+src/app/admin/(panel)/. Never touch: the panel layout, the morning
+glance page, schema.ts, globals.css, package.json, docs, the public
+site, or another room. Nav wiring, dashboard tiles, the QA ledger,
+builds, and commits happen centrally after integration review.
+
+**The pattern is law.**
+- Pages: server components, `export const dynamic = "force-dynamic"`,
+  data via getDb() from "@/db", drizzle query builder only.
+- Mutations: server actions in your room's actions.ts. The first line
+  of every action awaits hasSession() and refuses without it. Server
+  actions are public endpoints regardless of what the UI hides.
+- Forms: client components with useActionState, defaultValue inputs,
+  one action per form, the action answers in a sentence.
+- After a write: revalidatePath your room's pages and /admin.
+- Money: integer kobo in the database, always. Format and parse with
+  src/lib/backoffice.ts (naira, parseNaira). Never float arithmetic.
+- No hard deletes. Status fields and archive flags only.
+- No new dependencies. No API routes. No client fetch. No localStorage.
+- WhatsApp deep links to a customer's own number: waChat from
+  src/lib/backoffice.ts.
+
+**The voice is law.** Shop-floor labels, Apple-terse sentences, no em
+dashes or arrows anywhere, ever. Empty states teach the room. Errors
+stay calm: "The database did not answer. Try again." One gold button
+(btn-gold) per screen; secondary actions are link-hair. Existing
+primitives only: panel, eyebrow, btn-gold, link-hair, chip-glass, the
+field input style from PieceForm. No borders, rings, or hairlines.
+Type sizes from the ramp already in use.
+
+**Finish clean.** Before reporting done: every import resolves, every
+form field name matches what the action reads, aria-labels on inputs,
+no console.log, no TODO. Report the files written and any judgment
+calls made, so integration review can check them fast.
+
 ## The measure of done
 
 The owner opens his phone at the market and answers a customer's
