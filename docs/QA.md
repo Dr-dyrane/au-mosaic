@@ -92,8 +92,8 @@ In use, verified live (Pexels, free licence, hotlink):
 | beetleMosaicArt | 32325318 | beetle mosaic artwork |
 | fishMosaicPool | 10231663 | fish mural under water |
 | rippledLaneWater | 6110597 | clear rippled pool water |
-| villaDusk | 28054849 | villa pool at dusk (hero, until the owned film) |
 | duskVilla | owned, /media/dusk-villa.jpg | generated for the house: Dusk Villa card, Seen-in scene, OG card |
+| duskVillaPoster + heroLoop | owned, /media | the hero: 8s seamless ping-pong film, its first frame as still and poster. Retired Pexels 28054849. |
 | villaPalms | 30195980 | villa beside still water |
 | infinityTerrace | 20975726 | infinity pool, mountain resort |
 | hammam | 7031713 | warm stone hammam |

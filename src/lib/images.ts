@@ -24,18 +24,18 @@ export const IMG = {
    These replace stock one frame at a time as they arrive. */
 export const OWN = {
   duskVilla: "/media/dusk-villa.jpg",
+  duskVillaPoster: "/media/dusk-villa-poster.jpg",
 };
 
-/* Film: slow ambient loops. The hero film uses the villa dusk still as its
-   poster, so the frame visitors see never changes if the film is blocked,
-   slow, or turned off. URL captured from the Pexels player; owner eye-check
-   on first visible deploy, swap is one line. */
+/* Film: slow ambient loops, owned. The hero film's poster is its own first
+   frame, so still and motion are the same image; blocked autoplay, save
+   data, or reduced motion all hold that frame. The loop is a ping-pong of
+   the owner's generated shot: seamless by construction. */
 export const FILM = {
-  heroLoop: "https://videos.pexels.com/video-files/9507847/9507847-sd_960_506_30fps.mp4",
+  heroLoop: "/media/dusk-villa-loop.mp4",
 };
 
 export const LUX = {
-  villaDusk: px("28054849/pexels-photo-28054849/free-photo-of-a-luxury-villa-with-a-swimming-pool-at-dusk.jpeg", 3200),
   villaPalms: px("30195980/pexels-photo-30195980/free-photo-of-serene-villa-by-infinity-pool-with-palms.jpeg", 2600),
   infinityTerrace: px("20975726/pexels-photo-20975726/free-photo-of-infinity-pool-and-patio-of-a-mountain-resort.jpeg", 2600),
   hammam: px("7031713/pexels-photo-7031713.jpeg", 2200),

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { MOSAIC_RANGES } from "@/lib/products";
-import { ENVIRONMENTS, FILM, IMG, LUX } from "@/lib/images";
+import { ENVIRONMENTS, FILM, IMG, LUX, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
 import { ProductCard } from "@/components/ui";
@@ -30,7 +30,7 @@ export default function Home() {
       {/* Cinematic hero: the island floats over it, the image owns the screen */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
         <Image
-          src={LUX.villaDusk}
+          src={OWN.duskVillaPoster}
           alt="A villa pool holding the last light of dusk"
           fill
           priority
@@ -38,9 +38,8 @@ export default function Home() {
           sizes="100vw"
           className="kenburns media-lux object-cover"
         />
-        {/* The film: water moving over the same frame. Poster matches the
-            still beneath, so blocked autoplay or reduced motion changes
-            nothing visitors can notice. */}
+        {/* The house's own film. Its poster is its own first frame, so
+            still and motion are one image; every failure mode holds it. */}
         <video
           className="hero-film media-lux absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -48,7 +47,7 @@ export default function Home() {
           loop
           playsInline
           preload="metadata"
-          poster={LUX.villaDusk}
+          poster={OWN.duskVillaPoster}
           aria-hidden
         >
           <source src={FILM.heroLoop} type="video/mp4" />
