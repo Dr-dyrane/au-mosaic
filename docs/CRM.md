@@ -206,6 +206,23 @@ keepValues, icons components exist).
    rooms; localStorage aumosaic.toured; offer on first login plus a
    permanent hallway link; tour_step events).
 
+7. Stock movement and notifications (Dyrane asked how a running-low
+   count reaches him; agreed): (a) PREREQUISITE, a domain decision
+   made: moving an order to delivered decrements stockLevels per line
+   with a pieceSlug (quantity times line quantity), never below the
+   visible truth, recorded so it can be audited later; enquiry-to-
+   deposit does not touch stock. (b) The moment: action sentences
+   learn arithmetic; a delivered move that crosses reorderAt answers
+   "Delivered. {piece} is running low: {qty} {unit} left." (c) The
+   spine: Web Push. "Notify this phone" toggle in Settings,
+   PushManager subscription stored in a push_subscriptions table,
+   VAPID keys in env (.env.example placeholders), web-push as one
+   justified dependency; works on Android and on iOS 16.4 plus when
+   installed. (d) The rhythm: Vercel Cron at 08:00 Lagos sends one
+   digest (pieces low, naira owed, fresh enquiries); crossings push
+   immediately; tapping opens the glance. House voice in every
+   notification body.
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number
