@@ -36,11 +36,11 @@ async function pulse() {
     return {
       ok: true as const,
       cards: [
-        { label: "Pieces in the catalogue", value: String(pieces.n), note: "published and drafts" },
-        { label: "Stock warnings", value: String(low.n), note: "at or below reorder level" },
-        { label: "Open orders", value: String(open.n), note: "quoted through delivered" },
-        { label: "Outstanding", value: naira(Number(owed.kobo)), note: "billed minus paid, open orders" },
-        { label: "New enquiries", value: String(fresh.n), note: "unanswered" },
+        { label: "Pieces in the catalogue", value: String(pieces.n), note: "published and drafts", href: "/admin/pieces" },
+        { label: "Stock warnings", value: String(low.n), note: "at or below reorder level", href: "/admin/pieces" },
+        { label: "Open orders", value: String(open.n), note: "quoted through delivered", href: "/admin/orders" },
+        { label: "Outstanding", value: naira(Number(owed.kobo)), note: "billed minus paid, open orders", href: "/admin/debts" },
+        { label: "New enquiries", value: String(fresh.n), note: "unanswered", href: "/admin/customers" },
       ],
     };
   } catch {
@@ -68,22 +68,23 @@ export default async function AdminHome() {
       {p.ok && (
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {p.cards.map((c) => (
-            <div key={c.label} className="panel">
+            <Link key={c.label} href={c.href} className="panel group block transition-transform duration-300 active:scale-[0.99]">
               <p className="eyebrow">{c.label}</p>
-              <p className="font-serif mt-3 text-[34px] leading-none">{c.value}</p>
+              <p className="font-serif mt-3 text-[34px] leading-none transition-colors duration-300 group-hover:text-gold">{c.value}</p>
               <p className="mt-3 text-[12px] uppercase tracking-[0.14em] text-mist">{c.note}</p>
-            </div>
+            </Link>
           ))}
-          <Link href="/admin/pieces" className="panel group flex flex-col justify-center transition-transform duration-300 active:scale-[0.99]">
-            <p className="font-serif text-[20px] transition-colors duration-300 group-hover:text-gold">
-              Manage the pieces
-            </p>
-            <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-              Words, colours, stock, and what shows on the site. Orders,
-              debts, and deliveries follow as the rooms are built.
-            </p>
-            <span className="link-hair mt-5 text-dusk text-[13px]">Enter the stockroom</span>
-          </Link>
+          <div className="panel flex flex-col justify-center">
+            <p className="font-serif text-[20px]">The rooms</p>
+            <ul className="mt-4 space-y-2.5">
+              <li><Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">The stockroom</Link></li>
+              <li><Link href="/admin/orders" className="link-hair text-dusk text-[13px]">Orders</Link></li>
+              <li><Link href="/admin/customers" className="link-hair text-dusk text-[13px]">Customers</Link></li>
+              <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[13px]">Deliveries</Link></li>
+              <li><Link href="/admin/debts" className="link-hair text-dusk text-[13px]">Who owes what</Link></li>
+              <li><Link href="/" className="link-hair text-dusk text-[13px]">The site</Link></li>
+            </ul>
+          </div>
         </div>
       )}
     </main>

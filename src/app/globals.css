@@ -341,6 +341,27 @@ p { text-wrap: pretty; }
   text-transform: uppercase;
 }
 
+/* Solid chip for the back office: same body as chip-glass, but
+   theme-aware and made for panels, not imagery. is-on means risen. */
+.chip-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: color-mix(in srgb, var(--color-shell) 55%, transparent);
+  color: var(--color-dusk);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.chip-solid.is-on {
+  background: var(--color-shell);
+  color: var(--color-ink);
+  box-shadow: var(--t-lift);
+}
+
 /* ---- floating piece bar ---------------------------------------------------------- */
 
 /* Rises when the hero action leaves; glides back out the way it came. */

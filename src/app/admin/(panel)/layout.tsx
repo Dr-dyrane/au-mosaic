@@ -24,12 +24,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             Back office
           </span>
         </Link>
-        <div className="flex items-center gap-7">
+        <div className="flex items-center gap-6">
           <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
             Pieces
           </Link>
-          <Link href="/" className="link-hair text-dusk text-[13px]">
-            The site
+          <Link href="/admin/orders" className="link-hair text-dusk text-[13px]">
+            Orders
+          </Link>
+          <Link href="/admin/customers" className="link-hair hidden text-dusk text-[13px] sm:inline">
+            Customers
           </Link>
           <form action={logout}>
             <button type="submit" className="link-hair text-dusk text-[13px]">

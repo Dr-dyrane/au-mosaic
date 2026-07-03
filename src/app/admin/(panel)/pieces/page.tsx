@@ -57,7 +57,7 @@ export default async function PiecesPage() {
                         </p>
                       </div>
                       {!piece.published && (
-                        <span className="chip-glass shrink-0 text-[11px]">Off the site</span>
+                        <span className="chip-solid shrink-0">Off the site</span>
                       )}
                     </div>
                     <div className="mt-4 flex items-center justify-between">
