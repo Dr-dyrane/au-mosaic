@@ -138,7 +138,7 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | hero-dusk + hero-day | PAIRED. Same villa, same tree, same grid; brass streaks become sky reflections. |
 | glass-jewels + glass-day | PAIRED. The jewel case at noon: daylight transmission, ivory room behind. |
 | koi-mural + koi-day | PAIRED. Same fish, same swirls, skylight morning; gold flecks glint in daylight. |
-| beetle-mural | night only, day pending |
+| beetle-mural + beetle-day | PAIRED. Iridescence shifts emerald to teal in daylight; gold glints. |
 | hammam | night only, day pending |
 | dusk-villa | night only, day pending |
 | terrace | golden hour, day pending |
