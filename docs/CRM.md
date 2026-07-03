@@ -244,14 +244,18 @@ keepValues, icons components exist).
    no-code errands: Nonso claims Google Business Profile; Dyrane
    verifies Search Console and submits /sitemap.xml; the real
    Instagram handle into site.ts.
-6. Nonso onboarding: word-for-word 3-minute screen-recording script
-   for a WhatsApp video (glance, new order, line with list versus
-   given, payment, who owes what, stockroom edit, photos), and "The
-   tour": hand-rolled spotlight walkthrough, no dependency (steps of
-   selector, page, title, one line; overlay cutout via giant
-   box-shadow; glass card; gold Next; dot progress; navigates across
-   rooms; localStorage aumosaic.toured; offer on first login plus a
-   permanent hallway link; tour_step events).
+6. DONE 2026-07-03: onboarding, both halves. The word-for-word
+   script lives at docs/client/VIDEO-SCRIPT.md, under three minutes,
+   covering glance, new order, list versus given, payment, who owes
+   what, stockroom edit, photos, and the window switch; Dyrane
+   records it as a WhatsApp video. The tour shipped as built law:
+   Tour.tsx in the panel, seven steps of selector, page, title, one
+   line; box-shadow cutout that follows its element; glass card,
+   gold Next, dot progress; walks Home, Orders, Owed, People, Stock
+   and home again by router; Escape leaves; aumosaic.toured retires
+   the first-login offer on the glance; a permanent Take the tour
+   link sits in the rooms list; tour_start, tour_step, tour_done,
+   tour_skip all tracked.
 
 7. Stock movement and notifications (Dyrane asked how a running-low
    count reaches him; agreed): (a) PREREQUISITE, a domain decision

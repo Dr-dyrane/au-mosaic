@@ -66,7 +66,7 @@ export default async function OrdersPage({
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         List sits beside given. A discount is a number, not a feeling.
       </p>
-      <div className="mt-8 flex flex-wrap items-center gap-6">
+      <div className="mt-8 flex flex-wrap items-center gap-6" data-tour="orders">
         <Link href="/admin/orders/new" className="btn-gold">
           New order
         </Link>

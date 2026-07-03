@@ -86,7 +86,7 @@ export default async function PiecesPage({
         {rows.filter((r) => !r.piece.published).length > 0 &&
           ` ${rows.filter((r) => !r.piece.published).length} waiting off the site.`}
       </p>
-      <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
+      <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
         <Link href="/admin/pieces/new" className="btn-gold">
           New piece
         </Link>

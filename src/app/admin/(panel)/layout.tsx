@@ -7,6 +7,7 @@ import { AuMark } from "@/components/Mosaic";
 import { AdminTabBar, AdminTopNav } from "@/components/AdminNav";
 import PalettePicker from "@/components/PalettePicker";
 import ThemeToggle from "@/components/ThemeToggle";
+import Tour from "./Tour";
 import { hasSession } from "@/lib/admin-auth";
 import { logout } from "../login/actions";
 
@@ -88,6 +89,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </footer>
       <AdminTabBar owed={owed} />
+      <Tour />
     </div>
   );
 }

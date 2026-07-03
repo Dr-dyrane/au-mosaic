@@ -38,7 +38,7 @@ function CountPill({ n }: { n: number }) {
 export function AdminTopNav({ owed = 0 }: { owed?: number }) {
   const isActive = useActive();
   return (
-    <nav aria-label="Back office" className="hidden items-center gap-6 sm:flex">
+    <nav aria-label="Back office" data-tour="rooms" className="hidden items-center gap-6 sm:flex">
       {ROOMS.map((r) => (
         <Link
           key={r.href}
@@ -61,6 +61,7 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
   return (
     <nav
       aria-label="Back office"
+      data-tour="rooms"
       className="glass fixed inset-x-0 bottom-0 z-40 flex rounded-none pb-[env(safe-area-inset-bottom)] sm:hidden"
     >
       {ROOMS.map((r) => {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { count, eq, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import RefreshLine from "./RefreshLine";
+import { TourOffer } from "./Tour";
 import { LastTouched } from "./touched";
 
 /* The morning glance: five numbers that used to live on paper.
@@ -63,12 +64,13 @@ export default async function AdminHome() {
       </div>
       <h1 className="font-serif text-display-section mt-8">The house, in numbers.</h1>
       <RefreshLine />
-      <div className="mt-7">
+      <div className="mt-7" data-tour="new-order">
         <Link href="/admin/orders/new" className="btn-gold">
           New order
         </Link>
       </div>
       <LastTouched />
+      <TourOffer />
 
       {!p.ok && (
         <div className="panel mt-10 max-w-md">
@@ -81,7 +83,7 @@ export default async function AdminHome() {
       )}
 
       {p.ok && (
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-tour="pulse">
           {p.cards.map((c) => (
             <Link key={c.label} href={c.href} className="panel group block transition-transform duration-300 active:scale-[0.99]">
               <p className="eyebrow">{c.label}</p>
@@ -100,6 +102,11 @@ export default async function AdminHome() {
               <li><Link href="/admin/insights" className="link-hair text-dusk text-[13px]">Insights</Link></li>
               <li><Link href="/admin/settings" className="link-hair text-dusk text-[13px]">Settings</Link></li>
               <li><Link href="/" className="link-hair text-dusk text-[13px]">The site</Link></li>
+              <li>
+                <button data-tour-start className="link-hair text-dusk text-[13px]">
+                  Take the tour
+                </button>
+              </li>
             </ul>
           </div>
         </div>

@@ -96,7 +96,7 @@ export default async function DebtsPage() {
   return (
     <main>
       <p className="eyebrow">The ledger</p>
-      <h1 className="font-serif text-display-section mt-3">Who owes what.</h1>
+      <h1 className="font-serif text-display-section mt-3" data-tour="debts">Who owes what.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         Every unpaid balance in the house, the longest forgotten at the
         top. Each name carries a gentle WhatsApp reminder.

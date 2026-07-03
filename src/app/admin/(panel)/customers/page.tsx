@@ -91,7 +91,7 @@ export default async function CustomersPage({
         {total > 0 && ` ${total} ${total === 1 ? "person" : "people"} in the book.`}
       </p>
 
-      <div className="mt-8 flex flex-wrap items-center gap-4">
+      <div className="mt-8 flex flex-wrap items-center gap-4" data-tour="people">
         <form action="/admin/customers" method="get" className="min-w-0 flex-1 basis-64">
           <input
             type="search"
