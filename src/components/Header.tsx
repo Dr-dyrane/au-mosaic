@@ -35,11 +35,11 @@ export default function Header() {
             scrolled ? "gap-4 px-4 py-2" : "gap-5 px-5 py-2.5"
           }`}
         >
-          <Link href="/" className="flex items-baseline gap-1.5" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
-            {/* The mark already says au; sized to the word so it reads
-                as one name: aumosaic. */}
-            <AuMark className={`w-auto self-center transition-all duration-500 ${scrolled ? "h-[15px]" : "h-[17px]"}`} />
-            <span className="whitespace-nowrap text-[17px] font-semibold tracking-tight">mosaic</span>
+          <Link href="/" className="flex items-end gap-2" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
+            {/* One object: the word's baseline meets the mark's bottom
+                row, so it reads as a single name, aumosaic. */}
+            <AuMark className={`w-auto transition-all duration-500 ${scrolled ? "h-[15px]" : "h-[17px]"}`} />
+            <span className="translate-y-[2px] whitespace-nowrap text-[17px] font-semibold tracking-[-0.015em]">mosaic</span>
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary">

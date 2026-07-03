@@ -140,6 +140,25 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Icons | favicon, icon, apple-icon regenerated from the same bitmap via scripts/brand-icons.py. One mark everywhere. |
 | Colours | House blues until Nonso's correction arrives; any brand palette then enters through docs/THEMING.md and the theme gate. |
 
+## External lockup review, adjudicated
+
+A second opinion on the logo lockup, checked against the code rather
+than the screenshot it was judging.
+
+| Claim | Verdict |
+|---|---|
+| Wordmark is 700 to 800 weight | Disproved: it ships at 600 (font-semibold). |
+| Wordmark is pure white, warm it to #F3EFE7 | Disproved: it ships as ink #F3EFE6, one digit from the reviewer's own suggestion. |
+| Switch to Geist or SF Pro | Rejected on law: the stack already serves SF Pro on Apple; adding Geist means a webfont download, and the house ships none. |
+| Icon 52px, container 88px, gap 14px | Rejected on architecture: the nav is a floating island, not an 88px bar; those numbers belong to a different layout. |
+| Gap too wide | Disproved: it was 6px, tighter than the reviewer's own 12 to 16 range. Raised to 8px for breath. |
+| Optical alignment off, drop the word 2 to 4px | Adopted: eye test confirmed the word floated high. Baseline now meets the mark's bottom row, word nudged 2px. |
+| Tighten kerning 1 to 2 percent | Adopted: tracking moved from -2.5 to -1.5 percent. |
+| The au icon is the strongest part, keep it | Agreed. Untouched. |
+
+Two adopted, one partially, four disproved or rejected with reasons.
+The eye test (three rendered variants) settled alignment, not opinion.
+
 ## The theme gate (scripts/theme-check.py)
 
 The contrast matrix is now a script, not a ritual: it reads the token
