@@ -310,6 +310,13 @@ keepValues, icons components exist).
    confirmation audit with the accepted-without-ceremony reasons
    written.
 
+10. Tour reset in Settings (Dyrane asked): a small row in the
+    Settings page, house voice ("Begin again. The welcome returns on
+    this device."), one link-hair button that clears every
+    aumosaic.toured.* flag in localStorage on this device and answers
+    in a sentence; the first-login offer returns on next visit to the
+    glance. Client-only, no server action, no ceremony.
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number
