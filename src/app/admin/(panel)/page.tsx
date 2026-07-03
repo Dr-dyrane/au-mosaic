@@ -22,7 +22,8 @@ async function pulse() {
     const [low] = await db
       .select({ n: count() })
       .from(schema.stockLevels)
-      .where(sql`${schema.stockLevels.quantitySheets} <= ${schema.stockLevels.reorderAt}`);
+      /* Warn-me-at 0 means he never asked to be warned. */
+      .where(sql`${schema.stockLevels.reorderAt} > 0 and ${schema.stockLevels.quantitySheets} <= ${schema.stockLevels.reorderAt}`);
     const [open] = await db
       .select({ n: count() })
       .from(schema.orders)

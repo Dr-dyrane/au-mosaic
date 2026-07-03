@@ -136,7 +136,7 @@ export default async function InsightsPage({
     .select({ name: schema.pieces.name, slug: schema.pieces.slug, unit: schema.pieces.unit, qty: schema.stockLevels.quantitySheets })
     .from(schema.stockLevels)
     .innerJoin(schema.pieces, eq(schema.pieces.slug, schema.stockLevels.pieceSlug))
-    .where(sql`${schema.stockLevels.quantitySheets} <= ${schema.stockLevels.reorderAt}`)
+    .where(sql`${schema.stockLevels.reorderAt} > 0 and ${schema.stockLevels.quantitySheets} <= ${schema.stockLevels.reorderAt}`)
     .orderBy(desc(schema.stockLevels.updatedAt))
     .limit(8);
 

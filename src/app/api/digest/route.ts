@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       .select({ name: schema.pieces.name })
       .from(schema.stockLevels)
       .innerJoin(schema.pieces, eq(schema.pieces.slug, schema.stockLevels.pieceSlug))
-      .where(sql`${schema.stockLevels.quantitySheets} <= ${schema.stockLevels.reorderAt}`);
+      .where(sql`${schema.stockLevels.reorderAt} > 0 and ${schema.stockLevels.quantitySheets} <= ${schema.stockLevels.reorderAt}`);
 
     const owedRows = await db.execute(sql`
       select

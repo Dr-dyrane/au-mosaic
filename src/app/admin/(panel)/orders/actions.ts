@@ -133,7 +133,8 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
             ? `${row.name}: ${line.quantity} ${row.unit} out, ${after} left`
             : `${row.name}: ${line.quantity} ${row.unit} back, ${after} on hand`
         );
-        if (nowOut && row.qty > row.reorderAt && after <= row.reorderAt) {
+        /* A threshold of zero is no threshold; it never cries wolf. */
+        if (nowOut && row.reorderAt > 0 && row.qty > row.reorderAt && after <= row.reorderAt) {
           crossings.push({ name: row.name, qty: after, unit: row.unit, slug: line.pieceSlug });
         }
       }

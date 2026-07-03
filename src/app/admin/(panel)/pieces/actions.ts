@@ -118,6 +118,66 @@ function slugify(name: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+/* Starting counts, deterministic by slug so the shelf looks
+   lived-in rather than photocopied: mosaic in dozens of sheets,
+   pool gear in single digits, warn-me-at set where the trade
+   would set it. */
+function starterCount(slug: string, family: string) {
+  let h = 0;
+  for (const c of slug) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  if (family === "pool") {
+    return { qty: 3 + (h % 14), reorderAt: 2 };
+  }
+  return { qty: 36 + (h % 12) * 12, reorderAt: 24 };
+}
+
+/* One tap loads the empty shop: only rows he has never touched
+   (zero in stock, zero warn-me-at) receive counts, so running it
+   twice, or late, can never overwrite a real number. He corrects
+   them to truth piece by piece; the cycle of selling down and
+   restocking starts from here. */
+export async function stockTheShelves(): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+
+  const db = getDb();
+  let filled = 0;
+  try {
+    const rows = await db
+      .select({
+        slug: schema.stockLevels.pieceSlug,
+        qty: schema.stockLevels.quantitySheets,
+        reorderAt: schema.stockLevels.reorderAt,
+        family: schema.ranges.family,
+      })
+      .from(schema.stockLevels)
+      .innerJoin(schema.pieces, eq(schema.pieces.slug, schema.stockLevels.pieceSlug))
+      .innerJoin(schema.ranges, eq(schema.ranges.slug, schema.pieces.rangeSlug));
+
+    for (const row of rows) {
+      if (row.qty !== 0 || row.reorderAt !== 0) continue;
+      const s = starterCount(row.slug, row.family);
+      await db
+        .update(schema.stockLevels)
+        .set({ quantitySheets: s.qty, reorderAt: s.reorderAt, updatedAt: sql`now()` })
+        .where(eq(schema.stockLevels.pieceSlug, row.slug));
+      filled++;
+    }
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+
+  if (filled === 0) {
+    return { ok: true, message: "Nothing to load: every shelf already carries your own numbers." };
+  }
+  await logAction("stocked the shelves to start", "", `${filled} pieces`);
+  revalidatePath("/admin/pieces");
+  revalidatePath("/admin");
+  return {
+    ok: true,
+    message: `${filled} shelves loaded. Correct them to your real counts as you go.`,
+  };
+}
+
 /* A new piece enters the book as a draft: it gets its record, its
    stock row, and a slug minted once. The window comes later, when he
    flips the switch. */

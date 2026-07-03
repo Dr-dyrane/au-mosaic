@@ -2,6 +2,7 @@ import Link from "next/link";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import FilterSheet from "./FilterSheet";
+import StockStarter from "./StockStarter";
 import { HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
 
 /* First colour decides the hue shelf: low saturation is neutral,
@@ -54,11 +55,22 @@ export default async function PiecesPage({
   const visible = rows.filter(
     (row) =>
       (!filters.family || familyOf.get(row.piece.rangeSlug) === filters.family) &&
-      (!filters.low || (row.stock ? row.stock.quantitySheets <= row.stock.reorderAt : false)) &&
+      (!filters.low ||
+        (row.stock
+          ? row.stock.reorderAt > 0 && row.stock.quantitySheets <= row.stock.reorderAt
+          : false)) &&
       (!filters.hue || hueOf(row.piece.colors) === filters.hue)
   );
   const filtering = Boolean(filters.family || filters.low || filters.hue);
   const sort = filters.sort === "name" || filters.sort === "low" ? filters.sort : undefined;
+
+  /* A shop is not handed over empty: while most shelves have never
+     been touched (no count, no warn-me-at), the room offers one tap
+     of believable starting numbers, his to correct. */
+  const untouched = rows.filter(
+    (r) => (r.stock?.quantitySheets ?? 0) === 0 && (r.stock?.reorderAt ?? 0) === 0
+  ).length;
+  const offerStarter = rows.length > 0 && untouched >= Math.ceil(rows.length * 0.8);
 
   /* Sorting rearranges inside each range; the shelves themselves
      stay where the shop floor knows them. */
@@ -69,7 +81,8 @@ export default async function PiecesPage({
     }
     if (sort === "low") {
       const qty = (r: Row) => r.stock?.quantitySheets ?? 0;
-      const isLow = (r: Row) => (r.stock ? qty(r) <= r.stock.reorderAt : false);
+      const isLow = (r: Row) =>
+        r.stock ? r.stock.reorderAt > 0 && qty(r) <= r.stock.reorderAt : false;
       return [...items].sort(
         (a, b) => Number(isLow(b)) - Number(isLow(a)) || qty(a) - qty(b)
       );
@@ -98,6 +111,18 @@ export default async function PiecesPage({
           Learn this room
         </button>
       </div>
+
+      {offerStarter && (
+        <section className="panel mt-8 max-w-2xl" data-tour="stock-start">
+          <p className="font-serif text-[20px]">The shelves are waiting.</p>
+          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+            Load believable starting counts on every untouched shelf,
+            then correct them to your real numbers piece by piece.
+            Selling down and restocking both begin here.
+          </p>
+          <StockStarter />
+        </section>
+      )}
 
       {/* The desk sees its filters laid out; the phone keeps them in
           the sheet. Links, so the URL remembers. */}
@@ -167,7 +192,8 @@ export default async function PiecesPage({
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     {items.map(({ piece, stock }) => {
                       const qty = stock?.quantitySheets ?? 0;
-                      const low = stock ? qty <= stock.reorderAt : false;
+                      /* Warn-me-at 0 means he never asked to be warned. */
+                      const low = stock ? stock.reorderAt > 0 && qty <= stock.reorderAt : false;
                       return (
                         <Link
                           key={piece.slug}
