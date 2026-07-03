@@ -188,7 +188,7 @@ export default function PhotoPanel({
   imageDay: string | null;
 }) {
   return (
-    <section className="panel mt-8 grid max-w-3xl gap-8" data-tour="photos">
+    <section className="panel grid gap-8" data-tour="photos">
       <div>
         <p className="font-serif text-[20px]">The photographs</p>
         <Teach until="stockroom">

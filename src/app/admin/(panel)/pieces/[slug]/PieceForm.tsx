@@ -75,7 +75,7 @@ export default function PieceForm({ piece, stock }: Props) {
   const markDirty = useUnsavedGuard(!!state?.ok);
 
   return (
-    <form onSubmit={keepValues(action)} onChange={markDirty} className="mt-10 grid max-w-3xl gap-8">
+    <form onSubmit={keepValues(action)} onChange={markDirty} className="grid gap-8">
       <input type="hidden" name="slug" value={piece.slug} />
 
       <div className="panel grid gap-6" data-tour="words">

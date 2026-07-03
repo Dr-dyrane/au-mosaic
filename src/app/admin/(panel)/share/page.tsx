@@ -54,15 +54,18 @@ export default async function SharePage({
         What you shared, met by the book.
       </p>
 
+      {/* The desk pairs what arrived with who the book found; the
+          phone keeps its single file. */}
+      <div className="mt-8 grid max-w-2xl items-start gap-5 lg:max-w-5xl lg:grid-cols-2">
       {shared ? (
-        <div className="panel mt-8 max-w-2xl">
+        <div className="panel">
           <p className="eyebrow">What arrived</p>
           <p className="mt-3 whitespace-pre-line text-[14px] leading-relaxed text-dusk">
             {shared.length > 400 ? `${shared.slice(0, 400)}...` : shared}
           </p>
         </div>
       ) : (
-        <div className="panel mt-8 max-w-md">
+        <div className="panel max-w-md">
           <p className="font-serif text-[20px]">Nothing arrived with the share.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
             Share a chat or a contact into the app and this room reads
@@ -72,7 +75,7 @@ export default async function SharePage({
       )}
 
       {match && (
-        <div className="panel mt-5 max-w-2xl">
+        <div className="panel">
           <p className="eyebrow">The book knows them</p>
           <p className="font-serif mt-3 text-[26px]">{match.name}</p>
           <p className="mt-2 text-[13px] text-dusk">
@@ -95,7 +98,7 @@ export default async function SharePage({
       )}
 
       {!match && shared && (
-        <div className="panel mt-5 max-w-2xl">
+        <div className="panel">
           <p className="font-serif text-[20px]">
             {firstPhone
               ? "No one in the book carries this number."
@@ -117,6 +120,8 @@ export default async function SharePage({
           </div>
         </div>
       )}
+
+      </div>
 
       <p className="mt-8 max-w-md text-[13px] leading-relaxed text-mist">
         Sharing into the app works on Android with Chrome. On iPhone,

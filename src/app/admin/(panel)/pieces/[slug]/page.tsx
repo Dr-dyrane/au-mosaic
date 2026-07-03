@@ -26,6 +26,10 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
       <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
         {piece.slug} · lives at /piece/{piece.slug}
       </p>
+      {/* A record with a face: on the desk the face holds the left
+          column and the facts the right, side by side the way he
+          reads them. The phone keeps its single file. */}
+      <div className="mt-8 grid max-w-3xl items-start gap-8 xl:max-w-none xl:grid-cols-2 xl:gap-10">
       <PhotoPanel
         slug={piece.slug}
         name={piece.name}
@@ -50,6 +54,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
           containerEta: stock?.containerEta ?? null,
         }}
       />
+      </div>
     </main>
   );
 }
