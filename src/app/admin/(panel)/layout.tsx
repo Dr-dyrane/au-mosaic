@@ -5,6 +5,8 @@ import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { AuMark } from "@/components/Mosaic";
 import { AdminTabBar, AdminTopNav } from "@/components/AdminNav";
+import PalettePicker from "@/components/PalettePicker";
+import ThemeToggle from "@/components/ThemeToggle";
 import { hasSession } from "@/lib/admin-auth";
 import { logout } from "../login/actions";
 
@@ -71,6 +73,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
       {children}
+      {/* The office footer: the same suns and houses as the shop
+          window, so his dashboard wears the clothes he chose. */}
+      <footer className="mt-24 flex flex-wrap items-center justify-between gap-5 pt-8">
+        <p className="text-[11px] uppercase tracking-[0.18em] text-mist">
+          The back office · AU Mosaic
+        </p>
+        <div className="flex items-center gap-5">
+          <PalettePicker />
+          <ThemeToggle />
+        </div>
+      </footer>
       <AdminTabBar owed={owed} />
     </div>
   );
