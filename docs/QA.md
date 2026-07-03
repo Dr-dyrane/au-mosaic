@@ -68,6 +68,17 @@ Last pass: 2026-07-02.
 | Museum reveal | PASS | Piece heroes hang like lit works: spotlight vignette plus TiltFrame pointer lean (hover devices, reduced-motion safe, overscaled edges). |
 | Scroll depth | PASS | Lifestyle and Seen-in scenes drift via CSS animation-timeline: view() where supported; static elsewhere. Zero libraries, zero JS on scroll. |
 
+## Regression check (after the glass, bleed, ramp, and film passes)
+
+| Surface | Status | Evidence |
+|---|---|---|
+| Glass legibility, dark theme | PASS | Measured over the darkest imagery: ink 12.3:1, dusk 5.3:1 on 42% glass. |
+| Glass legibility, light theme | FIXED | 42% light glass over a dark hero left dusk at 3.11:1. Daylight glass now 75%: dusk 5.0:1, ink 12.9:1. Night lucency untouched. |
+| Mobile full-bleed overflow | PASS | Every -mx-5 grid sits inside a px-5 container; one column on phones means media equals viewport width exactly, no horizontal scroll. |
+| Transform stacking | PASS | Tilt (wrapper), ken-burns (image), glide (hover), and parallax (scenes) each own a different element; nothing double-drives one transform. |
+| Overlay hit-testing | PASS | Vignette and gradients are pointer-events-none where content sits above; CTAs and links all reachable. |
+| Focus and keyboard | PASS | Gold focus rings and skip link unaffected by the glass pass; piece bar untabbable while hidden. |
+
 ## The CRM upgrade path
 
 Ready. The seams are already cut:

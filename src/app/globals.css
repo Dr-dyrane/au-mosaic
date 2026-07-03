@@ -115,6 +115,13 @@ p { text-wrap: pretty; }
     var(--t-lift);
 }
 
+/* Daylight glass is milkier: 42% light sand over a dark hero leaves
+   secondary text at 3.1:1; 75% restores AA (measured in QA.md). Night
+   glass keeps its lucency, where contrast holds either way. */
+[data-theme="light"] .glass {
+  background: color-mix(in srgb, var(--color-sand) 75%, transparent);
+}
+
 /* Resting surface: fact panels, quiet cells. */
 .panel {
   border-radius: 28px;
