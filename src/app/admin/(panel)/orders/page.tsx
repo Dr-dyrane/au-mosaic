@@ -14,11 +14,13 @@ export const dynamic = "force-dynamic";
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; status?: string }>;
 }) {
   const db = getDb();
-  const { q } = await searchParams;
+  const { q, status } = await searchParams;
   const query = (q ?? "").trim();
+  const step = OPEN_STEPS.find((s) => s === status);
+  const steps = step ? [step] : OPEN_STEPS;
 
   const open = await db
     .select({ order: schema.orders, customerName: schema.customers.name })
@@ -84,12 +86,31 @@ export default async function OrdersPage({
         </form>
       </div>
 
-      {OPEN_STEPS.map((step) => {
-        const group = open.filter((r) => r.order.status === step);
+      {/* Filter by step: links, so the URL remembers the view. */}
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Link
+          href={query ? `/admin/orders?q=${encodeURIComponent(query)}` : "/admin/orders"}
+          className={`chip-solid ${!step ? "is-on" : ""}`}
+        >
+          All open
+        </Link>
+        {OPEN_STEPS.map((s) => (
+          <Link
+            key={s}
+            href={`/admin/orders?status=${s}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
+            className={`chip-solid ${step === s ? "is-on" : ""}`}
+          >
+            {STATUS_LABEL[s]}
+          </Link>
+        ))}
+      </div>
+
+      {steps.map((st) => {
+        const group = open.filter((r) => r.order.status === st);
         if (group.length === 0) return null;
         return (
-          <section key={step} className="mt-12">
-            <p className="eyebrow">{STATUS_LABEL[step]}</p>
+          <section key={st} className="mt-12">
+            <p className="eyebrow">{STATUS_LABEL[st]}</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {group.map(({ order, customerName }) => {
                 const billed = billedBy.get(order.id) ?? 0;
@@ -125,6 +146,12 @@ export default async function OrdersPage({
           </section>
         );
       })}
+
+      {step && open.filter((r) => r.order.status === step).length === 0 && (
+        <p className="mt-10 max-w-md text-[14px] leading-relaxed text-dusk">
+          Nothing standing at {STATUS_LABEL[step]}. All open shows the whole line.
+        </p>
+      )}
 
       {open.length === 0 && query && (
         <div className="panel mt-10 max-w-md">

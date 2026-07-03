@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { desc, eq, sql } from "drizzle-orm";
+import { count, desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
 import { fmtDate } from "../pipeline";
+import Pager from "../../Pager";
+
+const PER_PAGE = 24;
 
 /* The archive shelf. Settled orders rest here with their history
    intact: what was billed, what was given below list, what came in.
@@ -10,15 +13,29 @@ import { fmtDate } from "../pipeline";
 
 export const dynamic = "force-dynamic";
 
-export default async function SettledOrdersPage() {
+export default async function SettledOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const db = getDb();
+  const { page: pageRaw } = await searchParams;
+  const page = Math.max(1, parseInt(pageRaw ?? "1", 10) || 1);
+
+  const [totalRow] = await db
+    .select({ n: count() })
+    .from(schema.orders)
+    .where(eq(schema.orders.status, "settled"));
+  const pages = Math.max(1, Math.ceil(totalRow.n / PER_PAGE));
 
   const rows = await db
     .select({ order: schema.orders, customerName: schema.customers.name })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.customers.id, schema.orders.customerId))
     .where(eq(schema.orders.status, "settled"))
-    .orderBy(desc(schema.orders.updatedAt));
+    .orderBy(desc(schema.orders.updatedAt))
+    .limit(PER_PAGE)
+    .offset((page - 1) * PER_PAGE);
 
   const lineSums = await db
     .select({
@@ -86,6 +103,8 @@ export default async function SettledOrdersPage() {
           })}
         </div>
       )}
+
+      <Pager page={page} pages={pages} makeHref={(p) => `/admin/orders/settled?page=${p}`} />
 
       {rows.length === 0 && (
         <div className="panel mt-10 max-w-md">

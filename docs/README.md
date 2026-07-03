@@ -7,6 +7,7 @@ disagree, the law wins.
 |---|---|
 | DESIGN.md | The law. Palette, typography ramp, geometry, glass, motion. Read before touching any UI. |
 | CRM.md | The back-office law. The piece record as the heart, the ten laws, the rooms and their status, the measure of done. Read before touching /admin. |
+| SAAS-QA.md | The standards list. Modern SaaS admin checklist with honest verdicts (pass, partial, missing) and the prioritised missing list. Update verdicts as passes land. |
 | QA.md | The ledger. Every checkpoint with evidence: contrast math, imagery provenance, regression checks, the CMS seam. Updated each pass, never rewritten. |
 | UX-REVIEW.md | The dated review. Benchmark verdict and the improvement map it produced. Historical once its tiers ship. |
 | MEDIA-BRIEF.md | The generation brief. Style block, film slots, dimensional still recipe, reference frames. The owner generates; the gate is an eye check here before anything ships. |

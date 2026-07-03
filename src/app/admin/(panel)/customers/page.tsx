@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { desc, eq, ilike, or } from "drizzle-orm";
+import { count, desc, eq, ilike, or } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import EnquiryRow from "./EnquiryRow";
+import Pager from "../Pager";
+
+const PER_PAGE = 24;
 
 /* Everyone he sells to, one search away. Cards lead with the name and
    the number he will tap next, newest people first. Search is a plain
@@ -16,10 +19,11 @@ const field =
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const { q: raw } = await searchParams;
+  const { q: raw, page: pageRaw } = await searchParams;
   const q = (raw ?? "").trim();
+  const page = Math.max(1, parseInt(pageRaw ?? "1", 10) || 1);
 
   const db = getDb();
   const fresh = await db
@@ -32,21 +36,19 @@ export default async function CustomersPage({
     .where(eq(schema.enquiries.status, "new"))
     .orderBy(desc(schema.enquiries.createdAt))
     .limit(12);
-  const customers = q
-    ? await db
-        .select()
-        .from(schema.customers)
-        .where(
-          or(
-            ilike(schema.customers.name, `%${q}%`),
-            ilike(schema.customers.phone, `%${q}%`)
-          )
-        )
-        .orderBy(desc(schema.customers.createdAt))
-    : await db
-        .select()
-        .from(schema.customers)
-        .orderBy(desc(schema.customers.createdAt));
+  const where = q
+    ? or(ilike(schema.customers.name, `%${q}%`), ilike(schema.customers.phone, `%${q}%`))
+    : undefined;
+  const [totalRow] = await db.select({ n: count() }).from(schema.customers).where(where);
+  const total = totalRow.n;
+  const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const customers = await db
+    .select()
+    .from(schema.customers)
+    .where(where)
+    .orderBy(desc(schema.customers.createdAt))
+    .limit(PER_PAGE)
+    .offset((page - 1) * PER_PAGE);
 
   return (
     <main>
@@ -54,6 +56,7 @@ export default async function CustomersPage({
       <h1 className="font-serif text-display-section mt-3">The customers.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         Tap a customer for their orders, their balance, their chat.
+        {total > 0 && ` ${total} ${total === 1 ? "person" : "people"} in the book.`}
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -120,6 +123,12 @@ export default async function CustomersPage({
           ))}
         </div>
       )}
+
+      <Pager
+        page={page}
+        pages={pages}
+        makeHref={(p) => `/admin/customers?${new URLSearchParams({ ...(q ? { q } : {}), page: String(p) })}`}
+      />
 
       {customers.length === 0 && (
         <div className="panel mt-10 max-w-md">
