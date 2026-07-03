@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getPiece, getPieces } from "@/lib/catalog";
 import { ENVIRONMENTS } from "@/lib/images";
 import ThemeImage from "@/components/ThemeImage";
+import SceneFrame, { SceneVars } from "@/components/SceneFrame";
 import { waProduct } from "@/lib/wa";
 import { TileSheet } from "@/components/Mosaic";
 import { CtaRow } from "@/components/ui";
@@ -40,51 +41,47 @@ export default async function PiecePage({ params }: { params: Params }) {
     <>
       {/* Full-screen reveal: no borders, no containers, lit like a gallery. */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
-        <TiltFrame className="absolute inset-0">
-          <div className="absolute inset-0">
-            {piece.image ? (
-              <ThemeImage
-                dark={piece.image}
-                light={piece.imageLight}
-                alt={piece.name}
-                fill
-                priority
-                quality={90}
-                sizes="100vw"
-                className="kenburns media-lux object-cover"
-              />
-            ) : (
-              <TileSheet colors={piece.colors || []} rows={12} cols={16} className="kenburns absolute inset-0 h-full w-full" />
-            )}
-          </div>
-        </TiltFrame>
-        <div className="vignette pointer-events-none absolute inset-0" />
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,11,9,0.42) 0%, rgba(12,11,9,0.06) 38%, rgba(12,11,9,0.85) 100%)",
-          }}
-        />
-        <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
-          <Reveal>
-            <p className="eyebrow">{piece.collection}</p>
-            <h1 className="font-serif text-display-hero mt-4 max-w-3xl text-white">
-              {piece.name}
-            </h1>
-            {piece.note && (
-              <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/80">{piece.note}.</p>
-            )}
-            <div className="mt-9 flex flex-wrap items-center gap-8">
-              <a href={waProduct(piece.name)} target="_blank" rel="noopener" data-wa="piece-hero" className="btn-gold">
-                Enquire about this piece
-              </a>
-              <Link href={`/mosaic-tiles#${piece.groupId}`} className="link-hair text-white">
-                The collection
-              </Link>
+        <SceneVars light={piece.imageLight}>
+          <TiltFrame className="absolute inset-0">
+            <div className="absolute inset-0">
+              {piece.image ? (
+                <ThemeImage
+                  dark={piece.image}
+                  light={piece.imageLight}
+                  alt={piece.name}
+                  fill
+                  priority
+                  quality={90}
+                  sizes="100vw"
+                  className="kenburns media-lux object-cover"
+                />
+              ) : (
+                <TileSheet colors={piece.colors || []} rows={12} cols={16} className="kenburns absolute inset-0 h-full w-full" />
+              )}
             </div>
-          </Reveal>
-        </div>
+          </TiltFrame>
+          <div className="vignette pointer-events-none absolute inset-0" />
+          <div className="scrim-hero pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
+            <Reveal>
+              <p className="eyebrow scene-eyebrow">{piece.collection}</p>
+              <h1 className="font-serif text-display-hero scene-title mt-4 max-w-3xl">
+                {piece.name}
+              </h1>
+              {piece.note && (
+                <p className="scene-sub mt-5 max-w-md text-[16px] leading-relaxed">{piece.note}.</p>
+              )}
+              <div className="mt-9 flex flex-wrap items-center gap-8">
+                <a href={waProduct(piece.name)} target="_blank" rel="noopener" data-wa="piece-hero" className="btn-gold">
+                  Enquire about this piece
+                </a>
+                <Link href={`/mosaic-tiles#${piece.groupId}`} className="link-hair scene-link">
+                  The collection
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </SceneVars>
       </section>
 
       {/* Floating enquiry bar once the hero action scrolls away */}
@@ -92,22 +89,17 @@ export default async function PiecePage({ params }: { params: Params }) {
 
       {/* The piece in its room */}
       <section className="relative flex min-h-[62svh] items-end overflow-hidden">
-        <ThemeImage dark={scene.src} light={scene.srcDay} alt={scene.place} fill quality={90} sizes="100vw" className="parallax-y media-lux object-cover" />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,11,9,0.25) 0%, rgba(12,11,9,0.05) 45%, rgba(12,11,9,0.72) 100%)",
-          }}
-        />
-        <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
-          <Reveal>
-            <p className="eyebrow">Seen in</p>
-            <p className="font-serif text-display-section mt-3 max-w-xl text-white">
-              {scene.place}. {scene.line}
-            </p>
-          </Reveal>
-        </div>
+        <SceneFrame dark={scene.src} light={scene.srcDay} alt={scene.place} fill quality={90} sizes="100vw" className="parallax-y media-lux object-cover">
+          <div className="scrim-scene pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
+            <Reveal>
+              <p className="eyebrow scene-eyebrow">Seen in</p>
+              <p className="font-serif text-display-section scene-title mt-3 max-w-xl">
+                {scene.place}. {scene.line}
+              </p>
+            </Reveal>
+          </div>
+        </SceneFrame>
       </section>
 
       {/* The quiet facts */}

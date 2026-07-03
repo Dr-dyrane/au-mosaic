@@ -4,6 +4,7 @@ import { getMosaicRanges } from "@/lib/catalog";
 import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
+import SceneFrame from "@/components/SceneFrame";
 import ThemeImage from "@/components/ThemeImage";
 import { ProductCard } from "@/components/ui";
 
@@ -29,42 +30,37 @@ export default async function Home() {
     <>
       {/* Cinematic hero: the island floats over it, the image owns the screen */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
-        <ThemeImage
+        <SceneFrame
           dark={OWN.heroDusk}
           light={DAY.heroDusk}
-          alt="A villa at dusk over an infinity pool of aquamarine mosaic"
+          alt="A villa over an infinity pool of aquamarine mosaic"
           fill
           priority
           quality={90}
           sizes="100vw"
           className="kenburns media-lux object-cover"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,11,9,0.55) 0%, rgba(12,11,9,0.12) 40%, rgba(12,11,9,0.82) 100%)",
-          }}
-        />
-        <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
-          <Reveal>
-            <p className="eyebrow">AU Mosaic · Lagos</p>
-            <h1 className="font-serif text-display-hero mt-5 max-w-3xl text-white">
-              Spaces that begin with water.
-            </h1>
-            <p className="mt-6 max-w-md text-[16px] leading-relaxed text-white/80">
-              Mosaic for pools, walls, and rooms people remember.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center gap-8">
-              <a href={waQuote()} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
-                Begin a project
-              </a>
-              <Link href="/mosaic-tiles" className="link-hair text-white">
-                View the collection
-              </Link>
-            </div>
-          </Reveal>
-        </div>
+        >
+          <div className="scrim-hero pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
+            <Reveal>
+              <p className="eyebrow scene-eyebrow">AU Mosaic · Lagos</p>
+              <h1 className="font-serif text-display-hero scene-title mt-5 max-w-3xl">
+                Spaces that begin with water.
+              </h1>
+              <p className="scene-sub mt-6 max-w-md text-[16px] leading-relaxed">
+                Mosaic for pools, walls, and rooms people remember.
+              </p>
+              <div className="mt-10 flex flex-wrap items-center gap-8">
+                <a href={waQuote()} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
+                  Begin a project
+                </a>
+                <Link href="/mosaic-tiles" className="link-hair scene-link">
+                  View the collection
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </SceneFrame>
       </section>
 
       {/* Environments: the dream first */}
@@ -85,7 +81,7 @@ export default async function Home() {
             <Reveal key={e.place} delay={(i % 2) * 90} className={i % 2 === 1 ? "sm:mt-24" : ""}>
               <Link href={e.href} className="group block">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px]">
-                  <ThemeImage
+                  <SceneFrame
                     dark={e.src}
                     light={e.srcDay}
                     alt={e.place}
@@ -93,23 +89,18 @@ export default async function Home() {
                     quality={90}
                     sizes="(max-width: 640px) 100vw, 50vw"
                     className="img-glide media-lux object-cover"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, rgba(12,11,9,0) 42%, rgba(12,11,9,0.16) 62%, rgba(12,11,9,0.78) 100%)",
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[rgba(12,11,9,0.22)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                  <div className="absolute inset-x-0 bottom-0 p-7 sm:p-8">
-                    <p className="eyebrow">{e.place}</p>
-                    <p className="font-serif mt-2 text-[26px] leading-snug text-white">{e.line}</p>
-                    <div className="cap-reveal mt-3">
-                      <p className="max-w-xs text-[14px] leading-relaxed text-white/75">{e.materials}</p>
-                      <span className="link-hair mt-5 text-white">The materials behind it</span>
+                  >
+                    <div className="scrim-card pointer-events-none absolute inset-0" />
+                    <div className="scene-deepen absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    <div className="absolute inset-x-0 bottom-0 p-7 sm:p-8">
+                      <p className="eyebrow scene-eyebrow">{e.place}</p>
+                      <p className="font-serif scene-title mt-2 text-[26px] leading-snug">{e.line}</p>
+                      <div className="cap-reveal mt-3">
+                        <p className="scene-sub max-w-xs text-[14px] leading-relaxed">{e.materials}</p>
+                        <span className="link-hair scene-link mt-5">The materials behind it</span>
+                      </div>
                     </div>
-                  </div>
+                  </SceneFrame>
                 </div>
               </Link>
             </Reveal>
@@ -148,7 +139,7 @@ export default async function Home() {
 
       {/* Lifestyle: one full-bleed breath */}
       <section className="relative flex min-h-[70svh] items-center overflow-hidden">
-        <ThemeImage
+        <SceneFrame
           dark={OWN.villaPalms}
           light={DAY.villaPalms}
           alt="A stone villa and palms mirrored in still mosaic water"
@@ -156,15 +147,16 @@ export default async function Home() {
           quality={90}
           sizes="100vw"
           className="parallax-y media-lux object-cover"
-        />
-        <div className="absolute inset-0 bg-[rgba(12,11,9,0.45)]" />
-        <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
-          <Reveal>
-            <p className="font-serif text-display-section max-w-2xl text-white">
-              The room people remember is the one you built slowly.
-            </p>
-          </Reveal>
-        </div>
+        >
+          <div className="scrim-wash pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
+            <Reveal>
+              <p className="font-serif text-display-section scene-title max-w-2xl">
+                The room people remember is the one you built slowly.
+              </p>
+            </Reveal>
+          </div>
+        </SceneFrame>
       </section>
 
       {/* The collection: five, not five hundred */}

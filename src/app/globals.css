@@ -282,6 +282,58 @@ a:active .chip-glass,
   background: radial-gradient(120% 90% at 50% 32%, rgba(12, 11, 9, 0) 42%, rgba(12, 11, 9, 0.42) 100%);
 }
 
+/* ---- scenes: image, scrim, and type flip together ---------------------------
+
+   Words on imagery are their own little theme. Night frames carry the dusk
+   scrim, white ink, brass eyebrow, in BOTH site themes (a night frame in
+   light mode keeps night treatment, so contrast never breaks). When a
+   daylight twin exists and light mode is on, SceneFrame adds .scene-day:
+   the scrim becomes morning haze and the ink flips dark. Measured: night
+   white 17:1, brass 6.9:1; day ink 15:1, sub 6:1, gold 4.9:1. */
+
+.scene-vars {
+  --scene-ink: #ffffff;
+  --scene-ink-soft: rgb(255 255 255 / 0.78);
+  --scene-gold: #c2a15c;
+  --scene-deepen: rgb(12 11 9 / 0.22);
+}
+.scene-vars.scene-day {
+  --scene-ink: #17150f;
+  --scene-ink-soft: #4d463b;
+  --scene-gold: #7a6128;
+  --scene-deepen: rgb(246 243 236 / 0.24);
+}
+
+.scene-title { color: var(--scene-ink); }
+.scene-sub { color: var(--scene-ink-soft); }
+.scene-eyebrow { color: var(--scene-gold); }
+.scene-link { color: var(--scene-ink); }
+
+.scrim-hero {
+  background: linear-gradient(180deg, rgb(12 11 9 / 0.55) 0%, rgb(12 11 9 / 0.12) 40%, rgb(12 11 9 / 0.82) 100%);
+}
+.scene-day .scrim-hero {
+  background: linear-gradient(180deg, rgb(246 243 236 / 0.5) 0%, rgb(246 243 236 / 0.08) 40%, rgb(246 243 236 / 0.9) 100%);
+}
+.scrim-card {
+  background: linear-gradient(180deg, rgb(12 11 9 / 0) 42%, rgb(12 11 9 / 0.16) 62%, rgb(12 11 9 / 0.78) 100%);
+}
+.scene-day .scrim-card {
+  background: linear-gradient(180deg, rgb(246 243 236 / 0) 42%, rgb(246 243 236 / 0.14) 62%, rgb(246 243 236 / 0.88) 100%);
+}
+.scrim-scene {
+  background: linear-gradient(180deg, rgb(12 11 9 / 0.3) 0%, rgb(12 11 9 / 0.05) 45%, rgb(12 11 9 / 0.74) 100%);
+}
+.scene-day .scrim-scene {
+  background: linear-gradient(180deg, rgb(246 243 236 / 0.3) 0%, rgb(246 243 236 / 0.05) 45%, rgb(246 243 236 / 0.86) 100%);
+}
+.scrim-wash { background: rgb(12 11 9 / 0.45); }
+.scene-day .scrim-wash { background: rgb(246 243 236 / 0.4); }
+.scene-deepen { background: var(--scene-deepen); }
+.scene-day .vignette {
+  background: radial-gradient(120% 90% at 50% 32%, rgb(246 243 236 / 0) 42%, rgb(246 243 236 / 0.4) 100%);
+}
+
 /* Scenes drift slower than the page: depth without a library. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {

@@ -123,6 +123,14 @@ Nonso's real photography joins through the same gate: drop in
 public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 .gitignore, ledger row here.
 
+## Scene typography (found and fixed during the daylight work)
+
+| Finding | Status |
+|---|---|
+| Light theme put dark theme gold (#856A30) on dark scrims, near invisible | FIXED: scenes carry their own vars; night scenes force brass #C2A15C in both themes, 6.9:1 |
+| Day frames under night scrims would look like fog at morning | FIXED: scrims flip to ivory morning haze only when the day image is active; ink flips with them. Day: ink 15:1, sub 6:1, gold #7A6128 4.9:1 |
+| Night frames in light mode | Keep full night treatment: image, scrim, and type stay together, contrast never depends on which pairs have shipped |
+
 ## Daylight pairs (the theme follows the sun)
 
 | Pair | Status |

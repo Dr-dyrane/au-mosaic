@@ -5,6 +5,7 @@ import type { Product, ProductGroup } from "@/lib/products";
 import { TileSheet } from "./Mosaic";
 import Reveal from "./Reveal";
 import ThemeImage from "./ThemeImage";
+import SceneFrame from "./SceneFrame";
 
 /* Editorial building blocks. Photography, whitespace, and lucent surfaces
    structure everything. No borders, no lines, one loud thing per screen.
@@ -60,28 +61,23 @@ export function PageHero({
 }) {
   return (
     <section className="relative flex min-h-[58svh] items-end overflow-hidden">
-      <ThemeImage dark={image} light={imageLight} alt={alt} fill priority quality={90} sizes="100vw" className="kenburns media-lux object-cover" />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(12,11,9,0.5) 0%, rgba(12,11,9,0.1) 40%, rgba(12,11,9,0.82) 100%)",
-        }}
-      />
-      <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
-        <Reveal>
-          <p className="eyebrow">{eyebrow}</p>
-          <h1 className="font-serif text-display-page mt-4 max-w-2xl text-white">{title}</h1>
-          {sub && <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/75">{sub}</p>}
-          {cta && (
-            <div className="mt-9">
-              <a href={cta.href} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
-                {cta.label}
-              </a>
-            </div>
-          )}
-        </Reveal>
-      </div>
+      <SceneFrame dark={image} light={imageLight} alt={alt} fill priority quality={90} sizes="100vw" className="kenburns media-lux object-cover">
+        <div className="scrim-hero pointer-events-none absolute inset-0" />
+        <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
+          <Reveal>
+            <p className="eyebrow scene-eyebrow">{eyebrow}</p>
+            <h1 className="font-serif text-display-page scene-title mt-4 max-w-2xl">{title}</h1>
+            {sub && <p className="scene-sub mt-5 max-w-md text-[16px] leading-relaxed">{sub}</p>}
+            {cta && (
+              <div className="mt-9">
+                <a href={cta.href} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
+                  {cta.label}
+                </a>
+              </div>
+            )}
+          </Reveal>
+        </div>
+      </SceneFrame>
     </section>
   );
 }

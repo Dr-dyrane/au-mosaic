@@ -94,6 +94,17 @@ glass chips rise 10px into place (cap-reveal). Pages glide in on every
 navigation (app/template.tsx, page-enter, 500ms). All of it stands down
 under prefers-reduced-motion. That is all.
 
+## Scenes: words on imagery
+
+A scene's image, scrim, and typography are one unit and flip together
+(SceneFrame). Night frames carry the dusk scrim, white ink, and brass
+eyebrow in both site themes, so a missing daylight twin can never break
+contrast. When a daylight twin exists and light mode is on, the scrim
+becomes morning haze (ivory), ink flips dark, and the eyebrow deepens
+to #7A6128. Measured: night white 17:1 and brass 6.9:1; day ink 15:1,
+sub 6:1, gold 4.9:1. Scrims come in four voices: scrim-hero,
+scrim-card, scrim-scene, scrim-wash.
+
 ## Film and depth
 
 The hero carries a slow water film over its own still: the poster is the
