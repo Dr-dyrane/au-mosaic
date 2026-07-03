@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
-import { getMosaicRanges } from "@/lib/catalog";
+import { getMosaicRanges, getProjects } from "@/lib/catalog";
 import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
 import SceneFrame from "@/components/SceneFrame";
 import ThemeImage from "@/components/ThemeImage";
+import ProjectCard from "@/components/ProjectCard";
 import { ProductCard } from "@/components/ui";
 
 /* The Mosaic Maison. Story first, products second. One loud thing per
@@ -19,6 +20,7 @@ const MATERIALS = [
 
 export default async function Home() {
   const ranges = await getMosaicRanges();
+  const projects = (await getProjects()).slice(0, 2);
   const picks = [
     { ...ranges[0].items[0], collection: "Pool mosaic" },
     { ...ranges[0].items[3], collection: "Pool mosaic" },
@@ -214,6 +216,30 @@ export default async function Home() {
             </div>
           </Reveal>
         </div>
+      </section>
+
+      {/* The work: two projects, then the rest */}
+      <section className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
+        <Reveal>
+          <p className="eyebrow">Projects</p>
+          <h2 className="font-serif text-display-section mt-4 max-w-xl">
+            The work speaks quietly.
+          </h2>
+        </Reveal>
+        <div className="-mx-5 mt-16 grid gap-x-8 gap-y-16 sm:mx-0 sm:grid-cols-2">
+          {projects.map((p, i) => (
+            <Reveal key={p.slug} delay={(i % 2) * 90}>
+              <ProjectCard project={p} />
+            </Reveal>
+          ))}
+        </div>
+        <Reveal>
+          <div className="mt-12">
+            <Link href="/projects" className="link-hair text-dusk">
+              All projects
+            </Link>
+          </div>
+        </Reveal>
       </section>
 
       {/* Final invitation */}

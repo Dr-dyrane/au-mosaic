@@ -27,7 +27,6 @@ export const NAV = [
   { href: "/mosaic-tiles", label: "Tiles" },
   { href: "/pool-materials", label: "Materials" },
   { href: "/pools", label: "Pools" },
-  { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

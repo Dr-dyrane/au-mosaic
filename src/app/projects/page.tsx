@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getProjects } from "@/lib/catalog";
 import { OWN, DAY } from "@/lib/images";
 import { waPool } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
-import SceneFrame from "@/components/SceneFrame";
+import ProjectCard from "@/components/ProjectCard";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -31,32 +30,7 @@ export default async function ProjectsPage() {
         <div className="-mx-5 grid gap-x-8 gap-y-20 sm:mx-0 sm:grid-cols-2">
           {projects.map((p, i) => (
             <Reveal key={p.slug} delay={(i % 2) * 90} className={i % 2 === 1 ? "sm:mt-24" : ""}>
-              <Link href={`/projects/${p.slug}`} className="group block">
-                <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px]">
-                  <SceneFrame
-                    dark={p.cover}
-                    light={p.coverDay}
-                    alt={p.title}
-                    fill
-                    quality={90}
-                    sizes="(max-width: 640px) 100vw, 50vw"
-                    className="img-glide media-lux object-cover"
-                  >
-                    <div className="scrim-card pointer-events-none absolute inset-0" />
-                    <div className="scene-deepen absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                    <div className="absolute inset-x-0 bottom-0 p-7 sm:p-8">
-                      <p className="eyebrow scene-eyebrow">{p.concept ? "Concept study" : p.title}</p>
-                      <p className="font-serif scene-title mt-2 text-[26px] leading-snug">
-                        {p.concept ? p.title : p.line}
-                      </p>
-                      <div className="cap-reveal mt-3">
-                        <p className="scene-sub max-w-xs text-[14px] leading-relaxed">{p.scope.join(" · ")}</p>
-                        <span className="link-hair scene-link mt-5">See the project</span>
-                      </div>
-                    </div>
-                  </SceneFrame>
-                </div>
-              </Link>
+              <ProjectCard project={p} />
             </Reveal>
           ))}
         </div>

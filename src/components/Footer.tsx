@@ -39,6 +39,16 @@ export default function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link href="/projects" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                Projects
+              </Link>
+            </li>
+            <li>
+              <Link href="/visualizer" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                See it in your space
+              </Link>
+            </li>
           </ul>
         </nav>
         </div>
