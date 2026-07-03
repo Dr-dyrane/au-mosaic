@@ -12,7 +12,7 @@ import { ProductCard } from "@/components/ui";
 
 const MATERIALS = [
   { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues },
-  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: IMG.vibrantGlassMosaic },
+  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.glassJewels },
   { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: IMG.fishMosaicPool },
 ];
 

@@ -102,6 +102,7 @@ In use, verified live (Pexels, free licence, hotlink):
 |---|---|---|
 | poolBlues | owned, /media/pool-blues.jpg | best-seller card, piece reveal, home materials tile. Retired Pexels 28287770. |
 | craftHands | owned, /media/craft-hands.jpg | the craft section: hands, combed adhesive, mesh. The trust story. |
+| glassJewels | owned, /media/glass-jewels.jpg | glass mosaic card, reveal, home materials tile. Retired Pexels 28408521. |
 | bluePatternTiles | 14579397 | blue and white patterned tiles |
 | vibrantGlassMosaic | 28408521 | pixelated sunset glass mosaic |
 | beetleMosaicArt | 32325318 | beetle mosaic artwork |
