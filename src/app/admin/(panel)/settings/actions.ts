@@ -91,7 +91,7 @@ export async function savePushSubscription(_prev: SaveState, form: FormData): Pr
   const endpoint = String(form.get("endpoint") ?? "");
   const p256dh = String(form.get("p256dh") ?? "");
   const auth = String(form.get("auth") ?? "");
-  if (!endpoint.startsWith("https://") || !p256dh || !auth) {
+  if (!endpoint.startsWith("https://") || endpoint.length > 1000 || !p256dh || !auth) {
     return { ok: false, message: "That subscription is not whole. Try the toggle again." };
   }
   try {

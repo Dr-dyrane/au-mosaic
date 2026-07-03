@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPiece, getPieces } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
+import { scriptJson } from "@/lib/jsonld";
 import { ENVIRONMENTS } from "@/lib/images";
 import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
@@ -68,11 +69,11 @@ export default async function PiecePage({ params }: { params: Params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+        dangerouslySetInnerHTML={{ __html: scriptJson(productLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+        dangerouslySetInnerHTML={{ __html: scriptJson(crumbsLd) }}
       />
       {/* Full-screen reveal: no borders, no containers, lit like a gallery. */}
       <section className="relative flex min-h-svh items-end overflow-hidden">

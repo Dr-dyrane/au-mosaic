@@ -68,7 +68,7 @@ function Consequence({
       : "This returns to the shelf:";
 
   return (
-    <div className="fixed inset-0 z-[70]">
+    <div className="fixed inset-0 z-[99]">
       <button
         aria-label="Stay"
         onClick={onStay}
@@ -80,7 +80,7 @@ function Consequence({
         role="alertdialog"
         aria-modal="true"
         aria-label="Before it moves"
-        className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] rounded-[28px] p-6 outline-none sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[24rem] sm:-translate-x-1/2 sm:-translate-y-1/2"
+        className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[100] rounded-[28px] p-6 outline-none sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[24rem] sm:-translate-x-1/2 sm:-translate-y-1/2"
       >
         <p className="font-serif text-[20px]">Before it moves.</p>
         <p className="mt-2 text-[14px] leading-relaxed text-dusk">{sentence}</p>

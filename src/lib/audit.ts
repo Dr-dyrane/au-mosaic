@@ -23,6 +23,8 @@ export async function logAction(action: string, subject = "", detail = "", who?:
    this. Fails open: no table yet means a count of zero. */
 export async function countRecent(action: string, minutes: number): Promise<number> {
   try {
+    /* Safe for sql.raw: mins is truncated from a code-supplied
+       integer, never from a request. */
     const mins = Math.max(1, Math.trunc(minutes));
     const [row] = await getDb()
       .select({ n: count() })

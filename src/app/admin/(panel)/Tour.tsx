@@ -379,6 +379,8 @@ export default function Tour() {
   const hunt = useRef(0);
   const chapterRef = useRef<Chapter | null>(null);
   const iRef = useRef(0);
+  /* Whoever opened the tour gets the focus handed back at the end. */
+  const opener = useRef<HTMLElement | null>(null);
   useEffect(() => {
     chapterRef.current = chapter;
     iRef.current = i;
@@ -406,6 +408,8 @@ export default function Tour() {
     setChapter(null);
     setBox(null);
     setI(0);
+    opener.current?.focus?.();
+    opener.current = null;
   }, []);
 
   /* Find the step's element once its page has painted it. A required
@@ -484,6 +488,7 @@ export default function Tour() {
       const t = (e.target as HTMLElement | null)?.closest?.("[data-tour-start]");
       if (!t) return;
       e.preventDefault();
+      opener.current = t as HTMLElement;
       const key = t.getAttribute("data-tour-start") || "menu";
       if (key === "menu") {
         buzz(3);

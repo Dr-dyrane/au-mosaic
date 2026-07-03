@@ -3,7 +3,7 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
@@ -156,11 +156,20 @@ export async function stockTheShelves(): Promise<SaveState> {
     for (const row of rows) {
       if (row.qty !== 0 || row.reorderAt !== 0) continue;
       const s = starterCount(row.slug, row.family);
-      await db
+      /* The write re-checks untouched, so two racing taps cannot
+         both load the same shelf. */
+      const touched = await db
         .update(schema.stockLevels)
         .set({ quantitySheets: s.qty, reorderAt: s.reorderAt, updatedAt: sql`now()` })
-        .where(eq(schema.stockLevels.pieceSlug, row.slug));
-      filled++;
+        .where(
+          and(
+            eq(schema.stockLevels.pieceSlug, row.slug),
+            eq(schema.stockLevels.quantitySheets, 0),
+            eq(schema.stockLevels.reorderAt, 0)
+          )
+        )
+        .returning({ slug: schema.stockLevels.pieceSlug });
+      if (touched.length > 0) filled++;
     }
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };

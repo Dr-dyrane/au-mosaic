@@ -1,4 +1,5 @@
 import { SITE } from "@/lib/site";
+import { scriptJson } from "@/lib/jsonld";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
@@ -37,7 +38,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
     <div className="flex min-h-svh flex-col">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: scriptJson(jsonLd) }}
       />
       <a href="#main" className="skip-link">
         Skip to content

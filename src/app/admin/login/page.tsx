@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { AuMark } from "@/components/Mosaic";
 import { IconEye } from "../(panel)/icons";
+import { keepValues } from "../(panel)/keep";
 import { login } from "./actions";
 
 /* The back door of the maison. One field, no ceremony, and an eye so
@@ -21,7 +22,9 @@ export default function AdminLogin() {
           </span>
         </div>
         <p className="font-serif mt-6 text-[20px]">The house key, please.</p>
-        <form action={action} className="mt-6">
+        {/* onSubmit keeps a mistyped password in the field; retyping
+            a long key on a phone is a tax the door should not charge. */}
+        <form onSubmit={keepValues(action)} className="mt-6">
           <div className="relative">
             <input
               type={show ? "text" : "password"}

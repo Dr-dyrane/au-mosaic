@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GUIDES, getGuide, waGuide } from "@/lib/journal";
 import { SITE } from "@/lib/site";
+import { scriptJson } from "@/lib/jsonld";
 import Reveal from "@/components/Reveal";
 
 /* One guide: house voice above, search-plain title in the tab, FAQ
@@ -49,11 +50,11 @@ export default async function GuidePage({ params }: { params: Params }) {
     <article className="mx-auto max-w-6xl px-5 pt-40 pb-24 sm:px-8 sm:pb-32">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        dangerouslySetInnerHTML={{ __html: scriptJson(faqLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+        dangerouslySetInnerHTML={{ __html: scriptJson(crumbsLd) }}
       />
       <Reveal>
         <Link href="/journal" className="link-hair text-dusk text-[13px]">

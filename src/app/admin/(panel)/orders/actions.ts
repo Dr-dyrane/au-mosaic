@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
@@ -89,10 +89,17 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
       .where(eq(schema.orders.id, id));
     if (!before) return { ok: false, message: "That order is not in the book." };
 
-    await db
+    /* The write insists on the status it read, the deliveries
+       pattern: two thumbs racing the same move cannot both win,
+       so stock can never be taken off the shelf twice. */
+    const movedRows = await db
       .update(schema.orders)
       .set({ status, updatedAt: sql`now()` })
-      .where(eq(schema.orders.id, id));
+      .where(and(eq(schema.orders.id, id), eq(schema.orders.status, before.status)))
+      .returning({ id: schema.orders.id });
+    if (movedRows.length === 0) {
+      return { ok: false, message: "That order has already moved on. Refresh and look again." };
+    }
 
     const wasOut = OUT_THE_DOOR.includes(before.status);
     const nowOut = OUT_THE_DOOR.includes(status);

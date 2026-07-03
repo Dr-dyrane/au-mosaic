@@ -66,7 +66,13 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
             onClick={close}
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
           />
-          <div className="glass absolute inset-x-0 bottom-0 rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))]" data-tour="stock-sheet">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filters"
+            className="glass absolute inset-x-0 bottom-0 rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))]"
+            data-tour="stock-sheet"
+          >
             <div className="flex items-center justify-between px-2">
               <p className="eyebrow">Show</p>
               <button

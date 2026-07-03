@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useOptimistic, useState } from "react";
+import { useActionState, useOptimistic, useState } from "react";
 import { attachEnquiry, setEnquiryStatus, type SaveState } from "./actions";
 import Sentence from "../Sentence";
 import { keepValues } from "../keep";
@@ -40,12 +40,12 @@ export default function EnquiryRow({
      row carries the name from then on and the button itself leaves. */
   const showPicker = open && !attached && !tieState?.ok;
 
-  const submit = (form: FormData) => {
-    startTransition(() => {
-      clearNow(form.get("to") as "replied" | "closed");
-      action(form);
-    });
-  };
+  /* keepValues carries the submitter, so Replied and Close keep
+     their names, and the reset can never eat the row's state. */
+  const submit = keepValues((form) => {
+    clearNow(form.get("to") as "replied" | "closed");
+    action(form);
+  });
 
   if (cleared) {
     return (
@@ -65,7 +65,7 @@ export default function EnquiryRow({
             {attached && <span className="text-dusk"> · {attached}</span>}
           </p>
         </div>
-        <form action={submit} className="flex shrink-0 items-center gap-5">
+        <form onSubmit={submit} className="flex shrink-0 items-center gap-5">
           <input type="hidden" name="id" value={id} />
           {!attached && people.length > 0 && (
             <button
