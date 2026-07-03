@@ -21,10 +21,12 @@ export const SITE = {
   phoneDisplay: process.env.NEXT_PUBLIC_PHONE_DISPLAY || "+234 707 755 0283",
 };
 
+/* One word each, the Apple way. Inside a mosaic house, Tiles needs
+   no chaperone. */
 export const NAV = [
-  { href: "/mosaic-tiles", label: "Mosaic tiles" },
-  { href: "/pool-materials", label: "Pool materials" },
-  { href: "/pools", label: "Pool construction" },
+  { href: "/mosaic-tiles", label: "Tiles" },
+  { href: "/pool-materials", label: "Materials" },
+  { href: "/pools", label: "Pools" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

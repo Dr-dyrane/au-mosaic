@@ -17,7 +17,7 @@ export default async function MosaicTilesPage() {
       <PageHero
         eyebrow="The collection"
         title="Every colour you can name."
-        sub="Tell us the look. Real photos and videos from stock follow the same day, on WhatsApp."
+        sub="Name the look. Real photos from stock, same day, on WhatsApp."
         image={OWN.borders}
         imageLight={DAY.borders}
         alt="A patterned mosaic waterline band above still pool water"
@@ -36,7 +36,7 @@ export default async function MosaicTilesPage() {
         tint
         eyebrow="For projects"
         title="Contractors and resellers, welcome."
-        sub="Trade quantities from stock. Containers direct from our factory line in Foshan for large projects. Factory prices, honest timelines."
+        sub="Trade quantities from stock. Containers direct from Foshan. Factory prices, honest timelines."
       >
         <CtaRow href={waQuote()} label="Discuss a bulk order" />
       </Section>
