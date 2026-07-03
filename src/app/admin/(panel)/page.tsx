@@ -72,7 +72,9 @@ export default async function AdminHome() {
           New order
         </Link>
       </div>
-      <LastTouched />
+      {/* The tour offer speaks to the new hand, whose numbers are
+          still zeros; it may sit above them. The trail serves the
+          returning hand, so it waits below the pulse. */}
       <TourOffer />
 
       {!p.ok && (
@@ -115,6 +117,8 @@ export default async function AdminHome() {
           </div>
         </div>
       )}
+
+      <LastTouched />
     </main>
   );
 }

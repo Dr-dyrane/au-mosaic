@@ -87,7 +87,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
           href={waChat(customer.phone)}
           target="_blank"
           rel="noreferrer"
-          className="link-hair mt-4 inline-flex items-center gap-1.5 text-dusk text-[13px]"
+          className="link-hair mt-4 text-dusk text-[13px]"
         >
           <IconShare className="h-3.5 w-3.5" />
           WhatsApp them

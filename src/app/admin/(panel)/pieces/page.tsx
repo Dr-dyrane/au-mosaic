@@ -189,7 +189,7 @@ export default async function PiecesPage({
               return (
                 <section key={r.slug} className="mt-8">
                   <p className="eyebrow">{r.name}</p>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {items.map(({ piece, stock }) => {
                       const qty = stock?.quantitySheets ?? 0;
                       /* Warn-me-at 0 means he never asked to be warned. */

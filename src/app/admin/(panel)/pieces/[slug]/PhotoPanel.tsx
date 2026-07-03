@@ -71,11 +71,13 @@ function Slot({
       <div className="relative mt-3 aspect-[4/3] overflow-hidden rounded-[18px] bg-shell/40">
         {current ? (
           isBlob ? (
-            <Image src={current} alt={`${title} photograph`} fill sizes="(max-width: 640px) 100vw, 24rem" className="object-cover" />
+            /* The night frame is the record's face, first thing the
+               eye meets: it paints eagerly, never lazily. */
+            <Image src={current} alt={`${title} photograph`} fill sizes="(max-width: 640px) 100vw, 24rem" className="object-cover" priority={which === "night"} />
           ) : (
             /* Site-era files under public/media render unoptimised;
                they are already the right size. */
-            <Image src={current} alt={`${title} photograph`} fill sizes="(max-width: 640px) 100vw, 24rem" className="object-cover" unoptimized />
+            <Image src={current} alt={`${title} photograph`} fill sizes="(max-width: 640px) 100vw, 24rem" className="object-cover" unoptimized priority={which === "night"} />
           )
         ) : (
           <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-[13px] leading-relaxed text-mist">

@@ -20,7 +20,7 @@ export default function RefreshLine() {
           router.refresh();
           setAt(new Date().toLocaleTimeString("en-NG", { hour: "numeric", minute: "2-digit" }));
         }}
-        className="link-hair ml-3 inline-flex items-center gap-1.5 align-bottom text-dusk"
+        className="link-hair ml-3 align-bottom text-dusk"
       >
         <IconRefresh className="h-3 w-3" />
         refresh
