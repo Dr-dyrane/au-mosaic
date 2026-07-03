@@ -205,6 +205,7 @@ until a logo asset exists.
 | Honesty rule | Concept studies never claim clients or dates. Real projects swap in through the same Project shape, concept flag off. |
 | Nav correction | Projects left the island; the nav stays five single words. The work surfaces through story instead: a two-card strip on the home page and two footer Explore lines (Projects, See it in your space). |
 | Apple-grade polish | The loupe: while a corner stone is dragged, a 2.5x magnifier with brass crosshair rides above the finger, so precision survives the fingertip. Press and hold the photo (off the stones) to see the original; stones and lines fade while held, an Original chip confirms, release re-renders. Every re-render breathes with one soft light sweep (reduced-motion safe). Haptic ticks on stone grab and release, sliders, piece and grout changes where the platform supports vibration. The session is remembered: photo (downscaled), quad, piece, and controls restore from localStorage on return, ?piece= still wins over memory. viz_compare and viz_resume joined the events. |
+| Piece rail correction | The active chip's ring broke the no-borders law; it is gone. Chosen now means risen: elevated surface, ink text, a 4 percent scale, shadow-lift. The rail gained breathing padding so scaled chips never clip, bleeds edge to edge on mobile, and hides its scrollbar entirely (no-scrollbar utility). |
 
 ## The collection, photo complete · both suns
 

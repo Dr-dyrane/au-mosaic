@@ -433,6 +433,15 @@ a:active .chip-glass,
   background: radial-gradient(120% 90% at 50% 32%, rgb(var(--sand-day-rgb) / 0) 42%, rgb(var(--sand-day-rgb) / 0.4) 100%);
 }
 
+/* Scroll rails scroll; they do not show it. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* The visualizer's render breathes when it changes: one light sweep. */
 .viz-sweep {
   background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.1) 50%, transparent 70%);
