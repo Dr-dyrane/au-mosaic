@@ -149,3 +149,87 @@ That is the bar every room must clear.
 
 End state in one sentence: he runs a ten-year import business from
 his phone with the same calm as browsing his own gallery.
+
+## The handoff · session memory (2026-07-03)
+
+Assistant memory folders are session-scoped and unreliable across
+sessions; this section is the durable copy. Any session continuing
+the CRM reads this whole document first, then SAAS-QA.md, then
+QA.md, and RECITES THE ORDERED PLAN BACK TO DYRANE for a yes before
+touching code. One item at a time: build, lint (max-warnings=0),
+ledger row in QA.md, story commit, remind Dyrane to push. Move board
+verdicts as things land; never claim a pass that was not verified.
+
+**Where things stood at handoff.** CRM live at www.aumosaic.com/admin,
+password auth, installable PWA. Rooms open: glance (Today and
+Insights faces, New order gold, refresh line), stockroom (two
+families, filters with hue dots, bottom sheet), orders (list beside
+given, optimistic status, step filters), people (search, enquiry
+strip), debts (oldest wears the gold), deliveries, insights (pace
+sentences), settings (house facts table). Feel sprint shipped;
+another session was mid-flight on feel items 9 and 15 (Sentence,
+keepValues, icons components exist).
+
+**Execution order.**
+1. Verify stockroom filters behave on production (a fix shipped at
+   the very end; confirmation never arrived).
+2. Feel-list remainders: optimistic deliveries and enquiry clears,
+   last-three-touched on the glance, in-app half of the unsaved guard.
+3. The WhatsApp bridge, approved by Dyrane ("implement"): share_target
+   in admin.webmanifest (GET, action /admin/share, params title, text,
+   url) plus an auth-guarded /admin/share page matching a customer by
+   any 234 or 0-prefixed phone in the shared text, offering prefilled
+   New order or New enquiry; iOS caveat in the UI copy (share_target
+   is Android/Chrome only). And compose-from-the-book: "Send the
+   quote" and "Send the receipt" link-hair actions on the order record
+   via waChat with lines, prices, billed, paid, balance; gold budget
+   respected; wa_compose tracked.
+4. Full-flow tracking, agreed: first-party anonymous session id
+   (localStorage, crypto.randomUUID) on the WaTracker beacon;
+   enquiries gain session_id (migration); attach mechanic UI
+   (enquiries.customerId and converted status already exist in
+   schema); Insights funnel panel (sessions, enquiries, converted,
+   billed, settled with stage conversion rates). First-party only, no
+   fingerprinting, no third-party pixels.
+5. SEO sprint, strategy agreed: no-code first (Nonso claims Google
+   Business Profile; Dyrane verifies Search Console and submits the
+   sitemap), then title-tag audit (H1 house voice, title search-plain),
+   Product and BreadcrumbList and enriched LocalBusiness schema, then
+   the Journal: five to eight SSG intent guides from PLAN Phase 6
+   queries, each ending in WhatsApp, FAQ schema, in the sitemap.
+6. Nonso onboarding: word-for-word 3-minute screen-recording script
+   for a WhatsApp video (glance, new order, line with list versus
+   given, payment, who owes what, stockroom edit, photos), and "The
+   tour": hand-rolled spotlight walkthrough, no dependency (steps of
+   selector, page, title, one line; overlay cutout via giant
+   box-shadow; glass card; gold Next; dot progress; navigates across
+   rooms; localStorage aumosaic.toured; offer on first login plus a
+   permanent hallway link; tour_step events).
+
+**Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
+feed (unmatched inflows, tap to attach, suggest by amount and open
+balances); WhatsApp Business API tier (real automation, but a number
+on the Cloud API cannot stay in the normal WhatsApp app).
+
+**Cautions, paid for.** (1) Logs before theories: Vercel connector has
+all-projects access; project prj_dmD1XEPckHlIPOuvNIjsLXJn8HdA, team
+team_70YXvaKwtM0RJFRGtXT3hI5R; read runtime errors before proposing
+user-side actions, and never send Dyrane to repeat a step without new
+evidence. (2) neon-http db.execute returns an object with a rows
+property, not an array; rowsOf normalisers exist in insights and the
+panel layout. (3) Servers may render client components but never call
+functions from a "use client" module; shared helpers live in neutral
+files (pieces/stock-filters.ts is the example); build green proves
+nothing for force-dynamic pages. (4) Commands for Dyrane: bare, one
+per line, never with hash comments (zsh ate them twice). (5) Git in
+the mounted folder: move .git lock files aside before and after git
+add, commit with no-verify, unlink warnings are noise; npm work
+happens in a container copy, rsync both ways. (6) The environment
+files: .env holds real secrets and is gitignored; .env.example ships
+placeholders only. (7) House voice in all repo content: no em dashes,
+no arrows, Apple-terse, one gold per screen, no hairlines, nothing
+ever deleted.
+
+**The human context.** Nonso funded Phase 2 (NGN 500,000). Dyrane
+thinks in boards and checklists; keep them current and honest. The
+measure of done stands at the top of this document.
