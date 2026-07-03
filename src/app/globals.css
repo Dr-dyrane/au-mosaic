@@ -269,13 +269,6 @@ a:active .chip-glass,
   to { opacity: 1; transform: none; }
 }
 
-/* The hero film fades in over its own poster frame. */
-.hero-film {
-  opacity: 0;
-  animation: film-in 1.4s var(--ease-glide) 0.5s forwards;
-}
-@keyframes film-in { to { opacity: 1; } }
-
 /* The museum hold: TiltFrame.tsx drives --rx and --ry. */
 .tilt { perspective: 1200px; }
 .tilt > * {
@@ -332,6 +325,5 @@ a:active .chip-glass,
   .piece-bar { transition: none; }
   .page-enter { animation: none; }
   .cap-reveal { opacity: 1; transform: none; transition: none; }
-  .hero-film { display: none; animation: none; }
   .tilt > * { transform: none; transition: none; }
 }

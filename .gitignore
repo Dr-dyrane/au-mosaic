@@ -34,8 +34,6 @@ src/icon.png
 # Raw generator drops stay local; whitelist deliberately.
 public/media/*
 !public/media/dusk-villa.jpg
-!public/media/dusk-villa-loop.mp4
-!public/media/dusk-villa-poster.jpg
 !public/media/pool-blues.jpg
 !public/media/craft-hands.jpg
 !public/media/glass-jewels.jpg
@@ -47,3 +45,4 @@ public/media/*
 !public/media/borders.jpg
 !public/media/villa-palms.jpg
 !public/media/private-pool.jpg
+!public/media/hero-dusk.jpg

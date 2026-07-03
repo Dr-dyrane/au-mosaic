@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { getMosaicRanges } from "@/lib/catalog";
-import { ENVIRONMENTS, FILM, OWN } from "@/lib/images";
+import { ENVIRONMENTS, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
 import { ProductCard } from "@/components/ui";
@@ -30,28 +30,14 @@ export default async function Home() {
       {/* Cinematic hero: the island floats over it, the image owns the screen */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
         <Image
-          src={OWN.duskVillaPoster}
-          alt="A villa pool holding the last light of dusk"
+          src={OWN.heroDusk}
+          alt="A villa at dusk over an infinity pool of aquamarine mosaic"
           fill
           priority
           quality={90}
           sizes="100vw"
           className="kenburns media-lux object-cover"
         />
-        {/* The house's own film. Its poster is its own first frame, so
-            still and motion are one image; every failure mode holds it. */}
-        <video
-          className="hero-film media-lux absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={OWN.duskVillaPoster}
-          aria-hidden
-        >
-          <source src={FILM.heroLoop} type="video/mp4" />
-        </video>
         <div
           className="absolute inset-0"
           style={{

@@ -105,7 +105,7 @@ next.config. Retired along the way: Pexels 28054849, 28287770,
 
 | Key | Serves |
 |---|---|
-| heroLoop + duskVillaPoster | the hero: 10s warm dusk film, watermark erased, first frame as still and poster |
+| heroDusk | the hero still: twilight villa, mosaic readable tessera by tessera. Replaced the 720p film by quality gate; the loop lives in git history and re-enters at 1080p+. |
 | duskVilla | Dusk Villa env card, pool-mosaic scene, the OG card |
 | poolBlues | best-seller card, piece reveal, Pool mosaic tile on home |
 | glassJewels | Solid colour glass card, reveal, Glass mosaic tile on home |

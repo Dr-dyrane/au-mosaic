@@ -5,8 +5,8 @@
 
 /* Owned assets. */
 export const OWN = {
+  heroDusk: "/media/hero-dusk.jpg",
   duskVilla: "/media/dusk-villa.jpg",
-  duskVillaPoster: "/media/dusk-villa-poster.jpg",
   poolBlues: "/media/pool-blues.jpg",
   craftHands: "/media/craft-hands.jpg",
   glassJewels: "/media/glass-jewels.jpg",
@@ -20,13 +20,10 @@ export const OWN = {
   privatePool: "/media/private-pool.jpg",
 };
 
-/* Film: slow ambient loops, owned. The hero film's poster is its own first
-   frame, so still and motion are the same image; blocked autoplay, save
-   data, or reduced motion all hold that frame. The loop is a ping-pong of
-   the owner's generated shot: seamless by construction. */
-export const FILM = {
-  heroLoop: "/media/dusk-villa-loop.mp4",
-};
+/* Film slot: dormant. The 720p loop softened the one surface that must be
+   the sharpest, so the hero is a still until a 1080p or better loop passes
+   the eye gate. The old loop lives in git history; the pipeline (poster =
+   first frame, seamless by construction) is documented in MEDIA-BRIEF. */
 
 /* Environments: the dream first. Materials follow. */
 export const ENVIRONMENTS = [

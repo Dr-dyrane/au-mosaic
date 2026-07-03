@@ -48,12 +48,17 @@ frame so it loops." The film then lands on the site with no visible
 cut: its first frame is the poster, the poster is the page. If the tool
 is text-only, attach the frame as a style reference instead.
 
-## Slot 1 · Home hero · DELIVERED
+## Slot 1 · Home hero · DELIVERED AS A STILL
 
-Live since the owner's second generation: the warm ten seconds.
-Reference for any future re-roll (1920 wide, warmer amber grade are the
-only upgrades left):
-https://au-mosaic.shop/media/dusk-villa-poster.jpg
+The hero is the twilight villa still (hero-dusk.jpg): mosaic readable
+tessera by tessera, interiors glowing, stars out. The film slot is
+dormant by quality gate: the 720p loop softened the one surface that
+must be the sharpest, so film re-enters only at 1080p or better,
+eye-gated, using the pipeline that already works (start frame equals
+the live still, poster equals first frame, seamless loop). The old
+loop lives in git history.
+Reference for the film re-roll:
+https://au-mosaic.shop/media/hero-dusk.jpg
 
 ## Slot 2 · Classic pool blues (piece film)
 
