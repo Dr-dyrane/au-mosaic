@@ -215,6 +215,10 @@ until a logo asset exists.
 | Environment hygiene | Real Neon credentials arrived in .env.example; moved to .env (mode 600, gitignored, never committed). .env.example is now a clean placeholder template and ships with the repo via a gitignore negation. |
 | Database foundation | Neon Postgres plus Drizzle, per the Phase 5 spec. src/db/schema.ts models the two families: catalogue (ranges, pieces, stock) slug-keyed to match the public site's stable keys, and ledger (customers, enquiries, orders with list-versus-given price per line, payments, deliveries) uuid-keyed. Money is integer kobo. src/db/index.ts is a lazy client so the static flagship builds with no DATABASE_URL. drizzle.config.ts prefers the unpooled URL for DDL. Scripts: db:generate, db:push, db:studio. Build stays 30 routes; nothing public imports the db yet. |
 | Connection probe | Blocked from the sandbox (network allowlist), as expected. First `npm run db:push` from the owner's machine creates the tables and proves the pipe. |
+| Pipe proven | db:push from the owner's Mac (Node 24 via nvm): schema pulled, changes applied, nine tables live on Neon. |
+| The door | /admin/login, one password field, Maison voice. HMAC-signed session cookie (AUTH_SECRET), timing-safe password check, httpOnly, 30 days, scoped to /admin. No auth dependency added. Guard lives on the (panel) route group so the login page cannot loop. Sign out is a server action. ADMIN_PASSWORD refuses its own placeholder: auth stays closed until a real password is set. |
+| The morning glance | /admin (force-dynamic) reads five live numbers: pieces, stock warnings, open orders, outstanding balance (billed minus paid on open orders), new enquiries. Database unreachable renders a calm panel, and the public site is untouched either way. robots disallows /admin; the panel layout adds noindex. |
+| Seed path | scripts/seed.ts (db:seed, tsx) upserts the flagship's own catalogue into ranges, pieces, and zeroed stock rows by slug. Idempotent. Day one of the CRM starts with every piece the site already sells. |
 
 ## The collection, photo complete · both suns
 
