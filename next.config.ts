@@ -2,11 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "images.pexels.com" },
-    ],
-    /* Serve the richest format the browser speaks; masters come in large
-       from the source, the optimizer sizes them per device and DPR. */
+    /* Every image is the house's own, served from public/media. No remote
+       hosts. The optimizer serves the richest format the browser speaks,
+       sized per device and DPR. */
     formats: ["image/avif", "image/webp"],
     qualities: [75, 90],
   },

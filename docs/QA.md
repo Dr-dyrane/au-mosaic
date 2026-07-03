@@ -94,36 +94,31 @@ Ready, and now mechanical:
   auth, media uploads, and on-demand revalidation. That is the paid
   dashboard, not the free site.
 
-## Imagery ledger
+## Imagery ledger · CLOSED, WALL TO WALL OWNED
 
-In use, verified live (Pexels, free licence, hotlink):
+Every frame and the hero film generated for the house, eye-gated
+before shipping, compressed under ~500KB, served from public/media.
+Zero stock, zero external image hosts, remotePatterns removed from
+next.config. Retired along the way: Pexels 28054849, 28287770,
+28408521, 32325318, 10231663, 14579397, 30195980, 20975726, 7031713,
+35189678, 6110597, 12113234.
 
-| Key | ID | Subject |
-|---|---|---|
-| poolBlues | owned, /media/pool-blues.jpg | best-seller card, piece reveal, home materials tile. Retired Pexels 28287770. |
-| craftHands | owned, /media/craft-hands.jpg | the craft section: hands, combed adhesive, mesh. The trust story. |
-| glassJewels | owned, /media/glass-jewels.jpg | glass mosaic card, reveal, home materials tile. Retired Pexels 28408521. |
-| terrace | owned, /media/terrace.jpg | Infinity Terrace env card, pools page hero, bulk-order scene fallback. Retired Pexels 20975726. |
-| hammam | owned, /media/hammam.jpg | Private Hammam env card, contact page hero, feature-mosaic scene. Retired Pexels 7031713. |
-| darkBath | owned, /media/dark-bath.jpg | Dark Bath env card, glass-mosaic scene. Water film, brass sconce, warm blacks. Retired Pexels 35189678. |
-| koiMural | owned, /media/koi-mural.jpg | the identity frame: Pattern and picture mosaics card and reveal, Art mosaic tile on home. Retired Pexels 10231663. |
-| beetleMural | owned, /media/beetle-mural.jpg | Custom murals card and reveal. Retired Pexels 32325318. |
-| borders | owned, /media/borders.jpg | Patterned pool borders card and reveal, collection page hero. Retired Pexels 14579397. |
-| villaPalms | owned, /media/villa-palms.jpg | the lifestyle breath on home. Retired Pexels 30195980. |
-| bluePatternTiles | 14579397 | blue and white patterned tiles |
-| vibrantGlassMosaic | 28408521 | pixelated sunset glass mosaic |
-| beetleMosaicArt | 32325318 | beetle mosaic artwork |
-| fishMosaicPool | 10231663 | fish mural under water |
-| rippledLaneWater | 6110597 | clear rippled pool water |
-| duskVilla | owned, /media/dusk-villa.jpg | generated for the house: Dusk Villa card, Seen-in scene, OG card |
-| duskVillaPoster + heroLoop | owned, /media | the hero: 10s warm dusk film, generator watermark erased, first frame as still and poster. Retired Pexels 28054849; the cooler 8s cut lives in git history. |
-| villaPalms | 30195980 | villa beside still water |
-| infinityTerrace | 20975726 | infinity pool, mountain resort |
-| hammam | 7031713 | warm stone hammam |
-| darkBath | 35189678 | dark textured shower |
+| Key | Serves |
+|---|---|
+| heroLoop + duskVillaPoster | the hero: 10s warm dusk film, watermark erased, first frame as still and poster |
+| duskVilla | Dusk Villa env card, pool-mosaic scene, the OG card |
+| poolBlues | best-seller card, piece reveal, Pool mosaic tile on home |
+| glassJewels | Solid colour glass card, reveal, Glass mosaic tile on home |
+| koiMural | the identity frame: Pattern and picture mosaics, Art mosaic tile |
+| beetleMural | Custom murals card and reveal |
+| borders | Patterned pool borders card and reveal, collection page hero |
+| craftHands | Why our surfaces last: the trust story |
+| terrace | Infinity Terrace env card, pools hero, bulk-order scene |
+| hammam | Private Hammam env card, contact hero, feature-mosaic scene |
+| darkBath | Dark Bath env card, glass-mosaic scene |
+| villaPalms | the lifestyle breath on home, about hero |
+| privatePool | pool materials hero: chrome ladder, brass outlet, quiet proof of equipment |
 
-Verified alternates if any frame ever needs a stand-in: 30238914,
-20329466, 10563429, 2672633, 30180996, 6127332.
-
-At launch these swap for the house's own photography; `src/lib/images.ts`
-stays the only home for image URLs.
+Nonso's real photography joins through the same gate: drop in
+public/media, eye check, wire in `src/lib/images.ts`, whitelist in
+.gitignore, ledger row here.

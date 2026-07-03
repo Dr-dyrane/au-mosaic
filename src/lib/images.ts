@@ -1,21 +1,9 @@
-/* AU Mosaic · imagery. Every URL below was verified live on Pexels (free
-   license, commercial use allowed, no attribution required). Hotlinked from
-   images.pexels.com with size params; swapped for Nonso's own photos at
-   launch. Keep this the ONLY place image URLs live. */
+/* AU Mosaic · imagery. Every frame is the house's own: generated for the
+   maison, eye-gated, compressed, and served from public/media. This module
+   is the ONLY place media paths live. Nonso's real photography joins the
+   same way: drop, gate, wire. */
 
-/* Large, rich masters: no tinysrgb colour flattening, generous widths.
-   The Next optimizer sizes and re-encodes per device and DPR, so visitors
-   get crisp AVIF at their exact size while the mosaic keeps its colour. */
-const px = (path: string, w = 2000) =>
-  `https://images.pexels.com/photos/${path}?auto=compress&w=${w}`;
-
-export const IMG = {
-  /* pools and water */
-  rippledLaneWater: px("6110597/pexels-photo-6110597.jpeg"),
-};
-
-/* Owned assets: generated for the house, served from public/media.
-   These replace stock one frame at a time as they arrive. */
+/* Owned assets. */
 export const OWN = {
   duskVilla: "/media/dusk-villa.jpg",
   duskVillaPoster: "/media/dusk-villa-poster.jpg",
@@ -29,6 +17,7 @@ export const OWN = {
   beetleMural: "/media/beetle-mural.jpg",
   borders: "/media/borders.jpg",
   villaPalms: "/media/villa-palms.jpg",
+  privatePool: "/media/private-pool.jpg",
 };
 
 /* Film: slow ambient loops, owned. The hero film's poster is its own first
