@@ -122,6 +122,10 @@ export const enquiries = pgTable(
     source: text("source").notNull().default("whatsapp"),
     message: text("message").notNull().default(""),
     status: enquiryStatus("status").notNull().default("new"),
+    /* The anonymous first-party visitor id from the site's beacon:
+       one localStorage uuid, no fingerprinting, no third parties.
+       Distinct ids draw the top of the funnel. */
+    sessionId: text("session_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("enquiries_customer_idx").on(t.customerId)]

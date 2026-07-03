@@ -195,13 +195,12 @@ keepValues, icons components exist).
    quote" and "Send the receipt" link-hair actions on the order record
    via waChat with lines, prices, billed, paid, balance; gold budget
    respected; wa_compose tracked.
-4. Full-flow tracking, agreed: first-party anonymous session id
-   (localStorage, crypto.randomUUID) on the WaTracker beacon;
-   enquiries gain session_id (migration); attach mechanic UI
-   (enquiries.customerId and converted status already exist in
-   schema); Insights funnel panel (sessions, enquiries, converted,
-   billed, settled with stage conversion rates). First-party only, no
-   fingerprinting, no third-party pixels.
+4. DONE 2026-07-03: full-flow tracking, first-party only. Beacon
+   carries the localStorage uuid; enquiries.session_id landed
+   (migration 0004, in the same db:push errand); attach mechanic on
+   the enquiry rows (Tie them); createOrder auto-converts that
+   customer's open enquiries; Insights draws From tap to settled
+   with the two honest rates. No fingerprinting, no third parties.
 5. SEO sprint, strategy agreed: no-code first (Nonso claims Google
    Business Profile; Dyrane verifies Search Console and submits the
    sitemap), then title-tag audit (H1 house voice, title search-plain),

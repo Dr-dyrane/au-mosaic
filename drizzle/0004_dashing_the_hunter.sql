@@ -1,0 +1,1 @@
+ALTER TABLE "enquiries" ADD COLUMN "session_id" text;

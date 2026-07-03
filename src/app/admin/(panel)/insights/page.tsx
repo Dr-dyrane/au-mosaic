@@ -115,6 +115,26 @@ export default async function InsightsPage({
     select source, count(*)::int as n from enquiries
     group by source order by n desc limit 6`);
 
+  /* The funnel, tap to settled. Sessions read the beacon's anonymous
+     id; before that column lands (db:push) the top row waits gently
+     instead of erroring the room. */
+  let sessions: number | null = null;
+  try {
+    const s = await db.execute(sql`
+      select count(distinct session_id)::int as n from enquiries
+      where session_id is not null and session_id <> ''`);
+    sessions = Number(rowsOf<{ n: number }>(s)[0]?.n ?? 0);
+  } catch {
+    sessions = null;
+  }
+  const enquiryStages = await db.execute(sql`
+    select count(*)::int as enquiries,
+           count(*) filter (where status = 'converted')::int as converted
+    from enquiries`);
+  const orderStages = await db.execute(sql`
+    select (select count(distinct order_id) from order_items)::int as billed_n,
+           (select count(*) from orders where status = 'settled')::int as settled_n`);
+
   const lowStock = await db
     .select({ name: schema.pieces.name, slug: schema.pieces.slug, unit: schema.pieces.unit, qty: schema.stockLevels.quantitySheets })
     .from(schema.stockLevels)
@@ -127,6 +147,29 @@ export default async function InsightsPage({
   const pieces = rowsOf<{ name: string; revenue: number }>(topPieces);
   const buckets = rowsOf<{ bucket: string; n: number; owed: number }>(aging);
   const taps = rowsOf<{ source: string; n: number }>(sources);
+  const enq = rowsOf<{ enquiries: number; converted: number }>(enquiryStages)[0];
+  const ord = rowsOf<{ billed_n: number; settled_n: number }>(orderStages)[0];
+  const funnel = [
+    {
+      label: "People who tapped",
+      n: sessions ?? 0,
+      note: sessions === null ? "counting begins after the update lands" : "distinct visitors, first-party only",
+    },
+    { label: "Enquiries in the book", n: Number(enq?.enquiries ?? 0), note: null },
+    { label: "Became customers", n: Number(enq?.converted ?? 0), note: null },
+    { label: "Orders billed", n: Number(ord?.billed_n ?? 0), note: null },
+    { label: "Orders settled", n: Number(ord?.settled_n ?? 0), note: null },
+  ];
+  const maxFunnel = Math.max(1, ...funnel.map((f) => f.n));
+  const funnelEmpty = funnel.every((f) => f.n === 0);
+  const convRate =
+    Number(enq?.enquiries ?? 0) > 0
+      ? Math.round((Number(enq?.converted ?? 0) / Number(enq.enquiries)) * 100)
+      : null;
+  const settleRate =
+    Number(ord?.billed_n ?? 0) > 0
+      ? Math.round((Number(ord?.settled_n ?? 0) / Number(ord.billed_n)) * 100)
+      : null;
   const leakRow = rowsOf<{ total: number; billed: number }>(leak)[0];
   const leakTotal = Number(leakRow?.total ?? 0);
   const billedAll = Number(leakRow?.billed ?? 0);
@@ -287,6 +330,40 @@ export default async function InsightsPage({
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="panel">
+          <p className="font-serif text-[20px]">From tap to settled</p>
+          {funnelEmpty && (
+            <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+              The funnel draws itself as the site&apos;s taps arrive.
+            </p>
+          )}
+          {!funnelEmpty && (
+            <>
+              <div className="mt-5 grid gap-3">
+                {funnel.map((f) => (
+                  <div key={f.label} className="grid grid-cols-[9.5rem_1fr_auto] items-center gap-3">
+                    <span className="text-[12px] uppercase tracking-[0.14em] text-mist">{f.label}</span>
+                    <Bar frac={f.n / maxFunnel} />
+                    <span className="text-[13px] text-dusk">{f.n.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+              {(convRate !== null || settleRate !== null) && (
+                <p className="mt-4 text-[13px] leading-relaxed text-dusk">
+                  {convRate !== null &&
+                    `${convRate}% of enquiries became customers. `}
+                  {settleRate !== null && `${settleRate}% of billed orders are settled.`}
+                </p>
+              )}
+              {sessions === null && (
+                <p className="mt-1.5 text-[13px] leading-relaxed text-mist">
+                  People counting starts once npm run db:push lands the new column.
+                </p>
+              )}
+            </>
+          )}
         </section>
 
         <section className="panel">

@@ -13,9 +13,14 @@ import { getDb, schema } from "@/db";
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as { source?: string; path?: string };
+    const body = (await req.json()) as { source?: string; path?: string; sid?: string };
     const source = String(body.source ?? "unknown").slice(0, 40);
     const path = String(body.path ?? "").slice(0, 120);
+    /* The visitor's own anonymous id, kept only if it reads like one. */
+    const sidRaw = String(body.sid ?? "");
+    const sessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sidRaw)
+      ? sidRaw.toLowerCase()
+      : null;
 
     const [recent] = await getDb()
       .select({ n: count() })
@@ -36,7 +41,7 @@ export async function POST(req: Request) {
 
     await getDb()
       .insert(schema.enquiries)
-      .values({ source, pieceSlug, message: path ? `Tapped on ${path}` : "" });
+      .values({ source, pieceSlug, sessionId, message: path ? `Tapped on ${path}` : "" });
   } catch {
     /* The book missed one; the customer still reached WhatsApp. */
   }

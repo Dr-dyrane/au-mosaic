@@ -80,6 +80,38 @@ export async function saveCustomer(_prev: SaveState, form: FormData): Promise<Sa
   return { ok: true, message: "Saved." };
 }
 
+/* A window tap gets a name: the enquiry ties to a customer, and the
+   funnel learns who it was. Attaching never changes the status; the
+   desk still clears with Replied or Close, and an order marks it
+   converted by itself. */
+export async function attachEnquiry(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const id = String(form.get("id") ?? "");
+  const customerId = String(form.get("customerId") ?? "");
+  if (!id || !customerId) return { ok: false, message: "Missing enquiry or person." };
+
+  let name = "";
+  try {
+    const db = getDb();
+    const [person] = await db
+      .select({ name: schema.customers.name })
+      .from(schema.customers)
+      .where(eq(schema.customers.id, customerId));
+    if (!person) return { ok: false, message: "That person is not in the book." };
+    await db
+      .update(schema.enquiries)
+      .set({ customerId })
+      .where(eq(schema.enquiries.id, id));
+    name = person.name;
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+  await logAction("attached an enquiry", name);
+  revalidatePath("/admin/customers");
+  revalidatePath(`/admin/customers/${customerId}`);
+  return { ok: true, message: `Tied to ${name}.` };
+}
+
 /* Fresh enquiries clear from the desk: replied or closed, nothing
    deleted. */
 export async function setEnquiryStatus(_prev: SaveState, form: FormData): Promise<SaveState> {

@@ -39,6 +39,14 @@ export async function createOrder(_prev: SaveState, form: FormData): Promise<Sav
       .values({ customerId, note: String(form.get("note") ?? "").trim() })
       .returning({ id: schema.orders.id });
     id = row.id;
+    /* The funnel closes its loop by itself: this customer's open
+       enquiries become converted the moment an order opens. */
+    await db
+      .update(schema.enquiries)
+      .set({ status: "converted" })
+      .where(
+        sql`${schema.enquiries.customerId} = ${customerId} and ${schema.enquiries.status} in ('new', 'replied')`
+      );
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }

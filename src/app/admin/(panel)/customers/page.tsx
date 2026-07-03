@@ -53,13 +53,21 @@ export default async function CustomersPage({
     .select({
       enquiry: schema.enquiries,
       pieceName: schema.pieces.name,
+      attachedName: schema.customers.name,
     })
     .from(schema.enquiries)
     .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.enquiries.pieceSlug))
+    .leftJoin(schema.customers, eq(schema.customers.id, schema.enquiries.customerId))
     .where(eq(schema.enquiries.status, "new"))
     .orderBy(desc(schema.enquiries.createdAt))
     .limit(ENQ_PER_PAGE)
     .offset((Math.min(enqPage, enqPages) - 1) * ENQ_PER_PAGE);
+
+  /* Every name in the book, for the attach picker. */
+  const people = await db
+    .select({ id: schema.customers.id, name: schema.customers.name })
+    .from(schema.customers)
+    .orderBy(asc(schema.customers.name));
   const where = q
     ? or(ilike(schema.customers.name, `%${q}%`), ilike(schema.customers.phone, `%${q}%`))
     : undefined;
@@ -126,7 +134,7 @@ export default async function CustomersPage({
             {freshTotal > ENQ_PER_PAGE && ` ${freshTotal} waiting.`}
           </p>
           <div className="mt-4 divide-y divide-transparent">
-            {fresh.map(({ enquiry, pieceName }) => (
+            {fresh.map(({ enquiry, pieceName, attachedName }) => (
               <EnquiryRow
                 key={enquiry.id}
                 id={enquiry.id}
@@ -141,6 +149,8 @@ export default async function CustomersPage({
                   hour: "numeric",
                   minute: "2-digit",
                 })}
+                attached={attachedName ?? undefined}
+                people={people}
               />
             ))}
           </div>
