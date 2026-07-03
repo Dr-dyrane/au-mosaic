@@ -91,8 +91,14 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               {phone}
             </p>
           </div>
-          <div className="text-right">
-            <p className="font-serif text-[26px]">Invoice</p>
+          <div className="flex flex-col items-end text-right">
+            {/* Five tesserae: the house in miniature, the one ornament. */}
+            <span aria-hidden className="flex gap-1">
+              {["#C2A15C", "#8F7434", "#5D564A", "#B8B2A6", "#17150F"].map((c) => (
+                <span key={c} className="h-2 w-2" style={{ background: c }} />
+              ))}
+            </span>
+            <p className="font-serif mt-3 text-[26px]">Invoice</p>
             <p className="mt-2 text-[12px] leading-relaxed text-[#5D564A]">
               Order {order.id.slice(0, 8)}
               <br />
@@ -126,15 +132,17 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             <tbody className="text-[13px]">
               {lines.map(({ item, pieceName }) => (
                 <tr key={item.id}>
-                  <td className="py-2.5 pr-4">
-                    <span className="font-medium">{pieceName ?? (item.description || "Work")}</span>
+                  <td className="py-3 pr-4 align-top">
+                    <span className="font-serif text-[15px]">
+                      {pieceName ?? (item.description || "Work")}
+                    </span>
                     {pieceName && item.description && (
-                      <span className="text-[#5D564A]"> · {item.description}</span>
+                      <span className="block text-[11px] text-[#746C57]">{item.description}</span>
                     )}
                   </td>
-                  <td className="py-2.5 pr-4 text-right tabular-nums">{item.quantity}</td>
-                  <td className="py-2.5 pr-4 text-right tabular-nums">{naira(item.givenPriceKobo)}</td>
-                  <td className="py-2.5 text-right tabular-nums">
+                  <td className="py-3 pr-4 text-right align-top tabular-nums">{item.quantity}</td>
+                  <td className="py-3 pr-4 text-right align-top tabular-nums">{naira(item.givenPriceKobo)}</td>
+                  <td className="py-3 text-right align-top tabular-nums">
                     {naira(item.givenPriceKobo * item.quantity)}
                   </td>
                 </tr>
@@ -150,7 +158,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           </table>
         </section>
 
-        <section className="mt-8 ml-auto max-w-[16rem]">
+        <section className="mt-8 ml-auto max-w-[16rem] text-right">
           <div className="flex items-baseline justify-between gap-6 text-[13px]">
             <span className="text-[#5D564A]">Billed</span>
             <span className="tabular-nums">{naira(billed)}</span>
@@ -159,14 +167,13 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             <span className="text-[#5D564A]">Paid to date</span>
             <span className="tabular-nums">{naira(paid)}</span>
           </div>
-          <div className="mt-4 flex items-baseline justify-between gap-6">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#856A30]">
-              {balance > 0 ? "Balance due" : balance === 0 ? "Settled" : "In credit"}
-            </span>
-            <span className="font-serif text-[22px] tabular-nums">
-              {naira(Math.abs(balance))}
-            </span>
-          </div>
+          {/* The balance stands under its eyebrow, never beside it. */}
+          <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#856A30]">
+            {balance > 0 ? "Balance due" : balance === 0 ? "Settled" : "In credit"}
+          </p>
+          <p className="font-serif mt-1.5 text-[28px] leading-none tabular-nums">
+            {naira(Math.abs(balance))}
+          </p>
         </section>
 
         {pays.length > 0 && (
@@ -185,9 +192,16 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           </section>
         )}
 
-        <footer className="mt-14 text-[12px] leading-relaxed text-[#5D564A]">
-          Thank you for building with {SITE.shortName}. Questions live on
-          WhatsApp: {phone}.
+        <footer className="mt-14">
+          <p className="font-serif text-[14px] text-[#5D564A]">
+            Thank you for building with {SITE.shortName}.
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-[#5D564A]">
+            Questions live on WhatsApp: {phone}
+          </p>
+          <p className="mt-6 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#746C57]">
+            AU Mosaic and Pool Materials · Lagos · Foshan
+          </p>
         </footer>
       </div>
     </main>
