@@ -1,0 +1,29 @@
+import type { Metadata } from "next";
+import Visualizer from "@/components/Visualizer";
+
+export const metadata: Metadata = {
+  title: "See it in your space",
+  description:
+    "Upload a photo of your pool or wall and see any AU Mosaic colourway laid onto it, in your own light.",
+};
+
+type Search = Promise<{ piece?: string }>;
+
+export default async function VisualizerPage({ searchParams }: { searchParams: Search }) {
+  const { piece } = await searchParams;
+  return (
+    <>
+      <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
+        <p className="eyebrow">The visualizer</p>
+        <h1 className="font-serif text-display-page mt-4 max-w-2xl">See it in your space.</h1>
+        <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
+          One photo of your pool or wall. Any colourway from stock, laid in
+          your own light. Send the result, get a quote.
+        </p>
+      </section>
+      <div className="py-14">
+        <Visualizer initialPiece={piece} />
+      </div>
+    </>
+  );
+}

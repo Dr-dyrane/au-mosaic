@@ -75,8 +75,8 @@ export default async function PiecePage({ params }: { params: Params }) {
                 <a href={waProduct(piece.name)} target="_blank" rel="noopener" data-wa="piece-hero" className="btn-gold">
                   Enquire about this piece
                 </a>
-                <Link href={`/mosaic-tiles#${piece.groupId}`} className="link-hair scene-link">
-                  The collection
+                <Link href={`/visualizer?piece=${piece.slug}`} className="link-hair scene-link">
+                  See it in your space
                 </Link>
               </div>
             </Reveal>
@@ -137,7 +137,7 @@ export default async function PiecePage({ params }: { params: Params }) {
           <CtaRow
             href={waProduct(piece.name)}
             label="Begin with this piece"
-            secondary={{ href: "/mosaic-tiles", label: "Explore every range" }}
+            secondary={{ href: `/mosaic-tiles#${piece.groupId}`, label: "Explore every range" }}
           />
         </div>
       </section>

@@ -6,6 +6,7 @@ import {
   type Piece,
   type ProductGroup,
 } from "./products";
+import { PROJECTS, projectBySlug, type Project } from "./projects";
 
 /* The read path. Pages ask the catalog, never the file. Today the catalog
    reads the repo; the Phase 2 dashboard swaps THIS module for a database
@@ -26,4 +27,12 @@ export async function getPieces(): Promise<Piece[]> {
 
 export async function getPiece(slug: string): Promise<Piece | undefined> {
   return pieceBySlug(slug);
+}
+
+export async function getProjects(): Promise<Project[]> {
+  return PROJECTS;
+}
+
+export async function getProject(slug: string): Promise<Project | undefined> {
+  return projectBySlug(slug);
 }

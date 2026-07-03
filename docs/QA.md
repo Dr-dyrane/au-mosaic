@@ -196,6 +196,14 @@ theme color, and the pre-paint script all flipped together; a saved
 night preference still wins before paint. The logo request is parked
 until a logo asset exists.
 
+## The visualizer and the projects gallery
+
+| Feature | Status |
+|---|---|
+| See it in your space | LIVE at /visualizer. Photo upload or sample pool, four draggable brass stones define the surface, true homography warp (subdivided triangles, no libraries), the piece's colourway laid with the photo's own light (multiply plus soft-light), tile size and grout and blend controls, all 11 pieces selectable. Ends in WhatsApp: Web Share with the composite file where supported, download plus prefilled chat elsewhere. viz_photo, viz_piece, viz_adjust, viz_share, viz_download events. Entry from every photo piece page and deep-linkable with ?piece=. |
+| Projects gallery | LIVE at /projects plus four project pages. Concept studies composed from owned frames, labelled Concept study on card and hero, so the owner sees the format his real jobs will fill. Story, scope panel, frame gallery, materials linking back into the collection, WhatsApp close. Projects joined the catalog read path and the sitemap; nav gains Projects. |
+| Honesty rule | Concept studies never claim clients or dates. Real projects swap in through the same Project shape, concept flag off. |
+
 ## The collection, photo complete · both suns
 
 Six remaining tile-sheet pieces became photography in one batch, each

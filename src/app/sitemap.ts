@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/site";
-import { getPieces } from "@/lib/catalog";
+import { getPieces, getProjects } from "@/lib/catalog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const PIECES = await getPieces();
+  const PROJECTS = await getProjects();
   const base = SITE.url.replace(/\/$/, "");
-  const pages = ["/", "/mosaic-tiles", "/pool-materials", "/pools", "/about", "/contact"];
+  const pages = ["/", "/mosaic-tiles", "/pool-materials", "/pools", "/projects", "/visualizer", "/about", "/contact"];
   return [
     ...pages.map((p) => ({
       url: p === "/" ? `${base}/` : `${base}${p}`,
@@ -14,6 +15,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...PIECES.map((p) => ({
       url: `${base}/piece/${p.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+    ...PROJECTS.map((p) => ({
+      url: `${base}/projects/${p.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
