@@ -25,6 +25,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </span>
         </Link>
         <div className="flex items-center gap-7">
+          <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
+            Pieces
+          </Link>
           <Link href="/" className="link-hair text-dusk text-[13px]">
             The site
           </Link>

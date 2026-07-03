@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { count, eq, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
@@ -73,13 +74,16 @@ export default async function AdminHome() {
               <p className="mt-3 text-[12px] uppercase tracking-[0.14em] text-mist">{c.note}</p>
             </div>
           ))}
-          <div className="panel flex flex-col justify-center">
-            <p className="font-serif text-[20px]">Week one is inventory.</p>
-            <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-              Pieces, stock, and photos come first. Orders, debts, and
-              deliveries follow. This screen fills as the rooms are built.
+          <Link href="/admin/pieces" className="panel group flex flex-col justify-center transition-transform duration-300 active:scale-[0.99]">
+            <p className="font-serif text-[20px] transition-colors duration-300 group-hover:text-gold">
+              Manage the pieces
             </p>
-          </div>
+            <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+              Words, colours, stock, and what shows on the site. Orders,
+              debts, and deliveries follow as the rooms are built.
+            </p>
+            <span className="link-hair mt-5 text-dusk text-[13px]">Enter the stockroom</span>
+          </Link>
         </div>
       )}
     </main>

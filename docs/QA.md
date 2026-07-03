@@ -219,6 +219,9 @@ until a logo asset exists.
 | The door | /admin/login, one password field, Maison voice. HMAC-signed session cookie (AUTH_SECRET), timing-safe password check, httpOnly, 30 days, scoped to /admin. No auth dependency added. Guard lives on the (panel) route group so the login page cannot loop. Sign out is a server action. ADMIN_PASSWORD refuses its own placeholder: auth stays closed until a real password is set. |
 | The morning glance | /admin (force-dynamic) reads five live numbers: pieces, stock warnings, open orders, outstanding balance (billed minus paid on open orders), new enquiries. Database unreachable renders a calm panel, and the public site is untouched either way. robots disallows /admin; the panel layout adds noindex. |
 | Seed path | scripts/seed.ts (db:seed, tsx) upserts the flagship's own catalogue into ranges, pieces, and zeroed stock rows by slug. Idempotent. Day one of the CRM starts with every piece the site already sells. |
+| Phase 2 agreed | Nonso approved the dashboard engagement. The CRM build is funded and underway. |
+| The stockroom | /admin/pieces: every piece grouped by range, colour tiles, sheets in stock, Running low and Off the site states visible at a glance, phone-first cards. Empty state teaches db:seed. |
+| The piece editor | /admin/pieces/[slug]: one form, one Save. Shop-floor labels (sheets in stock, warn me at, container lands), live colour preview, show-on-site toggle, price note defaults to Quote per job. One server action saves words plus stock together; every action re-checks the session because server actions are public endpoints; hex codes are validated; the save button answers back (Saved / error in Maison voice). revalidatePath refreshes list, editor, and morning glance. |
 
 ## The collection, photo complete · both suns
 
