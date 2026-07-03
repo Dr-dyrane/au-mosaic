@@ -66,6 +66,31 @@ CRM; the CRM is the gallery's back room.
     replace the concept studies. Site and back office become one
     organism.
 
+## The roots (five whys, run on our own laws)
+
+Beneath the ten laws sit three roots. When a future decision is not
+covered by a law, it is judged against these.
+
+**Attention stewardship.** Every law above is the same law: spend as
+little of the owner's attention as possible per decision. His
+attention is the business's scarcest asset; the UI exists to protect
+it. This cuts both ways: notifications are capped at one morning
+digest plus true threshold crossings. The app must never nag. A
+feature that costs more attention than it saves is refused, however
+impressive.
+
+**Complete WhatsApp, never compete with it.** Trust lives in his
+chats and does not migrate. The CRM wins as memory, not as channel.
+Standing refusals: no in-app chat, ever; no customer-facing accounts;
+no message inbox inside the back office. The bridge (share in,
+compose out, attach to a name) is the permanent ceiling of ambition
+in that direction.
+
+**Quality is a loop, not a gate.** Build green proves nothing a user
+feels. Every change closes the loop: lint, ledger, deploy, and an eye
+or a log on production. The digest panel, the runtime logs, and
+"evidence before errands" are this root wearing tools.
+
 ## The rooms
 
 | Room | Job | Status |
