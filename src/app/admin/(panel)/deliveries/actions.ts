@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
+import { logAction } from "@/lib/audit";
 
 /* Server actions are public HTTP endpoints whatever the UI hides, so
    every one re-checks the session before touching the ledger. A
@@ -36,6 +37,7 @@ export async function createDelivery(_prev: SaveState, form: FormData): Promise<
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction("booked a delivery", address, driver ? `with ${driver}` : "");
   revalidatePath("/admin/deliveries");
   revalidatePath("/admin");
   redirect("/admin/deliveries");
@@ -76,6 +78,7 @@ export async function setDeliveryStatus(_prev: SaveState, form: FormData): Promi
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction(to === "delivered" ? "marked a delivery landed" : "sent a delivery out");
   revalidatePath("/admin/deliveries");
   revalidatePath("/admin");
   return { ok: true, message: to === "delivered" ? "Landed." : "On the road." };

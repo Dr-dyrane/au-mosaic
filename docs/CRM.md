@@ -70,16 +70,19 @@ CRM; the CRM is the gallery's back room.
 
 | Room | Job | Status |
 |---|---|---|
-| The door | One password, signed cookie | Open |
+| The door | Master key plus named staff keys, signed cookie, rests after 8 refusals | Open |
 | The morning glance | Five numbers, is the house okay | Open |
-| The stockroom | Pieces grouped by range, stock states | Open |
-| The piece record | One form, one Save: words, look, stock, presence | Open, photos pending |
-| Customers | People, their chats, their history | Next |
-| Orders | Lines with list and given price, the pipeline | Next |
-| Who owes what | Balances, oldest first | Next |
-| Deliveries | Address, driver, status | Planned |
+| The stockroom | Pieces grouped by range, filters, sorts | Open |
+| The piece record | One form, one Save: words, look, stock, presence | Open |
+| Customers | People, their chats, their history, fresh enquiries | Open |
+| Orders | Lines with list and given price, the pipeline, CSV | Open |
+| Who owes what | Balances, oldest first, CSV | Open |
+| Deliveries | Address, driver, status, landed archive paged | Open |
+| Insights | The business in bars, sentences, and windows | Open |
+| The key rack | Named staff keys, owner only, nothing deleted | Open |
+| The book's history | Append-only audit in sentences, per law 8 | Open |
 | Invoices | A PDF from an order | Planned |
-| Photos | Phone upload to Vercel Blob, night and day | Planned |
+| Photos | Phone upload to Vercel Blob, night and day | Open |
 | The seam flip | Flagship reads the database | Last, deliberately |
 
 ## Guardrails for builders

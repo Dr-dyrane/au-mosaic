@@ -10,8 +10,8 @@ means not built yet. Update the verdicts as passes land.
 |---|---|
 | Search on growing lists | Pass (customers, orders by name; no-JS GET forms) |
 | Filters (status, family) | Pass (orders by status chips; stockroom by family tiers) |
-| Pagination on unbounded lists | Partial (customers paged; settled orders paged; enquiries capped at 12; deliveries unpaged) |
-| Sort control | Missing (fixed sensible sorts only: newest first, oldest debt first) |
+| Pagination on unbounded lists | Pass (customers, settled orders, landed deliveries, fresh enquiries all paged; active work shows whole) |
+| Sort control | Pass (customers Newest or A to Z; stockroom shelf order, by name, low first, inside each range; debts stay oldest-first by law) |
 | Result counts shown | Pass (customers total, settled count, range book/window counts) |
 | Empty states teach | Pass (every room) |
 | Loading states | Pass (panel loading.tsx breath) |
@@ -78,8 +78,9 @@ means not built yet. Update the verdicts as passes land.
 | Secrets out of git | Pass (.env ignored, template clean) |
 | robots/noindex on admin | Pass |
 | Public endpoint hardened | Pass (/api/enquiry: caps, validation, 204 always) |
-| Rate limiting | Missing (acceptable at current scale; revisit with traffic) |
-| Audit trail | Missing (arrives with staff accounts, per CRM.md) |
+| Rate limiting | Pass (the door rests after 8 refusals in 10 minutes; the funnel sheds past 30 fresh rows in 10 minutes, still 204; both fail open before db:push) |
+| Audit trail | Pass (append-only audit_log; every action signs a sentence; read at Settings, The book's history) |
+| Staff accounts | Pass (named keys, HMAC-hashed, owner-only rack; master key stays in the environment; old cookies still verify) |
 
 ## PWA and resilience
 
@@ -97,8 +98,8 @@ means not built yet. Update the verdicts as passes land.
 | Business metrics from source of truth | Pass (orders, payments, stock) |
 | Trends over time | Pass (six months billed) |
 | Actionable warnings | Pass (leak sentence, stock pressure, debt aging) |
-| Export (CSV) | Missing |
-| Date-range control | Missing (fixed windows for now) |
+| Export (CSV) | Pass (orders.csv and debts.csv, session-guarded GET links, integer-kobo naira, BOM for Excel) |
+| Date-range control | Pass (billed window: three months, six months, a year; URL-carried chips) |
 
 ## The feel list · the merged UI/UX review
 
@@ -136,7 +137,7 @@ up as they land, never delete them.
 
 | # | Item | Size |
 |---|---|---|
-| 17 | Sort controls where the fixed sort stops being enough | M |
+| 17 | SHIPPED. Sort controls where the fixed sort stopped being enough: customers Newest or A to Z, stockroom shelf order, by name, low first | M |
 | 18 | Onyx-night eye pass: photo-slot hints and gold-on-shell pairings in the darkest house | S |
 | 19 | Von Restorff guard, standing rule: the gold singleton's isolation is absolute; every new screen is audited against it | ongoing |
 | 20 | Peak-end, standing rule: every flow ends on a small satisfying note (tick plus sentence), never on silence | ongoing |
@@ -152,12 +153,16 @@ up as they land, never delete them.
    truths, money reconciliation (billed = lines, paid = payments,
    balance never negative in display).
 
-## The missing list, prioritised
+## The missing list · CLOSED
 
-1. Pagination for deliveries and enquiries when volume demands it.
-2. Sort controls where the fixed sort stops being enough.
-3. CSV export (orders, debts) for his accountant.
-4. Date-range picker on insights.
-5. Rate limiting and audit trail, with staff accounts.
+All six named gaps shipped: pagination at volume (landed deliveries,
+fresh enquiries), sort controls, CSV export for the accountant,
+the insights date window, rate limiting on the door and the funnel,
+and the audit trail that arrived with staff accounts, per CRM law 8.
+The unsaved-changes guard shipped earlier with feel item 16. New
+gaps join a new list when they earn a name.
 
-(Unsaved-changes guard shipped with feel item 16.)
+One owner errand: run npm run db:push once, so the staff and
+audit_log tables land. Until then the key rack and the history
+teach the command, the door cannot count refusals, and every
+logAction is a quiet no-op. Nothing errors either way.

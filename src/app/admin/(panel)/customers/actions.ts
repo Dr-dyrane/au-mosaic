@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
+import { logAction } from "@/lib/audit";
 
 /* Server actions are public HTTP endpoints whatever the UI hides, so
    every one re-checks the session before touching the ledger. The
@@ -40,6 +41,7 @@ export async function createCustomer(_prev: SaveState, form: FormData): Promise<
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction("added a customer", name);
   revalidatePath("/admin/customers");
   revalidatePath(`/admin/customers/${id}`);
   revalidatePath("/admin");
@@ -71,6 +73,7 @@ export async function saveCustomer(_prev: SaveState, form: FormData): Promise<Sa
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction("saved a customer", name);
   revalidatePath("/admin/customers");
   revalidatePath(`/admin/customers/${id}`);
   revalidatePath("/admin");
@@ -94,6 +97,7 @@ export async function setEnquiryStatus(_prev: SaveState, form: FormData): Promis
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
+  await logAction(to === "replied" ? "marked an enquiry replied" : "closed an enquiry");
   revalidatePath("/admin/customers");
   revalidatePath("/admin");
   return { ok: true, message: "Cleared." };

@@ -6,11 +6,13 @@ import { put } from "@vercel/blob";
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
+import { logAction } from "@/lib/audit";
 
 /* Server actions are public HTTP endpoints whatever the UI hides, so
    every one re-checks the session before touching the ledger. One
    action saves the whole piece form: words, colours, visibility, and
-   stock together, because one Save button is one thing to learn. */
+   stock together, because one Save button is one thing to learn.
+   Every write signs the book's history. */
 
 export type SaveState = { ok: boolean; message: string } | null;
 
@@ -67,6 +69,7 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
   } catch {
     return { ok: false, message: "The upload did not land. Try again." };
   }
+  await logAction("put up a photograph", slug, which === "night" ? "the night slot" : "the day slot");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin/pieces");
   return { ok: true, message: "The photograph is in." };
@@ -91,6 +94,7 @@ export async function removePhoto(_prev: SaveState, form: FormData): Promise<Sav
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
+  await logAction("took down a photograph", slug, which === "night" ? "the night slot" : "the day slot");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin/pieces");
   return { ok: true, message: "Taken down. The file stays in the store." };
@@ -136,6 +140,7 @@ export async function createPiece(_prev: SaveState, form: FormData): Promise<Sav
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
+  await logAction("created the piece", name);
   revalidatePath("/admin/pieces");
   revalidatePath("/admin");
   redirect(`/admin/pieces/${slug}`);
@@ -188,6 +193,7 @@ export async function savePiece(_prev: SaveState, form: FormData): Promise<SaveS
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction("saved the piece", name);
   revalidatePath("/admin/pieces");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin");

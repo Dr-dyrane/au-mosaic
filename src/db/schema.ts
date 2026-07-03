@@ -189,3 +189,34 @@ export const deliveries = pgTable(
   },
   (t) => [index("deliveries_order_idx").on(t.orderId)]
 );
+
+/* The people with keys. The owner's master key stays in the Vercel
+   environment; staff get named keys here, hashed with the house
+   secret, never stored plain. Nothing is deleted: a key that leaves
+   goes inactive and its history stands. */
+
+export const staff = pgTable("staff", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  role: text("role", { enum: ["owner", "staff"] }).notNull().default("staff"),
+  keyHash: text("key_hash").notNull(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/* The book's history: who did what, when, in sentences. Arrives with
+   staff accounts, per CRM law 8. Append-only; nothing here is ever
+   edited or removed. */
+
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    who: text("who").notNull().default("the owner"),
+    action: text("action").notNull(),
+    subject: text("subject").notNull().default(""),
+    detail: text("detail").notNull().default(""),
+  },
+  (t) => [index("audit_at_idx").on(t.at), index("audit_action_idx").on(t.action)]
+);

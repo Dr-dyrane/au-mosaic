@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
-import { parseNaira } from "@/lib/backoffice";
+import { logAction } from "@/lib/audit";
+import { naira, parseNaira } from "@/lib/backoffice";
 import { PIPELINE, STATUS_LABEL, type OrderStatus } from "./pipeline";
 
 /* Server actions are public HTTP endpoints whatever the UI hides, so
@@ -42,6 +43,7 @@ export async function createOrder(_prev: SaveState, form: FormData): Promise<Sav
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction("opened an order", `order ${id.slice(0, 8)}`);
   refresh(id);
   redirect(`/admin/orders/${id}`);
 }
@@ -70,6 +72,7 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction("moved an order", `order ${id.slice(0, 8)}`, `to ${STATUS_LABEL[status].toLowerCase()}`);
   refresh(id);
   return { ok: true, message: `Moved to ${STATUS_LABEL[status].toLowerCase()}.` };
 }
@@ -113,6 +116,11 @@ export async function addLine(_prev: SaveState, form: FormData): Promise<SaveSta
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction(
+    "added a line",
+    `order ${orderId.slice(0, 8)}`,
+    `${quantity} x ${description || pieceSlug} at ${naira(givenPriceKobo)}`
+  );
   refresh(orderId);
   return { ok: true, message: "Line added." };
 }
@@ -147,6 +155,7 @@ export async function addPayment(_prev: SaveState, form: FormData): Promise<Save
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  await logAction("recorded a payment", `order ${orderId.slice(0, 8)}`, `${naira(amountKobo)} by ${method}`);
   refresh(orderId);
   return { ok: true, message: "Payment recorded." };
 }

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
+import { logAction } from "@/lib/audit";
 
 /* Ranges are the shelves of the book. Their slug is minted once from
    the first name and never changes, because pieces hang off it. */
@@ -50,6 +51,7 @@ export async function createRange(_prev: SaveState, form: FormData): Promise<Sav
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
+  await logAction("created the range", name);
   revalidatePath("/admin/ranges");
   revalidatePath("/admin/pieces");
   redirect(`/admin/ranges/${slug}`);
@@ -75,6 +77,7 @@ export async function saveRange(_prev: SaveState, form: FormData): Promise<SaveS
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
+  await logAction("saved the range", name);
   revalidatePath("/admin/ranges");
   revalidatePath(`/admin/ranges/${slug}`);
   revalidatePath("/admin/pieces");
