@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#0c0b09",
+  themeColor: "#f6f3ec",
   /* Edge to edge on notched phones; safe-area insets take over. */
   viewportFit: "cover" as const,
   width: "device-width",
@@ -52,13 +52,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="en" data-theme="light" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans">
-        {/* Dark is the default; apply a saved light preference before paint. */}
+        {/* Daylight is the default; apply a saved night preference before paint. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('aumosaic.theme')==='light')document.documentElement.dataset.theme='light'}catch(e){}",
+              "try{if(localStorage.getItem('aumosaic.theme')==='dark')delete document.documentElement.dataset.theme}catch(e){}",
           }}
         />
         <script

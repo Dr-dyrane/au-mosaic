@@ -131,6 +131,14 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Day frames under night scrims would look like fog at morning | FIXED: scrims flip to ivory morning haze only when the day image is active; ink flips with them. Day: ink 15:1, sub 6:1, gold #7A6128 4.9:1 |
 | Night frames in light mode | Keep full night treatment: image, scrim, and type stay together, contrast never depends on which pairs have shipped |
 
+## Default flipped to daylight (client feedback)
+
+Nonso reviewed and asked for a lighter look, so daylight is now the
+default and night is one tap away. Served HTML, server snapshots,
+theme color, and the pre-paint script all flipped together; a saved
+night preference still wins before paint. The logo request is parked
+until a logo asset exists.
+
 ## Daylight pairs (the theme follows the sun) · COMPLETE
 
 Every night frame has its daylight twin, every twin eye-gated for

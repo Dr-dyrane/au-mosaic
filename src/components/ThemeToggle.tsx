@@ -8,7 +8,7 @@ import { subscribeTheme, getIsLight, notifyTheme } from "@/lib/theme-store";
    ThemeImage, so the whole maison changes time of day together. */
 
 export default function ThemeToggle() {
-  const light = useSyncExternalStore(subscribeTheme, getIsLight, () => false);
+  const light = useSyncExternalStore(subscribeTheme, getIsLight, () => true);
 
   const flip = () => {
     const next = !light;

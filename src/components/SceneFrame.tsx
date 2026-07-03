@@ -11,7 +11,7 @@ import { subscribeTheme, getIsLight } from "@/lib/theme-store";
    scene-link, and scrim-* classes; the vars wrapper does the flipping. */
 
 export function SceneVars({ light, children }: { light?: string; children: ReactNode }) {
-  const isLight = useSyncExternalStore(subscribeTheme, getIsLight, () => false);
+  const isLight = useSyncExternalStore(subscribeTheme, getIsLight, () => true);
   const day = isLight && !!light;
   return (
     <div className={`scene-vars ${day ? "scene-day" : ""}`} style={{ display: "contents" }}>
@@ -27,7 +27,7 @@ type Props = Omit<ImageProps, "src"> & {
 };
 
 export default function SceneFrame({ dark, light, alt, children, ...rest }: Props) {
-  const isLight = useSyncExternalStore(subscribeTheme, getIsLight, () => false);
+  const isLight = useSyncExternalStore(subscribeTheme, getIsLight, () => true);
   const day = isLight && !!light;
   const src = day ? (light as string) : dark;
   return (

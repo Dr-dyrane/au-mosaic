@@ -20,9 +20,12 @@ whispers; it never screams.
 6. Commerce stays human. Every enquiry lands in WhatsApp, the way the
    house actually sells. No cart, ever.
 
-## Palette · night gallery (default)
+## Palette · two suns, daylight default
 
-Warm near-black, not blue-black. Stone and brass, one breath of water.
+Client feedback set the default: the maison opens in daylight, the
+night gallery is one tap away. Same tokens, same works; the daylight
+twins carry light mode, the night frames carry dark. Warm near-black,
+not blue-black. Stone and brass, one breath of water.
 
 | Token | Dark (default) | Light |
 |---|---|---|

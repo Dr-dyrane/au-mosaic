@@ -12,7 +12,7 @@ import { subscribeTheme, getIsLight } from "@/lib/theme-store";
 type Props = Omit<ImageProps, "src"> & { dark: string; light?: string };
 
 export default function ThemeImage({ dark, light, alt, ...rest }: Props) {
-  const isLight = useSyncExternalStore(subscribeTheme, getIsLight, () => false);
+  const isLight = useSyncExternalStore(subscribeTheme, getIsLight, () => true);
   const src = isLight && light ? light : dark;
   return <Image key={src} src={src} alt={alt} {...rest} />;
 }
