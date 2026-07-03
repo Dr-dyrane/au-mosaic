@@ -15,6 +15,13 @@
       "when": 1783084192390,
       "tag": "0001_melodic_shiva",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783084475475,
+      "tag": "0002_ordinary_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }

@@ -80,6 +80,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           The back office · AU Mosaic
         </p>
         <div className="flex items-center gap-5">
+          <Link href="/admin/settings" className="link-hair text-dusk text-[12px]">
+            Settings
+          </Link>
           <PalettePicker />
           <ThemeToggle />
         </div>

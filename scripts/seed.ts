@@ -13,6 +13,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { sql } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 import { MOSAIC_RANGES, POOL_MATERIALS } from "../src/lib/products";
+import { SITE } from "../src/lib/site";
 
 function slugify(name: string) {
   return name
@@ -77,7 +78,19 @@ async function main() {
     }
   }
 
-  console.log(`Seeded ${rangeCount} ranges, ${pieceCount} pieces, both families, stock rows ready.`);
+  /* House facts, seeded once and never overwritten: his edits win. */
+  const facts: Record<string, string> = {
+    whatsapp: SITE.whatsapp,
+    phone_display: SITE.phoneDisplay,
+    hours: SITE.hours,
+    location: SITE.location,
+    instagram: SITE.instagram,
+  };
+  for (const [key, value] of Object.entries(facts)) {
+    await db.insert(schema.settings).values({ key, value }).onConflictDoNothing();
+  }
+
+  console.log(`Seeded ${rangeCount} ranges, ${pieceCount} pieces, both families, house facts, stock rows ready.`);
 }
 
 main().then(() => process.exit(0));

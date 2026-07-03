@@ -82,6 +82,8 @@ export default async function AdminHome() {
               <li><Link href="/admin/customers" className="link-hair text-dusk text-[13px]">Customers</Link></li>
               <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[13px]">Deliveries</Link></li>
               <li><Link href="/admin/debts" className="link-hair text-dusk text-[13px]">Who owes what</Link></li>
+              <li><Link href="/admin/insights" className="link-hair text-dusk text-[13px]">Insights</Link></li>
+              <li><Link href="/admin/settings" className="link-hair text-dusk text-[13px]">Settings</Link></li>
               <li><Link href="/" className="link-hair text-dusk text-[13px]">The site</Link></li>
             </ul>
           </div>

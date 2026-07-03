@@ -93,6 +93,15 @@ export const stockLevels = pgTable("stock_levels", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* House facts the owner may change without a deploy: the WhatsApp
+   number, the hours, the address. Seeded once from site.ts; after
+   the seam flips, the site reads these. */
+export const settings = pgTable("settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull().default(""),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /* Ledger: what the house owes and is owed. */
 
 export const customers = pgTable("customers", {
