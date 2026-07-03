@@ -33,7 +33,7 @@
   --t-shell: #16130f;
   --t-ink: #f3efe6;
   --t-dusk: #a79e8f;
-  --t-mist: #837a6b; /* 4.65:1 on sand, WCAG AA */
+  --t-mist: #8a8172; /* 5.12:1 on sand, 4.82:1 on shell, WCAG AA everywhere */
   --t-gold: #c2a15c;
   --t-gold-deep: #8f7434;
   --t-water: #7fd0db;
@@ -310,13 +310,13 @@ a:active .chip-glass,
 .scene-link { color: var(--scene-ink); }
 
 .scrim-hero {
-  background: linear-gradient(180deg, rgb(12 11 9 / 0.55) 0%, rgb(12 11 9 / 0.12) 40%, rgb(12 11 9 / 0.82) 100%);
+  background: linear-gradient(180deg, rgb(12 11 9 / 0.55) 0%, rgb(12 11 9 / 0.12) 40%, rgb(12 11 9 / 0.84) 100%);
 }
 .scene-day .scrim-hero {
   background: linear-gradient(180deg, rgb(246 243 236 / 0.5) 0%, rgb(246 243 236 / 0.08) 40%, rgb(246 243 236 / 0.9) 100%);
 }
 .scrim-card {
-  background: linear-gradient(180deg, rgb(12 11 9 / 0) 42%, rgb(12 11 9 / 0.16) 62%, rgb(12 11 9 / 0.78) 100%);
+  background: linear-gradient(180deg, rgb(12 11 9 / 0) 42%, rgb(12 11 9 / 0.16) 62%, rgb(12 11 9 / 0.82) 100%);
 }
 .scene-day .scrim-card {
   background: linear-gradient(180deg, rgb(246 243 236 / 0) 42%, rgb(246 243 236 / 0.14) 62%, rgb(246 243 236 / 0.88) 100%);

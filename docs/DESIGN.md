@@ -33,7 +33,7 @@ not blue-black. Stone and brass, one breath of water.
 | shell (surface) | #16130F | #FFFFFF |
 | ink (text) | #F3EFE6 | #17150F |
 | dusk (secondary) | #A79E8F | #5D564A |
-| mist (tertiary) | #837A6B | #746C57 |
+| mist (tertiary) | #8A8172 | #746C57 |
 | gold (accent) | #C2A15C | #856A30 |
 | gold-deep | #8F7434 | #8F7434 |
 | water (reserved) | #7FD0DB | #2E7E8C |
@@ -108,16 +108,15 @@ to #7A6128. Measured: night white 17:1 and brass 6.9:1; day ink 15:1,
 sub 6:1, gold 4.9:1. Scrims come in four voices: scrim-hero,
 scrim-card, scrim-scene, scrim-wash.
 
-## Film and depth
+## Depth
 
-The hero carries a slow water film over its own still: the poster is the
-same frame, so blocked autoplay, save-data, or reduced motion changes
-nothing a visitor can notice. Films live in FILM in src/lib/images.ts.
 Piece reveals hang like lit works: a spotlight vignette, and TiltFrame
-leans the media a degree or two toward the pointer (hover devices only,
-overscaled so edges never show). Mid-page scenes drift slower than the
-page via CSS scroll-driven animation where supported. No player, no
-library, nothing to download that is not the film itself.
+leans the media a degree or two toward the pointer or the phone's
+gyroscope (overscaled so edges never show). Mid-page scenes drift
+slower than the page via CSS scroll-driven animation where supported.
+The film slot is dormant by quality gate: the hero is a still until a
+1080p or better loop passes the eye; the pipeline lives in
+MEDIA-BRIEF.
 
 ## Navigation and floating surfaces
 
@@ -144,12 +143,14 @@ Piece page (/piece/[slug]): the Apple reveal. Full-screen image, no
 borders, no containers; collection eyebrow, serif name, and the gold
 action sit on the image. Quiet facts and a WhatsApp close follow. Slugs
 are stable ids: the CRM product table keys off them later.
-Buttons: gold rectangle (2px radius) for the single primary action per
-screen; hairline-underline text links for everything else.
+Buttons: the brass capsule for the single primary action per screen;
+hairline-underline text links for everything else.
 
 ## Assets
 
-Imagery: verified Pexels hotlinks (src/lib/images.ts is the only home),
-replaced by the house's own photography as it arrives. Wide angle, natural
-light, dusk and golden hour, minimal people. Icons and OG: gold tessera
-mark on night, generated in-repo.
+Imagery: wall to wall owned, generated for the house and eye-gated
+(src/lib/images.ts is the only home; night set in OWN, daylight twins
+in DAY, served from public/media). Nonso's real photography joins
+through the same gate. OG card: the owned dusk villa with the serif
+wordmark, rebuilt any time via scripts/og-card.py. Theme changes
+follow docs/THEMING.md and must pass scripts/theme-check.py.

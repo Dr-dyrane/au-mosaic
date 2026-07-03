@@ -131,6 +131,17 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | Day frames under night scrims would look like fog at morning | FIXED: scrims flip to ivory morning haze only when the day image is active; ink flips with them. Day: ink 15:1, sub 6:1, gold #7A6128 4.9:1 |
 | Night frames in light mode | Keep full night treatment: image, scrim, and type stay together, contrast never depends on which pairs have shipped |
 
+## The theme gate (scripts/theme-check.py)
+
+The contrast matrix is now a script, not a ritual: it reads the token
+blocks in globals.css and fails any palette under AA before it ships.
+On its first run it caught two borderline pairs in our own palette:
+night mist on shell at 4.37 (mist now #8A8172, 5.12 on sand, 4.82 on
+shell) and night scene brass over a bright image patch at 2.99 (night
+scrim bottoms deepened to 0.84 hero, 0.82 card; brass now 3.22 worst
+case). Every future palette, including Nonso's brand colours, enters
+through docs/THEMING.md and this gate.
+
 ## Default flipped to daylight (client feedback)
 
 Nonso reviewed and asked for a lighter look, so daylight is now the
