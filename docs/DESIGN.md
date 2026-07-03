@@ -94,6 +94,17 @@ glass chips rise 10px into place (cap-reveal). Pages glide in on every
 navigation (app/template.tsx, page-enter, 500ms). All of it stands down
 under prefers-reduced-motion. That is all.
 
+## Film and depth
+
+The hero carries a slow water film over its own still: the poster is the
+same frame, so blocked autoplay, save-data, or reduced motion changes
+nothing a visitor can notice. Films live in FILM in src/lib/images.ts.
+Piece reveals hang like lit works: a spotlight vignette, and TiltFrame
+leans the media a degree or two toward the pointer (hover devices only,
+overscaled so edges never show). Mid-page scenes drift slower than the
+page via CSS scroll-driven animation where supported. No player, no
+library, nothing to download that is not the film itself.
+
 ## Navigation and floating surfaces
 
 Island nav: a fixed glass pill (rounded-full, sand at 75%, backdrop blur,

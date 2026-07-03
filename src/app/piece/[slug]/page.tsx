@@ -9,6 +9,7 @@ import { TileSheet } from "@/components/Mosaic";
 import { CtaRow } from "@/components/ui";
 import Reveal from "@/components/Reveal";
 import PieceBar from "@/components/PieceBar";
+import TiltFrame from "@/components/TiltFrame";
 
 /* The piece, presented the Apple way: the image is the screen, the words
    sit on it, nothing frames it. Facts follow below, quietly. */
@@ -36,22 +37,27 @@ export default async function PiecePage({ params }: { params: Params }) {
 
   return (
     <>
-      {/* Full-screen reveal: no borders, no containers. */}
+      {/* Full-screen reveal: no borders, no containers, lit like a gallery. */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
-        {piece.image ? (
-          <Image
-            src={piece.image}
-            alt={piece.name}
-            fill
-            priority
-            sizes="100vw"
-            className="kenburns object-cover"
-          />
-        ) : (
-          <TileSheet colors={piece.colors || []} rows={12} cols={16} className="kenburns absolute inset-0 h-full w-full" />
-        )}
+        <TiltFrame className="absolute inset-0">
+          <div className="absolute inset-0">
+            {piece.image ? (
+              <Image
+                src={piece.image}
+                alt={piece.name}
+                fill
+                priority
+                sizes="100vw"
+                className="kenburns object-cover"
+              />
+            ) : (
+              <TileSheet colors={piece.colors || []} rows={12} cols={16} className="kenburns absolute inset-0 h-full w-full" />
+            )}
+          </div>
+        </TiltFrame>
+        <div className="vignette pointer-events-none absolute inset-0" />
         <div
-          className="absolute inset-0"
+          className="pointer-events-none absolute inset-0"
           style={{
             background:
               "linear-gradient(180deg, rgba(12,11,9,0.42) 0%, rgba(12,11,9,0.06) 38%, rgba(12,11,9,0.85) 100%)",
@@ -83,7 +89,7 @@ export default async function PiecePage({ params }: { params: Params }) {
 
       {/* The piece in its room */}
       <section className="relative flex min-h-[62svh] items-end overflow-hidden">
-        <Image src={scene.src} alt={scene.place} fill sizes="100vw" className="object-cover" />
+        <Image src={scene.src} alt={scene.place} fill sizes="100vw" className="parallax-y object-cover" />
         <div
           className="absolute inset-0"
           style={{

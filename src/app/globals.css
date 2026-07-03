@@ -256,6 +256,40 @@ a:active .chip-glass,
   to { opacity: 1; transform: none; }
 }
 
+/* The hero film fades in over its own poster frame. */
+.hero-film {
+  opacity: 0;
+  animation: film-in 1.4s var(--ease-glide) 0.5s forwards;
+}
+@keyframes film-in { to { opacity: 1; } }
+
+/* The museum hold: TiltFrame.tsx drives --rx and --ry. */
+.tilt { perspective: 1200px; }
+.tilt > * {
+  transform: scale(1.03) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.4s var(--ease-glide);
+  will-change: transform;
+}
+
+/* Gallery light: a spotlight falloff over full-bleed pieces. */
+.vignette {
+  background: radial-gradient(120% 90% at 50% 32%, rgba(12, 11, 9, 0) 42%, rgba(12, 11, 9, 0.42) 100%);
+}
+
+/* Scenes drift slower than the page: depth without a library. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .parallax-y {
+      animation: parallax-y linear both;
+      animation-timeline: view();
+    }
+    @keyframes parallax-y {
+      from { transform: translateY(-4%) scale(1.12); }
+      to { transform: translateY(4%) scale(1.12); }
+    }
+  }
+}
+
 /* ---- motion ------------------------------------------------------------------ */
 
 .reveal {
@@ -285,4 +319,6 @@ a:active .chip-glass,
   .piece-bar { transition: none; }
   .page-enter { animation: none; }
   .cap-reveal { opacity: 1; transform: none; transition: none; }
+  .hero-film { display: none; animation: none; }
+  .tilt > * { transform: none; transition: none; }
 }

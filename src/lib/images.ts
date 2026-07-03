@@ -17,6 +17,14 @@ export const IMG = {
   rippledLaneWater: px("6110597/pexels-photo-6110597.jpeg"),
 };
 
+/* Film: slow ambient loops. The hero film uses the villa dusk still as its
+   poster, so the frame visitors see never changes if the film is blocked,
+   slow, or turned off. URL captured from the Pexels player; owner eye-check
+   on first visible deploy, swap is one line. */
+export const FILM = {
+  heroLoop: "https://videos.pexels.com/video-files/9507847/9507847-sd_960_506_30fps.mp4",
+};
+
 export const LUX = {
   villaDusk: px("28054849/pexels-photo-28054849/free-photo-of-a-luxury-villa-with-a-swimming-pool-at-dusk.jpeg", 2200),
   villaPalms: px("30195980/pexels-photo-30195980/free-photo-of-serene-villa-by-infinity-pool-with-palms.jpeg", 1800),

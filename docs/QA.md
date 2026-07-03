@@ -60,6 +60,14 @@ Last pass: 2026-07-02.
 | Wayfinding | PASS | /piece/* lights the Mosaic tiles tab, aria-current set; float names itself on hover. |
 | Measurement | PASS | wa_tap event on every WhatsApp link with placement source (hero, cta, card, piece-hero, piece-bar, float, nav, menu, footer, close, craft) and path. |
 
+## Cinematic media pass
+
+| Change | Status | Evidence |
+|---|---|---|
+| Hero film | SHIPPED, EYE CHECK PENDING | Water loop 9507847 (URL captured from the Pexels player) fades in over the villa dusk still; poster is the same frame, so every failure mode shows the still. Owner confirms the loop's look on first visible deploy; swap is one line in FILM. |
+| Museum reveal | PASS | Piece heroes hang like lit works: spotlight vignette plus TiltFrame pointer lean (hover devices, reduced-motion safe, overscaled edges). |
+| Scroll depth | PASS | Lifestyle and Seen-in scenes drift via CSS animation-timeline: view() where supported; static elsewhere. Zero libraries, zero JS on scroll. |
+
 ## The CRM upgrade path
 
 Ready. The seams are already cut:

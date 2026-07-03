@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { MOSAIC_RANGES } from "@/lib/products";
-import { ENVIRONMENTS, IMG, LUX } from "@/lib/images";
+import { ENVIRONMENTS, FILM, IMG, LUX } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
 import { ProductCard } from "@/components/ui";
@@ -37,6 +37,21 @@ export default function Home() {
           sizes="100vw"
           className="kenburns object-cover"
         />
+        {/* The film: water moving over the same frame. Poster matches the
+            still beneath, so blocked autoplay or reduced motion changes
+            nothing visitors can notice. */}
+        <video
+          className="hero-film absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={LUX.villaDusk}
+          aria-hidden
+        >
+          <source src={FILM.heroLoop} type="video/mp4" />
+        </video>
         <div
           className="absolute inset-0"
           style={{
@@ -147,7 +162,7 @@ export default function Home() {
           alt="A villa resting beside still water"
           fill
           sizes="100vw"
-          className="object-cover"
+          className="parallax-y object-cover"
         />
         <div className="absolute inset-0 bg-[rgba(12,11,9,0.45)]" />
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
