@@ -98,6 +98,47 @@ means not built yet. Update the verdicts as passes land.
 | Export (CSV) | Missing |
 | Date-range control | Missing (fixed windows for now) |
 
+## The feel list · the merged UI/UX review
+
+The senior review's ten and the owner's seven, merged, deduplicated,
+and tiered by ship order. This is the UI/UX sprint board; move items
+up as they land, never delete them.
+
+### Now (the Feel sprint)
+
+| # | Item | Size |
+|---|---|---|
+| 1 | Sticky Save bar in thumb reach on long forms (piece record first), like the site's piece-bar | M |
+| 2 | Haptics on every mutation: save, status move, delivery step, enquiry clear (buzz pattern from the visualizer) | S |
+| 3 | Press states on every tappable: chips, cards, links; nothing is inert under the finger | S |
+| 4 | Per-room skeletons that mirror the real layout (stock as range headers plus card pairs, record as photo panel plus form blocks), fade in after 250ms so fast loads never flash, sweep shimmer, reduced-motion safe | M |
+| 5 | Stock filters: desktop chip row (All, Tiles, Materials, Running low, hue dots bucketed from first colour); mobile Filter chip opens a glass bottom sheet with big touch rows; all URL-carried | M |
+| 6 | Tabular numerals on all money and counts (font-variant-numeric) so naira align digit for digit | S |
+| 7 | Designated CTA law: Title (what), one line (why), one gold (do), content (explore). Glance gains New order; Who owes what gains gold on the oldest debt's reminder; read-only archives exempt | S |
+
+### Next
+
+| # | Item | Size |
+|---|---|---|
+| 8 | Doherty threshold: every mutation answers visibly inside 100ms; optimistic deliveries and enquiry clears join the status chips | M |
+| 9 | Success sentences take focus (VoiceOver hears them) and fade after a few seconds; failures always keep typed values | S |
+| 10 | Search consistency: type=search everywhere (native clear), pending affordance while the page answers | S |
+| 11 | Insights visualisation: inline SVG sparklines, delta sentences in words ("June up 34% on May"), trailing-3-month pace, honest projection ("If the pace holds: ₦X this month"), Steady or Watch state chips per panel | M |
+| 12 | Zeigarnik open loops: "No lines yet" badge on enquiry-stage order cards, draft count in the stockroom; unfinished work pulls him back | S |
+| 13 | Recognition over recall: the glance lists the last three records he touched, so morning starts where yesterday ended | M |
+| 14 | Refresh affordance in the installed app: quiet "Updated 9:41 · refresh" line on the glance (standalone hides the browser reload) | S |
+| 15 | Functional micro-icon set, six at most, house-drawn inline SVG (back, eye, filter, close, share, refresh); typography stays the identity; icons only for verbs the thumb knows | S |
+| 16 | Unsaved-changes guard on long forms | M |
+
+### Later and ongoing
+
+| # | Item | Size |
+|---|---|---|
+| 17 | Sort controls where the fixed sort stops being enough | M |
+| 18 | Onyx-night eye pass: photo-slot hints and gold-on-shell pairings in the darkest house | S |
+| 19 | Von Restorff guard, standing rule: the gold singleton's isolation is absolute; every new screen is audited against it | ongoing |
+| 20 | Peak-end, standing rule: every flow ends on a small satisfying note (tick plus sentence), never on silence | ongoing |
+
 ## Checklists to write next (owner's ask, stacked)
 
 1. Error-boundary audit: every boundary offers a way home, never a
