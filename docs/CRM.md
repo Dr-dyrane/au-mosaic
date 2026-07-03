@@ -291,7 +291,14 @@ nothing for force-dynamic pages. (4) Commands for Dyrane: bare, one
 per line, never with hash comments (zsh ate them twice). (5) Git in
 the mounted folder: move .git lock files aside before and after git
 add, commit with no-verify, unlink warnings are noise; npm work
-happens in a container copy, rsync both ways. (6) The environment
+happens in a container copy, rsync both ways. Since 2026-07-03 the
+session pushes for itself: a fine-grained PAT (contents read-write,
+this repo only) lives in .env as GIT_PUSH_TOKEN, and a repo-local
+credential helper in .git/config reads it via git rev-parse, so
+plain git push works from sandbox and Mac alike. The token expires;
+when a push starts asking for a username again, mint a new one and
+replace the .env line. Deploys follow pushes by themselves; close
+the loop with the Vercel connector afterwards. (6) The environment
 files: .env holds real secrets and is gitignored; .env.example ships
 placeholders only. (7) House voice in all repo content: no em dashes,
 no arrows, Apple-terse, one gold per screen, no hairlines, nothing
