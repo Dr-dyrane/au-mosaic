@@ -108,7 +108,7 @@ or a log on production. The digest panel, the runtime logs, and
 | The book's history | Append-only audit in sentences, per law 8 | Open |
 | Invoices | Paper from an order: in-app print sheet, and the exclusive document via scripts/invoice.py | Open |
 | Photos | Phone upload to Vercel Blob, night and day | Open |
-| The seam flip | Flagship reads the database | Last, deliberately |
+| The seam flip | DONE, law 10: the window reads the book (catalog.ts, tag-cached, updateTag on every stockroom save); the repo catalogue stands behind it, so no database can blank the window and the site still builds anywhere. Facts too: footer and contact read settings. Deploys heal their own schema (instrumentation, src/db/heal.ts): db:push retired as an errand; future schema passes append DDL there beside the drizzle file | Open |
 
 ## Guardrails for builders
 
