@@ -29,14 +29,19 @@ Warm near-black, not blue-black. Stone and brass, one breath of water.
 | shell (surface) | #16130F | #FFFFFF |
 | ink (text) | #F3EFE6 | #17150F |
 | dusk (secondary) | #A79E8F | #5D564A |
-| mist (tertiary) | #6E6558 | #8D8577 |
-| gold (accent) | #C2A15C | #A5813D |
+| mist (tertiary) | #837A6B | #746C57 |
+| gold (accent) | #C2A15C | #856A30 |
 | gold-deep | #8F7434 | #8F7434 |
 | water (reserved) | #7FD0DB | #2E7E8C |
 | hairline | gold at 22% | ink at 14% |
 
 Gold is for eyebrows, hairlines, and the words that matter. Water appears
 only where water is the subject. No saturated fills, no gradient washes.
+
+Every text token clears WCAG AA (4.5:1) on sand in both themes; the exact
+ratios live in docs/QA.md. The gold button is brass hardware: #C2A15C with
+near-black text in both themes, like a door handle that ignores daylight.
+Keyboard focus is a 1px gold outline, 4px offset, on :focus-visible only.
 
 ## Typography
 
@@ -67,8 +72,14 @@ scale 1.0 to 1.06, once. Hover: images scale 1.03 over 700ms. That is all.
 
 Environment: full or half-bleed image, eyebrow, serif line, one sentence,
 "The materials behind it" hairline link.
-Piece (product): image, collection eyebrow, serif name, one sentence,
-"Enquire" hairline link straight into WhatsApp.
+Piece (product): ProductCard in components/ui.tsx, reused on home and in
+every range grid. Image or tile sheet, optional collection eyebrow, serif
+name, "Enquire" hairline link straight into WhatsApp. Cards with a slug
+link into their piece page.
+Piece page (/piece/[slug]): the Apple reveal. Full-screen image, no
+borders, no containers; collection eyebrow, serif name, and the gold
+action sit on the image. Quiet facts and a WhatsApp close follow. Slugs
+are stable ids: the CRM product table keys off them later.
 Buttons: gold rectangle (2px radius) for the single primary action per
 screen; hairline-underline text links for everything else.
 

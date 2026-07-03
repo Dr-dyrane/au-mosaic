@@ -40,7 +40,7 @@
   --t-shell: #16130f;
   --t-ink: #f3efe6;
   --t-dusk: #a79e8f;
-  --t-mist: #6e6558;
+  --t-mist: #837a6b; /* 4.65:1 on sand, WCAG AA */
   --t-gold: #c2a15c;
   --t-gold-deep: #8f7434;
   --t-water: #7fd0db;
@@ -55,8 +55,8 @@
   --t-shell: #ffffff;
   --t-ink: #17150f;
   --t-dusk: #5d564a;
-  --t-mist: #8d8577;
-  --t-gold: #a5813d;
+  --t-mist: #746c57; /* 4.71:1 on sand, WCAG AA */
+  --t-gold: #856a30; /* 4.62:1 on sand, WCAG AA for 11px eyebrows */
   --t-gold-deep: #8f7434;
   --t-water: #2e7e8c;
   --t-hairline: rgb(23 21 15 / 0.14);
@@ -122,10 +122,11 @@ p { text-wrap: pretty; }
 }
 .link-hair:hover::after { transform: scaleX(1); }
 
-/* The one loud thing per screen. */
+/* The one loud thing per screen. Brass hardware: the same metal in both
+   themes (7.7:1 label contrast), like a door handle that ignores daylight. */
 .btn-gold {
   display: inline-block;
-  background: var(--color-gold);
+  background: #c2a15c;
   color: #14110b;
   font-size: 12px;
   font-weight: 700;
@@ -137,6 +138,31 @@ p { text-wrap: pretty; }
 }
 .btn-gold:hover { transform: translateY(-1px); background: #d3b26c; }
 .btn-gold:active { transform: translateY(0); }
+
+/* ---- keyboard focus ---------------------------------------------------------- */
+
+:focus-visible {
+  outline: 1px solid var(--color-gold);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Hidden until focused; the first tab stop on every page. */
+.skip-link {
+  position: fixed;
+  top: 14px;
+  left: -100vw;
+  z-index: 100;
+  background: #c2a15c;
+  color: #14110b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  border-radius: 2px;
+}
+.skip-link:focus-visible { left: 14px; }
 
 /* ---- motion ------------------------------------------------------------------ */
 

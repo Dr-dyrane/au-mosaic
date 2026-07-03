@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { waProduct } from "@/lib/wa";
 import type { Product, ProductGroup } from "@/lib/products";
 import { TileSheet } from "./Mosaic";
@@ -32,10 +33,10 @@ export function Section({
   );
 }
 
-export function ProductCard({ item }: { item: Product }) {
+export function ProductCard({ item, collection }: { item: Product; collection?: string }) {
   const label = item.variants ? `${item.name} (${item.variants.join(", ")})` : item.name;
-  return (
-    <div className="group">
+  const media = (
+    <>
       <div className="relative aspect-[4/5] overflow-hidden bg-shell">
         {item.image ? (
           <Image
@@ -49,7 +50,23 @@ export function ProductCard({ item }: { item: Product }) {
           <TileSheet colors={item.colors} rows={8} cols={7} className="img-glide h-full w-full" />
         ) : null}
       </div>
-      <h3 className="font-serif mt-5 text-[20px] leading-snug">{item.name}</h3>
+      {collection && <p className="eyebrow mt-6">{collection}</p>}
+      <h3
+        className={`font-serif ${collection ? "mt-2" : "mt-5"} text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold`}
+      >
+        {item.name}
+      </h3>
+    </>
+  );
+  return (
+    <div className="group">
+      {item.slug ? (
+        <Link href={`/piece/${item.slug}`} className="block">
+          {media}
+        </Link>
+      ) : (
+        media
+      )}
       {item.variants && (
         <p className="mt-1.5 text-[12px] uppercase tracking-[0.14em] text-mist">{item.variants.join(" · ")}</p>
       )}

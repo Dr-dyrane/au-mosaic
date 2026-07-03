@@ -3,8 +3,9 @@ import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { MOSAIC_RANGES } from "@/lib/products";
 import { ENVIRONMENTS, IMG, LUX } from "@/lib/images";
-import { waPool, waProduct, waQuote } from "@/lib/wa";
+import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
+import { ProductCard } from "@/components/ui";
 
 /* The Mosaic Maison. Story first, products second. One loud thing per
    screen; everything else whispers. */
@@ -18,7 +19,7 @@ const COLLECTION_PICKS = [
 ];
 
 const MATERIALS = [
-  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: IMG.sunlitBlueMosaic },
+  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: IMG.poolBlueMosaic },
   { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: IMG.vibrantGlassMosaic },
   { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: IMG.fishMosaicPool },
 ];
@@ -155,30 +156,7 @@ export default function Home() {
         <div className="mt-16 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
           {COLLECTION_PICKS.map((p, i) => (
             <Reveal key={p.name} delay={(i % 3) * 80}>
-              <div className="group">
-                <div className="relative aspect-[4/5] overflow-hidden bg-shell">
-                  {p.image ? (
-                    <Image src={p.image} alt={p.name} fill sizes="33vw" className="img-glide object-cover" />
-                  ) : (
-                    <div className="absolute inset-0 grid grid-cols-4">
-                      {(p.colors || []).slice(0, 4).map((c) => (
-                        <div key={c} style={{ background: c }} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <p className="eyebrow mt-6">{p.collection}</p>
-                <h3 className="font-serif mt-2 text-[21px]">{p.name}</h3>
-                {p.note && <p className="mt-1.5 text-[14px] text-dusk">{p.note}</p>}
-                <a
-                  href={waProduct(p.name)}
-                  target="_blank"
-                  rel="noopener"
-                  className="link-hair mt-5 text-dusk"
-                >
-                  Enquire
-                </a>
-              </div>
+              <ProductCard item={p} collection={p.collection} />
             </Reveal>
           ))}
           <Reveal delay={160}>
