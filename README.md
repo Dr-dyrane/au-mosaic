@@ -1,34 +1,51 @@
 # AU Mosaic and Pool Materials
 
-The website for AU Mosaic, Agric Market, Lagos: mosaic tiles, pool materials,
-and pool construction. Built by Dyrane Academy from the owner's Business
-Discovery assessment, so the site sells the way the business actually sells:
-enquiry, photos on WhatsApp, quote per job, pickup or delivery.
+The digital flagship of AU Mosaic, Agric Market, Lagos: mosaic tiles,
+pool materials, and pool construction. Built by Dyrane from the owner's
+Business Discovery assessment, so the site sells the way the business
+actually sells: enquiry, photos on WhatsApp, quote per job, pickup or
+delivery. Live at https://au-mosaic.shop
 
 Stack: Next.js (App Router) · React · TypeScript · Tailwind CSS v4.
+No animation libraries, no webfonts, no CMS in v1. Every route is
+static or SSG.
 
 ## Structure
 
 ```
-src/lib/site.ts        · business facts (name, location, hours, WhatsApp)
-src/lib/products.ts    · catalogue: mosaic ranges, the pool materials stock list, services
-src/lib/wa.ts          · WhatsApp deep-link helpers (every price leads here)
-src/components/        · Header, Footer, Mosaic art, WhatsApp float, shared UI
-src/app/               · pages: home, mosaic-tiles, pool-materials, pools, about, contact
+src/lib/site.ts        business facts: name, location, hours, WhatsApp
+src/lib/products.ts    catalogue data: ranges, stock list, services, slugs
+src/lib/catalog.ts     the read path; pages ask here, never the file
+src/lib/images.ts      every image, film, and owned-media path
+src/lib/wa.ts          WhatsApp deep links; every price leads here
+src/components/        island nav, cards, reveal, tilt, piece bar, glass UI
+src/app/               pages, piece routes, sitemap, robots, icons
+public/media/          owned media: three canonical assets and counting
+docs/                  the law, the ledger, the briefs; see docs/README.md
+scripts/               reproducible brand assets (OG card)
 ```
 
-No database and no CMS in v1: the catalogue is one typed file, edited like text.
+The culture in one line: data in lib, style in globals, components
+compose, pages arrange, everything measured before it ships. The rest
+is in `docs/README.md` and `AGENTS.md`.
 
 ## Setup
 
 1. Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_WHATSAPP`
-   (the owner's WhatsApp Business number, digits only, e.g. `2348012345678`).
-   Every enquiry button on the site opens that chat with a prefilled message.
+   (digits only). Every enquiry button opens that chat prefilled.
 2. `npm install`
 3. `npm run dev`
 
+## Verify (every change)
+
+```
+npx next build          # 24 routes, all static or SSG
+npx eslint src --max-warnings=0
+```
+
+Then update `docs/QA.md` with evidence and commit.
+
 ## Deploy
 
-Vercel, framework Next.js. Set `NEXT_PUBLIC_WHATSAPP` in the project's
-environment variables. Photos of real stock are the next upgrade: drop them in
-`public/` and wire them into `products.ts`.
+Vercel via GitHub. `NEXT_PUBLIC_WHATSAPP` in project env vars.
+Analytics and wa_tap placement events flow automatically once live.

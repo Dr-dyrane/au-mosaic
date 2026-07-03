@@ -1,4 +1,4 @@
-# Film prompts · The Mosaic Maison
+# Media brief · The Mosaic Maison
 
 Generation brief for the site's film slots. One shared style block, then
 one prompt per slot. Every film must loop: ask the generator for a
