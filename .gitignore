@@ -43,3 +43,4 @@ src/icon.png
 public/media/davinci_cinematic_luxury_architectural_film__ultra_photore.png
 public/media/davinci_cinematic_luxury_architectural_film__ultra_photore.mp4
 .DS_Store
+public/media/.gitkeep
