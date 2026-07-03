@@ -20,6 +20,7 @@ export const OWN = {
   privatePool: "/media/private-pool.jpg",
   aquaBlends: "/media/aqua-night.jpg",
   midnightBlends: "/media/midnight-night.jpg",
+  gradientBlends: "/media/gradient-night.jpg",
 };
 
 /* Daylight variants: the same scenes relit for light mode. Filled one
@@ -37,6 +38,7 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   craftHands: "/media/craft-day.jpg",
   aquaBlends: "/media/aqua-day.jpg",
   midnightBlends: "/media/midnight-day.jpg",
+  gradientBlends: "/media/gradient-day.jpg",
 };
 
 /* Film slot: dormant. The 720p loop softened the one surface that must be
