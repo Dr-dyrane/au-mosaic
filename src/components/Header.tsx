@@ -35,11 +35,12 @@ export default function Header() {
             scrolled ? "gap-4 px-4 py-2" : "gap-5 px-5 py-2.5"
           }`}
         >
-          <Link href="/" className="flex items-end gap-2" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
-            {/* One object: the word's baseline meets the mark's bottom
-                row, so it reads as a single name, aumosaic. */}
-            <AuMark className={`w-auto transition-all duration-500 ${scrolled ? "h-[15px]" : "h-[17px]"}`} />
-            <span className="translate-y-[2px] whitespace-nowrap text-[17px] font-semibold tracking-[-0.015em]">mosaic</span>
+          <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
+            {/* One voice across the island: the mark speaks lowercase,
+                the wordmark joins the nav's caps, ink so the brand
+                leads while nav items recede in dusk. */}
+            <AuMark className={`w-auto transition-all duration-500 ${scrolled ? "h-[13px]" : "h-[15px]"}`} />
+            <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">Mosaic</span>
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary">
