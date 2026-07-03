@@ -3,6 +3,7 @@ import { asc, count, desc, eq, ilike, or } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import EnquiryRow from "./EnquiryRow";
 import Pager from "../Pager";
+import Teach from "../Teach";
 
 const PER_PAGE = 24;
 const ENQ_PER_PAGE = 12;
@@ -133,7 +134,7 @@ export default async function CustomersPage({
         <section className="panel mt-8 max-w-2xl" data-tour="fresh">
           <p className="font-serif text-[20px]">Fresh from the window</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">
-            Site taps. Check the chat, then clear.
+            <Teach until="people">Site taps. Check the chat, then clear.</Teach>
             {freshTotal > ENQ_PER_PAGE && ` ${freshTotal} waiting.`}
           </p>
           <div className="mt-4 divide-y divide-transparent">

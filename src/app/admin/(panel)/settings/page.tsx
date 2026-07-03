@@ -6,6 +6,7 @@ import SettingsForm from "./SettingsForm";
 import AddStaffForm from "./AddStaffForm";
 import KeyRow from "./KeyRow";
 import NotifyToggle from "./NotifyToggle";
+import Teach from "../Teach";
 
 /* The facts of the house, and the keys to its door. Today the site
    still reads its built-in facts; when the seam flips, it reads
@@ -52,11 +53,13 @@ export default async function SettingsPage() {
       {who?.role === "owner" && (
         <div className="panel">
           <p className="font-serif text-[20px]">The keys to the door</p>
-          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Named keys for the people who help. Every save signs the
-            history with its name; a key taken back stops turning but
-            its story stays.
-          </p>
+          <Teach>
+            <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+              Named keys for the people who help. Every save signs the
+              history with its name; a key taken back stops turning but
+              its story stays.
+            </p>
+          </Teach>
           {staffRows === null ? (
             <p className="mt-4 text-[13px] leading-relaxed text-dusk">
               The key rack arrives with the next update: run npm run
@@ -83,18 +86,22 @@ export default async function SettingsPage() {
 
       <div className="panel">
         <p className="font-serif text-[20px]">The morning tap</p>
-        <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-          The glance, brought to the phone: what runs low, what is
-          owed, what came in fresh.
-        </p>
+        <Teach>
+          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+            The glance, brought to the phone: what runs low, what is
+            owed, what came in fresh.
+          </p>
+        </Teach>
         <NotifyToggle />
       </div>
 
       <div className="panel">
         <p className="font-serif text-[20px]">The book&apos;s history</p>
-        <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-          Every save, step, and key, in sentences: who did what, and when.
-        </p>
+        <Teach>
+          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+            Every save, step, and key, in sentences: who did what, and when.
+          </p>
+        </Teach>
         <Link
           href="/admin/settings/history"
           className="link-hair mt-4 inline-block text-dusk text-[13px]"

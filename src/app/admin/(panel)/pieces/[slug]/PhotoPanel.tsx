@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useActionState, useEffect, useRef } from "react";
 import { removePhoto, uploadPhoto, type SaveState } from "../actions";
 import Sentence from "../../Sentence";
+import Teach from "../../Teach";
 import { keepValues } from "../../keep";
 
 /* The face of the piece, in both suns. Two slots, night and day,
@@ -97,10 +98,12 @@ export default function PhotoPanel({
     <section className="panel mt-8 grid max-w-3xl gap-8" data-tour="photos">
       <div>
         <p className="font-serif text-[20px]">The photographs</p>
-        <p className="mt-2 max-w-md text-[14px] leading-relaxed text-dusk">
-          The site shows the night photograph in dark mode and the day one
-          in light. One is enough to start; the night slot leads.
-        </p>
+        <Teach until="stockroom">
+          <p className="mt-2 max-w-md text-[14px] leading-relaxed text-dusk">
+            The site shows the night photograph in dark mode and the day
+            one in light. One is enough to start; the night slot leads.
+          </p>
+        </Teach>
       </div>
       <div className="grid gap-8 sm:grid-cols-2">
         <Slot

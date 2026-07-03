@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import ColorsField from "../ColorsField";
 import Sentence from "../../Sentence";
+import Teach from "../../Teach";
 import { keepValues } from "../../keep";
 import { buzz } from "@/lib/backoffice";
 import { savePiece, type SaveState } from "../actions";
@@ -103,9 +104,11 @@ export default function PieceForm({ piece, stock }: Props) {
         <label className="flex cursor-pointer items-center justify-between" data-tour="window">
           <span>
             <span className="block text-[15px] font-medium">Show on the site</span>
-            <span className="mt-1 block text-[13px] text-dusk">
-              Off means customers cannot see this piece.
-            </span>
+            <Teach until="stockroom">
+              <span className="mt-1 block text-[13px] text-dusk">
+                Off means customers cannot see this piece.
+              </span>
+            </Teach>
           </span>
           <input type="checkbox" name="published" defaultChecked={piece.published} className="h-6 w-6 accent-[#c2a15c]" />
         </label>

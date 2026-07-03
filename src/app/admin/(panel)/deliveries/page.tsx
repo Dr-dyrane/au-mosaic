@@ -3,6 +3,7 @@ import { asc, count, desc, eq, inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import StatusStep from "./StatusStep";
 import Pager from "../Pager";
+import Teach from "../Teach";
 
 /* The road, at a glance. Jobs waiting to go, jobs out with a driver,
    jobs landed. Each one moves forward a single step per tap, and the
@@ -78,8 +79,11 @@ export default async function DeliveriesPage({
       <p className="eyebrow">The road</p>
       <h1 className="font-serif text-display-section mt-3">Deliveries.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Every job on its way to a wall. Send it out, mark it delivered,
-        and the house remembers the day it landed.
+        Every job on its way to a wall.
+        <Teach>
+          {" "}Send it out, mark it delivered, and the house remembers
+          the day it landed.
+        </Teach>
       </p>
       <div className="mt-6">
         <Link href="/admin/deliveries/new" className="btn-gold">

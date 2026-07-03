@@ -8,6 +8,7 @@ import StatusForm from "./StatusForm";
 import AddLineForm from "./AddLineForm";
 import AddPaymentForm from "./AddPaymentForm";
 import Back from "../../Back";
+import Teach from "../../Teach";
 import { Touch } from "../../touched";
 
 /* The order record: one page that holds the whole sale. The steps
@@ -169,9 +170,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
           {lines.length > 0 && (
-            <p className="mt-4 text-[13px] text-dusk">
-              Wrong line? Add a corrected one; nothing is ever lost.
-            </p>
+            <Teach until="orders">
+              <p className="mt-4 text-[13px] text-dusk">
+                Wrong line? Add a corrected one; nothing is ever lost.
+              </p>
+            </Teach>
           )}
           <AddLineForm orderId={order.id} pieces={pieceOptions} />
         </section>

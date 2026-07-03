@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { dropPushSubscription, savePushSubscription, type SaveState } from "./actions";
 import Sentence from "../Sentence";
+import Teach from "../Teach";
 import { buzz } from "@/lib/backoffice";
 
 /* Notify this phone: the device subscribes itself and the book
@@ -150,11 +151,13 @@ export default function NotifyToggle() {
         </button>
         <Sentence state={state} />
       </div>
-      <p className="mt-3 text-[12px] leading-relaxed text-mist">
-        One digest at eight each morning, plus a tap when a delivery
-        runs a piece low. Nothing else, ever. On iPhone, install the
-        app to the Home Screen first (iOS 16.4 or later).
-      </p>
+      <Teach>
+        <p className="mt-3 text-[12px] leading-relaxed text-mist">
+          One digest at eight each morning, plus a tap when a delivery
+          runs a piece low. Nothing else, ever. On iPhone, install the
+          app to the Home Screen first (iOS 16.4 or later).
+        </p>
+      </Teach>
     </div>
   );
 }

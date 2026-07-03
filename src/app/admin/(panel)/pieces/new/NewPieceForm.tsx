@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import ColorsField from "../ColorsField";
 import { createPiece, type SaveState } from "../actions";
 import Sentence from "../../Sentence";
+import Teach from "../../Teach";
 import { keepValues } from "../../keep";
 
 /* Birth certificate for a piece: a name and a shelf. Everything else
@@ -43,9 +44,11 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
       <label className="flex cursor-pointer items-center justify-between" data-tour="np-window">
         <span>
           <span className="block text-[15px] font-medium">Put it in the window now</span>
-          <span className="mt-1 block text-[13px] text-dusk">
-            Off means it stays in the book until you are ready.
-          </span>
+          <Teach until="stockroom">
+            <span className="mt-1 block text-[13px] text-dusk">
+              Off means it stays in the book until you are ready.
+            </span>
+          </Teach>
         </span>
         <input type="checkbox" name="published" className="h-6 w-6 accent-[#c2a15c]" />
       </label>

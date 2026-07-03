@@ -2,6 +2,7 @@ import Link from "next/link";
 import { asc, eq, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira, waChat } from "@/lib/backoffice";
+import Teach from "../Teach";
 
 /* Who owes what. The room Nonso asked for first: every order billed
    more than it is paid, grouped by customer, the longest forgotten
@@ -99,7 +100,8 @@ export default async function DebtsPage() {
       <h1 className="font-serif text-display-section mt-3" data-tour="debts">Who owes what.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         Every unpaid balance in the house, the longest forgotten at the
-        top. Each name carries a gentle WhatsApp reminder.
+        top.
+        <Teach> Each name carries a gentle WhatsApp reminder.</Teach>
       </p>
 
       {debtors.length > 0 && (
