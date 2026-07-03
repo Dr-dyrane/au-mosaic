@@ -174,11 +174,19 @@ another session was mid-flight on feel items 9 and 15 (Sentence,
 keepValues, icons components exist).
 
 **Execution order.**
-1. Verify stockroom filters behave on production (a fix shipped at
-   the very end; confirmation never arrived).
-2. Feel-list remainders: optimistic deliveries and enquiry clears,
-   last-three-touched on the glance, in-app half of the unsaved guard.
-3. The WhatsApp bridge, approved by Dyrane ("implement"): share_target
+1. DONE 2026-07-03: Vercel runtime logs read; both error clusters
+   (makeStockHref, k.map) ended exactly at their fix deployments and
+   nothing new has erred since, including the day's later pushes.
+2. DONE 2026-07-03: feel Next tier closed (c93d6ef), and the missing
+   list closed after it (65901bf, 3ad468a): pagination at volume,
+   sorts, CSV, insights windows, staff keys, audit trail, rate
+   limiting. One owner errand stands: npm run db:push for staff and
+   audit_log; everything fails open until then.
+3. DONE 2026-07-03: the WhatsApp bridge, both halves: share_target
+   plus /admin/share (phone matched, offers prefilled, keep-as-
+   enquiry, iPhone caveat in copy) and /admin/compose (quote and
+   receipt read fresh, audited, straight into the chat). Original
+   spec follows for reference: share_target
    in admin.webmanifest (GET, action /admin/share, params title, text,
    url) plus an auth-guarded /admin/share page matching a customer by
    any 234 or 0-prefixed phone in the shared text, offering prefilled

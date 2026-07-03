@@ -12,7 +12,7 @@ const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 const label = "eyebrow mb-2.5 block";
 
-export default function NewCustomerForm() {
+export default function NewCustomerForm({ phone }: { phone?: string }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(createCustomer, null);
 
   return (
@@ -31,6 +31,7 @@ export default function NewCustomerForm() {
               name="phone"
               type="tel"
               inputMode="tel"
+              defaultValue={phone}
               placeholder="0803 555 0100"
               aria-label="Phone"
               className={field}

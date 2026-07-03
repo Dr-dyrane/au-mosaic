@@ -24,11 +24,16 @@ export function buzz(ms = 4) {
 }
 
 /* Nigerian numbers arrive as 0803..., 803..., or 234803...; WhatsApp
-   wants 234803... */
-export function waChat(phone: string, text?: string) {
+   wants 234803... One normaliser, used by the chat link and the
+   share room's matcher alike. */
+export function phone234(phone: string) {
   let digits = phone.replace(/\D/g, "");
   if (digits.startsWith("0")) digits = `234${digits.slice(1)}`;
   if (!digits.startsWith("234")) digits = `234${digits}`;
+  return digits;
+}
+
+export function waChat(phone: string, text?: string) {
   const q = text ? `?text=${encodeURIComponent(text)}` : "";
-  return `https://wa.me/${digits}${q}`;
+  return `https://wa.me/${phone234(phone)}${q}`;
 }

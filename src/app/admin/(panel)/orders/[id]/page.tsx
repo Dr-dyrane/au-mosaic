@@ -64,12 +64,33 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       {order.note && (
         <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">{order.note}</p>
       )}
-      <Link
-        href={`/admin/customers/${customer.id}`}
-        className="link-hair mt-5 inline-block text-dusk text-[13px]"
-      >
-        Their record
-      </Link>
+      <div className="mt-5 flex flex-wrap items-center gap-6">
+        <Link href={`/admin/customers/${customer.id}`} className="link-hair text-dusk text-[13px]">
+          Their record
+        </Link>
+        {/* Compose from the book: the message reads the order fresh
+            on the way out, and WhatsApp opens with it written. */}
+        {customer.phone && (
+          <>
+            <a
+              href={`/admin/compose?kind=quote&order=${order.id}`}
+              target="_blank"
+              rel="noreferrer"
+              className="link-hair text-dusk text-[13px]"
+            >
+              Send the quote
+            </a>
+            <a
+              href={`/admin/compose?kind=receipt&order=${order.id}`}
+              target="_blank"
+              rel="noreferrer"
+              className="link-hair text-dusk text-[13px]"
+            >
+              Send the receipt
+            </a>
+          </>
+        )}
+      </div>
 
       <div className="max-w-3xl">
         <section className="panel mt-10">

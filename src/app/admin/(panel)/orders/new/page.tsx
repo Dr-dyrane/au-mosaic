@@ -10,12 +10,21 @@ import Back from "../../Back";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewOrderPage() {
+export default async function NewOrderPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ customer?: string }>;
+}) {
+  const { customer } = await searchParams;
   const db = getDb();
   const customers = await db
     .select({ id: schema.customers.id, name: schema.customers.name })
     .from(schema.customers)
     .orderBy(asc(schema.customers.name));
+
+  /* The share bridge may walk in with a person already chosen; the
+     select honours it only when the book agrees. */
+  const preselect = customers.some((c) => c.id === customer) ? customer : undefined;
 
   return (
     <main>
@@ -41,7 +50,7 @@ export default async function NewOrderPage() {
           </Link>
         </div>
       ) : (
-        <NewOrderForm customers={customers} />
+        <NewOrderForm customers={customers} preselect={preselect} />
       )}
     </main>
   );
