@@ -67,3 +67,6 @@ public/media/*
 !public/media/custom-night.jpg
 !public/media/custom-day.jpg
 !.env.example
+
+# rendered paper (scripts/invoice.py)
+invoices/
