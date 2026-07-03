@@ -4,28 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { buzz } from "@/lib/backoffice";
 
+import { HUES, makeStockHref, type StockFilters } from "./stock-filters";
+
 /* The phone's filter: one chip opens a glass sheet from the bottom
    edge, big rows, each a link so the URL carries the view. Tapping a
    row navigates and the sheet lets go. */
-
-export type StockFilters = { family?: string; low?: string; hue?: string };
-
-export function makeStockHref(cur: StockFilters, patch: Partial<StockFilters>) {
-  const next = { ...cur, ...patch };
-  const p = new URLSearchParams();
-  if (next.family) p.set("family", next.family);
-  if (next.low) p.set("low", "1");
-  if (next.hue) p.set("hue", next.hue);
-  const s = p.toString();
-  return s ? `/admin/pieces?${s}` : "/admin/pieces";
-}
-
-export const HUES = [
-  { key: "blue", dot: "#3aa9d6", label: "Blues" },
-  { key: "green", dot: "#4f8a6d", label: "Greens" },
-  { key: "earth", dot: "#b0703c", label: "Earth" },
-  { key: "neutral", dot: "#b8b2a6", label: "Neutrals" },
-];
 
 function Row({
   href,

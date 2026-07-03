@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import FilterSheet, { HUES, makeStockHref, type StockFilters } from "./FilterSheet";
+import FilterSheet from "./FilterSheet";
+import { HUES, makeStockHref, type StockFilters } from "./stock-filters";
 
 /* First colour decides the hue shelf: low saturation is neutral,
    then blue, green, or earth by the wheel. */
