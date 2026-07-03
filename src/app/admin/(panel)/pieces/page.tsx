@@ -47,6 +47,18 @@ export default async function PiecesPage({
     .leftJoin(schema.stockLevels, eq(schema.stockLevels.pieceSlug, schema.pieces.slug))
     .orderBy(asc(schema.pieces.sort));
 
+  /* One filter truth, computed once: the grid, the tier headings, and
+     the empty state all read from the same list, so they can never
+     disagree. */
+  const familyOf = new Map(ranges.map((r) => [r.slug, r.family]));
+  const visible = rows.filter(
+    (row) =>
+      (!filters.family || familyOf.get(row.piece.rangeSlug) === filters.family) &&
+      (!filters.low || (row.stock ? row.stock.quantitySheets <= row.stock.reorderAt : false)) &&
+      (!filters.hue || hueOf(row.piece.colors) === filters.hue)
+  );
+  const filtering = Boolean(filters.family || filters.low || filters.hue);
+
   return (
     <main>
       <p className="eyebrow">Inventory</p>
@@ -81,7 +93,7 @@ export default async function PiecesPage({
         <Link href={makeStockHref(filters, { low: filters.low ? undefined : "1" })} className={`chip-solid ${filters.low ? "is-on" : ""}`}>
           Running low
         </Link>
-        <span aria-hidden className="mx-1 h-5 w-px bg-shell" />
+        <span aria-hidden className="mx-1.5" />
         {HUES.map((h) => (
           <Link
             key={h.key}
@@ -100,60 +112,59 @@ export default async function PiecesPage({
       ].map((tier) => {
         if (filters.family && filters.family !== tier.family) return null;
         const tierRanges = ranges.filter((r) => r.family === tier.family);
-        if (tierRanges.length === 0) return null;
+        const tierItems = visible.filter(
+          (row) => familyOf.get(row.piece.rangeSlug) === tier.family
+        );
+        /* A heading never floats over nothing: the tier renders only
+           when something survives the filter. */
+        if (tierItems.length === 0) return null;
         return (
           <section key={tier.family} className="mt-14">
             <h2 className="font-serif text-[26px]">{tier.title}</h2>
             {tierRanges.map((r) => {
-              const items = rows.filter(
-                (row) =>
-                  row.piece.rangeSlug === r.slug &&
-                  (!filters.low ||
-                    (row.stock ? row.stock.quantitySheets <= row.stock.reorderAt : false)) &&
-                  (!filters.hue || hueOf(row.piece.colors) === filters.hue)
-              );
+              const items = tierItems.filter((row) => row.piece.rangeSlug === r.slug);
               if (items.length === 0) return null;
               return (
                 <section key={r.slug} className="mt-8">
                   <p className="eyebrow">{r.name}</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {items.map(({ piece, stock }) => {
-                const qty = stock?.quantitySheets ?? 0;
-                const low = stock ? qty <= stock.reorderAt : false;
-                return (
-                  <Link
-                    key={piece.slug}
-                    href={`/admin/pieces/${piece.slug}`}
-                    className="panel group block transition-transform duration-300 active:scale-[0.99]"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <span className="flex gap-0.5">
-                          {(piece.colors ?? []).slice(0, 4).map((c) => (
-                            <span key={c} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
-                          ))}
-                        </span>
-                        <p className="font-serif text-[18px] leading-snug transition-colors duration-300 group-hover:text-gold">
-                          {piece.name}
-                        </p>
-                      </div>
-                      {!piece.published && (
-                        <span className="chip-solid shrink-0">Off the site</span>
-                      )}
-                    </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <p className="text-[13px] text-dusk">
-                        {qty.toLocaleString()} {piece.unit} in stock
-                      </p>
-                      {low && (
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
-                          Running low
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })}
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {items.map(({ piece, stock }) => {
+                      const qty = stock?.quantitySheets ?? 0;
+                      const low = stock ? qty <= stock.reorderAt : false;
+                      return (
+                        <Link
+                          key={piece.slug}
+                          href={`/admin/pieces/${piece.slug}`}
+                          className="panel group block transition-transform duration-300 active:scale-[0.99]"
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex min-w-0 items-center gap-3">
+                              <span className="flex shrink-0 gap-0.5">
+                                {(piece.colors ?? []).slice(0, 4).map((c) => (
+                                  <span key={c} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
+                                ))}
+                              </span>
+                              <p className="truncate font-serif text-[18px] leading-snug transition-colors duration-300 group-hover:text-gold">
+                                {piece.name}
+                              </p>
+                            </div>
+                            {!piece.published && (
+                              <span className="chip-solid shrink-0">Off the site</span>
+                            )}
+                          </div>
+                          <div className="mt-4 flex items-center justify-between">
+                            <p className="text-[13px] text-dusk">
+                              {qty.toLocaleString()} {piece.unit} in stock
+                            </p>
+                            {low && (
+                              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
+                                Running low
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </section>
               );
@@ -162,23 +173,14 @@ export default async function PiecesPage({
         );
       })}
 
-      {rows.length > 0 &&
-        (filters.family || filters.low || filters.hue) &&
-        rows.filter(
-          (row) =>
-            (!filters.family ||
-              ranges.find((r) => r.slug === row.piece.rangeSlug)?.family === filters.family) &&
-            (!filters.low ||
-              (row.stock ? row.stock.quantitySheets <= row.stock.reorderAt : false)) &&
-            (!filters.hue || hueOf(row.piece.colors) === filters.hue)
-        ).length === 0 && (
-          <div className="panel mt-10 max-w-md">
-            <p className="font-serif text-[20px]">Nothing wears that filter.</p>
-            <Link href="/admin/pieces" className="link-hair mt-4 inline-block text-dusk text-[13px]">
-              Show everything
-            </Link>
-          </div>
-        )}
+      {rows.length > 0 && filtering && visible.length === 0 && (
+        <div className="panel mt-10 max-w-md">
+          <p className="font-serif text-[20px]">Nothing wears that filter.</p>
+          <Link href="/admin/pieces" className="link-hair mt-4 inline-block text-dusk text-[13px]">
+            Show everything
+          </Link>
+        </div>
+      )}
 
       {rows.length === 0 && (
         <div className="panel mt-10 max-w-md">
