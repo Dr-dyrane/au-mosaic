@@ -25,7 +25,17 @@ function useActive() {
       : pathname.startsWith(room.href) || room.also.some((a) => pathname.startsWith(a));
 }
 
-export function AdminTopNav() {
+/* A quiet gold count beside a room's name: how many people owe. */
+function CountPill({ n }: { n: number }) {
+  if (n <= 0) return null;
+  return (
+    <span aria-label={`${n} owing`} className="ml-1 inline-flex min-w-4 items-center justify-center rounded-full bg-gold/15 px-1 text-[10px] font-semibold leading-4 text-gold">
+      {n}
+    </span>
+  );
+}
+
+export function AdminTopNav({ owed = 0 }: { owed?: number }) {
   const isActive = useActive();
   return (
     <nav aria-label="Back office" className="hidden items-center gap-6 sm:flex">
@@ -39,13 +49,14 @@ export function AdminTopNav() {
           }`}
         >
           {r.label}
+          {r.label === "Owed" && <CountPill n={owed} />}
         </Link>
       ))}
     </nav>
   );
 }
 
-export function AdminTabBar() {
+export function AdminTabBar({ owed = 0 }: { owed?: number }) {
   const isActive = useActive();
   return (
     <nav
@@ -73,6 +84,7 @@ export function AdminTabBar() {
               }`}
             >
               {r.label}
+              {r.label === "Owed" && <CountPill n={owed} />}
             </span>
           </Link>
         );

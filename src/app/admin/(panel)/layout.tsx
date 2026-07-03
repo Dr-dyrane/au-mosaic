@@ -1,10 +1,42 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { sql } from "drizzle-orm";
+import { getDb } from "@/db";
 import { AuMark } from "@/components/Mosaic";
 import { AdminTabBar, AdminTopNav } from "@/components/AdminNav";
 import { hasSession } from "@/lib/admin-auth";
 import { logout } from "../login/actions";
+
+/* How many customers owe the house: the one number worth carrying on
+   the nav itself. Counted per request; if the database is quiet the
+   badge simply stays home. */
+async function owedCount(): Promise<number> {
+  try {
+    const rows = await getDb().execute(sql`
+      select count(*)::int as n from (
+        select o.customer_id
+        from orders o
+        where o.status not in ('enquiry','settled')
+        group by o.customer_id
+        having
+          coalesce((select sum(i.given_price_kobo * i.quantity)
+            from order_items i join orders oi on oi.id = i.order_id
+            where oi.customer_id = o.customer_id
+              and oi.status not in ('enquiry','settled')), 0)
+          -
+          coalesce((select sum(p.amount_kobo)
+            from payments p join orders op on op.id = p.order_id
+            where op.customer_id = o.customer_id
+              and op.status not in ('enquiry','settled')), 0)
+          > 0
+      ) t`);
+    const row = (rows as unknown as { n?: number }[])[0];
+    return Number(row?.n ?? 0);
+  } catch {
+    return 0;
+  }
+}
 
 /* Every page in this group stands behind the door. The login page
    lives outside the group, so the guard cannot loop. The back office
@@ -19,6 +51,7 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   if (!(await hasSession())) redirect("/admin/login");
+  const owed = await owedCount();
   return (
     <div className="mx-auto min-h-svh max-w-6xl px-5 pb-32 sm:px-8 sm:pb-24">
       <header className="flex items-center justify-between gap-6 pb-10 pt-8">
@@ -29,7 +62,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </span>
         </Link>
         <div className="flex items-center gap-6">
-          <AdminTopNav />
+          <AdminTopNav owed={owed} />
           <form action={logout}>
             <button type="submit" className="link-hair text-dusk text-[13px]">
               Sign out
@@ -38,7 +71,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
       {children}
-      <AdminTabBar />
+      <AdminTabBar owed={owed} />
     </div>
   );
 }

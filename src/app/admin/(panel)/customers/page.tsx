@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { desc, ilike, or } from "drizzle-orm";
+import { desc, eq, ilike, or } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import EnquiryRow from "./EnquiryRow";
 
 /* Everyone he sells to, one search away. Cards lead with the name and
    the number he will tap next, newest people first. Search is a plain
@@ -21,6 +22,16 @@ export default async function CustomersPage({
   const q = (raw ?? "").trim();
 
   const db = getDb();
+  const fresh = await db
+    .select({
+      enquiry: schema.enquiries,
+      pieceName: schema.pieces.name,
+    })
+    .from(schema.enquiries)
+    .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.enquiries.pieceSlug))
+    .where(eq(schema.enquiries.status, "new"))
+    .orderBy(desc(schema.enquiries.createdAt))
+    .limit(12);
   const customers = q
     ? await db
         .select()
@@ -59,6 +70,37 @@ export default async function CustomersPage({
           New customer
         </Link>
       </div>
+
+      {/* The site's WhatsApp taps land here until they are cleared.
+          The chat itself lives in WhatsApp; this remembers it began. */}
+      {fresh.length > 0 && (
+        <section className="panel mt-8 max-w-2xl">
+          <p className="font-serif text-[20px]">Fresh from the window</p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">
+            Taps on the site&apos;s WhatsApp buttons. Check the chat, then
+            clear them here.
+          </p>
+          <div className="mt-4 divide-y divide-transparent">
+            {fresh.map(({ enquiry, pieceName }) => (
+              <EnquiryRow
+                key={enquiry.id}
+                id={enquiry.id}
+                line={
+                  pieceName
+                    ? `Asked about ${pieceName} (${enquiry.source})`
+                    : `Tapped from ${enquiry.source}`
+                }
+                when={new Date(enquiry.createdAt).toLocaleString("en-NG", {
+                  day: "numeric",
+                  month: "short",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {customers.length > 0 && (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">

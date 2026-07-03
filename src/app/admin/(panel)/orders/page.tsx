@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { count, desc, eq, ne, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
 import { OPEN_STEPS, STATUS_LABEL, fmtDate } from "./pipeline";
@@ -11,14 +11,24 @@ import { OPEN_STEPS, STATUS_LABEL, fmtDate } from "./pipeline";
 
 export const dynamic = "force-dynamic";
 
-export default async function OrdersPage() {
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const db = getDb();
+  const { q } = await searchParams;
+  const query = (q ?? "").trim();
 
   const open = await db
     .select({ order: schema.orders, customerName: schema.customers.name })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.customers.id, schema.orders.customerId))
-    .where(ne(schema.orders.status, "settled"))
+    .where(
+      query
+        ? and(ne(schema.orders.status, "settled"), ilike(schema.customers.name, `%${query}%`))
+        : ne(schema.orders.status, "settled")
+    )
     .orderBy(desc(schema.orders.createdAt));
 
   const lineSums = await db
@@ -56,10 +66,22 @@ export default async function OrdersPage() {
         settled. List price sits beside given price, so a discount is a
         number, not a feeling.
       </p>
-      <div className="mt-8">
+      <div className="mt-8 flex flex-wrap items-center gap-6">
         <Link href="/admin/orders/new" className="btn-gold">
           New order
         </Link>
+        {/* No-JS search, the customers-room way: type a name, press
+            Enter. */}
+        <form method="GET" className="w-full max-w-xs">
+          <input
+            type="search"
+            name="q"
+            defaultValue={query}
+            placeholder="Find by customer"
+            aria-label="Find orders by customer name"
+            className="w-full rounded-full bg-shell/60 px-5 py-3 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell"
+          />
+        </form>
       </div>
 
       {OPEN_STEPS.map((step) => {
@@ -104,7 +126,18 @@ export default async function OrdersPage() {
         );
       })}
 
-      {open.length === 0 && (
+      {open.length === 0 && query && (
+        <div className="panel mt-10 max-w-md">
+          <p className="font-serif text-[20px]">Nothing for that name.</p>
+          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+            Check the spelling, or clear the search to see the whole book.
+          </p>
+          <Link href="/admin/orders" className="link-hair mt-5 inline-block text-dusk text-[13px]">
+            Clear the search
+          </Link>
+        </div>
+      )}
+      {open.length === 0 && !query && (
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">The book is open and empty.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">

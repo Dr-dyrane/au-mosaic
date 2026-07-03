@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
-import { PIPELINE, STATUS_LABEL, fmtDate } from "../pipeline";
+import { STATUS_LABEL, fmtDate } from "../pipeline";
 import StatusForm from "./StatusForm";
 import AddLineForm from "./AddLineForm";
 import AddPaymentForm from "./AddPaymentForm";
@@ -73,16 +73,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <div className="max-w-3xl">
         <section className="panel mt-10">
           <p className="font-serif text-[20px]">Where it stands</p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {PIPELINE.map((step) => (
-              <span
-                key={step}
-                className={`chip-solid ${step === order.status ? "is-on" : ""}`}
-              >
-                {STATUS_LABEL[step]}
-              </span>
-            ))}
-          </div>
           <StatusForm orderId={order.id} status={order.status} />
         </section>
 

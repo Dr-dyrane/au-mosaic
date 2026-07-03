@@ -76,3 +76,25 @@ export async function saveCustomer(_prev: SaveState, form: FormData): Promise<Sa
   revalidatePath("/admin");
   return { ok: true, message: "Saved." };
 }
+
+/* Fresh enquiries clear from the desk: replied or closed, nothing
+   deleted. */
+export async function setEnquiryStatus(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const id = String(form.get("id") ?? "");
+  const to = String(form.get("to") ?? "");
+  if (!id || (to !== "replied" && to !== "closed")) {
+    return { ok: false, message: "Missing enquiry or answer." };
+  }
+  try {
+    await getDb()
+      .update(schema.enquiries)
+      .set({ status: to })
+      .where(eq(schema.enquiries.id, id));
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+  revalidatePath("/admin/customers");
+  revalidatePath("/admin");
+  return { ok: true, message: "Cleared." };
+}
