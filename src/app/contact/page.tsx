@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
-import { LUX } from "@/lib/images";
+import { OWN } from "@/lib/images";
 import { waGeneral, waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
@@ -16,8 +16,8 @@ export default function ContactPage() {
         eyebrow="Contact"
         title="Come see the stock. Or just message."
         sub="Most of the house's business happens on WhatsApp: photos, prices, delivery. Start there."
-        image={LUX.hammam}
-        alt="Warm stone interior of a private hammam"
+        image={OWN.hammam}
+        alt="Warm mosaic hammam under a single shaft of light"
         cta={{ href: waGeneral(), label: "Chat on WhatsApp" }}
       />
 

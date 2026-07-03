@@ -27,6 +27,7 @@ export const OWN = {
   craftHands: "/media/craft-hands.jpg",
   glassJewels: "/media/glass-jewels.jpg",
   terrace: "/media/terrace.jpg",
+  hammam: "/media/hammam.jpg",
 };
 
 /* Film: slow ambient loops, owned. The hero film's poster is its own first
@@ -39,7 +40,6 @@ export const FILM = {
 
 export const LUX = {
   villaPalms: px("30195980/pexels-photo-30195980/free-photo-of-serene-villa-by-infinity-pool-with-palms.jpeg", 2600),
-  hammam: px("7031713/pexels-photo-7031713.jpeg", 2200),
   darkBath: px("35189678/pexels-photo-35189678/free-photo-of-luxurious-modern-shower-with-dark-textured-tiles.jpeg", 2200),
 };
 
@@ -60,7 +60,7 @@ export const ENVIRONMENTS = [
     href: "/mosaic-tiles#pool-mosaics",
   },
   {
-    src: LUX.hammam,
+    src: OWN.hammam,
     place: "The Private Hammam",
     line: "Warm stone, quiet hours.",
     materials: "Stone mosaic, heated surfaces, brass fittings",

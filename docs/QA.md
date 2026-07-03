@@ -104,6 +104,7 @@ In use, verified live (Pexels, free licence, hotlink):
 | craftHands | owned, /media/craft-hands.jpg | the craft section: hands, combed adhesive, mesh. The trust story. |
 | glassJewels | owned, /media/glass-jewels.jpg | glass mosaic card, reveal, home materials tile. Retired Pexels 28408521. |
 | terrace | owned, /media/terrace.jpg | Infinity Terrace env card, pools page hero, bulk-order scene fallback. Retired Pexels 20975726. |
+| hammam | owned, /media/hammam.jpg | Private Hammam env card, contact page hero, feature-mosaic scene. Retired Pexels 7031713. |
 | bluePatternTiles | 14579397 | blue and white patterned tiles |
 | vibrantGlassMosaic | 28408521 | pixelated sunset glass mosaic |
 | beetleMosaicArt | 32325318 | beetle mosaic artwork |
