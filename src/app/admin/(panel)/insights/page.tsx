@@ -78,11 +78,15 @@ export default async function InsightsPage() {
 
   return (
     <main>
-      <p className="eyebrow">Insights</p>
-      <h1 className="font-serif text-display-section mt-3">What the book says.</h1>
+      <div className="flex gap-2">
+        <Link href="/admin" className="chip-solid">
+          Today
+        </Link>
+        <span className="chip-solid is-on">Insights</span>
+      </div>
+      <h1 className="font-serif text-display-section mt-8">What the book says.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Read-only. These numbers come from orders, payments, and stock,
-        so they are the business, not the website traffic.
+        The business, not the traffic.
       </p>
 
       <div className="mt-10 grid gap-5 lg:grid-cols-2">

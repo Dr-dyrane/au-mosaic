@@ -52,8 +52,14 @@ export default async function AdminHome() {
   const p = await pulse();
   return (
     <main>
-      <p className="eyebrow">This morning</p>
-      <h1 className="font-serif text-display-section mt-3">The house, in numbers.</h1>
+      {/* Home wears two faces: today, and the longer story. */}
+      <div className="flex gap-2">
+        <span className="chip-solid is-on">Today</span>
+        <Link href="/admin/insights" className="chip-solid">
+          Insights
+        </Link>
+      </div>
+      <h1 className="font-serif text-display-section mt-8">The house, in numbers.</h1>
 
       {!p.ok && (
         <div className="panel mt-10 max-w-md">

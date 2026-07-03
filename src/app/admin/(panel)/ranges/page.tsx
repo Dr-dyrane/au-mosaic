@@ -29,8 +29,7 @@ export default async function RangesPage() {
       <p className="eyebrow mt-6">Inventory</p>
       <h1 className="font-serif text-display-section mt-3">The ranges.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        The shelves of the book. A range appears in the shop window only
-        when it holds a piece that is on the site.
+        The shelves. A range shows when a published piece sits on it.
       </p>
       <div className="mt-8">
         <Link href="/admin/ranges/new" className="btn-gold">

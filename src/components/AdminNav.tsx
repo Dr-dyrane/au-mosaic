@@ -15,7 +15,6 @@ const ROOMS = [
   { href: "/admin/orders", label: "Orders", exact: false, also: [] as string[] },
   { href: "/admin/customers", label: "People", exact: false, also: [] as string[] },
   { href: "/admin/debts", label: "Owed", exact: false, also: [] as string[] },
-  { href: "/admin/insights", label: "Insights", exact: false, also: [] as string[] },
 ];
 
 function useActive() {

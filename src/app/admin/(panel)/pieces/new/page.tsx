@@ -17,8 +17,7 @@ export default async function NewPiecePage() {
       <Back href="/admin/pieces" label="The stockroom" />
       <h1 className="font-serif text-display-section mt-6">A new piece.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        It enters the book first. Photos, story, stock, and the window
-        come on its record page.
+        The book first. Photos, stock, and the window come next.
       </p>
       {ranges.length === 0 ? (
         <div className="panel mt-10 max-w-md">

@@ -55,7 +55,7 @@ export default async function CustomersPage({
       <p className="eyebrow">People</p>
       <h1 className="font-serif text-display-section mt-3">The customers.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Tap a customer for their orders, their balance, their chat.
+        Orders, balance, chat: one tap.
         {total > 0 && ` ${total} ${total === 1 ? "person" : "people"} in the book.`}
       </p>
 
@@ -80,8 +80,7 @@ export default async function CustomersPage({
         <section className="panel mt-8 max-w-2xl">
           <p className="font-serif text-[20px]">Fresh from the window</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">
-            Taps on the site&apos;s WhatsApp buttons. Check the chat, then
-            clear them here.
+            Site taps. Check the chat, then clear.
           </p>
           <div className="mt-4 divide-y divide-transparent">
             {fresh.map(({ enquiry, pieceName }) => (

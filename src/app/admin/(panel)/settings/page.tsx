@@ -16,9 +16,7 @@ export default async function SettingsPage() {
       <p className="eyebrow">Settings</p>
       <h1 className="font-serif text-display-section mt-3">The house facts.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        The number, the hours, the address. The shop window reads these
-        once the book and the site become one; until then, edits wait
-        here safely.
+        The number, the hours, the address. Live once the site reads the book.
       </p>
       <SettingsForm values={values} />
       <div className="panel mt-8 max-w-xl">
