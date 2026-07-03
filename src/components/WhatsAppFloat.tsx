@@ -1,8 +1,18 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { waGeneral } from "@/lib/wa";
 
 /* The one action that always matters. Fixed, calm, thumb-reachable,
-   clear of the home indicator, named on hover. */
+   clear of the home indicator, named on hover. It steps aside on
+   piece pages, where the piece bar already carries the same action
+   in house clothes: one floating chrome per screen, one gold path.
+   Whether it keeps its seat elsewhere is the funnel's decision now;
+   the float signs its taps, and the source panel will say. */
 export default function WhatsAppFloat() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/piece/")) return null;
+
   return (
     <a
       href={waGeneral()}
