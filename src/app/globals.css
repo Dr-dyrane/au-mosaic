@@ -164,6 +164,68 @@ p { text-wrap: pretty; }
 }
 .skip-link:focus-visible { left: 14px; }
 
+/* ---- island navigation --------------------------------------------------------- */
+
+.island-panel {
+  transform: translateX(-50%);
+  animation: island-in 0.35s var(--ease-glide);
+}
+@keyframes island-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ---- hover to reveal ------------------------------------------------------------ */
+
+/* Captions and affordances that surface when the image is attended to. */
+.cap-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s var(--ease-glide), transform 0.5s var(--ease-glide);
+}
+.group:hover .cap-reveal,
+.group:focus-within .cap-reveal { opacity: 1; transform: none; }
+@media (hover: none) {
+  .cap-reveal { opacity: 1; transform: none; }
+}
+
+/* Glass chip that floats on imagery. */
+.chip-glass {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: rgb(12 11 9 / 0.5);
+  border: 1px solid rgb(243 239 230 / 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ---- floating piece bar ---------------------------------------------------------- */
+
+.piece-bar {
+  transform: translateX(-50%);
+  animation: bar-up 0.5s var(--ease-glide);
+}
+@keyframes bar-up {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ---- cinema: every page arrives, nothing snaps ------------------------------------ */
+
+.page-enter { animation: page-in 0.5s var(--ease-glide); }
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
 /* ---- motion ------------------------------------------------------------------ */
 
 .reveal {
@@ -189,4 +251,7 @@ p { text-wrap: pretty; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .kenburns { animation: none; }
   .img-glide, .group:hover .img-glide { transition: none; transform: none; }
+  .island-panel, .piece-bar { animation: none; }
+  .page-enter { animation: none; }
+  .cap-reveal { opacity: 1; transform: none; transition: none; }
 }

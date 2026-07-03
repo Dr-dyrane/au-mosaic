@@ -25,12 +25,21 @@ Last pass: 2026-07-02.
 
 | Check | Status | Evidence |
 |---|---|---|
-| Image quality | IN PROGRESS | 12113234 (aged pool floor, caught by owner) condemned; key renamed `poolBlueMosaic`; eye-verified replacement pending (shortlist of 6 ready). All 11 live images return 200; every rendered `img` has alt text. Trimmed 5 unused image URLs and the dead GALLERY export. |
+| Image quality | PASS | 12113234 (aged pool floor, caught by owner) replaced by 28287770, picked by the owner's eye, verified 1400x1867 and loading. All live images return 200; every rendered `img` has alt text. Trimmed 5 unused image URLs and the dead GALLERY export. |
 | Accessibility | PASS | Skip link, `:focus-visible` gold rings, alt text on every image, aria labels on menu and float, AA contrast, reduced motion, semantic landmarks (`header`, `main#main`, `nav`, `footer`). |
 | Performance | PASS | Every route static or SSG (24 routes). `next/image` with explicit `sizes`; `priority` on heroes only. No webfonts, no animation libraries, no client JS beyond header, theme, reveal. |
 | SEO | PASS | Per-page metadata, OG and Twitter cards, JSON-LD LocalBusiness, `sitemap.xml` (all pages and pieces), `robots.txt`, canonical host via `metadataBase`. |
 | Analytics | PASS | `@vercel/analytics` wired in the root layout. Fulfils the proposal's traffic analytics deliverable. |
 | Copy protocol | PASS | Swept: no em dashes, no arrows, few words, human prose. |
+
+## Step-up pass (SICIS benchmark)
+
+| Pattern | Status | Evidence |
+|---|---|---|
+| Island navigation | PASS | Fixed glass pill, condenses on scroll, menu expands from the island. Heroes full-bleed beneath it. |
+| Hover to reveal and expand | PASS | Environment captions on the image; materials and link rise on hover or focus; always visible on touch. Glass "View the piece" chip on collection cards. |
+| Floating CTAs | PASS | Piece bar rises after the hero action leaves the viewport (IntersectionObserver); WhatsApp float site-wide. |
+| Cinematic immersion | PASS | Home and piece heroes own the full viewport (min-h-svh). Piece pages add a full-bleed "Seen in" environment scene. Every navigation glides in via app/template.tsx. Zero animation libraries. |
 
 ## The CRM upgrade path
 
@@ -50,7 +59,7 @@ In use, verified live (Pexels, free licence, hotlink):
 
 | Key | ID | Subject |
 |---|---|---|
-| poolBlueMosaic | 12113234 | CONDEMNED, replacement in flight |
+| poolBlueMosaic | 28287770 | blue pool mosaic, owner-picked |
 | bluePatternTiles | 14579397 | blue and white patterned tiles |
 | vibrantGlassMosaic | 28408521 | pixelated sunset glass mosaic |
 | beetleMosaicArt | 32325318 | beetle mosaic artwork |
@@ -62,8 +71,8 @@ In use, verified live (Pexels, free licence, hotlink):
 | hammam | 7031713 | warm stone hammam |
 | darkBath | 35189678 | dark textured shower |
 
-Replacement shortlist (await the eye test): 30238914, 20329466,
-10563429, 2672633, 30180996, 6127332.
+Verified alternates if any frame ever needs a stand-in: 30238914,
+20329466, 10563429, 2672633, 30180996, 6127332.
 
 At launch these swap for the house's own photography; `src/lib/images.ts`
 stays the only home for image URLs.

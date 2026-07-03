@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28">
+      <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
         <p className="eyebrow">Contact</p>
         <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
           Come see the stock. Or just message.

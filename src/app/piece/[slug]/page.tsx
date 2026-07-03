@@ -3,10 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PIECES, pieceBySlug } from "@/lib/products";
+import { ENVIRONMENTS } from "@/lib/images";
 import { waProduct } from "@/lib/wa";
 import { TileSheet } from "@/components/Mosaic";
 import { CtaRow } from "@/components/ui";
 import Reveal from "@/components/Reveal";
+import PieceBar from "@/components/PieceBar";
 
 /* The piece, presented the Apple way: the image is the screen, the words
    sit on it, nothing frames it. Facts follow below, quietly. */
@@ -30,11 +32,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function PiecePage({ params }: { params: Params }) {
   const piece = pieceBySlug((await params).slug);
   if (!piece) notFound();
+  const scene = ENVIRONMENTS.find((e) => e.href.endsWith(piece.groupId)) ?? ENVIRONMENTS[1];
 
   return (
     <>
       {/* Full-screen reveal: no borders, no containers. */}
-      <section className="relative flex min-h-[92svh] items-end overflow-hidden">
+      <section className="relative flex min-h-svh items-end overflow-hidden">
         {piece.image ? (
           <Image
             src={piece.image}
@@ -71,6 +74,29 @@ export default async function PiecePage({ params }: { params: Params }) {
                 The collection
               </Link>
             </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Floating enquiry bar once the hero action scrolls away */}
+      <PieceBar name={piece.name} href={waProduct(piece.name)} />
+
+      {/* The piece in its room */}
+      <section className="relative flex min-h-[62svh] items-end overflow-hidden">
+        <Image src={scene.src} alt={scene.place} fill sizes="100vw" className="object-cover" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(12,11,9,0.25) 0%, rgba(12,11,9,0.05) 45%, rgba(12,11,9,0.72) 100%)",
+          }}
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
+          <Reveal>
+            <p className="eyebrow">Seen in</p>
+            <p className="font-serif mt-3 max-w-xl text-[clamp(1.7rem,4vw,2.6rem)] leading-tight text-white">
+              {scene.place}. {scene.line}
+            </p>
           </Reveal>
         </div>
       </section>

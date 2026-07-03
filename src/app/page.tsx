@@ -27,8 +27,8 @@ const MATERIALS = [
 export default function Home() {
   return (
     <>
-      {/* Cinematic hero */}
-      <section className="relative flex min-h-[92svh] items-end overflow-hidden">
+      {/* Cinematic hero: the island floats over it, the image owns the screen */}
+      <section className="relative flex min-h-svh items-end overflow-hidden">
         <Image
           src={LUX.villaDusk}
           alt="A villa pool holding the last light of dusk"
@@ -90,11 +90,23 @@ export default function Home() {
                     sizes="(max-width: 640px) 100vw, 50vw"
                     className="img-glide object-cover"
                   />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(12,11,9,0) 42%, rgba(12,11,9,0.16) 62%, rgba(12,11,9,0.78) 100%)",
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-[rgba(12,11,9,0.22)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="absolute inset-x-0 bottom-0 p-7 sm:p-8">
+                    <p className="eyebrow">{e.place}</p>
+                    <p className="font-serif mt-2 text-[26px] leading-snug text-white">{e.line}</p>
+                    <div className="cap-reveal mt-3">
+                      <p className="max-w-xs text-[14px] leading-relaxed text-white/75">{e.materials}</p>
+                      <span className="link-hair mt-5 text-white">The materials behind it</span>
+                    </div>
+                  </div>
                 </div>
-                <p className="eyebrow mt-7">{e.place}</p>
-                <p className="font-serif mt-3 text-[26px] leading-snug">{e.line}</p>
-                <p className="mt-3 text-[14px] leading-relaxed text-mist">{e.materials}</p>
-                <span className="link-hair mt-6 text-dusk">The materials behind it</span>
               </Link>
             </Reveal>
           ))}

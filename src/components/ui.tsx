@@ -49,6 +49,9 @@ export function ProductCard({ item, collection }: { item: Product; collection?: 
         ) : item.colors ? (
           <TileSheet colors={item.colors} rows={8} cols={7} className="img-glide h-full w-full" />
         ) : null}
+        {item.slug && (
+          <span className="chip-glass cap-reveal absolute bottom-4 right-4">View the piece</span>
+        )}
       </div>
       {collection && <p className="eyebrow mt-6">{collection}</p>}
       <h3

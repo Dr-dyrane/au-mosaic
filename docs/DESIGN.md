@@ -66,7 +66,23 @@ not dashboard.
 `--ease-glide: cubic-bezier(0.22, 0.61, 0.36, 1)`
 Reveal on scroll: opacity 0 to 1, translateY 14px to 0, scale 0.985 to 1,
 via IntersectionObserver (components/Reveal.tsx). Hero image: 14s ken-burns
-scale 1.0 to 1.06, once. Hover: images scale 1.03 over 700ms. That is all.
+scale 1.0 to 1.06, once. Hover: images scale 1.03 over 700ms; captions and
+glass chips rise 10px into place (cap-reveal). Pages glide in on every
+navigation (app/template.tsx, page-enter, 500ms). All of it stands down
+under prefers-reduced-motion. That is all.
+
+## Navigation and floating surfaces
+
+Island nav: a fixed glass pill (rounded-full, sand at 75%, backdrop blur,
+hairline ring), centred, floating over the page. It condenses past 24px of
+scroll and opens its menu from the island on small screens. Heroes run
+full-bleed beneath it.
+Piece bar: on piece pages, a second glass island rises from the bottom
+once the hero action scrolls away, carrying the piece name and the one
+gold action. The Apple buy bar, the house way.
+Hover to reveal: environment captions live on the image; the materials
+line and its link surface on hover or focus, and are always present where
+hover does not exist (touch).
 
 ## Components
 

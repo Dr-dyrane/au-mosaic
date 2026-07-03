@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function PoolMaterialsPage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pt-20 sm:px-8 sm:pt-28">
+      <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
         <p className="eyebrow">{SITE.poolBrand} equipment · in stock</p>
         <h1 className="font-serif mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4rem)] leading-[1.06]">
           Everything a pool needs.
