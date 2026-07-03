@@ -17,7 +17,7 @@ export default function ColorsField({ initial }: { initial: string[] }) {
   const add = () => setColors((c) => [...c, "#1179a8"]);
 
   return (
-    <div>
+    <div data-tour="colours">
       <span className="eyebrow mb-2.5 block">Tile colours</span>
       <input type="hidden" name="colors" value={colors.join(", ")} />
       <div className="flex flex-wrap items-start gap-3">

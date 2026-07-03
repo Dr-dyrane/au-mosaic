@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
+import { getFacts } from "@/lib/facts";
 import { waGeneral } from "@/lib/wa";
 import { AuMark } from "./Mosaic";
 import PalettePicker from "./PalettePicker";
 
-export default function Footer() {
+export default async function Footer() {
+  /* Visit facts come from the book he edits; site.ts stands behind. */
+  const facts = await getFacts();
   return (
     <footer className="mt-32 px-2 pb-2 sm:px-6 sm:pb-4">
       <div className="mx-auto max-w-[1400px] rounded-[28px] bg-shell/70 sm:rounded-[40px]">
@@ -21,9 +24,9 @@ export default function Footer() {
 
         <div>
           <p className="eyebrow">Visit</p>
-          <p className="mt-5 text-[14px] leading-relaxed text-dusk">{SITE.location}</p>
-          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{SITE.hours}</p>
-          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{SITE.phoneDisplay}</p>
+          <p className="mt-5 text-[14px] leading-relaxed text-dusk">{facts.location}</p>
+          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{facts.hours}</p>
+          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{facts.phoneDisplay}</p>
           <a href={waGeneral()} target="_blank" rel="noopener" data-wa="footer" className="link-hair mt-6 text-dusk">
             WhatsApp the house
           </a>

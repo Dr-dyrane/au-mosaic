@@ -67,7 +67,7 @@ export default async function OrdersPage({
         List sits beside given. A discount is a number, not a feeling.
       </p>
       <div className="mt-8 flex flex-wrap items-center gap-6" data-tour="orders">
-        <Link href="/admin/orders/new" className="btn-gold">
+        <Link href="/admin/orders/new" className="btn-gold" data-tour="order-new">
           New order
         </Link>
         {/* No-JS search, the customers-room way: type a name, press
@@ -86,10 +86,13 @@ export default async function OrdersPage({
         <a href="/admin/export/orders.csv" className="link-hair text-dusk text-[13px]">
           CSV for the accountant
         </a>
+        <button data-tour-start="orders" className="link-hair text-dusk text-[13px]">
+          Learn this room
+        </button>
       </div>
 
       {/* Filter by step: links, so the URL remembers the view. */}
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap gap-2" data-tour="order-steps">
         <Link
           href={query ? `/admin/orders?q=${encodeURIComponent(query)}` : "/admin/orders"}
           className={`chip-solid ${!step ? "is-on" : ""}`}
@@ -122,6 +125,7 @@ export default async function OrdersPage({
                   <Link
                     key={order.id}
                     href={`/admin/orders/${order.id}`}
+                    data-tour="order-card"
                     className="panel group block transition-transform duration-300 active:scale-[0.99]"
                   >
                     <div className="flex items-center justify-between gap-4">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Visualizer from "@/components/Visualizer";
+import { getPieces } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Mosaic tile visualizer",
@@ -11,6 +12,7 @@ type Search = Promise<{ piece?: string }>;
 
 export default async function VisualizerPage({ searchParams }: { searchParams: Search }) {
   const { piece } = await searchParams;
+  const pieces = await getPieces();
   return (
     <>
       <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
@@ -22,7 +24,7 @@ export default async function VisualizerPage({ searchParams }: { searchParams: S
         </p>
       </section>
       <div className="py-14">
-        <Visualizer initialPiece={piece} />
+        <Visualizer initialPiece={piece} pieces={pieces} />
       </div>
     </>
   );

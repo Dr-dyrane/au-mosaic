@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession, hashStaffKey, whoAmI } from "@/lib/admin-auth";
@@ -40,7 +40,10 @@ export async function saveSettings(_prev: SaveState, form: FormData): Promise<Sa
   }
   await logAction("saved the house facts");
   revalidatePath("/admin/settings");
-  return { ok: true, message: "Saved. The site picks these up when it reads the book." };
+  /* The seam is flipped: the footer and the contact page read these. */
+  updateTag("facts");
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Saved. The site reads these now." };
 }
 
 /* Only the owner hands out keys. */

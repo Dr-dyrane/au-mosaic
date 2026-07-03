@@ -78,8 +78,9 @@ export default async function AdminHome() {
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">The database is not answering.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Check DATABASE_URL, then refresh. The public site is unaffected;
-            it does not read from here yet.
+            Check DATABASE_URL, then refresh. The shop window stands on
+            its built-in catalogue whenever the book is quiet, so
+            customers see nothing of this.
           </p>
         </div>
       )}
@@ -105,7 +106,7 @@ export default async function AdminHome() {
               <li><Link href="/admin/settings" className="link-hair text-dusk text-[13px]">Settings</Link></li>
               <li><Link href="/" className="link-hair text-dusk text-[13px]">The site</Link></li>
               <li>
-                <button data-tour-start className="link-hair text-dusk text-[13px]">
+                <button data-tour-start="menu" className="link-hair text-dusk text-[13px]">
                   Take the tour
                 </button>
               </li>

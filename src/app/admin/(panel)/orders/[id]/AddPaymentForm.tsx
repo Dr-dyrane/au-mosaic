@@ -23,7 +23,7 @@ export default function AddPaymentForm({ orderId }: { orderId: string }) {
   }, [state]);
 
   return (
-    <form ref={ref} onSubmit={keepValues(action)} className="panel mt-8 grid gap-6">
+    <form ref={ref} onSubmit={keepValues(action)} className="panel mt-8 grid gap-6" data-tour="payment">
       <p className="font-serif text-[20px]">Record a payment</p>
       <input type="hidden" name="orderId" value={orderId} />
       <div className="grid gap-6 sm:grid-cols-2">

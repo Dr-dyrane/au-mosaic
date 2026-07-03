@@ -32,10 +32,25 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const { order, customer } = row;
 
   const lines = await db
-    .select({ item: schema.orderItems, pieceName: schema.pieces.name })
+    .select({
+      item: schema.orderItems,
+      pieceName: schema.pieces.name,
+      pieceUnit: schema.pieces.unit,
+    })
     .from(schema.orderItems)
     .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.orderItems.pieceSlug))
     .where(eq(schema.orderItems.orderId, id));
+
+  /* What crossing the door would physically move: the piece lines,
+     named with quantity and unit, so the confirm can say the exact
+     movement before it runs. Free-text lines move nothing. */
+  const movements = lines
+    .filter((l) => l.item.pieceSlug && l.item.quantity > 0 && l.pieceName)
+    .map((l) => ({
+      name: l.pieceName as string,
+      qty: l.item.quantity,
+      unit: l.pieceUnit ?? "units",
+    }));
 
   const pays = await db
     .select()
@@ -98,10 +113,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <div className="max-w-3xl">
         <section className="panel mt-10">
           <p className="font-serif text-[20px]">Where it stands</p>
-          <StatusForm orderId={order.id} status={order.status} />
+          <StatusForm orderId={order.id} status={order.status} movements={movements} />
         </section>
 
-        <section className="mt-12">
+        <section className="mt-12" data-tour="order-lines">
           <p className="eyebrow">The lines</p>
           {lines.length === 0 && (
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">

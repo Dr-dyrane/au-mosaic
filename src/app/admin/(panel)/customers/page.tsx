@@ -92,7 +92,7 @@ export default async function CustomersPage({
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-4" data-tour="people">
-        <form action="/admin/customers" method="get" className="min-w-0 flex-1 basis-64">
+        <form action="/admin/customers" method="get" className="min-w-0 flex-1 basis-64" data-tour="people-search">
           <input
             type="search"
             name="q"
@@ -102,9 +102,12 @@ export default async function CustomersPage({
             className={field}
           />
         </form>
-        <Link href="/admin/customers/new" className="btn-gold shrink-0">
+        <Link href="/admin/customers/new" className="btn-gold shrink-0" data-tour="people-new">
           New customer
         </Link>
+        <button data-tour-start="people" className="link-hair text-dusk text-[13px]">
+          Learn this room
+        </button>
       </div>
 
       {/* Two ways to hold the list: as it grew, or as the alphabet
@@ -127,7 +130,7 @@ export default async function CustomersPage({
       {/* The site's WhatsApp taps land here until they are cleared.
           The chat itself lives in WhatsApp; this remembers it began. */}
       {fresh.length > 0 && (
-        <section className="panel mt-8 max-w-2xl">
+        <section className="panel mt-8 max-w-2xl" data-tour="fresh">
           <p className="font-serif text-[20px]">Fresh from the window</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">
             Site taps. Check the chat, then clear.

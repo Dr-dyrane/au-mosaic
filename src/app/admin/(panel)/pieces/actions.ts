@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
 import { eq, sql } from "drizzle-orm";
@@ -15,6 +15,15 @@ import { logAction } from "@/lib/audit";
    Every write signs the book's history. */
 
 export type SaveState = { ok: boolean; message: string } | null;
+
+/* The seam is flipped: the window reads the book. Any write the
+   site can see walks through here. updateTag over revalidateTag on
+   purpose: the owner who saves and then opens the window must read
+   his own write, not yesterday's cache. */
+function refreshWindow() {
+  updateTag("catalog");
+  revalidatePath("/", "layout");
+}
 
 function parseColors(raw: string): string[] {
   return raw
@@ -72,6 +81,7 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
   await logAction("put up a photograph", slug, which === "night" ? "the night slot" : "the day slot");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin/pieces");
+  refreshWindow();
   return { ok: true, message: "The photograph is in." };
 }
 
@@ -97,6 +107,7 @@ export async function removePhoto(_prev: SaveState, form: FormData): Promise<Sav
   await logAction("took down a photograph", slug, which === "night" ? "the night slot" : "the day slot");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin/pieces");
+  refreshWindow();
   return { ok: true, message: "Taken down. The file stays in the store." };
 }
 
@@ -143,6 +154,7 @@ export async function createPiece(_prev: SaveState, form: FormData): Promise<Sav
   await logAction("created the piece", name);
   revalidatePath("/admin/pieces");
   revalidatePath("/admin");
+  refreshWindow();
   redirect(`/admin/pieces/${slug}`);
 }
 
@@ -197,5 +209,6 @@ export async function savePiece(_prev: SaveState, form: FormData): Promise<SaveS
   revalidatePath("/admin/pieces");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin");
-  return { ok: true, message: "Saved." };
+  refreshWindow();
+  return { ok: true, message: "Saved. The window sees it too." };
 }

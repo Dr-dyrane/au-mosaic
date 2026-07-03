@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { PIECES } from "@/lib/products";
+import type { Piece } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { waProduct } from "@/lib/wa";
 
@@ -116,8 +116,9 @@ function readStore(): Record<string, unknown> {
   }
 }
 
-export default function Visualizer({ initialPiece }: { initialPiece?: string }) {
-  const pieces = PIECES;
+/* The pieces arrive from the page, which asked the catalog, which
+   asks the book: the visualizer lays what the stockroom publishes. */
+export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const [pieceSlug, setPieceSlug] = useState(() => {
     if (pieces.some((p) => p.slug === initialPiece)) return initialPiece as string;
     const saved = readStore().pieceSlug as string | undefined;

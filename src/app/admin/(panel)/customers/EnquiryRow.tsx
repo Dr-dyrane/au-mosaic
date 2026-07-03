@@ -75,6 +75,7 @@ export default function EnquiryRow({
                 setOpen(!open);
               }}
               aria-expanded={open}
+              data-tour="tie"
               className="link-hair text-mist text-[12px]"
             >
               Attach

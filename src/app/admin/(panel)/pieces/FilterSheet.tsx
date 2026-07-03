@@ -54,6 +54,7 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
         }}
         className={`chip-solid ${active > 0 ? "is-on" : ""}`}
         aria-expanded={open}
+        data-tour="stock-filter-open"
       >
         <IconFilter className="h-3.5 w-3.5" />
         Filter{active > 0 ? ` · ${active}` : ""}
@@ -65,12 +66,13 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
             onClick={close}
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
           />
-          <div className="glass absolute inset-x-0 bottom-0 rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+          <div className="glass absolute inset-x-0 bottom-0 rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))]" data-tour="stock-sheet">
             <div className="flex items-center justify-between px-2">
               <p className="eyebrow">Show</p>
               <button
                 onClick={close}
                 aria-label="Close filters"
+                data-tour="stock-sheet-close"
                 className="-mr-2 flex h-9 w-9 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
               >
                 <IconClose className="h-4 w-4" />

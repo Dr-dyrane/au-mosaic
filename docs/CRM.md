@@ -273,26 +273,28 @@ keepValues, icons components exist).
    NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, CRON_SECRET in
    Vercel; npm run db:push covers migrations 0003 through 0005.
 
-8. Tour v2, THE DEEP GUIDE (Dyrane reviewed v1: "too superficial, it
-   needs to be very deep, especially in inventory and stock CRUD").
-   Rebuild the tour as CHAPTERS, still zero dependencies: (a) "The
-   basics" keeps the current seven cross-room steps. (b) Deep chapters
-   per room, launchable from a chapters menu under Take the tour and
-   from each room's own header: "The stockroom, deeply" is the
-   flagship chapter and must cover, step by step, families, filter
-   chips and hue dots, the bottom sheet on the phone, sorts, Running
-   low and Off the site states, the drafts count, then WALK INTO the
-   flows: New piece (each field named), then a piece record (photo
-   slots night and day, the words, colours add and remove, unit,
-   sheets in stock, warn me at, container lands, the window switch,
-   the sticky Save). Orders and People get their own deep chapters
-   after. (c) Two step kinds: "point" (Next advances) and "do" (the
-   card says tap this, and the tour advances only when the real
-   element is tapped, capture-phase listener on the target); deep
-   chapters use "do" steps for the CRUD walks so hands learn, not
-   eyes. (d) Per-chapter toured flags (aumosaic.toured.<chapter>);
-   tour_step events carry chapter and step. (e) House voice, one
-   sentence per card, Escape always leaves politely.
+8. DONE 2026-07-03, built as specced. Tour.tsx is chapters now, zero
+   dependencies. The basics keeps the seven cross-room steps. The
+   stockroom deeply walks 28: families, desk filters with hue dots
+   and sorts, the phone sheet opened and closed by the owner's own
+   thumb (steps carry when: phone or desk, filtered at start), drafts
+   count, card truths, then the walks: New piece field by field,
+   Back, into a piece record for photos, words, colours, unit, stock,
+   warn me at, container lands, the window switch, the sticky Save.
+   Orders deeply (8 steps, ends on Move the step), People deeply (5,
+   ends on the attach). Point steps advance on gold Next; do steps
+   open a real window in the blocker (four panels, not one) and a
+   capture-phase listener on the target advances only on the true
+   tap; the card says Your turn. optional steps skip kindly when
+   their data never paints; optional gateways end kindly. Chapters
+   menu opens from Take the tour (data-tour-start="menu"); stockroom,
+   orders, and people each carry Learn this room. Finishing writes
+   aumosaic.toured.<chapter> plus the legacy key that retires the
+   offer; tour_start, tour_step, tour_done, tour_skip all carry the
+   chapter. COLLISION NOTE: the glance page.tsx was left uncommitted
+   with this item (the seam-flip session held it mid-flight); its
+   data-tour-start="menu" value rides in that file, and the bare
+   attribute already opens the menu meanwhile.
 9. Consequence confirmations (Dyrane asked; the no-deletes law covers
    permanence but not physical consequence): any action that MOVES
    STOCK or money gets one confirm sentence before it runs. First:

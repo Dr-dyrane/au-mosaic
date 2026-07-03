@@ -81,24 +81,27 @@ export default async function PiecesPage({
     <main>
       <p className="eyebrow">Inventory</p>
       <h1 className="font-serif text-display-section mt-3">The book.</h1>
-      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
+      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk" data-tour="drafts">
         Everything you stock. The window shows only what you choose.
         {rows.filter((r) => !r.piece.published).length > 0 &&
           ` ${rows.filter((r) => !r.piece.published).length} waiting off the site.`}
       </p>
       <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
-        <Link href="/admin/pieces/new" className="btn-gold">
+        <Link href="/admin/pieces/new" className="btn-gold" data-tour="new-piece">
           New piece
         </Link>
         <Link href="/admin/ranges" className="link-hair text-dusk text-[13px]">
           The ranges
         </Link>
         <FilterSheet current={filters} />
+        <button data-tour-start="stockroom" className="link-hair text-dusk text-[13px]">
+          Learn this room
+        </button>
       </div>
 
       {/* The desk sees its filters laid out; the phone keeps them in
           the sheet. Links, so the URL remembers. */}
-      <div className="mt-6 hidden flex-wrap items-center gap-2 sm:flex">
+      <div className="mt-6 hidden flex-wrap items-center gap-2 sm:flex" data-tour="stock-filters">
         <Link href={makeStockHref(filters, { family: undefined })} className={`chip-solid ${!filters.family ? "is-on" : ""}`}>
           All
         </Link>
@@ -112,26 +115,30 @@ export default async function PiecesPage({
           Running low
         </Link>
         <span aria-hidden className="mx-1.5" />
-        {HUES.map((h) => (
-          <Link
-            key={h.key}
-            href={makeStockHref(filters, { hue: filters.hue === h.key ? undefined : h.key })}
-            aria-label={`${h.label} only`}
-            className={`chip-solid ${filters.hue === h.key ? "is-on" : ""}`}
-          >
-            <span className="h-3.5 w-3.5 rounded-full" style={{ background: h.dot }} />
-          </Link>
-        ))}
+        <span className="flex flex-wrap items-center gap-2" data-tour="stock-hues">
+          {HUES.map((h) => (
+            <Link
+              key={h.key}
+              href={makeStockHref(filters, { hue: filters.hue === h.key ? undefined : h.key })}
+              aria-label={`${h.label} only`}
+              className={`chip-solid ${filters.hue === h.key ? "is-on" : ""}`}
+            >
+              <span className="h-3.5 w-3.5 rounded-full" style={{ background: h.dot }} />
+            </Link>
+          ))}
+        </span>
         <span aria-hidden className="mx-1.5" />
-        {SORTS.map((s) => (
-          <Link
-            key={s.label}
-            href={makeStockHref(filters, { sort: s.key })}
-            className={`chip-solid ${sort === s.key ? "is-on" : ""}`}
-          >
-            {s.label}
-          </Link>
-        ))}
+        <span className="flex flex-wrap items-center gap-2" data-tour="stock-sorts">
+          {SORTS.map((s) => (
+            <Link
+              key={s.label}
+              href={makeStockHref(filters, { sort: s.key })}
+              className={`chip-solid ${sort === s.key ? "is-on" : ""}`}
+            >
+              {s.label}
+            </Link>
+          ))}
+        </span>
       </div>
 
       {[
@@ -148,7 +155,7 @@ export default async function PiecesPage({
         if (tierItems.length === 0) return null;
         return (
           <section key={tier.family} className="mt-14">
-            <h2 className="font-serif text-[26px]">{tier.title}</h2>
+            <h2 className="font-serif text-[26px]" data-tour="families">{tier.title}</h2>
             {tierRanges.map((r) => {
               const items = arrange(
                 tierItems.filter((row) => row.piece.rangeSlug === r.slug)
@@ -165,6 +172,7 @@ export default async function PiecesPage({
                         <Link
                           key={piece.slug}
                           href={`/admin/pieces/${piece.slug}`}
+                          data-tour="piece-card"
                           className="panel group block transition-transform duration-300 active:scale-[0.99]"
                         >
                           <div className="flex items-center justify-between gap-4">

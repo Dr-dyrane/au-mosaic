@@ -29,7 +29,7 @@ export default function AddLineForm({ orderId, pieces }: Props) {
   }, [state]);
 
   return (
-    <form ref={ref} onSubmit={keepValues(action)} className="panel mt-8 grid gap-6">
+    <form ref={ref} onSubmit={keepValues(action)} className="panel mt-8 grid gap-6" data-tour="add-line">
       <p className="font-serif text-[20px]">Add a line</p>
       <input type="hidden" name="orderId" value={orderId} />
       <div className="grid gap-6 sm:grid-cols-2">

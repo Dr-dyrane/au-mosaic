@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE } from "@/lib/site";
+import { getFacts } from "@/lib/facts";
 import { DAY, OWN } from "@/lib/images";
 import { waGeneral, waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
@@ -9,7 +9,9 @@ export const metadata: Metadata = {
   description: "Visit the showroom at Agric Market, Lagos, or chat with AU Mosaic on WhatsApp.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  /* The showroom facts read the book he edits, site.ts behind it. */
+  const facts = await getFacts();
   return (
     <>
       <PageHero
@@ -26,12 +28,12 @@ export default function ContactPage() {
         <div className="grid gap-5 md:grid-cols-3">
           <div className="panel">
             <p className="eyebrow">Where</p>
-            <p className="font-serif mt-3 text-[20px]">{SITE.location}</p>
+            <p className="font-serif mt-3 text-[20px]">{facts.location}</p>
             <p className="mt-1.5 text-[14px] text-dusk">Ask any trader for AU Mosaic.</p>
           </div>
           <div className="panel">
             <p className="eyebrow">When</p>
-            <p className="font-serif mt-3 text-[20px]">{SITE.hours}</p>
+            <p className="font-serif mt-3 text-[20px]">{facts.hours}</p>
             <p className="mt-1.5 text-[14px] text-dusk">Sundays, we rest.</p>
           </div>
           <div className="panel">

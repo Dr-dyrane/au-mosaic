@@ -18,11 +18,11 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
   const [state, action, pending] = useActionState<SaveState, FormData>(createPiece, null);
   return (
     <form onSubmit={keepValues(action)} className="panel mt-10 grid max-w-xl gap-6">
-      <div>
+      <div data-tour="np-name">
         <label htmlFor="name" className={label}>Name</label>
         <input id="name" name="name" required aria-label="Piece name" placeholder="Emerald pool blend" className={field} />
       </div>
-      <div>
+      <div data-tour="np-shelf">
         <label htmlFor="rangeSlug" className={label}>Its shelf</label>
         <select id="rangeSlug" name="rangeSlug" required aria-label="Range" className={field} defaultValue="">
           <option value="" disabled>
@@ -35,12 +35,12 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
           ))}
         </select>
       </div>
-      <div>
+      <div data-tour="np-line">
         <label htmlFor="line" className={label}>One line under the name</label>
         <input id="line" name="line" aria-label="Piece line" className={field} />
       </div>
       <ColorsField initial={[]} />
-      <label className="flex cursor-pointer items-center justify-between">
+      <label className="flex cursor-pointer items-center justify-between" data-tour="np-window">
         <span>
           <span className="block text-[15px] font-medium">Put it in the window now</span>
           <span className="mt-1 block text-[13px] text-dusk">
@@ -50,7 +50,7 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
         <input type="checkbox" name="published" className="h-6 w-6 accent-[#c2a15c]" />
       </label>
       <div className="flex items-center gap-6">
-        <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
+        <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60" data-tour="np-create">
           {pending ? "Creating..." : "Create the piece"}
         </button>
         <Sentence state={state} />

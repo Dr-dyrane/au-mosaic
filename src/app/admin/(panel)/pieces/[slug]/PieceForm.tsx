@@ -77,7 +77,7 @@ export default function PieceForm({ piece, stock }: Props) {
     <form onSubmit={keepValues(action)} onChange={markDirty} className="mt-10 grid max-w-3xl gap-8">
       <input type="hidden" name="slug" value={piece.slug} />
 
-      <div className="panel grid gap-6">
+      <div className="panel grid gap-6" data-tour="words">
         <p className="font-serif text-[20px]">The words</p>
         <div>
           <label htmlFor="name" className={label}>Name</label>
@@ -100,7 +100,7 @@ export default function PieceForm({ piece, stock }: Props) {
       <div className="panel grid gap-6">
         <p className="font-serif text-[20px]">The look</p>
         <ColorsField initial={piece.colors ?? []} />
-        <label className="flex cursor-pointer items-center justify-between">
+        <label className="flex cursor-pointer items-center justify-between" data-tour="window">
           <span>
             <span className="block text-[15px] font-medium">Show on the site</span>
             <span className="mt-1 block text-[13px] text-dusk">
@@ -114,19 +114,19 @@ export default function PieceForm({ piece, stock }: Props) {
       <div className="panel grid gap-6">
         <p className="font-serif text-[20px]">The stockroom</p>
         <div className="grid gap-6 sm:grid-cols-2">
-          <div>
+          <div data-tour="stock-count">
             <label htmlFor="quantitySheets" className={label}>In stock</label>
             <input id="quantitySheets" name="quantitySheets" type="number" min={0} inputMode="numeric" defaultValue={stock.quantitySheets} className={field} />
           </div>
-          <div>
+          <div data-tour="unit">
             <label htmlFor="unit" className={label}>Counted in</label>
             <input id="unit" name="unit" defaultValue={piece.unit} placeholder="sheets, bags, units" className={field} />
           </div>
-          <div>
+          <div data-tour="warn-at">
             <label htmlFor="reorderAt" className={label}>Warn me at</label>
             <input id="reorderAt" name="reorderAt" type="number" min={0} inputMode="numeric" defaultValue={stock.reorderAt} className={field} />
           </div>
-          <div>
+          <div data-tour="container">
             <label htmlFor="containerEta" className={label}>Container lands</label>
             <input id="containerEta" name="containerEta" type="date" defaultValue={stock.containerEta ?? ""} className={field} />
           </div>
@@ -135,7 +135,7 @@ export default function PieceForm({ piece, stock }: Props) {
 
       {/* The Save lives under the thumb on a long page: a glass bar
           that rides above the tab bar until the desk takes over. */}
-      <div className="glass sticky bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 -mx-2 flex items-center gap-6 rounded-full px-4 py-3 sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-filter-none">
+      <div className="glass sticky bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 -mx-2 flex items-center gap-6 rounded-full px-4 py-3 sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-filter-none" data-tour="save">
         <button type="submit" disabled={pending} onClick={() => buzz(5)} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the piece"}
         </button>

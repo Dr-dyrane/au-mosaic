@@ -1,32 +1,152 @@
 "use client";
 
-import { useActionState, useOptimistic } from "react";
+import { startTransition, useActionState, useEffect, useOptimistic, useRef, useState } from "react";
 import { setStatus, type SaveState } from "../actions";
 import { PIPELINE, STATUS_LABEL, type OrderStatus as Step } from "../pipeline";
 import Sentence from "../../Sentence";
-import { keepValues } from "../../keep";
 import { buzz } from "@/lib/backoffice";
 
 /* The one lever on the record: where the order stands. Optimistic on
    purpose: the chip moves the instant he saves, the server confirms
    behind it, and on failure the chip walks back with a sentence. The
    save whispers in link-hair; the gold on this page belongs to the
-   lines, where the money is. */
+   lines, where the money is.
+
+   One exception earns a pause. Crossing the door, into Delivered or
+   Settled or back out of them, physically moves stock, so the house
+   asks first with the exact movement named, every line, quantity and
+   unit. Gold proceeds, Not yet stays, and the chip does not move
+   until he says yes. Confirms are for consequence, never ceremony:
+   steps that move nothing still move in one tap. */
 
 const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
-export default function StatusForm({ orderId, status }: { orderId: string; status: Step }) {
-  const [state, action, pending] = useActionState<SaveState, FormData>(setStatus, null);
-  const [shown, showNow] = useOptimistic<Step, Step>(status, (_current, next) => next);
+type Movement = { name: string; qty: number; unit: string };
 
-  const submit = keepValues((form) => {
-    showNow(form.get("status") as Step);
-    action(form);
-  });
+const OUT: readonly Step[] = ["delivered", "settled"];
+
+function Consequence({
+  next,
+  taking,
+  movements,
+  onGo,
+  onStay,
+}: {
+  next: Step;
+  taking: boolean;
+  movements: Movement[];
+  onGo: () => void;
+  onStay: () => void;
+}) {
+  const card = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    card.current?.focus({ preventScroll: true });
+  }, []);
+
+  /* Escape stays, the same politeness as everywhere else. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onStay();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onStay]);
+
+  const question =
+    next === "settled" ? "Settle it?" : next === "delivered" ? "Deliver it?" : "Move it back?";
+  const verb =
+    next === "settled" ? "Settle it" : next === "delivered" ? "Deliver it" : "Move it back";
+  const one = movements.length === 1 ? movements[0] : null;
+  const sentence = one
+    ? taking
+      ? `This takes ${one.qty} ${one.unit} of ${one.name} off the shelf. ${question}`
+      : `This returns ${one.qty} ${one.unit} of ${one.name} to the shelf. ${question}`
+    : taking
+      ? "This takes off the shelf:"
+      : "This returns to the shelf:";
 
   return (
-    <div>
+    <div className="fixed inset-0 z-[70]">
+      <button
+        aria-label="Stay"
+        onClick={onStay}
+        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+      />
+      <div
+        ref={card}
+        tabIndex={-1}
+        role="alertdialog"
+        aria-modal="true"
+        aria-label="Before it moves"
+        className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] rounded-[28px] p-6 outline-none sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[24rem] sm:-translate-x-1/2 sm:-translate-y-1/2"
+      >
+        <p className="font-serif text-[20px]">Before it moves.</p>
+        <p className="mt-2 text-[14px] leading-relaxed text-dusk">{sentence}</p>
+        {!one && (
+          <>
+            <ul className="mt-3 grid gap-1.5">
+              {movements.map((m, d) => (
+                <li key={d} className="text-[14px] text-ink">
+                  {m.qty} {m.unit} of {m.name}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-[14px] text-dusk">{question}</p>
+          </>
+        )}
+        <div className="mt-5 flex items-center gap-6">
+          <button onClick={onGo} className="btn-gold">
+            {verb}
+          </button>
+          <button onClick={onStay} className="link-hair text-dusk text-[13px]">
+            Not yet
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function StatusForm({
+  orderId,
+  status,
+  movements,
+}: {
+  orderId: string;
+  status: Step;
+  movements: Movement[];
+}) {
+  const [state, action, pending] = useActionState<SaveState, FormData>(setStatus, null);
+  const [shown, showNow] = useOptimistic<Step, Step>(status, (_current, next) => next);
+  const [ask, setAsk] = useState<{ next: Step; form: FormData } | null>(null);
+
+  /* The optimistic move happens only here, after any question has
+     been answered; submitting through a transition keeps the typed
+     values if the server says no. */
+  const run = (form: FormData) => {
+    startTransition(() => {
+      showNow(form.get("status") as Step);
+      action(form);
+    });
+  };
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const next = form.get("status") as Step;
+    const crosses = OUT.includes(next) !== OUT.includes(status);
+    if (crosses && movements.length > 0) {
+      buzz(3);
+      setAsk({ next, form });
+      return;
+    }
+    run(form);
+  };
+
+  return (
+    <div data-tour="order-status">
       {/* The pipeline: the chip under his thumb moves immediately. */}
       <div className="mt-5 flex flex-wrap gap-2">
         {PIPELINE.map((step) => (
@@ -67,6 +187,20 @@ export default function StatusForm({ orderId, status }: { orderId: string; statu
           <Sentence state={state} />
         </div>
       </form>
+      {ask && (
+        <Consequence
+          next={ask.next}
+          taking={OUT.includes(ask.next)}
+          movements={movements}
+          onGo={() => {
+            const form = ask.form;
+            setAsk(null);
+            buzz(6);
+            run(form);
+          }}
+          onStay={() => setAsk(null)}
+        />
+      )}
     </div>
   );
 }

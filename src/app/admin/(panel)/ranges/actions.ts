@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
@@ -54,6 +54,8 @@ export async function createRange(_prev: SaveState, form: FormData): Promise<Sav
   await logAction("created the range", name);
   revalidatePath("/admin/ranges");
   revalidatePath("/admin/pieces");
+  updateTag("catalog");
+  revalidatePath("/", "layout");
   redirect(`/admin/ranges/${slug}`);
 }
 
@@ -81,5 +83,7 @@ export async function saveRange(_prev: SaveState, form: FormData): Promise<SaveS
   revalidatePath("/admin/ranges");
   revalidatePath(`/admin/ranges/${slug}`);
   revalidatePath("/admin/pieces");
-  return { ok: true, message: "Saved." };
+  updateTag("catalog");
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Saved. The window sees it too." };
 }
