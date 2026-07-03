@@ -26,7 +26,13 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
       <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
         {piece.slug} · lives at /piece/{piece.slug}
       </p>
-      <PhotoPanel slug={piece.slug} imageNight={piece.imageNight} imageDay={piece.imageDay} />
+      <PhotoPanel
+        slug={piece.slug}
+        name={piece.name}
+        line={piece.line}
+        imageNight={piece.imageNight}
+        imageDay={piece.imageDay}
+      />
       <PieceForm
         piece={{
           slug: piece.slug,
