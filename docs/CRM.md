@@ -273,6 +273,38 @@ keepValues, icons components exist).
    NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, CRON_SECRET in
    Vercel; npm run db:push covers migrations 0003 through 0005.
 
+8. Tour v2, THE DEEP GUIDE (Dyrane reviewed v1: "too superficial, it
+   needs to be very deep, especially in inventory and stock CRUD").
+   Rebuild the tour as CHAPTERS, still zero dependencies: (a) "The
+   basics" keeps the current seven cross-room steps. (b) Deep chapters
+   per room, launchable from a chapters menu under Take the tour and
+   from each room's own header: "The stockroom, deeply" is the
+   flagship chapter and must cover, step by step, families, filter
+   chips and hue dots, the bottom sheet on the phone, sorts, Running
+   low and Off the site states, the drafts count, then WALK INTO the
+   flows: New piece (each field named), then a piece record (photo
+   slots night and day, the words, colours add and remove, unit,
+   sheets in stock, warn me at, container lands, the window switch,
+   the sticky Save). Orders and People get their own deep chapters
+   after. (c) Two step kinds: "point" (Next advances) and "do" (the
+   card says tap this, and the tour advances only when the real
+   element is tapped, capture-phase listener on the target); deep
+   chapters use "do" steps for the CRUD walks so hands learn, not
+   eyes. (d) Per-chapter toured flags (aumosaic.toured.<chapter>);
+   tour_step events carry chapter and step. (e) House voice, one
+   sentence per card, Escape always leaves politely.
+9. Consequence confirmations (Dyrane asked; the no-deletes law covers
+   permanence but not physical consequence): any action that MOVES
+   STOCK or money gets one confirm sentence before it runs. First:
+   moving an order to delivered confirms with the exact movement
+   ("This takes 20 sheets of Classic pool blues off the shelf.
+   Deliver it?"), listing each affected line, gold to proceed,
+   link-hair to stay. Same pattern reserved for future stock edits
+   larger than a threshold. Reversible-by-design stays the rule
+   elsewhere; confirms are for consequence, never ceremony. Add a
+   "Consequence and confirmation" section to SAAS-QA with honest
+   verdicts.
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number
