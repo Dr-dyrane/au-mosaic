@@ -64,7 +64,7 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     blurb: "Large quantity? We order directly from our factory in Foshan, China, at factory prices.",
     items: [
       { slug: "container-project-orders", name: "Container and project orders", note: "For contractors, resellers, estates", image: OWN.containerOrders, imageLight: DAY.containerOrders, colors: ["#155e75", "#0e7490", "#1a94ad", "#4c6270", "#8aa0ab"] },
-      { slug: "custom-colours-sizes", name: "Custom colours and sizes", note: "Made to order", colors: ["#38cfe0", "#c05f2b", "#f1c40f", "#27ae60", "#8e44ad", "#f5f1e8"] },
+      { slug: "custom-colours-sizes", name: "Custom colours and sizes", note: "Made to order", image: OWN.customColours, imageLight: DAY.customColours, colors: ["#38cfe0", "#c05f2b", "#f1c40f", "#27ae60", "#8e44ad", "#f5f1e8"] },
     ],
   },
 ];

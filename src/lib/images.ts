@@ -23,6 +23,7 @@ export const OWN = {
   gradientBlends: "/media/gradient-night.jpg",
   goldAccents: "/media/gold-night.jpg",
   containerOrders: "/media/container-night.jpg",
+  customColours: "/media/custom-night.jpg",
 };
 
 /* Daylight variants: the same scenes relit for light mode. Filled one
@@ -43,6 +44,7 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   gradientBlends: "/media/gradient-day.jpg",
   goldAccents: "/media/gold-day.jpg",
   containerOrders: "/media/container-day.jpg",
+  customColours: "/media/custom-day.jpg",
 };
 
 /* Film slot: dormant. The 720p loop softened the one surface that must be

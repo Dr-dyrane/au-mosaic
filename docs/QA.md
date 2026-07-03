@@ -196,6 +196,18 @@ theme color, and the pre-paint script all flipped together; a saved
 night preference still wins before paint. The logo request is parked
 until a logo asset exists.
 
+## The collection, photo complete · both suns
+
+Six remaining tile-sheet pieces became photography in one batch, each
+eye-gated as a night and day pair: aqua blends (lamp-lit evening and
+midday caustics), midnight blends (readable dark, warm in the
+depths), the gradient wall (dusk made of tiles), gold accents (the
+vault of the house), container orders (the night before the container
+ships), and custom colours (the artisan's table). Every one of the
+eleven catalogue pieces now carries owned photography in both themes.
+The gate caught one filename mix-up along the way: files named gold
+were the gradient wall; the eye wires, not the label.
+
 ## Daylight pairs (the theme follows the sun) · COMPLETE
 
 Every night frame has its daylight twin, every twin eye-gated for
