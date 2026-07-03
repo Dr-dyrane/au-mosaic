@@ -1,19 +1,19 @@
 import Link from "next/link";
-import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { getMosaicRanges } from "@/lib/catalog";
-import { ENVIRONMENTS, OWN } from "@/lib/images";
+import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
+import ThemeImage from "@/components/ThemeImage";
 import { ProductCard } from "@/components/ui";
 
 /* The Mosaic Maison. Story first, products second. One loud thing per
    screen; everything else whispers. */
 
 const MATERIALS = [
-  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues },
-  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.glassJewels },
-  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.koiMural },
+  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues, srcDay: DAY.poolBlues },
+  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.glassJewels, srcDay: DAY.glassJewels },
+  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.koiMural, srcDay: DAY.koiMural },
 ];
 
 export default async function Home() {
@@ -29,8 +29,9 @@ export default async function Home() {
     <>
       {/* Cinematic hero: the island floats over it, the image owns the screen */}
       <section className="relative flex min-h-svh items-end overflow-hidden">
-        <Image
-          src={OWN.heroDusk}
+        <ThemeImage
+          dark={OWN.heroDusk}
+          light={DAY.heroDusk}
           alt="A villa at dusk over an infinity pool of aquamarine mosaic"
           fill
           priority
@@ -84,8 +85,9 @@ export default async function Home() {
             <Reveal key={e.place} delay={(i % 2) * 90} className={i % 2 === 1 ? "sm:mt-24" : ""}>
               <Link href={e.href} className="group block">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px]">
-                  <Image
-                    src={e.src}
+                  <ThemeImage
+                    dark={e.src}
+                    light={e.srcDay}
                     alt={e.place}
                     fill
                     quality={90}
@@ -130,7 +132,7 @@ export default async function Home() {
                 <Reveal key={m.title} delay={i * 90}>
                   <Link href={m.href} className="group block">
                     <div className="relative aspect-square overflow-hidden rounded-none sm:rounded-[22px]">
-                      <Image src={m.src} alt={m.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="img-glide media-lux object-cover" />
+                      <ThemeImage dark={m.src} light={m.srcDay} alt={m.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="img-glide media-lux object-cover" />
                     </div>
                     <div className="px-5 sm:px-0">
                       <h3 className="font-serif mt-6 text-[20px] transition-colors duration-300 group-hover:text-gold">{m.title}</h3>
@@ -146,8 +148,9 @@ export default async function Home() {
 
       {/* Lifestyle: one full-bleed breath */}
       <section className="relative flex min-h-[70svh] items-center overflow-hidden">
-        <Image
-          src={OWN.villaPalms}
+        <ThemeImage
+          dark={OWN.villaPalms}
+          light={DAY.villaPalms}
           alt="A stone villa and palms mirrored in still mosaic water"
           fill
           quality={90}
@@ -195,7 +198,7 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl gap-16 px-5 py-28 sm:grid sm:grid-cols-2 sm:px-8 sm:py-36">
           <Reveal className="-mx-5 sm:mx-0">
             <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px]">
-              <Image src={OWN.craftHands} alt="Gloved hands pressing blue mosaic into fresh adhesive" fill quality={90} sizes="(max-width: 640px) 100vw, 50vw" className="media-lux object-cover" />
+              <ThemeImage dark={OWN.craftHands} light={DAY.craftHands} alt="Gloved hands pressing blue mosaic into fresh adhesive" fill quality={90} sizes="(max-width: 640px) 100vw, 50vw" className="media-lux object-cover" />
             </div>
           </Reveal>
           <Reveal delay={120}>

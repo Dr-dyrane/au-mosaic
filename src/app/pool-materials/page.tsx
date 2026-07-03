@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getPoolMaterials } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
-import { OWN } from "@/lib/images";
+import { DAY, OWN } from "@/lib/images";
 import { waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, ProductGroupBlock, Section } from "@/components/ui";
 
@@ -20,6 +20,7 @@ export default async function PoolMaterialsPage() {
         title="Everything a pool needs."
         sub="From the pump to the waterfall. Any item, photos and today's price on WhatsApp."
         image={OWN.privatePool}
+        imageLight={DAY.privatePool}
         alt="A chrome ladder entering clear water over aqua mosaic"
         cta={{ href: waQuote(), label: "Send us your materials list" }}
       />

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getMosaicRanges } from "@/lib/catalog";
-import { OWN } from "@/lib/images";
+import { DAY, OWN } from "@/lib/images";
 import { waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, ProductGroupBlock, Section } from "@/components/ui";
 
@@ -19,6 +19,7 @@ export default async function MosaicTilesPage() {
         title="Every colour you can name."
         sub="Tell us the look. Real photos and videos from stock follow the same day, on WhatsApp."
         image={OWN.borders}
+        imageLight={DAY.borders}
         alt="A patterned mosaic waterline band above still pool water"
         cta={{ href: waQuote(), label: "Ask for samples" }}
       />

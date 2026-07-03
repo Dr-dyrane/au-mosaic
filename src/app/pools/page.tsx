@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { POOL_SERVICES } from "@/lib/products";
-import { OWN } from "@/lib/images";
+import { DAY, OWN } from "@/lib/images";
 import { waPool } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
@@ -25,6 +25,7 @@ export default function PoolsPage() {
         title="From first sketch to first swim."
         sub="The tiles, the materials, and the pool itself. One house, one responsibility."
         image={OWN.terrace}
+        imageLight={DAY.terrace}
         alt="An infinity pool edge meeting the sea at golden hour"
         cta={{ href: waPool(), label: "Talk pools on WhatsApp" }}
       />

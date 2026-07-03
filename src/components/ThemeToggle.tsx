@@ -1,25 +1,21 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { subscribeTheme, getIsLight, notifyTheme } from "@/lib/theme-store";
 
 /* Dark is the house default; light is one tap away. Persisted, no flash
-   (see the inline script in layout.tsx). */
-let listeners: Array<() => void> = [];
-const subscribe = (fn: () => void) => {
-  listeners.push(fn);
-  return () => { listeners = listeners.filter((l) => l !== fn); };
-};
-const getLight = () => typeof document !== "undefined" && document.documentElement.dataset.theme === "light";
+   (see the inline script in layout.tsx). Flipping notifies every
+   ThemeImage, so the whole maison changes time of day together. */
 
 export default function ThemeToggle() {
-  const light = useSyncExternalStore(subscribe, getLight, () => false);
+  const light = useSyncExternalStore(subscribeTheme, getIsLight, () => false);
 
   const flip = () => {
     const next = !light;
     if (next) document.documentElement.dataset.theme = "light";
     else delete document.documentElement.dataset.theme;
     try { localStorage.setItem("aumosaic.theme", next ? "light" : "dark"); } catch {}
-    listeners.forEach((l) => l());
+    notifyTheme();
   };
 
   return (

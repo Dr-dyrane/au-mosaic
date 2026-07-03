@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { waProduct } from "@/lib/wa";
 import type { Product, ProductGroup } from "@/lib/products";
 import { TileSheet } from "./Mosaic";
 import Reveal from "./Reveal";
+import ThemeImage from "./ThemeImage";
 
 /* Editorial building blocks. Photography, whitespace, and lucent surfaces
    structure everything. No borders, no lines, one loud thing per screen.
@@ -46,6 +46,7 @@ export function PageHero({
   title,
   sub,
   image,
+  imageLight,
   alt,
   cta,
 }: {
@@ -53,12 +54,13 @@ export function PageHero({
   title: string;
   sub?: string;
   image: string;
+  imageLight?: string;
   alt: string;
   cta?: { href: string; label: string };
 }) {
   return (
     <section className="relative flex min-h-[58svh] items-end overflow-hidden">
-      <Image src={image} alt={alt} fill priority quality={90} sizes="100vw" className="kenburns media-lux object-cover" />
+      <ThemeImage dark={image} light={imageLight} alt={alt} fill priority quality={90} sizes="100vw" className="kenburns media-lux object-cover" />
       <div
         className="absolute inset-0"
         style={{
@@ -92,8 +94,9 @@ export function ProductCard({ item, collection }: { item: Product; collection?: 
     <>
       <div className="relative aspect-[4/5] overflow-hidden rounded-none bg-shell sm:rounded-[22px]">
         {item.image ? (
-          <Image
-            src={item.image}
+          <ThemeImage
+            dark={item.image}
+            light={item.imageLight}
             alt={item.name}
             fill
             sizes="(max-width: 640px) 100vw, 33vw"

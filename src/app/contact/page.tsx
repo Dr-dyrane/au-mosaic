@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
-import { OWN } from "@/lib/images";
+import { DAY, OWN } from "@/lib/images";
 import { waGeneral, waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
@@ -17,6 +17,7 @@ export default function ContactPage() {
         title="Come see the stock. Or just message."
         sub="Most of the house's business happens on WhatsApp: photos, prices, delivery. Start there."
         image={OWN.hammam}
+        imageLight={DAY.hammam}
         alt="Warm mosaic hammam under a single shaft of light"
         cta={{ href: waGeneral(), label: "Chat on WhatsApp" }}
       />

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPiece, getPieces } from "@/lib/catalog";
 import { ENVIRONMENTS } from "@/lib/images";
+import ThemeImage from "@/components/ThemeImage";
 import { waProduct } from "@/lib/wa";
 import { TileSheet } from "@/components/Mosaic";
 import { CtaRow } from "@/components/ui";
@@ -43,8 +43,9 @@ export default async function PiecePage({ params }: { params: Params }) {
         <TiltFrame className="absolute inset-0">
           <div className="absolute inset-0">
             {piece.image ? (
-              <Image
-                src={piece.image}
+              <ThemeImage
+                dark={piece.image}
+                light={piece.imageLight}
                 alt={piece.name}
                 fill
                 priority
@@ -91,7 +92,7 @@ export default async function PiecePage({ params }: { params: Params }) {
 
       {/* The piece in its room */}
       <section className="relative flex min-h-[62svh] items-end overflow-hidden">
-        <Image src={scene.src} alt={scene.place} fill quality={90} sizes="100vw" className="parallax-y media-lux object-cover" />
+        <ThemeImage dark={scene.src} light={scene.srcDay} alt={scene.place} fill quality={90} sizes="100vw" className="parallax-y media-lux object-cover" />
         <div
           className="absolute inset-0"
           style={{

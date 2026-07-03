@@ -1,4 +1,4 @@
-import { OWN } from "./images";
+import { DAY, OWN } from "./images";
 
 /* AU Mosaic · catalogue data. The pool materials list is the owner's own
    stock list, word for word where possible. Prices are quote-per-job, so
@@ -10,8 +10,10 @@ export type Product = {
   variants?: string[];
   /** Colourway rendered as a glass tile sheet on product cards. */
   colors?: string[];
-  /** Real photo (Pexels now, Nonso's own at launch). Wins over colors. */
+  /** Owned photo. Wins over colors. */
   image?: string;
+  /** Daylight variant of the photo, shown in light mode when present. */
+  imageLight?: string;
   /** Stable id: the piece page URL today, the CRM product key tomorrow. */
   slug?: string;
 };
@@ -31,10 +33,10 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Pool mosaics",
     blurb: "Our best sellers. The classic choice for swimming pools, in blues and beyond.",
     items: [
-      { slug: "classic-pool-blues", name: "Classic pool blues", note: "The timeless look, many shades", image: OWN.poolBlues, colors: ["#1179a8", "#1e8fc0", "#3aa9d6", "#6cc4e6", "#a8def2"] },
+      { slug: "classic-pool-blues", name: "Classic pool blues", note: "The timeless look, many shades", image: OWN.poolBlues, imageLight: DAY.poolBlues, colors: ["#1179a8", "#1e8fc0", "#3aa9d6", "#6cc4e6", "#a8def2"] },
       { slug: "aqua-turquoise-blends", name: "Aqua and turquoise blends", note: "Bright, resort-style water", colors: ["#0fb5c9", "#2ecddd", "#63e0ea", "#98ecf2", "#c8f6f9"] },
       { slug: "deep-midnight-blends", name: "Deep and midnight blends", note: "Darker pools, dramatic water", colors: ["#0b2e4f", "#123f66", "#1a527f", "#25689a", "#3b81b3"] },
-      { slug: "patterned-pool-borders", name: "Patterned pool borders", note: "Waterlines and feature bands", image: OWN.borders, colors: ["#1e8fc0", "#f5f1e8", "#134e5e", "#f5f1e8", "#3aa9d6", "#c05f2b"] },
+      { slug: "patterned-pool-borders", name: "Patterned pool borders", note: "Waterlines and feature bands", image: OWN.borders, imageLight: DAY.borders, colors: ["#1e8fc0", "#f5f1e8", "#134e5e", "#f5f1e8", "#3aa9d6", "#c05f2b"] },
     ],
   },
   {
@@ -42,7 +44,7 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Glass mosaics",
     blurb: "Colour and shine for walls, bathrooms, and features.",
     items: [
-      { slug: "solid-colour-glass", name: "Solid colour glass", note: "Every colour, by the sheet", image: OWN.glassJewels, colors: ["#c0392b", "#e67e22", "#f1c40f", "#27ae60", "#2980b9", "#8e44ad"] },
+      { slug: "solid-colour-glass", name: "Solid colour glass", note: "Every colour, by the sheet", image: OWN.glassJewels, imageLight: DAY.glassJewels, colors: ["#c0392b", "#e67e22", "#f1c40f", "#27ae60", "#2980b9", "#8e44ad"] },
       { slug: "mixed-gradient-blends", name: "Mixed and gradient blends", colors: ["#134e5e", "#0e7490", "#2fb9cf", "#67d6e5", "#a5e8f0", "#e8f8fa"] },
       { slug: "gold-metallic-accents", name: "Gold and metallic accents", colors: ["#8a6d1a", "#b8942d", "#d9b64a", "#edd27a", "#f7e7ae"] },
     ],
@@ -52,8 +54,8 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Art and feature mosaics",
     blurb: "Murals, patterns, and statement walls. Creativity is why this business exists.",
     items: [
-      { slug: "pattern-picture-mosaics", name: "Pattern and picture mosaics", image: OWN.koiMural, colors: ["#0e7490", "#c05f2b", "#f5f1e8", "#134e5e", "#e8b48e", "#38cfe0"] },
-      { slug: "custom-murals", name: "Custom murals", note: "Made to your design", image: OWN.beetleMural, colors: ["#c05f2b", "#e8b48e", "#f5f1e8", "#4c6270", "#0d2430", "#38cfe0"] },
+      { slug: "pattern-picture-mosaics", name: "Pattern and picture mosaics", image: OWN.koiMural, imageLight: DAY.koiMural, colors: ["#0e7490", "#c05f2b", "#f5f1e8", "#134e5e", "#e8b48e", "#38cfe0"] },
+      { slug: "custom-murals", name: "Custom murals", note: "Made to your design", image: OWN.beetleMural, imageLight: DAY.beetleMural, colors: ["#c05f2b", "#e8b48e", "#f5f1e8", "#4c6270", "#0d2430", "#38cfe0"] },
     ],
   },
   {

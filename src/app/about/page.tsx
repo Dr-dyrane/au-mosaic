@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
-import { OWN } from "@/lib/images";
+import { DAY, OWN } from "@/lib/images";
 import { waGeneral } from "@/lib/wa";
 import { MosaicBand } from "@/components/Mosaic";
 import { CtaRow, PageHero, Section } from "@/components/ui";
@@ -18,6 +18,7 @@ export default function AboutPage() {
         eyebrow="The house"
         title="It started with creativity."
         image={OWN.villaPalms}
+        imageLight={DAY.villaPalms}
         alt="A stone villa and palms mirrored in still mosaic water"
       />
 

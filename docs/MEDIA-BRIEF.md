@@ -60,6 +60,33 @@ loop lives in git history.
 Reference for the film re-roll:
 https://au-mosaic.shop/media/hero-dusk.jpg
 
+## Daylight variants: the theme follows the sun
+
+Dark mode is the gallery at night, the house default. Light mode
+rehangs the same works in daylight. Each night frame gets a daylight
+twin, generated image to image from the live frame:
+
+Feed the existing frame as the start image and prompt: "The exact
+same scene and composition, relit in bright natural daylight. Soft
+morning sun, pale warm ivory surroundings instead of darkness, same
+materials, same camera, same framing. Keep every mosaic tile
+identical. No people, no text, no watermark. Same resolution."
+
+Priority order (night frames that clash in light mode):
+1. hero-dusk: the same villa at bright morning
+2. glass-jewels: the jewel wall on a white gallery wall, daylight
+3. koi-mural and beetle-mural: daylight gallery light
+4. hammam: skylight morning version
+5. dusk-villa: the square villa at morning
+6. terrace: bright blue-sky midday version
+7. craft-hands: daylight workshop
+8. dark-bath: stays dark in both themes by identity, skip unless a
+   soft daylight version proves itself
+
+Already daylight, no pair needed: borders, villa-palms, private-pool,
+pool-blues. Drops land in public/media as <name>-day, and each wires
+into DAY in src/lib/images.ts.
+
 ## Slot 2 · Classic pool blues (piece film)
 
 Reference frame (the piece's live image):
