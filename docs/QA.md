@@ -122,3 +122,17 @@ next.config. Retired along the way: Pexels 28054849, 28287770,
 Nonso's real photography joins through the same gate: drop in
 public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 .gitignore, ledger row here.
+
+## Daylight pairs (the theme follows the sun)
+
+| Pair | Status |
+|---|---|
+| hero-dusk + hero-day | PAIRED. Same villa, same tree, same grid; brass streaks become sky reflections. |
+| glass-jewels | night only, day pending |
+| koi-mural, beetle-mural | night only, day pending |
+| hammam | night only, day pending |
+| dusk-villa | night only, day pending |
+| terrace | golden hour, day pending |
+| craft-hands | lamp lit, day pending |
+| dark-bath | stays dark in both themes by identity |
+| borders, villa-palms, private-pool, pool-blues | already daylight, no pair needed |

@@ -24,7 +24,9 @@ export const OWN = {
    frame at a time as they pass the gate; any missing entry means the
    slot holds its night frame in both themes. Frames that are already
    daylight (borders, villaPalms, privatePool, poolBlues) need no pair. */
-export const DAY: Partial<Record<keyof typeof OWN, string>> = {};
+export const DAY: Partial<Record<keyof typeof OWN, string>> = {
+  heroDusk: "/media/hero-day.jpg",
+};
 
 /* Film slot: dormant. The 720p loop softened the one surface that must be
    the sharpest, so the hero is a still until a 1080p or better loop passes
