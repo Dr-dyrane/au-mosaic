@@ -378,17 +378,31 @@ export default function Tour() {
   const menuCard = useRef<HTMLDivElement>(null);
   const hunt = useRef(0);
   const chapterRef = useRef<Chapter | null>(null);
+  const iRef = useRef(0);
   useEffect(() => {
     chapterRef.current = chapter;
+    iRef.current = i;
   });
   const step = chapter ? chapter.steps[i] : null;
 
-  const stop = useCallback((why: "done" | "skip") => {
+  /* Three endings, honestly separated. Done marks the chapter Seen
+     and lets its teaching retire. Skip is the owner leaving: the
+     offer retires, the chapter stays unseen. Lost is the tour
+     failing him, a target that never came: nothing is marked, the
+     teaching stays, and the exact step is tracked so the failure
+     has an address. A lost walk must never wear done's clothes. */
+  const stop = useCallback((why: "done" | "skip" | "lost") => {
     window.clearInterval(hunt.current);
-    markToured();
-    const key = chapterRef.current?.key ?? "";
+    const c = chapterRef.current;
+    const key = c?.key ?? "";
+    if (why !== "lost") markToured();
     if (why === "done" && key) markChapter(key);
-    track(why === "done" ? "tour_done" : "tour_skip", { chapter: key });
+    if (why === "lost") {
+      const s = c?.steps[iRef.current];
+      track("tour_lost", { chapter: key, step: iRef.current + 1, title: s?.title ?? "" });
+    } else {
+      track(why === "done" ? "tour_done" : "tour_skip", { chapter: key });
+    }
     setChapter(null);
     setBox(null);
     setI(0);
@@ -402,8 +416,9 @@ export default function Tour() {
     window.clearInterval(hunt.current);
     let tries = 0;
     /* Optional pointers sit on pages already painted, so they give up
-       fast; everything else may be waiting on a navigation. */
-    const patience = s.optional && s.kind !== "do" ? 12 : 40;
+       fast; everything else may be waiting on a navigation, and a
+       cold serverless page takes its moment: 60 tries is 8.4s. */
+    const patience = s.optional && s.kind !== "do" ? 12 : 60;
     hunt.current = window.setInterval(() => {
       tries += 1;
       const el = findTarget(s.sel);
@@ -434,10 +449,11 @@ export default function Tour() {
     if (s.page && window.location.pathname !== s.page) router.push(s.page);
     locate(s, (b) => {
       if (b) setBox(b);
-      /* A missing optional pointer skips; a missing gateway or
-         required target ends the walk politely. */
-      else if (s.optional && s.kind !== "do") goWith(c, n + 1);
-      else stop("done");
+      /* Any missing optional step skips forward, do or not; a
+         missing required target ends the walk as lost, never as
+         done: nothing gets marked Seen by a failure. */
+      else if (s.optional) goWith(c, n + 1);
+      else stop("lost");
     });
   }
 
@@ -509,19 +525,22 @@ export default function Tour() {
     };
   }, [step]);
 
-  /* A do step listens on the real element, capture phase, and the
-     tour walks on only when the hand has actually tapped it. */
+  /* A do step listens at the document, capture phase, and matches
+     the tap against the selector rather than one found node: a
+     re-render can swap the element under the spotlight, and a
+     listener on a ghost node would leave the tour waiting forever. */
   useEffect(() => {
     if (!step || step.kind !== "do" || !box) return;
-    const el = findTarget(step.sel);
-    if (!el) return;
     const n = i + 1;
-    const onTap = () => {
+    const sel = step.sel;
+    const onTap = (e: MouseEvent) => {
+      const hit = (e.target as HTMLElement | null)?.closest?.(sel);
+      if (!hit) return;
       buzz(4);
       window.setTimeout(() => goRef.current?.(n), 0);
     };
-    el.addEventListener("click", onTap, true);
-    return () => el.removeEventListener("click", onTap, true);
+    document.addEventListener("click", onTap, true);
+    return () => document.removeEventListener("click", onTap, true);
   }, [step, box, i]);
 
   /* VoiceOver walks in with each step, and into the menu. */
