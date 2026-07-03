@@ -35,9 +35,10 @@ export default function Header() {
             scrolled ? "gap-4 px-4 py-2" : "gap-5 px-5 py-2.5"
           }`}
         >
-          <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
-            {/* The mark already says au; the word beside it says the rest. */}
-            <AuMark className={`w-auto transition-all duration-500 ${scrolled ? "h-5" : "h-6"}`} />
+          <Link href="/" className="flex items-baseline gap-1.5" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
+            {/* The mark already says au; sized to the word so it reads
+                as one name: aumosaic. */}
+            <AuMark className={`w-auto self-center transition-all duration-500 ${scrolled ? "h-[15px]" : "h-[17px]"}`} />
             <span className="font-serif whitespace-nowrap text-[16px] tracking-wide">Mosaic</span>
           </Link>
 

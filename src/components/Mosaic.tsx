@@ -13,12 +13,12 @@ const PALETTE = [
 const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
 
 /* The brand mark: Nonso's "au" mosaic sign, rebuilt as deterministic
-   tesserae. Blues cycle like a real mixed sheet; the period is brass.
-   Keep the bitmap in sync with scripts/brand-icons.py. */
+   tesserae. Blues cycle like a real mixed sheet; no period, per the
+   client's logo. Keep the bitmap in sync with scripts/brand-icons.py. */
 
 const AU_A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"];
 const AU_U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"];
-const AU_GRID = AU_A.map((row, r) => row + "." + AU_U[r] + "." + (r >= 5 ? "##" : ".."));
+const AU_GRID = AU_A.map((row, r) => row + "." + AU_U[r]);
 const AU_BLUES = ["#a8def2", "#6cc4e6", "#3aa9d6", "#1e8fc0", "#1179a8", "#123f66", "#e8f6fb"];
 
 export function AuMark({ className = "" }: { className?: string }) {
@@ -31,7 +31,6 @@ export function AuMark({ className = "" }: { className?: string }) {
     for (let c = 0; c < AU_GRID[r].length; c++) {
       i++;
       if (AU_GRID[r][c] !== "#") continue;
-      const brass = c >= AU_GRID[r].length - 2;
       tiles.push(
         <rect
           key={`${r}-${c}`}
@@ -40,7 +39,7 @@ export function AuMark({ className = "" }: { className?: string }) {
           width={T - 2}
           height={T - 2}
           rx="2"
-          fill={brass ? "#c2a15c" : AU_BLUES[(i * 13 + 5) % AU_BLUES.length]}
+          fill={AU_BLUES[(i * 13 + 5) % AU_BLUES.length]}
         />
       );
     }

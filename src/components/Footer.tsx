@@ -9,8 +9,8 @@ export default function Footer() {
       <div className="mx-auto max-w-[1400px] rounded-[28px] bg-shell/70 sm:rounded-[40px]">
         <div className="mx-auto grid max-w-6xl gap-14 px-5 pb-10 pt-16 sm:px-8 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-3">
-            <AuMark className="h-7 w-auto" />
+          <div className="flex items-center gap-2">
+            <AuMark className="h-[21px] w-auto" />
             <span className="font-serif text-[20px] tracking-wide">Mosaic</span>
           </div>
           <p className="font-serif mt-6 max-w-xs text-[20px] leading-snug text-dusk">
