@@ -12,7 +12,14 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { sql } from "drizzle-orm";
 import * as schema from "../src/db/schema";
-import { MOSAIC_RANGES } from "../src/lib/products";
+import { MOSAIC_RANGES, POOL_MATERIALS } from "../src/lib/products";
+
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 process.loadEnvFile(".env");
 
@@ -24,44 +31,53 @@ async function main() {
   let rangeCount = 0;
   let pieceCount = 0;
 
-  for (const [gi, g] of MOSAIC_RANGES.entries()) {
-    await db
-      .insert(schema.ranges)
-      .values({ slug: g.id, name: g.title, line: g.blurb, sort: gi })
-      .onConflictDoUpdate({
-        target: schema.ranges.slug,
-        set: { name: g.title, line: g.blurb, sort: gi },
-      });
-    rangeCount++;
+  const families = [
+    { groups: MOSAIC_RANGES, family: "mosaic" as const, unit: "sheets" },
+    { groups: POOL_MATERIALS, family: "pool" as const, unit: "units" },
+  ];
 
-    for (const [pi, item] of g.items.entries()) {
-      if (!item.slug) continue;
-      const values = {
-        slug: item.slug,
-        rangeSlug: g.id,
-        name: item.name,
-        line: item.note ?? "",
-        colors: item.colors ?? [],
-        imageNight: item.image ?? null,
-        imageDay: item.imageLight ?? null,
-        sort: pi,
-      };
+  for (const { groups, family, unit } of families) {
+    for (const [gi, g] of groups.entries()) {
       await db
-        .insert(schema.pieces)
-        .values(values)
+        .insert(schema.ranges)
+        .values({ slug: g.id, name: g.title, line: g.blurb, family, sort: gi })
         .onConflictDoUpdate({
-          target: schema.pieces.slug,
-          set: { ...values, updatedAt: sql`now()` },
+          target: schema.ranges.slug,
+          set: { name: g.title, line: g.blurb, family, sort: gi },
         });
-      await db
-        .insert(schema.stockLevels)
-        .values({ pieceSlug: item.slug })
-        .onConflictDoNothing();
-      pieceCount++;
+      rangeCount++;
+
+      for (const [pi, item] of g.items.entries()) {
+        const slug = item.slug ?? slugify(item.name);
+        if (!slug) continue;
+        const values = {
+          slug,
+          rangeSlug: g.id,
+          name: item.name,
+          line: item.note ?? "",
+          colors: item.colors ?? [],
+          imageNight: item.image ?? null,
+          imageDay: item.imageLight ?? null,
+          unit,
+          sort: pi,
+        };
+        await db
+          .insert(schema.pieces)
+          .values(values)
+          .onConflictDoUpdate({
+            target: schema.pieces.slug,
+            set: { ...values, updatedAt: sql`now()` },
+          });
+        await db
+          .insert(schema.stockLevels)
+          .values({ pieceSlug: slug })
+          .onConflictDoNothing();
+        pieceCount++;
+      }
     }
   }
 
-  console.log(`Seeded ${rangeCount} ranges, ${pieceCount} pieces, stock rows ready.`);
+  console.log(`Seeded ${rangeCount} ranges, ${pieceCount} pieces, both families, stock rows ready.`);
 }
 
 main().then(() => process.exit(0));

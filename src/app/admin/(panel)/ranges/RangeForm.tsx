@@ -7,7 +7,7 @@ import { createRange, saveRange, type SaveState } from "./actions";
    shown, never edited; the name can change any day. */
 
 type Props = {
-  range?: { slug: string; name: string; line: string; sort: number };
+  range?: { slug: string; name: string; line: string; family: string; sort: number };
 };
 
 const field =
@@ -29,6 +29,13 @@ export default function RangeForm({ range }: Props) {
       <div>
         <label htmlFor="line" className={label}>One line under the name</label>
         <input id="line" name="line" defaultValue={range?.line} aria-label="Range line" className={field} />
+      </div>
+      <div>
+        <label htmlFor="family" className={label}>Which side of the business</label>
+        <select id="family" name="family" defaultValue={range?.family ?? "mosaic"} aria-label="Family" className={field}>
+          <option value="mosaic">Mosaic</option>
+          <option value="pool">Pool materials</option>
+        </select>
       </div>
       <div>
         <label htmlFor="sort" className={label}>Position on the shelf (lower comes first)</label>

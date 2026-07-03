@@ -52,6 +52,9 @@ export const ranges = pgTable("ranges", {
   slug: text("slug").primaryKey(),
   name: text("name").notNull(),
   line: text("line").notNull().default(""),
+  /* The two sides of his business: mosaic, and the pool materials
+     that build the water around it. */
+  family: text("family", { enum: ["mosaic", "pool"] }).notNull().default("mosaic"),
   sort: integer("sort").notNull().default(0),
 });
 
@@ -69,6 +72,9 @@ export const pieces = pgTable(
     colors: jsonb("colors").$type<string[]>().notNull().default([]),
     imageNight: text("image_night"),
     imageDay: text("image_day"),
+    /* What one of it is called on the shelf: sheets for mosaic,
+       units or bags for the pool side. */
+    unit: text("unit").notNull().default("sheets"),
     published: boolean("published").notNull().default(true),
     sort: integer("sort").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

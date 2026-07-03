@@ -16,6 +16,7 @@ type Props = {
     story: string;
     priceNote: string;
     colors: string[];
+    unit: string;
     published: boolean;
   };
   stock: { quantitySheets: number; reorderAt: number; containerEta: string | null };
@@ -68,10 +69,14 @@ export default function PieceForm({ piece, stock }: Props) {
 
       <div className="panel grid gap-6">
         <p className="font-serif text-[20px]">The stockroom</p>
-        <div className="grid gap-6 sm:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="quantitySheets" className={label}>Sheets in stock</label>
+            <label htmlFor="quantitySheets" className={label}>In stock</label>
             <input id="quantitySheets" name="quantitySheets" type="number" min={0} inputMode="numeric" defaultValue={stock.quantitySheets} className={field} />
+          </div>
+          <div>
+            <label htmlFor="unit" className={label}>Counted in</label>
+            <input id="unit" name="unit" defaultValue={piece.unit} placeholder="sheets, bags, units" className={field} />
           </div>
           <div>
             <label htmlFor="reorderAt" className={label}>Warn me at</label>

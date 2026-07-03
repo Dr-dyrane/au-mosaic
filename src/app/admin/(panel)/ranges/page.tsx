@@ -54,7 +54,7 @@ export default async function RangesPage() {
               </p>
               {r.line && <p className="mt-2 text-[13px] leading-relaxed text-dusk">{r.line}</p>}
               <p className="mt-4 text-[12px] uppercase tracking-[0.14em] text-mist">
-                {total} in the book · {inWindow} in the window
+                {r.family === "pool" ? "Pool materials" : "Mosaic"} · {total} in the book · {inWindow} in the window
               </p>
             </Link>
           );

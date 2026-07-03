@@ -38,12 +38,21 @@ export default async function PiecesPage() {
         </Link>
       </div>
 
-      {ranges.map((r) => {
-        const items = rows.filter((row) => row.piece.rangeSlug === r.slug);
-        if (items.length === 0) return null;
+      {[
+        { family: "mosaic", title: "The tiles" },
+        { family: "pool", title: "The pool materials" },
+      ].map((tier) => {
+        const tierRanges = ranges.filter((r) => r.family === tier.family);
+        if (tierRanges.length === 0) return null;
         return (
-          <section key={r.slug} className="mt-12">
-            <p className="eyebrow">{r.name}</p>
+          <section key={tier.family} className="mt-14">
+            <h2 className="font-serif text-[26px]">{tier.title}</h2>
+            {tierRanges.map((r) => {
+              const items = rows.filter((row) => row.piece.rangeSlug === r.slug);
+              if (items.length === 0) return null;
+              return (
+                <section key={r.slug} className="mt-8">
+                  <p className="eyebrow">{r.name}</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {items.map(({ piece, stock }) => {
                 const qty = stock?.quantitySheets ?? 0;
@@ -71,7 +80,7 @@ export default async function PiecesPage() {
                     </div>
                     <div className="mt-4 flex items-center justify-between">
                       <p className="text-[13px] text-dusk">
-                        {qty.toLocaleString()} sheets in stock
+                        {qty.toLocaleString()} {piece.unit} in stock
                       </p>
                       {low && (
                         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
@@ -82,7 +91,10 @@ export default async function PiecesPage() {
                   </Link>
                 );
               })}
-            </div>
+                  </div>
+                </section>
+              );
+            })}
           </section>
         );
       })}

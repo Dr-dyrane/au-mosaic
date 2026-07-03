@@ -161,6 +161,7 @@ export async function savePiece(_prev: SaveState, form: FormData): Promise<SaveS
         story: String(form.get("story") ?? "").trim(),
         priceNote: String(form.get("priceNote") ?? "").trim() || "Quote per job",
         colors: parseColors(String(form.get("colors") ?? "")),
+        unit: String(form.get("unit") ?? "").trim() || "sheets",
         published: form.get("published") === "on",
         updatedAt: sql`now()`,
       })

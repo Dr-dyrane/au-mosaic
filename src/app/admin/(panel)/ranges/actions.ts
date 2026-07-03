@@ -35,6 +35,8 @@ export async function createRange(_prev: SaveState, form: FormData): Promise<Sav
   const base = slugify(name);
   if (!base) return { ok: false, message: "The name needs at least one letter." };
 
+  const familyRaw = String(form.get("family") ?? "mosaic");
+  const family = familyRaw === "pool" ? ("pool" as const) : ("mosaic" as const);
   let slug: string;
   try {
     slug = await uniqueRangeSlug(base);
@@ -42,6 +44,7 @@ export async function createRange(_prev: SaveState, form: FormData): Promise<Sav
       slug,
       name,
       line: String(form.get("line") ?? "").trim(),
+      family,
       sort: parseInt(String(form.get("sort") ?? "0"), 10) || 0,
     });
   } catch {
@@ -59,11 +62,13 @@ export async function saveRange(_prev: SaveState, form: FormData): Promise<SaveS
   if (!slug) return { ok: false, message: "Missing range." };
   if (!name) return { ok: false, message: "The range needs a name." };
   try {
+    const familyRaw = String(form.get("family") ?? "mosaic");
     await getDb()
       .update(schema.ranges)
       .set({
         name,
         line: String(form.get("line") ?? "").trim(),
+        family: familyRaw === "pool" ? "pool" : "mosaic",
         sort: parseInt(String(form.get("sort") ?? "0"), 10) || 0,
       })
       .where(eq(schema.ranges.slug, slug));

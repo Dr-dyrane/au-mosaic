@@ -35,6 +35,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
           story: piece.story,
           priceNote: piece.priceNote,
           colors: piece.colors ?? [],
+          unit: piece.unit,
           published: piece.published,
         }}
         stock={{
