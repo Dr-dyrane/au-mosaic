@@ -20,7 +20,7 @@ export const PALETTES = ["maison", "lagoon", "terracotta", "onyx"] as const;
 export type Palette = (typeof PALETTES)[number];
 
 export const getPalette = (): Palette => {
-  if (typeof document === "undefined") return "maison";
+  if (typeof document === "undefined") return "lagoon";
   const p = document.documentElement.dataset.palette as Palette | undefined;
   return p && PALETTES.includes(p) ? p : "maison";
 };

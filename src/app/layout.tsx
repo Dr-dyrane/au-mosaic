@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#f6f3ec",
+  themeColor: "#eef6f3",
   /* Edge to edge on notched phones; safe-area insets take over. */
   viewportFit: "cover" as const,
   width: "device-width",
@@ -39,14 +39,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="en" data-theme="light" data-palette="lagoon" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full font-sans">
-        {/* Daylight is the default; apply saved night and palette
-            preferences before paint. */}
+        {/* Lagoon daylight is the default; apply saved night and
+            palette preferences before paint. Maison is the bare root,
+            so choosing it removes the attribute. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('aumosaic.theme')==='dark')delete document.documentElement.dataset.theme;var p=localStorage.getItem('aumosaic.palette');if(p&&p!=='maison')document.documentElement.dataset.palette=p}catch(e){}",
+              "try{if(localStorage.getItem('aumosaic.theme')==='dark')delete document.documentElement.dataset.theme;var p=localStorage.getItem('aumosaic.palette');if(p==='maison'){delete document.documentElement.dataset.palette}else if(p){document.documentElement.dataset.palette=p}}catch(e){}",
           }}
         />
         {children}

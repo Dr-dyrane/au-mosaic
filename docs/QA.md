@@ -250,6 +250,7 @@ until a logo asset exists.
 | Nav diet | Six tabs were one too many. Insights left the main navs and became Home's second face: a Today and Insights chip pair tops both pages, so the glance and the longer story live in one room. Five tabs again. |
 | Scan, not read | Owner's law accepted: people scan. Room intros cut to one short line each (the book: "Everything you stock. The window shows only what you choose."; orders: "List sits beside given. A discount is a number, not a feeling."; customers: "Orders, balance, chat: one tap."; insights: "The business, not the traffic."). Teaching stays where it earns its length: empty states and error rooms. |
 | Production hiccup traced | The calm error room appeared on the deployed admin because db:push had not run (the hash-comment accident), so Stock queried a family column that did not exist yet. The boundary behaved exactly as designed. Fix is the two bare commands; production shares the Neon database, no redeploy needed. |
+| Lagoon daylight by default | The app now opens in Lagoon light: html ships data-palette="lagoon", the pre-paint script honours saved choices (choosing Maison removes the attribute, since Maison is the bare root), theme-store's server snapshot says lagoon, and themeColor plus the admin manifest wear Lagoon's day sand (#eef6f3). The multi-palette contrast gate re-run: every house still clears the matrix. Visitors who already picked a house keep it. |
 
 ## The collection, photo complete · both suns
 
