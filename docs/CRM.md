@@ -317,6 +317,31 @@ keepValues, icons components exist).
     in a sentence; the first-login offer returns on next visit to the
     glance. Client-only, no server action, no ceremony.
 
+11. Desktop composition and quiet motion (Dyrane reviewed: vertical
+    stacks waste large screens; wants horizontal and zig-zag flow,
+    progressive disclosure, animate-to-reveal, microinteractions).
+    (a) Composition, lg and up: the piece record becomes two columns
+    (photographs sticky on the left, the form on the right); the
+    order record pairs lines-and-status left with payments right;
+    Settings lays its panels as a two-column grid; Insights already
+    grids, audit its balance; list rooms keep their card grids but
+    long single-column strips gain the site's zig-zag offset rhythm
+    (alternate sm:mt offsets) where scanning benefits. Phone layouts
+    unchanged.
+    (b) Motion, whisper-weight only: an admin Reveal (opacity plus a
+    4px rise, 200ms, no stagger beyond 60ms, reduced-motion safe) on
+    room sections and cards; panels already breathe via skeletons.
+    The attention-stewardship root governs: motion in the office must
+    never delay reading or reach the theatre of the flagship; no
+    ken-burns, no parallax behind the door.
+    (c) Progressive disclosure audit: card to detail stands; add
+    collapsed-by-default for long secondary sections (the piece
+    record's story field, order note history) with a one-line summary
+    and a quiet More; never hide the gold or the money.
+    (d) Microinteraction sweep on desktop: hover states on rows match
+    the cards (name warms to gold), focus-visible ring audit behind
+    the door, cursor affordances on do-anything elements.
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number
