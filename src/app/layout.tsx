@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SITE } from "@/lib/site";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
 import WaTracker from "@/components/WaTracker";
 
 export const metadata: Metadata = {
@@ -36,16 +33,6 @@ export const viewport = {
   initialScale: 1,
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  name: SITE.name,
-  description: SITE.description,
-  address: { "@type": "PostalAddress", addressLocality: "Lagos", addressCountry: "NG" },
-  areaServed: "Nigeria",
-  openingHours: "Mo-Sa 08:30-17:00",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -53,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full font-sans">
         {/* Daylight is the default; apply saved night and palette
             preferences before paint. */}
         <script
@@ -62,17 +49,7 @@ export default function RootLayout({
               "try{if(localStorage.getItem('aumosaic.theme')==='dark')delete document.documentElement.dataset.theme;var p=localStorage.getItem('aumosaic.palette');if(p&&p!=='maison')document.documentElement.dataset.palette=p}catch(e){}",
           }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <a href="#main" className="skip-link">
-          Skip to content
-        </a>
-        <Header />
-        <main id="main" className="flex-1">{children}</main>
-        <Footer />
-        <WhatsAppFloat />
+        {children}
         <Analytics />
         <WaTracker />
       </body>

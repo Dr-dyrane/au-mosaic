@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { put } from "@vercel/blob";
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
@@ -22,6 +24,121 @@ function parseColors(raw: string): string[] {
 function toInt(v: FormDataEntryValue | null, fallback = 0) {
   const n = parseInt(String(v ?? ""), 10);
   return Number.isFinite(n) && n >= 0 ? n : fallback;
+}
+
+/* Photographs go to Vercel Blob and their URL into the piece record.
+   Night and day are separate slots, same as the flagship renders
+   them. Replacing leaves the old file orphaned in the store on
+   purpose: nothing is ever lost. */
+export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const slug = String(form.get("slug") ?? "");
+  const which = String(form.get("which") ?? "");
+  const file = form.get("photo");
+  if (!slug || (which !== "night" && which !== "day")) {
+    return { ok: false, message: "Missing piece or slot." };
+  }
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, message: "Choose a photograph first." };
+  }
+  if (!file.type.startsWith("image/")) {
+    return { ok: false, message: "That is not a photograph." };
+  }
+  if (file.size > 8 * 1024 * 1024) {
+    return { ok: false, message: "Too heavy. Keep it under 8MB." };
+  }
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return { ok: false, message: "The photo store is not connected yet. Add BLOB_READ_WRITE_TOKEN." };
+  }
+  try {
+    const ext = file.type === "image/png" ? "png" : "jpg";
+    const blob = await put(`pieces/${slug}-${which}-${Date.now()}.${ext}`, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
+    await getDb()
+      .update(schema.pieces)
+      .set(
+        which === "night"
+          ? { imageNight: blob.url, updatedAt: sql`now()` }
+          : { imageDay: blob.url, updatedAt: sql`now()` }
+      )
+      .where(eq(schema.pieces.slug, slug));
+  } catch {
+    return { ok: false, message: "The upload did not land. Try again." };
+  }
+  revalidatePath(`/admin/pieces/${slug}`);
+  revalidatePath("/admin/pieces");
+  return { ok: true, message: "The photograph is in." };
+}
+
+export async function removePhoto(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const slug = String(form.get("slug") ?? "");
+  const which = String(form.get("which") ?? "");
+  if (!slug || (which !== "night" && which !== "day")) {
+    return { ok: false, message: "Missing piece or slot." };
+  }
+  try {
+    await getDb()
+      .update(schema.pieces)
+      .set(
+        which === "night"
+          ? { imageNight: null, updatedAt: sql`now()` }
+          : { imageDay: null, updatedAt: sql`now()` }
+      )
+      .where(eq(schema.pieces.slug, slug));
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+  revalidatePath(`/admin/pieces/${slug}`);
+  revalidatePath("/admin/pieces");
+  return { ok: true, message: "Taken down. The file stays in the store." };
+}
+
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/* A new piece enters the book as a draft: it gets its record, its
+   stock row, and a slug minted once. The window comes later, when he
+   flips the switch. */
+export async function createPiece(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const name = String(form.get("name") ?? "").trim();
+  const rangeSlug = String(form.get("rangeSlug") ?? "");
+  if (!name) return { ok: false, message: "The piece needs a name." };
+  if (!rangeSlug) return { ok: false, message: "Choose a shelf for it." };
+  const base = slugify(name);
+  if (!base) return { ok: false, message: "The name needs at least one letter." };
+
+  const db = getDb();
+  let slug: string;
+  try {
+    const existing = await db.select({ slug: schema.pieces.slug }).from(schema.pieces);
+    const taken = new Set(existing.map((p) => p.slug));
+    slug = base;
+    let n = 2;
+    while (taken.has(slug)) slug = `${base}-${n++}`;
+
+    await db.insert(schema.pieces).values({
+      slug,
+      rangeSlug,
+      name,
+      line: String(form.get("line") ?? "").trim(),
+      colors: parseColors(String(form.get("colors") ?? "")),
+      published: form.get("published") === "on",
+    });
+    await db.insert(schema.stockLevels).values({ pieceSlug: slug }).onConflictDoNothing();
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+  revalidatePath("/admin/pieces");
+  revalidatePath("/admin");
+  redirect(`/admin/pieces/${slug}`);
 }
 
 export async function savePiece(_prev: SaveState, form: FormData): Promise<SaveState> {

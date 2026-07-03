@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import PieceForm from "./PieceForm";
+import PhotoPanel from "./PhotoPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
       <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
         {piece.slug} · lives at /piece/{piece.slug}
       </p>
+      <PhotoPanel slug={piece.slug} imageNight={piece.imageNight} imageDay={piece.imageDay} />
       <PieceForm
         piece={{
           slug: piece.slug,

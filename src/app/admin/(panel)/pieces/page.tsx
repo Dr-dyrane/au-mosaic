@@ -23,11 +23,20 @@ export default async function PiecesPage() {
   return (
     <main>
       <p className="eyebrow">Inventory</p>
-      <h1 className="font-serif text-display-section mt-3">The pieces.</h1>
+      <h1 className="font-serif text-display-section mt-3">The book.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Tap a piece to change its words, colours, stock, or take it off the
-        site. Photos come in the next room.
+        The book holds everything you stock. The site is the shop window:
+        it shows only the pieces you put in it. Tap a piece to change its
+        words, photos, stock, or its place in the window.
       </p>
+      <div className="mt-8 flex flex-wrap items-center gap-8">
+        <Link href="/admin/pieces/new" className="btn-gold">
+          New piece
+        </Link>
+        <Link href="/admin/ranges" className="link-hair text-dusk text-[13px]">
+          The ranges
+        </Link>
+      </div>
 
       {ranges.map((r) => {
         const items = rows.filter((row) => row.piece.rangeSlug === r.slug);
