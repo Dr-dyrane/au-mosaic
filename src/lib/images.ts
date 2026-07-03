@@ -14,7 +14,6 @@ export const IMG = {
   bluePatternTiles: px("14579397/pexels-photo-14579397.jpeg"),
   beetleMosaicArt: px("32325318/pexels-photo-32325318/free-photo-of-intricate-beetle-mosaic-artwork-detail.jpeg"),
   /* pools and water */
-  fishMosaicPool: px("10231663/pexels-photo-10231663.jpeg"),
   rippledLaneWater: px("6110597/pexels-photo-6110597.jpeg"),
 };
 
@@ -29,6 +28,7 @@ export const OWN = {
   terrace: "/media/terrace.jpg",
   hammam: "/media/hammam.jpg",
   darkBath: "/media/dark-bath.jpg",
+  koiMural: "/media/koi-mural.jpg",
 };
 
 /* Film: slow ambient loops, owned. The hero film's poster is its own first

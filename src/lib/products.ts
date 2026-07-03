@@ -52,7 +52,7 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Art and feature mosaics",
     blurb: "Murals, patterns, and statement walls. Creativity is why this business exists.",
     items: [
-      { slug: "pattern-picture-mosaics", name: "Pattern and picture mosaics", image: IMG.fishMosaicPool, colors: ["#0e7490", "#c05f2b", "#f5f1e8", "#134e5e", "#e8b48e", "#38cfe0"] },
+      { slug: "pattern-picture-mosaics", name: "Pattern and picture mosaics", image: OWN.koiMural, colors: ["#0e7490", "#c05f2b", "#f5f1e8", "#134e5e", "#e8b48e", "#38cfe0"] },
       { slug: "custom-murals", name: "Custom murals", note: "Made to your design", image: IMG.beetleMosaicArt, colors: ["#c05f2b", "#e8b48e", "#f5f1e8", "#4c6270", "#0d2430", "#38cfe0"] },
     ],
   },

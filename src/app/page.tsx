@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { getMosaicRanges } from "@/lib/catalog";
-import { ENVIRONMENTS, FILM, IMG, LUX, OWN } from "@/lib/images";
+import { ENVIRONMENTS, FILM, LUX, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
 import { ProductCard } from "@/components/ui";
@@ -13,7 +13,7 @@ import { ProductCard } from "@/components/ui";
 const MATERIALS = [
   { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues },
   { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.glassJewels },
-  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: IMG.fishMosaicPool },
+  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.koiMural },
 ];
 
 export default async function Home() {
