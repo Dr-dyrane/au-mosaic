@@ -34,7 +34,7 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     blurb: "Our best sellers. The classic choice for swimming pools, in blues and beyond.",
     items: [
       { slug: "classic-pool-blues", name: "Classic pool blues", note: "The timeless look, many shades", image: OWN.poolBlues, imageLight: DAY.poolBlues, colors: ["#1179a8", "#1e8fc0", "#3aa9d6", "#6cc4e6", "#a8def2"] },
-      { slug: "aqua-turquoise-blends", name: "Aqua and turquoise blends", note: "Bright, resort-style water", colors: ["#0fb5c9", "#2ecddd", "#63e0ea", "#98ecf2", "#c8f6f9"] },
+      { slug: "aqua-turquoise-blends", name: "Aqua and turquoise blends", note: "Bright, resort-style water", image: OWN.aquaBlends, imageLight: DAY.aquaBlends, colors: ["#0fb5c9", "#2ecddd", "#63e0ea", "#98ecf2", "#c8f6f9"] },
       { slug: "deep-midnight-blends", name: "Deep and midnight blends", note: "Darker pools, dramatic water", colors: ["#0b2e4f", "#123f66", "#1a527f", "#25689a", "#3b81b3"] },
       { slug: "patterned-pool-borders", name: "Patterned pool borders", note: "Waterlines and feature bands", image: OWN.borders, imageLight: DAY.borders, colors: ["#1e8fc0", "#f5f1e8", "#134e5e", "#f5f1e8", "#3aa9d6", "#c05f2b"] },
     ],
