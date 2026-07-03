@@ -4,7 +4,7 @@ The digital flagship of AU Mosaic, Agric Market, Lagos: mosaic tiles,
 pool materials, and pool construction. Built by Dyrane from the owner's
 Business Discovery assessment, so the site sells the way the business
 actually sells: enquiry, photos on WhatsApp, quote per job, pickup or
-delivery. Live at https://au-mosaic.shop
+delivery. Live at https://www.aumosaic.com
 
 Stack: Next.js (App Router) · React · TypeScript · Tailwind CSS v4.
 No animation libraries, no webfonts, no CMS in v1. Every route is

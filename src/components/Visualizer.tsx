@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { PIECES } from "@/lib/products";
+import { SITE } from "@/lib/site";
 import { waProduct } from "@/lib/wa";
 
 /* See it in your space. Upload a photo, drag the four stones to the
@@ -304,7 +305,7 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
       const file = new File([blob], `au-mosaic-${piece.slug}.png`, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], text: `${piece.name} · au-mosaic.shop` });
+          await navigator.share({ files: [file], text: `${piece.name} · ${SITE.url.replace(/^https?:\/\//, "")}` });
           return;
         } catch {}
       }

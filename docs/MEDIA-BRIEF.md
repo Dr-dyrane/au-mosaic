@@ -58,7 +58,7 @@ eye-gated, using the pipeline that already works (start frame equals
 the live still, poster equals first frame, seamless loop). The old
 loop lives in git history.
 Reference for the film re-roll:
-https://au-mosaic.shop/media/hero-dusk.jpg
+https://www.aumosaic.com/media/hero-dusk.jpg
 
 ## Daylight variants: the theme follows the sun
 

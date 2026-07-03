@@ -12,9 +12,9 @@ export const SITE = {
   yearsInBusiness: "10+",
   factory: "Foshan, China",
   poolBrand: "Astral",
-  // Canonical URL: the vercel.app link until the domain (au-mosaic.shop) is bought,
-  // then set NEXT_PUBLIC_SITE_URL in Vercel and add the domain to the project.
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://au-mosaic.vercel.app",
+  // Canonical URL. NEXT_PUBLIC_URL is localhost in dev and the real
+  // domain in Vercel; the fallback is the production home.
+  url: process.env.NEXT_PUBLIC_URL || "https://www.aumosaic.com",
   instagram: "https://instagram.com", // TODO: real handle
   // WhatsApp Business number, international format, digits only.
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "2347077550283",
