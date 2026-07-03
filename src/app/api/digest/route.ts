@@ -1,5 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import { getDb, schema } from "@/db";
+import { getDb, rowsOf, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
 import { sendPush } from "@/lib/push";
 
@@ -10,9 +10,6 @@ import { sendPush } from "@/lib/push";
    ever send. */
 
 export const dynamic = "force-dynamic";
-
-const rowsOf = <T,>(r: unknown): T[] =>
-  Array.isArray(r) ? (r as T[]) : ((r as { rows?: T[] }).rows ?? []);
 
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;

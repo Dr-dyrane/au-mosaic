@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { desc, eq, sql } from "drizzle-orm";
-import { getDb, schema } from "@/db";
+import { getDb, rowsOf, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
 
 /* The numbers that decide. Read-only on purpose: this room asks
@@ -8,9 +8,6 @@ import { naira } from "@/lib/backoffice";
    decoration. Every figure comes from the book, not from traffic. */
 
 export const dynamic = "force-dynamic";
-
-const rowsOf = <T,>(r: unknown): T[] =>
-  Array.isArray(r) ? (r as T[]) : ((r as { rows?: T[] }).rows ?? []);
 
 function Bar({ frac }: { frac: number }) {
   return (

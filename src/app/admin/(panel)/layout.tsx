@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { sql } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, rowsOf } from "@/db";
 import { AuMark } from "@/components/Mosaic";
 import { AdminTabBar, AdminTopNav } from "@/components/AdminNav";
 import PalettePicker from "@/components/PalettePicker";
@@ -34,7 +34,7 @@ async function owedCount(): Promise<number> {
               and op.status not in ('enquiry','settled')), 0)
           > 0
       ) t`);
-    const list = Array.isArray(rows) ? rows : ((rows as { rows?: { n?: number }[] }).rows ?? []);
+    const list = rowsOf<{ n?: number }>(rows);
     return Number(list[0]?.n ?? 0);
   } catch {
     return 0;

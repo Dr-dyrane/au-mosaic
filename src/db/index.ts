@@ -23,3 +23,10 @@ export function getDb() {
 }
 
 export * as schema from "./schema";
+
+/* neon-http answers a raw execute() with an object carrying rows;
+   the query builder answers with plain arrays. One normaliser,
+   owned here, used at every execute call site, so no room ever
+   maps the envelope again. Production taught this the hard way. */
+export const rowsOf = <T,>(r: unknown): T[] =>
+  Array.isArray(r) ? (r as T[]) : ((r as { rows?: T[] }).rows ?? []);

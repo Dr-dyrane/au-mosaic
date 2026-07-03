@@ -142,11 +142,23 @@ up as they land, never delete them.
 | 19 | Von Restorff guard, standing rule: the gold singleton's isolation is absolute; every new screen is audited against it | ongoing |
 | 20 | Peak-end, standing rule: every flow ends on a small satisfying note (tick plus sentence), never on silence | ongoing |
 
+## Error boundaries · the audit (checklist 1, done)
+
+| Item | Verdict |
+|---|---|
+| Office error room offers a way home | Pass (Try again in gold, Back to the glance, For-the-engineer panel with room, message, digest) |
+| Site error room exists | Pass (added this pass: calm line, gold Try again, WhatsApp close; details whisper to the console, never a stack trace) |
+| Site 404 | Pass (maison 404: Back to the house, Ask us directly) |
+| Office 404 stays in the office | Pass (added this pass: That page is not in the book, gold Back to the glance; uuid guards land here instead of the shop window) |
+| Offline room | Pass (calm room, network-first pages, tab bar stays home) |
+| Root layout crash fallback (global-error) | Missing, accepted (the root layout is a static shell with no data; a maison-dressed global-error joins if it ever fires) |
+| Boundaries never swallow auth redirects | Pass (redirect and notFound throw on purpose and live outside every try; the panel layout re-checks the door on every render, so Try again walks back through it) |
+| Raw driver shapes normalised at every execute | Pass (one rowsOf, owned by src/db, imported at all four call sites: insights, panel layout, digest; no room maps the envelope itself) |
+| Actions answer in sentences, never throw at the UI | Pass (every action catches and returns ok/message; the boundary is the last resort, not the pattern) |
+
 ## Checklists to write next (owner's ask, stacked)
 
-1. Error-boundary audit: every boundary offers a way home, never a
-   dead end; boundaries never swallow auth redirects; raw driver
-   result shapes (rows vs array) normalised at every execute call.
+1. DONE: error-boundary audit, table above.
 2. API contract checklist: response shapes, status codes, input caps,
    and what each public endpoint promises the funnel.
 3. CRM domain checklists: order lifecycle edge cases, stock movement
