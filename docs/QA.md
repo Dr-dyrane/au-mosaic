@@ -140,7 +140,7 @@ public/media, eye check, wire in `src/lib/images.ts`, whitelist in
 | koi-mural + koi-day | PAIRED. Same fish, same swirls, skylight morning; gold flecks glint in daylight. |
 | beetle-mural + beetle-day | PAIRED. Iridescence shifts emerald to teal in daylight; gold glints. |
 | hammam + hammam-day | PAIRED. The oculus pours morning; wet honey mosaic, no steam, the drip survives. |
-| dusk-villa | night only, day pending |
+| dusk-villa + dusk-villa-day | PAIRED. The same address before breakfast: gold horizon, mosaic through glassy water. |
 | terrace | golden hour, day pending |
 | craft-hands | lamp lit, day pending |
 | dark-bath | stays dark in both themes by identity |
