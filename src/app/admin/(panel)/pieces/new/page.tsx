@@ -2,6 +2,7 @@ import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import NewPieceForm from "./NewPieceForm";
+import Back from "../../Back";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,7 @@ export default async function NewPiecePage() {
 
   return (
     <main>
-      <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
-        The stockroom
-      </Link>
+      <Back href="/admin/pieces" label="The stockroom" />
       <h1 className="font-serif text-display-section mt-6">A new piece.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         It enters the book first. Photos, story, stock, and the window

@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import PieceForm from "./PieceForm";
 import PhotoPanel from "./PhotoPanel";
+import Back from "../../Back";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +19,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
 
   return (
     <main>
-      <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
-        All pieces
-      </Link>
+      <Back href="/admin/pieces" label="All pieces" />
       <h1 className="font-serif text-display-section mt-6">{piece.name}</h1>
       <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
         {piece.slug} · lives at /piece/{piece.slug}

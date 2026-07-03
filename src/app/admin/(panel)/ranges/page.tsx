@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { asc, count, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import Back from "../Back";
 
 /* The shelves of the book. Each range holds pieces; the site shows a
    range only when something published sits on it. */
@@ -24,9 +25,7 @@ export default async function RangesPage() {
 
   return (
     <main>
-      <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
-        The stockroom
-      </Link>
+      <Back href="/admin/pieces" label="The stockroom" />
       <p className="eyebrow mt-6">Inventory</p>
       <h1 className="font-serif text-display-section mt-3">The ranges.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">

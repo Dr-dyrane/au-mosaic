@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import RangeForm from "../RangeForm";
+import Back from "../../Back";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +20,7 @@ export default async function RangeEditPage({ params }: { params: Promise<{ slug
 
   return (
     <main>
-      <Link href="/admin/ranges" className="link-hair text-dusk text-[13px]">
-        The ranges
-      </Link>
+      <Back href="/admin/ranges" label="The ranges" />
       <h1 className="font-serif text-display-section mt-6">{range.name}</h1>
       <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">{range.slug}</p>
       <RangeForm range={{ slug: range.slug, name: range.name, line: range.line, family: range.family, sort: range.sort }} />

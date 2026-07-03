@@ -2,6 +2,7 @@ import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import NewOrderForm from "./NewOrderForm";
+import Back from "../../Back";
 
 /* A new page in the book. One choice matters here, who is buying.
    Everything else, the lines, the money, the walk down the line,
@@ -18,9 +19,7 @@ export default async function NewOrderPage() {
 
   return (
     <main>
-      <Link href="/admin/orders" className="link-hair text-dusk text-[13px]">
-        All orders
-      </Link>
+      <Back href="/admin/orders" label="All orders" />
       <h1 className="font-serif text-display-section mt-6">A new order.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         It opens as an enquiry. Lines and payments go on the order page,

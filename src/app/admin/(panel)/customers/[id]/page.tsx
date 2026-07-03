@@ -4,6 +4,7 @@ import { desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira, waChat } from "@/lib/backoffice";
 import CustomerForm from "./CustomerForm";
+import Back from "../../Back";
 
 /* The customer record: who they are, what they ordered, what is still
    owed, and their chat one tap away. Billed and paid are summed fresh
@@ -71,9 +72,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
 
   return (
     <main>
-      <Link href="/admin/customers" className="link-hair text-dusk text-[13px]">
-        All customers
-      </Link>
+      <Back href="/admin/customers" label="All customers" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       {customer.area && (
         <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
