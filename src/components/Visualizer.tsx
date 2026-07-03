@@ -7,15 +7,19 @@ import { waProduct } from "@/lib/wa";
 
 /* See it in your space. Upload a photo, drag the four stones to the
    corners of your surface, choose a piece: the colourway is laid onto
-   the surface in perspective, keeping the photo's own light. Ends
-   where every path in this house ends: WhatsApp. No libraries; the
-   homography is forty lines of maths. */
+   the surface in perspective, keeping the photo's own light.
+
+   The Apple details: a loupe magnifies under your finger while you
+   place a stone, press and hold the photo to see the original, the
+   render shimmers alive when it changes, sliders tick in the hand
+   where the platform allows, and the session is remembered so your
+   pool is still tiled tomorrow. Ends where every path in this house
+   ends: WhatsApp. No libraries; the homography is forty lines. */
 
 type Pt = { x: number; y: number };
 
-/* Solve the 3x3 homography mapping the unit square to quad q. */
 function homography(q: Pt[]) {
-  const [p0, p1, p2, p3] = q; // tl, tr, br, bl
+  const [p0, p1, p2, p3] = q;
   const dx1 = p1.x - p2.x, dx2 = p3.x - p2.x;
   const dy1 = p1.y - p2.y, dy2 = p3.y - p2.y;
   const sx = p0.x - p1.x + p2.x - p3.x;
@@ -35,7 +39,6 @@ function mapPoint(H: ReturnType<typeof homography>, u: number, v: number): Pt {
   return { x: (H.a * u + H.b * v + H.c) / w, y: (H.d * u + H.e * v + H.f) / w };
 }
 
-/* Draw src triangle -> dst triangle with an affine map. */
 function drawTriangle(
   ctx: CanvasRenderingContext2D,
   img: CanvasImageSource,
@@ -65,7 +68,6 @@ function drawTriangle(
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
-/* A seamless sheet of the piece's colourway, glass tiles on grout. */
 function makePattern(colors: string[], tile: number, groutLight: boolean) {
   const cols = Math.max(6, Math.round(512 / tile));
   const size = cols * tile;
@@ -97,35 +99,95 @@ const DEFAULT_QUAD: Pt[] = [
   { x: 0.28, y: 0.45 }, { x: 0.75, y: 0.45 }, { x: 0.92, y: 0.92 }, { x: 0.1, y: 0.92 },
 ];
 
+const STORE_KEY = "aumosaic.viz";
+const buzz = (ms = 4) => {
+  try { navigator.vibrate?.(ms); } catch {}
+};
+
+/* Yesterday's session, if the browser kept it. Safe on the server:
+   the pre-photo DOM is identical either way. */
+function readStore(): Record<string, unknown> {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
 export default function Visualizer({ initialPiece }: { initialPiece?: string }) {
   const pieces = PIECES;
-  const [pieceSlug, setPieceSlug] = useState(
-    pieces.some((p) => p.slug === initialPiece) ? (initialPiece as string) : pieces[0].slug
-  );
+  const [pieceSlug, setPieceSlug] = useState(() => {
+    if (pieces.some((p) => p.slug === initialPiece)) return initialPiece as string;
+    const saved = readStore().pieceSlug as string | undefined;
+    if (saved && pieces.some((p) => p.slug === saved)) return saved;
+    return pieces[0].slug;
+  });
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
-  const [quad, setQuad] = useState<Pt[]>(DEFAULT_QUAD);
-  const [tileSize, setTileSize] = useState(26);
-  const [blend, setBlend] = useState(0.85);
-  const [groutLight, setGroutLight] = useState(true);
+  const [quad, setQuad] = useState<Pt[]>(() => (readStore().quad as Pt[]) || DEFAULT_QUAD);
+  const [tileSize, setTileSize] = useState(() => (readStore().tileSize as number) || 26);
+  const [blend, setBlend] = useState(() => {
+    const b = readStore().blend;
+    return typeof b === "number" ? b : 0.85;
+  });
+  const [groutLight, setGroutLight] = useState(() => {
+    const g = readStore().groutLight;
+    return typeof g === "boolean" ? g : true;
+  });
+  const [holding, setHolding] = useState(false);
+  const [tick, setTick] = useState(0);
+  const [loupe, setLoupe] = useState<Pt | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const loupeRef = useRef<HTMLCanvasElement>(null);
+  const originalRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragging = useRef<number | null>(null);
+  const restored = useRef(false);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
 
-  const loadImage = (src: string) => {
+  const loadImage = useCallback((src: string, from: "upload" | "sample" | "memory") => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
       setPhoto(img);
-      track("viz_photo", { source: src.startsWith("blob:") ? "upload" : "sample" });
+      if (from !== "memory") track("viz_photo", { source: from });
     };
     img.src = src;
-  };
+  }, []);
+
+  /* The photo restores asynchronously: the image loads, then appears. */
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+    const saved = readStore().photo as string | undefined;
+    if (saved) {
+      track("viz_resume", {});
+      loadImage(saved, "memory");
+    }
+  }, [loadImage]);
+
+  useEffect(() => {
+    if (!photo) return;
+    const id = setTimeout(() => {
+      try {
+        const small = document.createElement("canvas");
+        const s = Math.min(1, 1100 / photo.naturalWidth);
+        small.width = Math.round(photo.naturalWidth * s);
+        small.height = Math.round(photo.naturalHeight * s);
+        small.getContext("2d")!.drawImage(photo, 0, 0, small.width, small.height);
+        localStorage.setItem(
+          STORE_KEY,
+          JSON.stringify({ quad, tileSize, blend, groutLight, pieceSlug, photo: small.toDataURL("image/jpeg", 0.8) })
+        );
+      } catch {}
+    }, 600);
+    return () => clearTimeout(id);
+  }, [photo, quad, tileSize, blend, groutLight, pieceSlug]);
 
   const onFile = (f: File | undefined) => {
     if (!f) return;
-    loadImage(URL.createObjectURL(f));
+    loadImage(URL.createObjectURL(f), "upload");
   };
 
   const render = useCallback(() => {
@@ -140,10 +202,16 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
     const ctx = canvas.getContext("2d")!;
     ctx.drawImage(photo, 0, 0, W, Hh);
 
+    /* Keep the untouched photo for press-and-hold compare. */
+    const orig = document.createElement("canvas");
+    orig.width = W;
+    orig.height = Hh;
+    orig.getContext("2d")!.drawImage(photo, 0, 0, W, Hh);
+    originalRef.current = orig;
+
     const q = quad.map((p) => ({ x: p.x * W, y: p.y * Hh }));
     const pattern = makePattern(piece.colors || ["#3aa9d6"], tileSize, groutLight);
 
-    /* Warp the pattern onto an overlay via subdivided triangles. */
     const overlay = document.createElement("canvas");
     overlay.width = W;
     overlay.height = Hh;
@@ -163,8 +231,6 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
       }
     }
 
-    /* Lay the sheet with the photo's own light: multiply keeps shadow,
-       a soft screen pass returns the highlights. */
     ctx.save();
     ctx.globalAlpha = blend;
     ctx.globalCompositeOperation = "multiply";
@@ -173,6 +239,7 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
     ctx.globalAlpha = blend * 0.5;
     ctx.drawImage(photo, 0, 0, W, Hh);
     ctx.restore();
+    setTick((t) => t + 1);
   }, [photo, quad, piece, tileSize, blend, groutLight]);
 
   useEffect(() => {
@@ -187,19 +254,57 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
     };
   };
 
+  /* The loupe: what your finger is hiding, shown above it at 2.5x. */
+  const drawLoupe = (p: Pt) => {
+    const src = canvasRef.current;
+    const dst = loupeRef.current;
+    if (!src || !dst) return;
+    const size = 120;
+    dst.width = size;
+    dst.height = size;
+    const zoom = 2.5;
+    const sx = p.x * src.width - size / (2 * zoom);
+    const sy = p.y * src.height - size / (2 * zoom);
+    const ctx = dst.getContext("2d")!;
+    ctx.imageSmoothingEnabled = true;
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(src, sx, sy, size / zoom, size / zoom, 0, 0, size, size);
+    ctx.strokeStyle = "#c2a15c";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(size / 2, size / 2 - 10);
+    ctx.lineTo(size / 2, size / 2 + 10);
+    ctx.moveTo(size / 2 - 10, size / 2);
+    ctx.lineTo(size / 2 + 10, size / 2);
+    ctx.stroke();
+  };
+
+  const holdStart = (e: React.PointerEvent) => {
+    if ((e.target as Element).tagName === "circle") return;
+    if (!originalRef.current || !canvasRef.current) return;
+    setHolding(true);
+    buzz(6);
+    track("viz_compare", {});
+    const ctx = canvasRef.current.getContext("2d")!;
+    ctx.drawImage(originalRef.current, 0, 0);
+  };
+  const holdEnd = () => {
+    if (!holding) return;
+    setHolding(false);
+    render();
+  };
+
   const share = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     track("viz_share", { piece: piece.slug });
+    buzz(8);
     canvas.toBlob(async (blob) => {
       if (!blob) return;
       const file = new File([blob], `au-mosaic-${piece.slug}.png`, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({
-            files: [file],
-            text: `${piece.name} · au-mosaic.shop`,
-          });
+          await navigator.share({ files: [file], text: `${piece.name} · au-mosaic.shop` });
           return;
         } catch {}
       }
@@ -223,7 +328,6 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
 
   return (
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
-      {/* Step 1: the photo */}
       {!photo && (
         <div className="panel flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -236,14 +340,9 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
           <div className="flex flex-wrap items-center gap-6">
             <label className="btn-gold cursor-pointer">
               Choose a photo
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => onFile(e.target.files?.[0])}
-              />
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
             </label>
-            <button onClick={() => loadImage("/media/private-pool.jpg")} className="link-hair text-dusk">
+            <button onClick={() => loadImage("/media/private-pool.jpg", "sample")} className="link-hair text-dusk">
               Try the sample pool
             </button>
           </div>
@@ -252,18 +351,31 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
 
       {photo && (
         <>
-          {/* The canvas and the stones */}
           <div ref={wrapRef} className="relative -mx-5 overflow-hidden rounded-none sm:mx-0 sm:rounded-[26px]">
             <canvas ref={canvasRef} className="block h-auto w-full" />
+            {/* The render breathes when it changes. */}
+            <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />
             <svg
               className="absolute inset-0 h-full w-full touch-none"
+              onPointerDown={holdStart}
               onPointerMove={(e) => {
                 if (dragging.current === null) return;
                 const p = pointerPos(e);
                 setQuad((q) => q.map((pt, i) => (i === dragging.current ? p : pt)));
+                setLoupe(p);
+                requestAnimationFrame(() => drawLoupe(p));
               }}
-              onPointerUp={() => (dragging.current = null)}
-              onPointerLeave={() => (dragging.current = null)}
+              onPointerUp={() => {
+                if (dragging.current !== null) buzz(4);
+                dragging.current = null;
+                setLoupe(null);
+                holdEnd();
+              }}
+              onPointerLeave={() => {
+                dragging.current = null;
+                setLoupe(null);
+                holdEnd();
+              }}
             >
               {quad.map((p, i) => {
                 const n = quad[(i + 1) % 4];
@@ -277,41 +389,65 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
                     stroke="var(--t-brass)"
                     strokeWidth="2"
                     strokeDasharray="6 5"
-                    opacity="0.9"
+                    opacity={holding ? 0 : 0.9}
                   />
                 );
               })}
               {quad.map((p, i) => (
                 <circle
-                  key={i}
+                  key={`c${i}`}
                   cx={`${p.x * 100}%`}
                   cy={`${p.y * 100}%`}
                   r="14"
                   fill="var(--t-brass)"
-                  fillOpacity="0.9"
+                  fillOpacity={holding ? 0 : 0.9}
                   stroke="#14110b"
                   strokeWidth="2"
                   style={{ cursor: "grab" }}
                   onPointerDown={(e) => {
+                    e.stopPropagation();
                     (e.target as Element).setPointerCapture(e.pointerId);
                     dragging.current = i;
+                    buzz(6);
+                    const p2 = pointerPos(e);
+                    setLoupe(p2);
+                    requestAnimationFrame(() => drawLoupe(p2));
                     track("viz_adjust", { corner: i });
                   }}
                 />
               ))}
             </svg>
+            {/* The loupe rides above the finger. */}
+            {loupe && (
+              <div
+                className="pointer-events-none absolute z-10"
+                style={{
+                  left: `calc(${loupe.x * 100}% - 60px)`,
+                  top: `calc(${loupe.y * 100}% - 150px)`,
+                }}
+              >
+                <canvas
+                  ref={loupeRef}
+                  className="rounded-full"
+                  style={{ boxShadow: "0 0 0 2px var(--t-brass), 0 14px 40px -12px rgb(0 0 0 / 0.6)" }}
+                />
+              </div>
+            )}
+            {holding && (
+              <span className="chip-glass absolute left-1/2 top-4 -translate-x-1/2">Original</span>
+            )}
           </div>
           <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
-            Drag the four stones to the corners of your surface
+            Drag the stones to your surface · press and hold to compare
           </p>
 
-          {/* The pieces */}
           <div className="mt-10 flex gap-3 overflow-x-auto pb-2">
             {pieces.map((p) => (
               <button
                 key={p.slug}
                 onClick={() => {
                   setPieceSlug(p.slug);
+                  buzz(4);
                   track("viz_piece", { piece: p.slug });
                 }}
                 aria-pressed={p.slug === pieceSlug}
@@ -330,7 +466,6 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
             ))}
           </div>
 
-          {/* The controls */}
           <div className="mt-8 grid gap-5 sm:grid-cols-3">
             <div className="panel">
               <p className="eyebrow">Tile size</p>
@@ -339,7 +474,10 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
                 min={14}
                 max={48}
                 value={tileSize}
-                onChange={(e) => setTileSize(+e.target.value)}
+                onChange={(e) => {
+                  setTileSize(+e.target.value);
+                  buzz(2);
+                }}
                 className="mt-4 w-full accent-[#c2a15c]"
                 aria-label="Tile size"
               />
@@ -351,20 +489,28 @@ export default function Visualizer({ initialPiece }: { initialPiece?: string }) 
                 min={40}
                 max={100}
                 value={blend * 100}
-                onChange={(e) => setBlend(+e.target.value / 100)}
+                onChange={(e) => {
+                  setBlend(+e.target.value / 100);
+                  buzz(2);
+                }}
                 className="mt-4 w-full accent-[#c2a15c]"
                 aria-label="Blend"
               />
             </div>
             <div className="panel flex items-center justify-between gap-4">
               <p className="eyebrow">Grout</p>
-              <button onClick={() => setGroutLight(!groutLight)} className="link-hair text-dusk">
+              <button
+                onClick={() => {
+                  setGroutLight(!groutLight);
+                  buzz(4);
+                }}
+                className="link-hair text-dusk"
+              >
                 {groutLight ? "Light" : "Dark"}
               </button>
             </div>
           </div>
 
-          {/* The door out */}
           <div className="mt-10 flex flex-wrap items-center gap-8">
             <button onClick={share} className="btn-gold" data-wa="visualizer">
               Send it to the house
