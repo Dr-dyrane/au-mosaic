@@ -66,3 +66,4 @@ public/media/*
 !public/media/container-day.jpg
 !public/media/custom-night.jpg
 !public/media/custom-day.jpg
+!.env.example

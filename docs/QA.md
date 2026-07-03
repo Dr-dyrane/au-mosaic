@@ -207,6 +207,15 @@ until a logo asset exists.
 | Apple-grade polish | The loupe: while a corner stone is dragged, a 2.5x magnifier with brass crosshair rides above the finger, so precision survives the fingertip. Press and hold the photo (off the stones) to see the original; stones and lines fade while held, an Original chip confirms, release re-renders. Every re-render breathes with one soft light sweep (reduced-motion safe). Haptic ticks on stone grab and release, sliders, piece and grout changes where the platform supports vibration. The session is remembered: photo (downscaled), quad, piece, and controls restore from localStorage on return, ?piece= still wins over memory. viz_compare and viz_resume joined the events. |
 | Piece rail correction | The active chip's ring broke the no-borders law; it is gone. Chosen now means risen: elevated surface, ink text, a 4 percent scale, shadow-lift. The rail gained breathing padding so scaled chips never clip, bleeds edge to edge on mobile, and hides its scrollbar entirely (no-scrollbar utility). |
 
+## The back office begins
+
+| Item | Status |
+|---|---|
+| Analytics | Already complete before the dashboard asked: @vercel/analytics wired in the layout with the /next import, wa_tap placements and the viz_* family tracking custom events. Data flows once the deployment is visited. |
+| Environment hygiene | Real Neon credentials arrived in .env.example; moved to .env (mode 600, gitignored, never committed). .env.example is now a clean placeholder template and ships with the repo via a gitignore negation. |
+| Database foundation | Neon Postgres plus Drizzle, per the Phase 5 spec. src/db/schema.ts models the two families: catalogue (ranges, pieces, stock) slug-keyed to match the public site's stable keys, and ledger (customers, enquiries, orders with list-versus-given price per line, payments, deliveries) uuid-keyed. Money is integer kobo. src/db/index.ts is a lazy client so the static flagship builds with no DATABASE_URL. drizzle.config.ts prefers the unpooled URL for DDL. Scripts: db:generate, db:push, db:studio. Build stays 30 routes; nothing public imports the db yet. |
+| Connection probe | Blocked from the sandbox (network allowlist), as expected. First `npm run db:push` from the owner's machine creates the tables and proves the pipe. |
+
 ## The collection, photo complete · both suns
 
 Six remaining tile-sheet pieces became photography in one batch, each
