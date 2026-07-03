@@ -70,7 +70,7 @@ export default async function AdminHome() {
           {p.cards.map((c) => (
             <Link key={c.label} href={c.href} className="panel group block transition-transform duration-300 active:scale-[0.99]">
               <p className="eyebrow">{c.label}</p>
-              <p className="font-serif mt-3 text-[34px] leading-none transition-colors duration-300 group-hover:text-gold">{c.value}</p>
+              <p className="font-serif mt-3 text-[26px] leading-none transition-colors duration-300 group-hover:text-gold">{c.value}</p>
               <p className="mt-3 text-[12px] uppercase tracking-[0.14em] text-mist">{c.note}</p>
             </Link>
           ))}

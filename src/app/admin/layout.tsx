@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import AdminSw from "@/components/AdminSw";
 
 /* The whole /admin tree, login included, wears app clothes: its own
-   manifest scoped to /admin, so Add to Home Screen puts the back
-   office on the owner's phone as an app of its own, opening past the
-   browser chrome, never at the shop window. */
+   manifest and service worker scoped to /admin, a real installable
+   PWA that opens past the browser chrome, never at the shop window. */
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -16,5 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <AdminSw />
+      {children}
+    </>
+  );
 }
