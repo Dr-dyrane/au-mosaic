@@ -128,6 +128,18 @@ form field name matches what the action reads, aria-labels on inputs,
 no console.log, no TODO. Report the files written and any judgment
 calls made, so integration review can check them fast.
 
+**Debugging is law.** Written after the stockroom bug cost the owner
+two dashboard errands for a theory that was wrong. (1) Logs before
+theories: when production errors, read the runtime logs first; the
+error room's digest exists to be looked up, not admired. (2) The page
+that just shipped is suspect number one; a crash that begins with a
+deploy points at that deploy. (3) Never send the owner to repeat a
+step he already did unless new evidence emerged. (4) Build green
+proves nothing about runtime for force-dynamic pages; they never
+render at build. (5) A server component may render a client component
+but must never call a function exported from a "use client" module;
+shared helpers live in neutral files (see pieces/stock-filters.ts).
+
 ## The measure of done
 
 The owner opens his phone at the market and answers a customer's
