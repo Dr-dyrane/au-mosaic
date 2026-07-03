@@ -46,7 +46,7 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     items: [
       { slug: "solid-colour-glass", name: "Solid colour glass", note: "Every colour, by the sheet", image: OWN.glassJewels, imageLight: DAY.glassJewels, colors: ["#c0392b", "#e67e22", "#f1c40f", "#27ae60", "#2980b9", "#8e44ad"] },
       { slug: "mixed-gradient-blends", name: "Mixed and gradient blends", image: OWN.gradientBlends, imageLight: DAY.gradientBlends, colors: ["#134e5e", "#0e7490", "#2fb9cf", "#67d6e5", "#a5e8f0", "#e8f8fa"] },
-      { slug: "gold-metallic-accents", name: "Gold and metallic accents", colors: ["#8a6d1a", "#b8942d", "#d9b64a", "#edd27a", "#f7e7ae"] },
+      { slug: "gold-metallic-accents", name: "Gold and metallic accents", image: OWN.goldAccents, imageLight: DAY.goldAccents, colors: ["#8a6d1a", "#b8942d", "#d9b64a", "#edd27a", "#f7e7ae"] },
     ],
   },
   {
