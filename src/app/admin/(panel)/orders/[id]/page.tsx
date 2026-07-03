@@ -110,13 +110,16 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         )}
       </div>
 
-      <div className="max-w-3xl">
-        <section className="panel mt-10">
+      {/* The desk sees the two losses face each other: lines on the
+          left, payments on the right, law 6 side by side. The phone
+          keeps the single file it always read. */}
+      <div className="mt-10 grid max-w-3xl items-start gap-x-10 gap-y-12 xl:max-w-none xl:grid-cols-2">
+        <section className="panel xl:col-span-2">
           <p className="font-serif text-[20px]">Where it stands</p>
           <StatusForm orderId={order.id} status={order.status} movements={movements} />
         </section>
 
-        <section className="mt-12" data-tour="order-lines">
+        <section data-tour="order-lines">
           <p className="eyebrow">The lines</p>
           {lines.length === 0 && (
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">
@@ -173,7 +176,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <AddLineForm orderId={order.id} pieces={pieceOptions} />
         </section>
 
-        <section className="mt-12">
+        <section>
           <p className="eyebrow">Payments</p>
           {pays.length === 0 && (
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">

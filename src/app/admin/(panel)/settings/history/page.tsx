@@ -84,7 +84,7 @@ export default async function HistoryPage({
       )}
 
       {rows.length > 0 && (
-        <div className="panel mt-10 max-w-2xl">
+        <div className="panel mt-10 max-w-3xl">
           <div className="divide-y divide-transparent">
             {rows.map((r, i) => (
               <div key={i} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2.5">

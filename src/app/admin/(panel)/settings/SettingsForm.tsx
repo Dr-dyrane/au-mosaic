@@ -15,7 +15,7 @@ const label = "eyebrow mb-2.5 block";
 export default function SettingsForm({ values }: { values: Record<string, string> }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveSettings, null);
   return (
-    <form onSubmit={keepValues(action)} className="panel mt-10 grid max-w-xl gap-6">
+    <form onSubmit={keepValues(action)} className="panel grid gap-6">
       <div>
         <label htmlFor="whatsapp" className={label}>WhatsApp number (digits, 234...)</label>
         <input id="whatsapp" name="whatsapp" inputMode="numeric" defaultValue={values.whatsapp ?? ""} aria-label="WhatsApp number" className={field} />

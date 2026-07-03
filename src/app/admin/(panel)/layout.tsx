@@ -56,7 +56,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!(await hasSession())) redirect("/admin/login");
   const owed = await owedCount();
   return (
-    <div className="tabular-nums mx-auto min-h-svh max-w-6xl px-5 pb-32 sm:px-8 sm:pb-24">
+    /* A flex column so short rooms still hold the footer at the
+       floor: the children stretch, the footer never drifts up. */
+    <div className="tabular-nums mx-auto flex min-h-svh max-w-6xl flex-col px-5 pb-32 sm:px-8 sm:pb-24">
       <header className="flex items-center justify-between gap-6 pb-10 pt-8">
         <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
           <AuMark className="h-[14px] w-auto" />
@@ -73,7 +75,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </form>
         </div>
       </header>
-      {children}
+      <div className="flex-1">{children}</div>
       {/* The office footer: the same suns and houses as the shop
           window, so his dashboard wears the clothes he chose. */}
       <footer className="mt-24 flex flex-wrap items-center justify-between gap-5 pt-8">

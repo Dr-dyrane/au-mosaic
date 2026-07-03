@@ -94,7 +94,11 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         </a>
       )}
 
-      <section className="mt-12 max-w-3xl">
+      {/* The desk pairs the person with their history: details on
+          the left, orders and enquiries on the right. The phone
+          keeps its single file. */}
+      <div className="mt-12 grid max-w-3xl items-start gap-x-10 gap-y-12 xl:max-w-none xl:grid-cols-2">
+      <section className="xl:order-2">
         <p className="eyebrow">Their orders</p>
         {orders.length === 0 ? (
           <p className="mt-4 text-[14px] leading-relaxed text-dusk">
@@ -136,7 +140,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
       </section>
 
       {enquiries.length > 0 && (
-        <section className="mt-12 max-w-3xl">
+        <section className="xl:order-3">
           <p className="eyebrow">Their enquiries</p>
           <div className="mt-4 grid gap-4">
             {enquiries.map((e) => (
@@ -158,7 +162,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         </section>
       )}
 
-      <section className="mt-12 max-w-3xl">
+      <section className="xl:order-1 xl:row-span-2">
         <p className="eyebrow">Their details</p>
         <CustomerForm
           customer={{
@@ -170,6 +174,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
           }}
         />
       </section>
+      </div>
     </main>
   );
 }

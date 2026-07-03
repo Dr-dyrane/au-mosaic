@@ -43,10 +43,14 @@ export default async function SettingsPage() {
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         The number, the hours, the address. Live once the site reads the book.
       </p>
-      <SettingsForm values={values} />
+      {/* The desk gets two columns; the phone keeps its single file.
+          The facts lead on the left, the quieter panels stack right. */}
+      <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">
+        <SettingsForm values={values} />
 
+        <div className="grid gap-8">
       {who?.role === "owner" && (
-        <div className="panel mt-8 max-w-xl">
+        <div className="panel">
           <p className="font-serif text-[20px]">The keys to the door</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
             Named keys for the people who help. Every save signs the
@@ -77,7 +81,7 @@ export default async function SettingsPage() {
         </div>
       )}
 
-      <div className="panel mt-8 max-w-xl">
+      <div className="panel">
         <p className="font-serif text-[20px]">The morning tap</p>
         <p className="mt-2 text-[14px] leading-relaxed text-dusk">
           The glance, brought to the phone: what runs low, what is
@@ -86,7 +90,7 @@ export default async function SettingsPage() {
         <NotifyToggle />
       </div>
 
-      <div className="panel mt-8 max-w-xl">
+      <div className="panel">
         <p className="font-serif text-[20px]">The book&apos;s history</p>
         <p className="mt-2 text-[14px] leading-relaxed text-dusk">
           Every save, step, and key, in sentences: who did what, and when.
@@ -97,6 +101,8 @@ export default async function SettingsPage() {
         >
           Read the history
         </Link>
+      </div>
+        </div>
       </div>
     </main>
   );

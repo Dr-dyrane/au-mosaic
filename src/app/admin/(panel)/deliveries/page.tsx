@@ -92,7 +92,7 @@ export default async function DeliveriesPage({
         return (
           <section key={g.key} className="mt-12">
             <p className="eyebrow">{g.title}</p>
-            <div className="mt-4 grid max-w-2xl gap-4">
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
               {g.items.map(({ d, customerName }) => (
                 <article key={d.id} className="panel">
                   <div className="flex flex-wrap items-baseline justify-between gap-3">

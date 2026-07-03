@@ -115,7 +115,7 @@ export default async function DebtsPage() {
         </div>
       )}
 
-      <div className="mt-10 grid max-w-2xl gap-4">
+      <div className="mt-10 grid items-start gap-4 lg:grid-cols-2">
         {debtors.map((d, i) => (
           <section key={d.id} className="panel">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
