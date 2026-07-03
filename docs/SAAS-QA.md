@@ -187,6 +187,23 @@ and answers in a sentence instead of throwing.
 | Enquiries convert themselves | Pass (opening an order marks that customer's new and replied enquiries converted; attach ties a name without touching status) |
 | Settled orders leave the ledger | Pass (debts and the glance exclude enquiry and settled everywhere, including the owed badge) |
 
+## Consequence and confirmation · the audit
+
+Reversible-by-design is the house rule: statuses walk back, archives
+reopen, nothing deletes. A confirm is earned only when an action has
+physical consequence, stock or money leaving a shelf, and it names
+the exact movement in one sentence. Never ceremony.
+
+| Action | Consequence | Verdict |
+|---|---|---|
+| Order into Delivered or Settled | Stock leaves the shelf | Pass (the house asks first, naming every line: "This takes 20 sheets of Classic pool blues off the shelf. Deliver it?"; gold proceeds with the verb, Not yet stays, Escape stays; the optimistic chip moves only after the yes) |
+| Order back out of Delivered or Settled | Stock returns to the shelf | Pass (same card: "This returns 20 sheets of Classic pool blues to the shelf. Move it back?") |
+| Order moves with free-text lines only | Nothing physical moves | Pass (no confirm, by design: consequence, never ceremony) |
+| Enquiry to Quoted to Deposit | Nothing physical moves | Pass (one tap, reversible, no confirm) |
+| Record a payment | Records money that already moved; the row cannot be deleted | Accepted without confirm (a wrong entry is corrected beside it, per law 8; a confirm here would tax every honest entry to guard a rare slip) |
+| Piece stock edited by hand | Sets the count directly | Accepted without confirm (his own number typed by his own hand, undone by typing the old one; the threshold confirm stays reserved for bulk edits if they ever arrive) |
+| Delivery walks a step | The van moves, the shelf does not (stock moves on the order) | Pass (one step forward, server-verified, optimistic, no confirm) |
+
 ## The missing list · CLOSED
 
 All six named gaps shipped: pagination at volume (landed deliveries,

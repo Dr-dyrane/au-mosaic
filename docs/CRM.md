@@ -291,21 +291,24 @@ keepValues, icons components exist).
    orders, and people each carry Learn this room. Finishing writes
    aumosaic.toured.<chapter> plus the legacy key that retires the
    offer; tour_start, tour_step, tour_done, tour_skip all carry the
-   chapter. COLLISION NOTE: the glance page.tsx was left uncommitted
-   with this item (the seam-flip session held it mid-flight); its
-   data-tour-start="menu" value rides in that file, and the bare
-   attribute already opens the menu meanwhile.
-9. Consequence confirmations (Dyrane asked; the no-deletes law covers
-   permanence but not physical consequence): any action that MOVES
-   STOCK or money gets one confirm sentence before it runs. First:
-   moving an order to delivered confirms with the exact movement
-   ("This takes 20 sheets of Classic pool blues off the shelf.
-   Deliver it?"), listing each affected line, gold to proceed,
-   link-hair to stay. Same pattern reserved for future stock edits
-   larger than a threshold. Reversible-by-design stays the rule
-   elsewhere; confirms are for consequence, never ceremony. Add a
-   "Consequence and confirmation" section to SAAS-QA with honest
-   verdicts.
+   chapter. COLLISION NOTE, resolved: two sessions shared one .git
+   this day; the seam-flip session committed the whole verified tree
+   as 2d84e8c, so the code for items 8 and 9 rides inside that
+   commit, acknowledged in its message. The ledger rows and this
+   handoff carry the item stories.
+9. DONE 2026-07-03, built as specced. StatusForm asks before the
+   door: any move that crosses into or out of Delivered or Settled
+   while the order carries piece lines raises one glass card naming
+   the exact movement ("This takes 20 sheets of Classic pool blues
+   off the shelf. Deliver it?"); several lines list each with
+   quantity and unit; the gold carries the verb (Deliver it, Settle
+   it, Move it back), Not yet stays, Escape stays. The optimistic
+   chip moves only after the yes, so the screen never lies even for
+   a frame. Moves that touch no shelf keep their one tap, and the
+   threshold confirm for bulk stock edits stays reserved:
+   consequence, never ceremony. SAAS-QA carries the Consequence and
+   confirmation audit with the accepted-without-ceremony reasons
+   written.
 
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
