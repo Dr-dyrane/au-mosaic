@@ -20,6 +20,12 @@ export const IMG = {
   rippledLaneWater: px("6110597/pexels-photo-6110597.jpeg"),
 };
 
+/* Owned assets: generated for the house, served from public/media.
+   These replace stock one frame at a time as they arrive. */
+export const OWN = {
+  duskVilla: "/media/dusk-villa.jpg",
+};
+
 /* Film: slow ambient loops. The hero film uses the villa dusk still as its
    poster, so the frame visitors see never changes if the film is blocked,
    slow, or turned off. URL captured from the Pexels player; owner eye-check
@@ -39,7 +45,7 @@ export const LUX = {
 /* Environments: the dream first. Materials follow. */
 export const ENVIRONMENTS = [
   {
-    src: LUX.villaDusk,
+    src: OWN.duskVilla,
     place: "The Dusk Villa",
     line: "Water holds the last light.",
     materials: "Pool mosaic in midnight blend, coping stone, warm lighting",
