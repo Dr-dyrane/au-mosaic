@@ -133,7 +133,7 @@ export function AuLockup({ className = "" }: { className?: string }) {
      the row. */
   return (
     <span className={`inline-flex items-end gap-[0.18em] ${className}`}>
-      <AuSign markClassName="h-[0.7em] shrink-0 translate-y-[0.03em]" />
+      <AuSign markClassName="h-[0.8em] shrink-0 translate-y-[-0.05em]" />
       <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
     </span>
   );
