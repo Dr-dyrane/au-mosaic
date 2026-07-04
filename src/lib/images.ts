@@ -151,3 +151,24 @@ export const ENVIRONMENTS = [
     href: "/mosaic-tiles#pool-mosaics",
   },
 ];
+
+/* Shop-style product cards, batch 05 family plates and batch 07 exact SKU
+   cards: the product on a studio ground, warm off-white by day and near-black
+   by night. Keyed by slug, used for the grid card only; the piece page keeps
+   its own hero photo, so the room and the sheet both show. */
+export const CARD: Record<string, { night: string; day: string }> = {
+  "classic-pool-blues": { night: "/media/plate-pool-blues-night.jpg", day: "/media/plate-pool-blues-day.jpg" },
+  "solid-colour-glass": { night: "/media/plate-solid-glass-night.jpg", day: "/media/plate-solid-glass-day.jpg" },
+  "gold-metallic-accents": { night: "/media/plate-metallic-night.jpg", day: "/media/plate-metallic-day.jpg" },
+  "custom-murals": { night: "/media/plate-custom-art-night.jpg", day: "/media/plate-custom-art-day.jpg" },
+  "plain-blue-small-seed": { night: "/media/sku-plain-blue-small-seed-night.jpg", day: "/media/sku-plain-blue-small-seed-day.jpg" },
+  "mixed-blue-big-seed": { night: "/media/sku-mixed-blue-big-seed-night.jpg", day: "/media/sku-mixed-blue-big-seed-day.jpg" },
+  "plain-white-mosaic": { night: "/media/sku-plain-white-mosaic-night.jpg", day: "/media/sku-plain-white-mosaic-day.jpg" },
+  "black-mosaic": { night: "/media/sku-black-mosaic-night.jpg", day: "/media/sku-black-mosaic-day.jpg" },
+  "green-mosaic": { night: "/media/sku-green-mosaic-night.jpg", day: "/media/sku-green-mosaic-day.jpg" },
+  "orange-mosaic": { night: "/media/sku-orange-mosaic-night.jpg", day: "/media/sku-orange-mosaic-day.jpg" },
+  "tiny-seed-gold": { night: "/media/sku-tiny-seed-gold-night.jpg", day: "/media/sku-tiny-seed-gold-day.jpg" },
+  "silver-crystal-mosaic": { night: "/media/sku-silver-crystal-mosaic-night.jpg", day: "/media/sku-silver-crystal-mosaic-day.jpg" },
+  "stone-mosaic": { night: "/media/sku-stone-mosaic-night.jpg", day: "/media/sku-stone-mosaic-day.jpg" },
+  "hexagon-marble": { night: "/media/sku-hexagon-marble-night.jpg", day: "/media/sku-hexagon-marble-day.jpg" },
+};

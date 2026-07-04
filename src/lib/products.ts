@@ -14,6 +14,9 @@ export type Product = {
   image?: string;
   /** Daylight variant of the photo, shown in light mode when present. */
   imageLight?: string;
+  /** Shop-style product card for the grid; the piece page keeps its own hero. */
+  card?: string;
+  cardLight?: string;
   /** Stable id: the piece page URL today, the CRM product key tomorrow. */
   slug?: string;
 };

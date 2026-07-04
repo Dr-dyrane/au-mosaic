@@ -86,9 +86,12 @@ export function PageHero({
    -mx-5 sm:mx-0); the words keep their margin. */
 export function ProductCard({ item, collection }: { item: Product; collection?: string }) {
   const label = item.variants ? `${item.name} (${item.variants.join(", ")})` : item.name;
+  /* The grid prefers the shop-style card; the piece page keeps the hero. */
+  const cardDark = item.card ?? item.image;
+  const cardLight = item.cardLight ?? item.imageLight;
   /* Equipment has no portrait: no image, no colourway. It gets a quiet
      panel instead of an empty frame. */
-  if (!item.image && !item.colors) {
+  if (!cardDark && !item.colors) {
     return (
       <div className="panel mx-5 flex h-full flex-col sm:mx-0">
         <h3 className="font-serif text-[20px] leading-snug">{item.name}</h3>
@@ -105,10 +108,10 @@ export function ProductCard({ item, collection }: { item: Product; collection?: 
   const media = (
     <>
       <div className="relative aspect-[4/5] overflow-hidden rounded-none bg-shell sm:rounded-[22px]">
-        {item.image ? (
+        {cardDark ? (
           <ThemeImage
-            dark={item.image}
-            light={item.imageLight}
+            dark={cardDark}
+            light={cardLight}
             alt={item.name}
             fill
             sizes="(max-width: 640px) 100vw, 33vw"

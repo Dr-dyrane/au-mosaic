@@ -11,6 +11,7 @@ import {
   type ProductGroup,
 } from "./products";
 import { PROJECTS, projectBySlug, type Project } from "./projects";
+import { CARD } from "./images";
 
 /* The seam, flipped: law 10. The window now reads the book, so what
    he edits in the stockroom is what Lagos sees, photos included.
@@ -107,9 +108,21 @@ function piecesOf(book: Book): Piece[] {
     }));
 }
 
+/* The grid wears the shop-style card where one exists, keyed by slug, over
+   both the book and the fallback; the piece page still reads image, so the
+   hero photo is untouched. */
+function withCards(g: ProductGroup): ProductGroup {
+  return {
+    ...g,
+    items: g.items.map((i) =>
+      i.slug && CARD[i.slug] ? { ...i, card: CARD[i.slug].night, cardLight: CARD[i.slug].day } : i
+    ),
+  };
+}
+
 export async function getMosaicRanges(): Promise<ProductGroup[]> {
   const book = await bookOrNull();
-  return book ? groupsOf(book, "mosaic") : MOSAIC_RANGES;
+  return (book ? groupsOf(book, "mosaic") : MOSAIC_RANGES).map(withCards);
 }
 
 export async function getPoolMaterials(): Promise<ProductGroup[]> {
