@@ -88,13 +88,14 @@ full account access or an export.
 | Metallic mirror mosaic | Gold, silver, rose gold reel | `gold-metallic-accents` | Premium metallic sample study |
 | Tiny Seed Gold Mosaic | Tiny Seed Gold Mosaic search result, gold luxury posts | `gold-metallic-accents`, possible separate stock variant | Dedicated tiny seed stock frame |
 | Silver Crystal Mosaic | Silver Crystal Mosaic search result | `solid-colour-glass`, possible future range | Reflective crystal sample frame |
-| Plain Blue Mosaic | Safari screenshots name Plain Blue and Small Seed | `classic-pool-blues` variant | Covered for now by pool colour family |
-| Mixed Blue Mosaic | Safari screenshots name Mixed Blue and Big Seed | `classic-pool-blues` variant | Covered for now by pool colour family |
-| Plain White Mosaic | Safari screenshots name Plain White | `solid-colour-glass` variant or future range | Needs a clean stock pair before public SKU wiring |
-| Orange Mosaic | Safari screenshots name Orange | `solid-colour-glass` variant or future range | Needs confirmation and a colourway pair |
+| Plain Blue Mosaic | Safari screenshots name Plain Blue and Small Seed | `classic-pool-blues` variant | Batch 03 stock pair, do not wire until CRM variant is confirmed |
+| Mixed Blue Mosaic | Safari screenshots name Mixed Blue and Big Seed | `classic-pool-blues` variant | Batch 03 stock pair, do not wire until CRM variant is confirmed |
+| Plain White Mosaic | Safari screenshots name Plain White | `solid-colour-glass` variant or future range | Batch 03 stock pair, confirm active stock before public SKU wiring |
+| Orange Mosaic | Safari screenshots name Orange | `solid-colour-glass` variant or future range | Batch 03 stock pair, confirm active stock before public SKU wiring |
 | Chess board mosaic | Black and white chess board post | `solid-colour-glass` variant | Pattern sample study |
 | White and Black Mosaic Tiles | White and Black available in Big Seed and Small Seed | `solid-colour-glass` variant | Separate stock frame only if priced separately |
-| Black mosaic | Black mosaic bathroom post | Dark Bath environment and glass mosaics | Bathroom application frame |
+| Black mosaic | Black mosaic bathroom post and stock colour screenshots | Dark Bath environment and glass mosaics | Batch 03 stock pair plus existing bathroom application frame |
+| Green Mosaic | Safari screenshots show green mosaic kitchen and bathroom use | `solid-colour-glass` variant or future range | Batch 03 stock pair, confirm active stock before public SKU wiring |
 | Crystal mosaic | Trade name in owner harvest | `solid-colour-glass` variant | Close material and custom blend frame |
 | Stone mosaic | Trade name in owner harvest and interior search result | `solid-colour-glass` variant today, possible future range | Matte stone interior frame |
 | Hexagon marble mosaic | Bathtub with hexagon marble mosaic search result | Open question | Bathroom application frame, stock status unconfirmed |
@@ -132,8 +133,15 @@ for `DAY`, night images are candidates for `OWN`.
 | Stone Mosaic interior | `stone-mosaic-interior-day.png` | `stone-mosaic-interior-night.png` | Strong pair | Better than a worktable-only read for interior clients. |
 | Hexagon marble mosaic bath | `hexagon-marble-bath-day.png` | `hexagon-marble-bath-night.png` | Strong pair | Treat as application-led until stock status is confirmed. |
 | Pool construction consultation | `pool-construction-consult-day.png` | `pool-construction-consult-night.png` | Strong pair | Gives construction, renovation, and materials a single visual language. |
+| Plain Blue Mosaic Small Seed stock | `plain-blue-small-seed-stock-day.png` | `plain-blue-small-seed-stock-night.png` | Strong pair | Corrected direction: product board, sheet, and loose tesserae only. |
+| Mixed Blue Mosaic Big Seed stock | `mixed-blue-big-seed-stock-day.png` | `mixed-blue-big-seed-stock-night.png` | Strong pair | Big seed reads clearly, with fewer larger cells. |
+| Plain White Mosaic stock | `plain-white-mosaic-stock-day.png` | `plain-white-mosaic-stock-night.png` | Strong pair | White remains readable through grout, bevels, and shadow. |
+| Orange Mosaic stock | `orange-mosaic-stock-day.png` | `orange-mosaic-stock-night.png` | Strong pair | Named colourway, still needs owner confirmation before wiring. |
+| Black Mosaic stock | `black-mosaic-stock-day.png` | `black-mosaic-stock-night.png` | Strong pair | Product display, not bathroom scene. |
+| Green Mosaic stock | `green-mosaic-stock-day.png` | `green-mosaic-stock-night.png` | Strong pair | Product display, not kitchen scene. |
 | Batch review | `contact-sheet.png` | `contact-sheet-pairs.png` | Reference only | Pair sheet is the useful review surface now. |
 | Batch 02 review | `contact-sheet-batch-02.png` | same file | Reference only | Reviews the six new day and night pairs from the extended search pass. |
+| Batch 03 stock review | `contact-sheet-batch-03-stock.png` | same file | Reference only | Reviews six SKU-style stock product display pairs. |
 
 ## Next image queue
 
@@ -143,10 +151,10 @@ queue once the current batch is approved.
 | Priority | Image pair | Why |
 |---|---|---|
 | 1 | Showroom sample wall, day and night | The screenshots show shelves and walls of stock. This proves breadth better than one tray. |
-| 2 | Kitchen backsplash and sink, day and night | Kitchens recur in the grid and are a persuasive non-pool use case. |
-| 3 | Custom mosaic art and pool motif, day and night | Sacred Heart, logo art, crescent, and sun motifs prove custom work. |
-| 4 | Plain white stock and orange stock, day and night | These are named colourways but need owner confirmation before product wiring. |
-| 5 | Gold pillar or TV-wall application, day and night | Gold already has stock images. An installed luxury use would complete the promise. |
+| 2 | Gold stock variants, day and night | The screenshots show multiple gold sheets. We have tiny seed and metallic trio, but a cleaner SKU board set may still help. |
+| 3 | Crystal stock variants, day and night | The screenshots show more than one crystal look. We have silver crystal, but warmer crystal stock may be needed. |
+| 4 | Custom mosaic art and pool motif, day and night | Sacred Heart, logo art, crescent, and sun motifs prove custom work. |
+| 5 | Kitchen backsplash and sink, day and night | This is useful after the stock inventory lane, not before it. |
 
 Every current day and night draft is 1122 by 1402, a 4:5 portrait. Two
 night outputs arrived taller and were cropped into the batch ratio; the
@@ -317,6 +325,22 @@ shows the finished direction.
 
 Night twin: same consultation setup at blue hour with villa and temporary
 work lights.
+
+### Batch 03 stock product boards
+
+All six product pairs use the same inventory grammar: one upright product
+board, one flexible sheet lying flat, loose tesserae in front, and quiet
+showroom sample shelves behind. The product fills the frame. No lifestyle
+scene, no people, no text, no labels, no logos.
+
+Products: Plain Blue Mosaic Small Seed, Mixed Blue Mosaic Big Seed, Plain
+White Mosaic, Orange Mosaic, Black Mosaic, and Green Mosaic.
+
+Day twins: mid-morning Lagos showroom daylight, warm ivory stone, honest
+tile colour, crisp grout and tile edges.
+
+Night twins: same product board logic at blue hour, warm architectural
+lamp grazing across the glass, shelves falling into warm near-black.
 
 ## Wiring plan
 

@@ -232,6 +232,7 @@ until a logo asset exists.
 | Direction correction | PASS. Batch 03 returns to product display: upright SKU board, flat sheet, loose tesserae, and soft showroom shelves. No lifestyle scenes. |
 | Draft image pair set | PASS. Six new day and night stock pairs generated into `public/media/product-ledger-2026-07-04/`: Plain Blue Small Seed, Mixed Blue Big Seed, Plain White, Orange, Black, and Green. All are 1122 by 1402 and remain unwired. |
 | Review surface | PASS. `contact-sheet-batch-03-stock.png` eye-checks the new stock display pairs. No source images were taken from Instagram, and no generated draft was referenced from `src/lib/images.ts`. |
+| Verification | PASS. Forbidden dash and arrow glyph sweep on edited docs; `git diff --check`; `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 39 generated routes. |
 
 ## The visualizer and the projects gallery
 
