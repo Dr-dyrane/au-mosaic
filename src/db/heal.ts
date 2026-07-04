@@ -43,6 +43,11 @@ const DDL: string[] = [
     "created_at" timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT "push_subscriptions_endpoint_unique" UNIQUE("endpoint")
   )`,
+  /* Correction · the instagram placeholder becomes the real handle.
+     Guarded by its own predicate, so it runs once and never again;
+     the probe stops asking the moment the row is right. */
+  `UPDATE settings SET value = 'https://www.instagram.com/aumosaic'
+     WHERE key = 'instagram' AND value = 'https://instagram.com'`,
 ];
 
 let healed = false;
@@ -55,9 +60,11 @@ export async function healSchema(): Promise<void> {
       select to_regclass('public.staff') as staff,
              to_regclass('public.push_subscriptions') as push,
              (select 1 from information_schema.columns
-                where table_name = 'enquiries' and column_name = 'session_id') as sid`);
-    const row = rowsOf<{ staff: string | null; push: string | null; sid: number | null }>(probe)[0];
-    if (row?.staff && row?.push && row?.sid) {
+                where table_name = 'enquiries' and column_name = 'session_id') as sid,
+             (select 1 from settings
+                where key = 'instagram' and value = 'https://instagram.com') as stale_ig`);
+    const row = rowsOf<{ staff: string | null; push: string | null; sid: number | null; stale_ig: number | null }>(probe)[0];
+    if (row?.staff && row?.push && row?.sid && !row?.stale_ig) {
       healed = true;
       return;
     }
