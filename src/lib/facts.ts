@@ -34,6 +34,11 @@ export async function getFacts(): Promise<Facts> {
     location: v.location || SITE.location,
     hours: v.hours || SITE.hours,
     phoneDisplay: v.phone_display || SITE.phoneDisplay,
-    instagram: v.instagram || SITE.instagram,
+    /* The early placeholder (bare instagram.com) never outranks the
+       real handle standing behind it. */
+    instagram:
+      v.instagram && v.instagram !== "https://instagram.com"
+        ? v.instagram
+        : SITE.instagram,
   };
 }

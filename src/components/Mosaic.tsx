@@ -13,21 +13,22 @@ const PALETTE = [
 const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
 
 /* The brand mark: Nonso's "au" mosaic sign, rebuilt as deterministic
-   tesserae in the house metals. au is the chemical symbol for gold,
-   so the mark wears it: brass, stone, and ivory at night, deep gold
-   and umber by day. Fills are theme tokens, so the mark relights
-   itself when the theme flips, no JavaScript. No period, per the
-   client's logo. Keep the bitmap in sync with scripts/brand-icons.py. */
+   tesserae in his own blues, the ones his Instagram has worn all
+   along: navy, royal, sky, and pale glass. A logo is toner, not
+   chrome, so the mark keeps these blues in every house and both
+   suns; the palettes may change the room, never the sign above the
+   door. No period, per the client's logo. Keep the bitmap in sync
+   with scripts/brand-icons.py. */
 
 const AU_A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"];
 const AU_U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"];
 const AU_GRID = AU_A.map((row, r) => row + "." + AU_U[r]);
 const AU_TONES = [
-  "var(--color-gold)",
-  "var(--color-dusk)",
-  "var(--color-gold-deep)",
-  "var(--color-ink)",
-  "var(--color-mist)",
+  "#2b5fc7",
+  "#1e3e90",
+  "#7fb3e8",
+  "#c8e0f5",
+  "#123064",
 ];
 
 export function AuMark({ className = "" }: { className?: string }) {

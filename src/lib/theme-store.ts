@@ -16,11 +16,11 @@ export const getIsLight = () =>
 
 export const notifyTheme = () => listeners.forEach((l) => l());
 
-export const PALETTES = ["maison", "lagoon", "terracotta", "onyx"] as const;
+export const PALETTES = ["royal", "maison", "lagoon", "terracotta", "onyx"] as const;
 export type Palette = (typeof PALETTES)[number];
 
 export const getPalette = (): Palette => {
-  if (typeof document === "undefined") return "lagoon";
+  if (typeof document === "undefined") return "royal";
   const p = document.documentElement.dataset.palette as Palette | undefined;
   return p && PALETTES.includes(p) ? p : "maison";
 };

@@ -39,6 +39,7 @@ def block(css, selector):
 css = open(CSS).read()
 
 palettes = {
+    "royal": ('[data-palette="royal"]', '[data-palette="royal"][data-theme="light"]'),
     "maison": (":root", '[data-theme="light"]'),
     "lagoon": ('[data-palette="lagoon"]', '[data-palette="lagoon"][data-theme="light"]'),
     "terracotta": ('[data-palette="terracotta"]', '[data-palette="terracotta"][data-theme="light"]'),

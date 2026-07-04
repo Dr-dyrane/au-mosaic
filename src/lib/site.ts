@@ -15,7 +15,7 @@ export const SITE = {
   // Canonical URL. NEXT_PUBLIC_URL is localhost in dev and the real
   // domain in Vercel; the fallback is the production home.
   url: process.env.NEXT_PUBLIC_URL || "https://www.aumosaic.com",
-  instagram: "https://instagram.com", // TODO: real handle
+  instagram: "https://www.instagram.com/aumosaic",
   // WhatsApp Business number, international format, digits only.
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "2347077550283",
   phoneDisplay: process.env.NEXT_PUBLIC_PHONE_DISPLAY || "+234 707 755 0283",

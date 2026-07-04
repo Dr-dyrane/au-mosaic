@@ -154,6 +154,39 @@
   color-scheme: light;
 }
 
+/* Royal: the house's own brand, measured off the owner's established
+   identity (the blue tesserae mark, the navy and sky flyers). The
+   main door: layout ships it as the default palette. Hardware is the
+   sky capsule, the one loud thing in the brand's own light. */
+[data-palette="royal"] {
+  --t-sand: #071022;
+  --t-shell: #0e1a33;
+  --t-ink: #eef3fb;
+  --t-dusk: #a3b4d4;
+  --t-mist: #8b9cc0;
+  --t-gold: #7fb3e8;
+  --t-gold-deep: #2b5fc7;
+  --t-water: #7fb3e8;
+  --t-brass: #7fb3e8;
+  --t-scene-gold-night: #7fb3e8;
+  --t-scene-gold-day: #1e3e90;
+  --sand-night-rgb: 7 16 34;
+  --sand-day-rgb: 238 243 250;
+  color-scheme: dark;
+}
+[data-palette="royal"][data-theme="light"] {
+  --t-sand: #eef3fa;
+  --t-shell: #ffffff;
+  --t-ink: #0e1c3d;
+  --t-dusk: #3b5170;
+  --t-mist: #4e6488;
+  --t-gold: #2456c4;
+  --t-gold-deep: #1e3e90;
+  --t-water: #2456c4;
+  --t-lift: 0 18px 50px -28px rgb(14 28 61 / 0.25);
+  color-scheme: light;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
