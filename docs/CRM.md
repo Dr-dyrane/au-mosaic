@@ -394,6 +394,14 @@ that must keep the ledger honest without hard deletes), the order
 the owner is now collecting; trade returns at Agric Market are
 routine, so this likely earns a place ahead of some Phase 3 quotes.
 
+**The mark is frozen (2026-07-04): the owner draws the logo.** After
+the letterform attempt was reverted and the silhouette refused,
+Dyrane is creating the logo himself. Until his file lands in the
+folder, no session touches AuMark, the lockup, the icons, or the
+brand ramps. When it lands: wire it canonical (favicon, app tiles,
+PWA, paper), and ask him then whether the chrome keeps the two-voice
+token relighting or carries his file fixed.
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number
