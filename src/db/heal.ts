@@ -97,9 +97,17 @@ export async function healSchema(): Promise<void> {
         await db.execute(sql.raw(stmt));
         console.log("[schema] applied:", stmt.replace(/\s+/g, " ").slice(0, 56));
       } catch (e) {
-        const m = String(e);
+        /* Drizzle wraps the driver error: the true reason lives in
+           the cause, so tolerance and diagnosis both read it. */
+        const cause = (e as { cause?: unknown })?.cause;
+        const m = `${String(e)} :: ${String(cause ?? "")}`;
         if (!/already exists|duplicate/i.test(m)) {
-          console.error("[schema] statement failed:", m.slice(0, 200));
+          console.error(
+            "[schema] statement failed:",
+            stmt.replace(/\s+/g, " ").slice(0, 48),
+            "::",
+            String(cause ?? e).slice(0, 200)
+          );
         }
       }
     }
