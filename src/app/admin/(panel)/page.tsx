@@ -65,12 +65,18 @@ export default async function AdminHome() {
           Insights
         </Link>
       </div>
-      <h1 className="font-serif text-display-section mt-8">The house, in numbers.</h1>
-      <RefreshLine />
-      <div className="mt-7" data-tour="new-order">
-        <Link href="/admin/orders/new" className="btn-gold">
-          New order
-        </Link>
+      {/* Title left, the one gold right on the desk; the phone
+          wraps the button back under the thumb. */}
+      <div className="mt-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
+        <div>
+          <h1 className="font-serif text-display-section">The house, in numbers.</h1>
+          <RefreshLine />
+        </div>
+        <div data-tour="new-order">
+          <Link href="/admin/orders/new" className="btn-gold">
+            New order
+          </Link>
+        </div>
       </div>
       {/* The tour offer speaks to the new hand, whose numbers are
           still zeros; it may sit above them. The trail serves the
