@@ -149,6 +149,13 @@ for `DAY`, night images are candidates for `OWN`.
 | Batch 02 review | `contact-sheet-batch-02.png` | same file | Reference only | Reviews the six new day and night pairs from the extended search pass. |
 | Batch 03 stock review | `contact-sheet-batch-03-stock.png` | same file | Reference only | Reviews six SKU-style stock product display pairs. |
 | Batch 04 classic stock review | `contact-sheet-batch-04-classic-stock.png` | same file | Reference only | Reviews six classic stock display pairs after rendered-site audit. |
+| Commerce classic pool blues | `commerce-classic-pool-blues-light.png` | `commerce-classic-pool-blues-dark.png` | Strong pair | Product-card plate for deep, light, and mixed pool blues. |
+| Commerce metallic accents | `commerce-metallic-accents-light.png` | `commerce-metallic-accents-dark.png` | Strong pair | Product-card plate for gold, silver, and rose gold mirror mosaics. |
+| Commerce solid colour glass | `commerce-solid-colour-glass-light.png` | `commerce-solid-colour-glass-dark.png` | Strong pair | Product-card plate for orange, green, black, white, aqua, and royal blue. |
+| Commerce speciality neutrals | `commerce-speciality-neutral-light.png` | `commerce-speciality-neutral-dark.png` | Strong pair | Product-card plate for crystal, stone, chess, hex, and white neutrals. |
+| Commerce pool materials kit | `commerce-pool-materials-kit-light.png` | `commerce-pool-materials-kit-dark.png` | Strong pair | Product-card plate for pool equipment, fittings, and tile samples. |
+| Commerce custom mosaic art | `commerce-custom-mosaic-art-light.png` | `commerce-custom-mosaic-art-dark.png` | Strong pair | Product-card plate for abstract custom panels without lettering or logos. |
+| Batch 05 commerce display review | `contact-sheet-batch-05-commerce-display.png` | same file | Reference only | Reviews six Shop-style and Jeffrey Court-style product plate pairs. |
 
 ## Rendered site audit for Batch 04
 
@@ -169,6 +176,38 @@ Findings:
   and in-image text.
 - The next wired assets should keep product count legible without letting
   the image become a social flyer.
+
+## Product display reference audit
+
+The user pointed this pass at Shop.app and Jeffrey Court on July 4,
+2026. The audit used Jeffrey Court product grids, a Jeffrey Court product
+detail page, a Shop.app tile store page, and a Shop.app product detail
+page.
+
+Findings:
+
+- Their grid images are not brand scenes. They are purchasable objects.
+- The product fills the frame, usually as a square swatch or surface.
+- Backgrounds stay clean: white, warm off-white, or quiet black.
+- Repeated cards share scale, crop, and shadow logic so comparison is
+  fast.
+- Product detail pages can go large and quiet, but the image still begins
+  with material truth.
+- Options, samples, and add-to-cart controls sit outside the image. The
+  image itself does not explain.
+- AU Mosaic needs this as a separate commerce-display lane. Batch 04 can
+  stay cinematic stock; Batch 05 becomes catalogue product clarity.
+
+Translation for AU Mosaic:
+
+- Use clean light and dark plates for the theme toggle.
+- Keep the object centered and filling 75 to 82 percent of the frame.
+- Use one product family per image unless comparison is the point.
+- Do not place text, labels, stickers, dimensions, phone numbers, or
+  logos inside the product image.
+- Use tiny contact shadows, readable grout gaps, and material texture at
+  thumbnail size.
+- Keep Lagos luxury in the colour and polish, not in props or scenery.
 
 ## Next image queue
 
@@ -240,6 +279,22 @@ natural photographic drift, but not a different product promise.
 
 The exact generator prompts used the house format. These are the reusable
 briefs after cleanup.
+
+### Batch 05 commerce product plates
+
+Clean ecommerce product-card image. Product family centered on a warm
+off-white studio plate for light mode, or a warm near-black studio plate
+for dark mode. The object fills 75 to 82 percent of the portrait frame.
+Use consistent scale, small realistic shadows, crisp grout gaps, and
+material texture readable at card size.
+
+No props, rooms, hands, people, readable labels, dimensions, phone
+numbers, packaging text, logos, watermarks, or borders. If the image
+shows custom art, use abstract motifs only: waves, sun medallions,
+crescents, pool-floor motifs, and geometric borders without letters.
+
+This lane is for product comparison and catalogue cards. It borrows the
+clarity of Shop.app and Jeffrey Court, not their identity.
 
 ### Pool blue seed samples
 
