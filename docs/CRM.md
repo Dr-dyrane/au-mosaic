@@ -350,6 +350,14 @@ keepValues, icons components exist).
     gold focus ring were already true and are recorded; zig-zag
     declined with reason, the history ledger scans better straight.
 
+**2026-07-04, the night everything held.** Every outside seam proven
+live, not assumed: the book under every room, the public blob store
+under the photographs (first real upload landed), the window serving
+the book, the funnel counting real people, the digest door opening to
+its secret and sending, and the owner's word that it all works. The
+engineering board is closed; what remains is his errand list and the
+facts for the proof band (founding year, honest count, named work).
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number
