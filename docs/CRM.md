@@ -375,9 +375,15 @@ credential helper in .git/config reads it via git rev-parse, so
 plain git push works from sandbox and Mac alike. The token expires;
 when a push starts asking for a username again, mint a new one and
 replace the .env line. Deploys follow pushes by themselves; close
-the loop with the Vercel connector afterwards. (6) The environment
+the loop with the Vercel connector afterwards. (6) The build ritual can lie two ways, both survived on 2026-07-03:
+rsync -a raced the mount and copied a stale globals.css, so the green
+was last night's log; and the sandbox now reaps background jobs
+between calls, so a kicked-off build dies unless the same bash call
+sleeps through it. The cure, both halves: rsync -c (checksum), then
+grep a string you just added in the /tmp/bm copy before building, and
+run kickoff plus sleep plus log-read inside one call. (7) The environment
 files: .env holds real secrets and is gitignored; .env.example ships
-placeholders only. (7) House voice in all repo content: no em dashes,
+placeholders only. (8) House voice in all repo content: no em dashes,
 no arrows, Apple-terse, one gold per screen, no hairlines, nothing
 ever deleted.
 
