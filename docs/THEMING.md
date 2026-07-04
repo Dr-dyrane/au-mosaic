@@ -60,9 +60,14 @@ per client/IMAGE-PROMPTS.md, drop, wire, done.
 
 The system is now two axes. Mode (night or day, `data-theme`) drives
 media and scenes. Palette (which house, `data-palette`) drives the
-tokens: Maison, Lagoon, Terracotta, Onyx, each defining both modes
-plus its hardware (brass, the two scene golds, and the scrim sand
-triplets). The footer picker sets it, localStorage keeps it, the
+tokens: Royal, Oba, Maison, Lagoon, Terracotta, Onyx, each defining
+both modes plus its hardware (brass, the two scene golds, and the
+scrim sand triplets). The houses carry attitude in name and token,
+never in costume: Royal keeps the brand's throne, Oba answers it in
+Yoruba as Lagos majesty, gold on warm midnight with a coral fire, the
+king the city already has; Maison is stone and brass, Lagoon is water
+at rest, Terracotta the Agric earth, Onyx the dark bath. The footer
+picker sets it, localStorage keeps it, the
 pre-paint script applies it before first paint, and the logo, glass,
 scrims, and button all follow automatically because they read tokens.
 Every house passes the gate in both modes before it ships. A new

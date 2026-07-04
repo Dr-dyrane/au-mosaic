@@ -3,12 +3,13 @@
 import { useSyncExternalStore } from "react";
 import { subscribeTheme, getPalette, setPalette, PALETTES, type Palette } from "@/lib/theme-store";
 
-/* Five houses, one quiet row of stones in the footer. Royal leads:
-   the owner's own brand. Each swatch shows its palette's night sand
-   and accent; the active one wears a ring. */
+/* Six houses, one quiet row of stones in the footer. Royal leads, the
+   owner's own brand; Oba answers it in Yoruba. Each swatch shows its
+   palette's night sand and accent; the active one wears a ring. */
 
 const SWATCH: Record<Palette, { sand: string; accent: string; label: string }> = {
   royal: { sand: "#071022", accent: "#7fb3e8", label: "Royal" },
+  oba: { sand: "#181109", accent: "#eabf52", label: "Oba" },
   maison: { sand: "#0c0b09", accent: "#c2a15c", label: "Maison" },
   lagoon: { sand: "#071618", accent: "#63cfbf", label: "Lagoon" },
   terracotta: { sand: "#150c08", accent: "#d99a6c", label: "Terracotta" },

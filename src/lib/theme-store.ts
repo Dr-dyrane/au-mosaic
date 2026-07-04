@@ -16,7 +16,7 @@ export const getIsLight = () =>
 
 export const notifyTheme = () => listeners.forEach((l) => l());
 
-export const PALETTES = ["royal", "maison", "lagoon", "terracotta", "onyx"] as const;
+export const PALETTES = ["royal", "oba", "maison", "lagoon", "terracotta", "onyx"] as const;
 export type Palette = (typeof PALETTES)[number];
 
 export const getPalette = (): Palette => {

@@ -187,6 +187,39 @@
   color-scheme: light;
 }
 
+/* Oba: Lagos majesty, not gulf pastiche. Gold on warm midnight with
+   coral fire, the Yoruba king Lagos already has. Joins beside the
+   houses; whether it takes Maison's seat is the owner's call. Attitude
+   lives here in tokens and name, never in costume imagery. */
+[data-palette="oba"] {
+  --t-sand: #181109;
+  --t-shell: #241a0e;
+  --t-ink: #f8f0dd;
+  --t-dusk: #cdb083;
+  --t-mist: #ad9268;
+  --t-gold: #eabf52;
+  --t-gold-deep: #b8842e;
+  --t-water: #e56a45;
+  --t-brass: #eabf52;
+  --t-scene-gold-night: #eabf52;
+  --t-scene-gold-day: #825b16;
+  --sand-night-rgb: 24 17 9;
+  --sand-day-rgb: 248 240 226;
+  color-scheme: dark;
+}
+[data-palette="oba"][data-theme="light"] {
+  --t-sand: #f8f0e2;
+  --t-shell: #ffffff;
+  --t-ink: #1b1305;
+  --t-dusk: #6d5a34;
+  --t-mist: #736036;
+  --t-gold: #8a5f14;
+  --t-gold-deep: #b8842e;
+  --t-water: #a8462a;
+  --t-lift: 0 18px 50px -28px rgb(24 17 9 / 0.25);
+  color-scheme: light;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;

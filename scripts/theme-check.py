@@ -44,6 +44,7 @@ palettes = {
     "lagoon": ('[data-palette="lagoon"]', '[data-palette="lagoon"][data-theme="light"]'),
     "terracotta": ('[data-palette="terracotta"]', '[data-palette="terracotta"][data-theme="light"]'),
     "onyx": ('[data-palette="onyx"]', '[data-palette="onyx"][data-theme="light"]'),
+    "oba": ('[data-palette="oba"]', '[data-palette="oba"][data-theme="light"]'),
 }
 
 failures = 0
