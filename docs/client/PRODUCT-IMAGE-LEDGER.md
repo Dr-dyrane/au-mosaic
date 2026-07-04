@@ -156,6 +156,13 @@ for `DAY`, night images are candidates for `OWN`.
 | Commerce pool materials kit | `commerce-pool-materials-kit-light.png` | `commerce-pool-materials-kit-dark.png` | Strong pair | Product-card plate for pool equipment, fittings, and tile samples. |
 | Commerce custom mosaic art | `commerce-custom-mosaic-art-light.png` | `commerce-custom-mosaic-art-dark.png` | Strong pair | Product-card plate for abstract custom panels without lettering or logos. |
 | Batch 05 commerce display review | `contact-sheet-batch-05-commerce-display.png` | same file | Reference only | Reviews six Shop-style and Jeffrey Court-style product plate pairs. |
+| Window showroom wall | `window-showroom-wall-light.png` | `window-showroom-wall-dark.png` | Strong pair | Cinematic site-window image for brand breadth and showroom depth. |
+| Window pool edge | `window-pool-edge-light.png` | `window-pool-edge-dark.png` | Strong pair | Cinematic site-window image for water, pool blues, and Lagos villa luxury. |
+| Window metallic room | `window-metallic-room-light.png` | `window-metallic-room-dark.png` | Strong pair | Retaken to remove figure-like reflections; gold, silver, and rose-gold as an interior surface. |
+| Window artisan table | `window-artisan-table-light.png` | `window-artisan-table-dark.png` | Strong pair | Cinematic site-window image for custom blends, craft, and sample consultation. |
+| Window pool materials counter | `window-pool-materials-counter-light.png` | `window-pool-materials-counter-dark.png` | Strong pair | Cinematic site-window image for pool service, materials, and quote readiness. |
+| Window custom art gallery | `window-custom-art-gallery-light.png` | `window-custom-art-gallery-dark.png` | Strong pair | Cinematic site-window image for custom mosaic art without religious figures, letters, or logos. |
+| Batch 06 cinematic window review | `contact-sheet-batch-06-cinematic-window.png` | same file | Reference only | Reviews the final museum-window batch before deeper product-card work. |
 
 ## Rendered site audit for Batch 04
 
@@ -209,6 +216,34 @@ Translation for AU Mosaic:
   thumbnail size.
 - Keep Lagos luxury in the colour and polish, not in props or scenery.
 
+## Cinematic window batch 06
+
+The answer to the window question is yes, but one tight batch. The site
+still needs a cinematic layer before it drops into Shop-style product
+cards. Batch 06 is that layer.
+
+These images are for home, range pages, about, projects, and section
+headers. They should not be used as product-card inventory images. Batch
+05 owns that job.
+
+Window roles covered:
+
+- Showroom wall: the range and stock breadth at a glance.
+- Pool edge: the emotional water moment and the blue family.
+- Metallic room: gold, silver, and rose gold as architectural finish.
+- Artisan table: custom blend, consultation, and craft.
+- Pool materials counter: practical service made premium.
+- Custom art gallery: mosaic art as a museum object.
+
+Rules learned:
+
+- Keep the scene singular enough to survive a page crop.
+- Let the room carry luxury, not in-image copy or labels.
+- Use light and dark twins because the theme toggle changes the mood.
+- Retake any mirror image that produces human-like reflections.
+- Stop here before the cinematic lane turns into noise. The next work is
+  product display, page placement, and real stock proof.
+
 ## Next image queue
 
 Do not generate all of these automatically. Use them as the next review
@@ -216,10 +251,10 @@ queue once the current batch is approved.
 
 | Priority | Image pair | Why |
 |---|---|---|
-| 1 | Custom mosaic art and pool motif, day and night | Sacred Heart, logo art, crescent, and sun motifs prove custom work. |
-| 2 | Kitchen backsplash and sink, day and night | Kitchens are a real application lane in the screenshots. |
-| 3 | Exterior cladding, day and night | Hold until there is clearer project proof or owner confirmation. |
-| 4 | Gold pillar or TV wall, day and night | Generate only if the website needs application imagery beyond the stock ledgers. |
+| 1 | Kitchen backsplash and sink, day and night | Kitchens are a real application lane in the screenshots and are not yet covered by a window pair. |
+| 2 | Exterior cladding, day and night | Hold until there is clearer project proof or owner confirmation. |
+| 3 | Real project proof from Nonso | Replace dream-lane frames with delivered work once owner photos arrive. |
+| 4 | Product-card retakes after page placement | Generate only if a wired card crop exposes a weak product read. |
 
 Every current day and night draft is 1122 by 1402, a 4:5 portrait. Two
 night outputs arrived taller and were cropped into the batch ratio; the
@@ -295,6 +330,23 @@ crescents, pool-floor motifs, and geometric borders without letters.
 
 This lane is for product comparison and catalogue cards. It borrows the
 clarity of Shop.app and Jeffrey Court, not their identity.
+
+### Batch 06 cinematic window frames
+
+Museum-window image. One cinematic scene per frame, made for the website's
+first impression: showroom wall, pool edge, metallic room, artisan table,
+pool materials counter, or custom art gallery. Light mode uses Lagos
+daylight and warm stone. Dark mode uses blue hour, warm lamps, and
+readable material detail.
+
+The subject must remain singular: a wall, edge, pillar, table, counter,
+or panel. Let depth, stone, glass, water, and controlled shadow make the
+premium feeling. No labels, phone numbers, flyers, people, hands,
+watermarks, or logos. Retake reflective images if they form a body, face,
+or silhouette.
+
+This lane is for home, range, project, and journal atmosphere. It should
+not be used for Shop-style product comparison cards.
 
 ### Pool blue seed samples
 
