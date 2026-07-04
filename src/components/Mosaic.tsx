@@ -20,9 +20,18 @@ const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
    door. No period, per the client's logo. Keep the bitmap in sync
    with scripts/brand-icons.py. */
 
-const AU_A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"];
-const AU_U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"];
-const AU_GRID = AU_A.map((row, r) => row + "." + AU_U[r]);
+/* The letters are joined the way his sign joins them: the a's stem
+   and the u's left wall are one shared stroke, a ligature, and the
+   two bases meet at its foot. */
+const AU_GRID = [
+  ".######...##",
+  "##...##...##",
+  ".....##...##",
+  ".######...##",
+  "##...##...##",
+  "##...##...##",
+  ".###########",
+];
 const AU_TONES = [
   "#2b5fc7",
   "#1e3e90",

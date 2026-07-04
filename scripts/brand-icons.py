@@ -4,9 +4,17 @@ Run from the repo root:  python3 scripts/brand-icons.py"""
 
 from PIL import Image, ImageDraw
 
-A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"]
-U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"]
-GRID = [A[r] + "." + U[r] for r in range(7)]
+# Joined as his sign joins them: the a's stem and the u's left wall
+# share one stroke, and the bases meet at its foot.
+GRID = [
+    ".######...##",
+    "##...##...##",
+    ".....##...##",
+    ".######...##",
+    "##...##...##",
+    "##...##...##",
+    ".###########",
+]
 # The brand blues, as the client's own sign wears them; the canvas
 # is the royal night sand. Keep TONES in sync with AU_TONES in
 # src/components/Mosaic.tsx.
