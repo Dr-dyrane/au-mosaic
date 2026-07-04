@@ -382,6 +382,18 @@ and Pool Materials; should the trade names join the book's piece
 names. The royal house, the blue mark, the lockup, the icons, and
 the og card all come from this harvest.
 
+**Unplanned, on the record (owner's note, 2026-07-04): returns
+management.** No phase has planned it. When a customer brings sheets
+back, today the office can only edit the order lines and counts by
+hand, which loses the story. A real returns room would touch four
+laws at once: stock (returned sheets walk back onto the shelf the
+way delivered ones walked off), money (a refund is negative kobo
+that must keep the ledger honest without hard deletes), the order
+(a status or a mirrored line, never an erasure), and the history
+(every return signs itself). Scope it against the Instagram data
+the owner is now collecting; trade returns at Agric Market are
+routine, so this likely earns a place ahead of some Phase 3 quotes.
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number
