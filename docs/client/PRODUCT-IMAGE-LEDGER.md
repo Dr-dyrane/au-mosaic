@@ -163,6 +163,17 @@ for `DAY`, night images are candidates for `OWN`.
 | Window pool materials counter | `window-pool-materials-counter-light.png` | `window-pool-materials-counter-dark.png` | Strong pair | Cinematic site-window image for pool service, materials, and quote readiness. |
 | Window custom art gallery | `window-custom-art-gallery-light.png` | `window-custom-art-gallery-dark.png` | Strong pair | Cinematic site-window image for custom mosaic art without religious figures, letters, or logos. |
 | Batch 06 cinematic window review | `contact-sheet-batch-06-cinematic-window.png` | same file | Reference only | Reviews the final museum-window batch before deeper product-card work. |
+| SKU plain blue small seed | `sku-plain-blue-small-seed-light.png` | `sku-plain-blue-small-seed-dark.png` | Strong pair | Exact Shop-style card for the small-seed pool blue SKU. |
+| SKU mixed blue big seed | `sku-mixed-blue-big-seed-light.png` | `sku-mixed-blue-big-seed-dark.png` | Strong pair | Exact Shop-style card with larger cells and mixed pool blues. |
+| SKU plain white mosaic | `sku-plain-white-mosaic-light.png` | `sku-plain-white-mosaic-dark.png` | Strong pair | Exact Shop-style card; shadow keeps white visible on light ground. |
+| SKU black mosaic | `sku-black-mosaic-light.png` | `sku-black-mosaic-dark.png` | Strong pair | Exact Shop-style card; controlled highlights keep black legible. |
+| SKU green mosaic | `sku-green-mosaic-light.png` | `sku-green-mosaic-dark.png` | Strong pair | Exact Shop-style colourway card, no kitchen context. |
+| SKU orange mosaic | `sku-orange-mosaic-light.png` | `sku-orange-mosaic-dark.png` | Strong pair | Exact Shop-style colourway card, no application context. |
+| SKU tiny seed gold | `sku-tiny-seed-gold-light.png` | `sku-tiny-seed-gold-dark.png` | Strong pair | Exact Shop-style card with dense tiny metallic tesserae. |
+| SKU silver crystal mosaic | `sku-silver-crystal-mosaic-light.png` | `sku-silver-crystal-mosaic-dark.png` | Strong pair | Exact Shop-style card with beveled reflective crystal tesserae. |
+| SKU stone mosaic | `sku-stone-mosaic-light.png` | `sku-stone-mosaic-dark.png` | Strong pair | Exact Shop-style card with matte stone grain and quiet colour variation. |
+| SKU hexagon marble | `sku-hexagon-marble-light.png` | `sku-hexagon-marble-dark.png` | Strong pair | Exact Shop-style card; hex geometry reads at thumbnail size. |
+| Batch 07 Shop SKU review | `contact-sheet-batch-07-shop-sku-cards.png` | same file | Reference only | Reviews ten exact SKU product-card pairs after the cinematic window batch. |
 
 ## Rendered site audit for Batch 04
 
@@ -244,6 +255,38 @@ Rules learned:
 - Stop here before the cinematic lane turns into noise. The next work is
   product display, page placement, and real stock proof.
 
+## Shop SKU cards batch 07
+
+The product-display stage now moves from family plates to exact SKU
+cards. This is the layer closest to Shop.app: one product, one image, no
+scene.
+
+SKUs covered:
+
+- Plain blue mosaic, small seed.
+- Mixed blue mosaic, big seed.
+- Plain white mosaic.
+- Black mosaic.
+- Green mosaic.
+- Orange mosaic.
+- Tiny seed gold mosaic.
+- Silver crystal mosaic.
+- Stone mosaic.
+- Hexagon marble mosaic.
+
+Rules learned:
+
+- The camera should barely move between SKUs.
+- Tile scale is a product fact. Small seed must read tighter than big
+  seed.
+- Light and dark versions should change only the ground and light mood,
+  not the product promise.
+- White and black need extra edge shadow and grout definition.
+- Reflective gold and crystal need controlled highlights, not a luxury
+  flyer mood.
+- No product-card image should include application context. Kitchens,
+  pools, bathrooms, and rooms belong to the window or project layers.
+
 ## Next image queue
 
 Do not generate all of these automatically. Use them as the next review
@@ -256,9 +299,9 @@ queue once the current batch is approved.
 | 3 | Real project proof from Nonso | Replace dream-lane frames with delivered work once owner photos arrive. |
 | 4 | Product-card retakes after page placement | Generate only if a wired card crop exposes a weak product read. |
 
-Every current day and night draft is 1122 by 1402, a 4:5 portrait. Two
-night outputs arrived taller and were cropped into the batch ratio; the
-raw originals remain in the generator cache.
+Every current day and night draft is normalized to a 4:5 portrait. Most
+are 1122 by 1402; a few cropped outputs keep smaller native dimensions.
+The raw originals remain in the generator cache.
 
 Earlier folders:
 
@@ -330,6 +373,22 @@ crescents, pool-floor motifs, and geometric borders without letters.
 
 This lane is for product comparison and catalogue cards. It borrows the
 clarity of Shop.app and Jeffrey Court, not their identity.
+
+### Batch 07 exact SKU cards
+
+Shop-style SKU product card. One square mosaic sheet centered on a clean
+warm off-white studio plate for light mode, or warm near-black studio
+plate for dark mode. The sheet fills about 78 percent of the portrait
+frame. Use the same camera, same crop, same contact shadow, and same
+background logic across all SKUs.
+
+The product difference must come from the material itself: cell size,
+colour, grout, reflectivity, matte stone, or hex geometry. Do not add
+props, rooms, water, hands, people, packaging, labels, dimensions, phone
+numbers, logos, watermarks, or application context.
+
+This lane is for catalogue comparison and future product-card wiring.
+Window images and project proof do not belong here.
 
 ### Batch 06 cinematic window frames
 
