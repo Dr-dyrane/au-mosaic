@@ -264,35 +264,17 @@ p { text-wrap: pretty; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
-/* The sign's ground: night glass carrying the sign's own light.
-   The palette's night sand tints a diagonal fade, dark at the
-   bottom-left rising toward the top-right, the same direction the
-   logo's tiles brighten, with a breath of sky at the top corner
-   and the glass recipe's inset lights on the edges. One material
-   with the island, one light source with the sign, in both suns
-   and every house. */
-.brand-pill {
-  background:
-    radial-gradient(130% 130% at 88% -10%, rgb(127 179 232 / 0.14) 0%, rgb(127 179 232 / 0) 55%),
-    linear-gradient(135deg, rgb(var(--sand-night-rgb) / 0.68) 0%, rgb(var(--sand-night-rgb) / 0.42) 100%);
-  backdrop-filter: blur(28px) saturate(1.6);
-  -webkit-backdrop-filter: blur(28px) saturate(1.6);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.09),
-    inset 0 -1px 0 rgb(0 0 0 / 0.22);
-}
-
-/* The sign's word: always the brand blues on the always-dark pill,
-   one gradient in every house and both suns, like the avatar it
-   came from. Exempt from the text gate as a logotype; the link
-   around it carries the name. */
-.brand-word {
-  color: #7fb3e8;
-  background-image: linear-gradient(180deg, #c8e0f5 0%, #7fb3e8 55%, #2b5fc7 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+/* The sign needs no capsule: the logo's own navy outline is its
+   safe-area device, the reason his print sits straight on white
+   and the avatar straight on black. The word wears solid brand
+   ink per sun, royal navy by day as the print does, pale glass at
+   night as the avatar does; the gradient voice belongs to the big
+   surfaces (the og card, the paper) where it has room to fall.
+   The pill that briefly wrapped this lockup died in three drafts
+   and lives in git history. Logotype, exempt from the text gate;
+   the link around it carries the name. */
+.brand-word { color: #a9c9ef; }
+[data-theme="light"] .brand-word { color: #1e3e90; }
 
 /* Hairline-underline link that draws itself on hover. Inline-flex,
    so a small icon sits beside its word instead of stacking above it;

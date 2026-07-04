@@ -41,13 +41,10 @@ export function AuLockup({ className = "" }: { className?: string }) {
      mark stays shorter than the word's line box, so the island can
      centre the lockup against the nav without the sign inflating
      the row. */
-  /* The sign carries its own ground: a quiet pill in the palette's
-     sand, night or day, so the blue lockup reads in every house
-     without ever borrowing the room's colours. */
+  /* No capsule: the logo's own outline is its ground, as in his
+     print and his avatar. The lockup stands bare on the island. */
   return (
-    <span
-      className={`brand-pill inline-flex items-end gap-[0.18em] rounded-full px-[0.6em] py-[0.32em] ${className}`}
-    >
+    <span className={`inline-flex items-end gap-[0.18em] ${className}`}>
       <AuSign markClassName="h-[1.04em] shrink-0 translate-y-[-0.17em]" />
       <span className="brand-word font-serif text-[1.6em] leading-none">mosaic</span>
     </span>
