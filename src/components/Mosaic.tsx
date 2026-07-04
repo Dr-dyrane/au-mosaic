@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 
 /* Deterministic mosaic graphics. No images needed: the brand IS the pattern.
    Colours cycle through a pool-to-terracotta palette with an index hash, so
@@ -40,13 +41,10 @@ const AU_GRID = [
    jitter so no two neighbours match. Position picks the tone, the
    hash breaks the banding, and the same arithmetic runs in
    scripts/brand-icons.py. */
-const AU_RAMP = ["#12275e", "#1e3e90", "#2b5fc7", "#5b8fd9", "#7fb3e8", "#c8e0f5"];
-
-/* Two voices, one sign. Brand: the canonical blues, for every
-   surface that is the company's identity to the outside (icons,
-   badges, paper). Room: the same arithmetic over the house tokens,
-   so inside the site and the office the mark relights with the
-   palette and the sun; in the Royal default the two voices agree. */
+/* The token mark's ramp: the room's own metals, the same gradient
+   arithmetic the owner's logo carries. The canonical blues live in
+   his file now (assets/brand, served at /media/logo/mark.png); this
+   ramp exists so the other houses can relight the sign. */
 const AU_ROOM_RAMP = [
   "var(--color-gold-deep)",
   "var(--color-gold-deep)",
@@ -56,8 +54,6 @@ const AU_ROOM_RAMP = [
   "var(--color-ink)",
 ];
 
-export type AuVoice = "room" | "brand";
-
 function auTone(ramp: string[], r: number, c: number, rows: number, cols: number, i: number) {
   const w = 0.55 * (1 - r / (rows - 1)) + 0.45 * (c / (cols - 1));
   const jitter = (((i * 13 + 5) % 5) - 2) * 0.35;
@@ -66,11 +62,11 @@ function auTone(ramp: string[], r: number, c: number, rows: number, cols: number
 }
 
 
-export function AuMark({ className = "", voice = "room" }: { className?: string; voice?: AuVoice }) {
+export function AuMark({ className = "" }: { className?: string }) {
   const T = 10;
   const rows = AU_GRID.length;
   const cols = AU_GRID[0].length;
-  const ramp = voice === "brand" ? AU_RAMP : AU_ROOM_RAMP;
+  const ramp = AU_ROOM_RAMP;
   const w = cols * T;
   const h = rows * T;
   const tiles: React.ReactNode[] = [];
@@ -104,7 +100,28 @@ export function AuMark({ className = "", voice = "room" }: { className?: string;
    picks its legible blue per sun through the brand-word rules in
    globals; the palettes have no say, because a sign is a sign. Size
    the lockup with a font-size on the wrapper: the mark rides at 1em. */
-export function AuLockup({ className = "", voice = "room" }: { className?: string; voice?: AuVoice }) {
+/* The sign with the owner's ruling built in: Royal wears his logo
+   file, every other house relights the token mark. Both render and
+   the palette attribute picks via the mark-file and mark-token
+   rules in globals, flashless because the attribute lands before
+   first paint. */
+export function AuSign({ markClassName = "h-[15px]" }: { markClassName?: string }) {
+  return (
+    <>
+      <Image
+        src="/media/logo/mark.png"
+        alt=""
+        aria-hidden
+        width={473}
+        height={360}
+        className={`mark-file w-auto ${markClassName}`}
+      />
+      <AuMark className={`mark-token w-auto ${markClassName}`} />
+    </>
+  );
+}
+
+export function AuLockup({ className = "" }: { className?: string }) {
   /* Aligned the way the print lockup is set: baselines married, not
      centers. The word has no descenders, so its bottom edge IS the
      baseline; the mark stands on that line, taller than the word's
@@ -112,7 +129,7 @@ export function AuLockup({ className = "", voice = "room" }: { className?: strin
      base) dips under the line exactly as his artwork dips. */
   return (
     <span className={`inline-flex items-end gap-[0.28em] ${className}`}>
-      <AuMark voice={voice} className="h-[1.45em] w-auto shrink-0 translate-y-[0.18em]" />
+      <AuSign markClassName="h-[1.45em] shrink-0 translate-y-[0.18em]" />
       <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
     </span>
   );

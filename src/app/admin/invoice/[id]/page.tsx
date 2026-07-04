@@ -5,7 +5,7 @@ import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { naira } from "@/lib/backoffice";
 import { SITE } from "@/lib/site";
-import { AuMark } from "@/components/Mosaic";
+import Image from "next/image";
 import PrintButton from "../PrintButton";
 
 /* The invoice: a sheet of paper, not a screen. It lives outside the
@@ -78,8 +78,14 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         <header className="flex items-start justify-between gap-8">
           <div>
             <div className="flex items-center gap-2.5 text-[#17150F]">
-              {/* Paper carries the canonical sign: toner has one theme. */}
-              <AuMark voice="brand" className="h-[15px] w-auto" />
+              {/* Paper carries the owner's file: toner has one theme. */}
+              <Image
+                src="/media/logo/mark.png"
+                alt="AU Mosaic"
+                width={473}
+                height={360}
+                className="h-[16px] w-auto"
+              />
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">
                 Mosaic
               </span>

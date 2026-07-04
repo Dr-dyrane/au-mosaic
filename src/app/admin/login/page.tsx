@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { AuMark } from "@/components/Mosaic";
+import { AuSign } from "@/components/Mosaic";
 import { IconEye } from "../(panel)/icons";
 import { keepValues } from "../(panel)/keep";
 import { login } from "./actions";
@@ -16,7 +16,7 @@ export default function AdminLogin() {
     <main className="flex min-h-svh items-center justify-center px-5">
       <div className="panel w-full max-w-sm">
         <div className="flex items-center gap-2.5">
-          <AuMark className="h-[15px] w-auto" />
+          <AuSign markClassName="h-[15px]" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
             Back office
           </span>

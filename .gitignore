@@ -33,6 +33,8 @@ src/icon.png
 # owned media: only canonical, processed assets ship.
 # Raw generator drops stay local; whitelist deliberately.
 public/media/*
+!public/media/logo
+!public/media/logo/mark.png
 !public/media/dusk-villa.jpg
 !public/media/pool-blues.jpg
 !public/media/craft-hands.jpg

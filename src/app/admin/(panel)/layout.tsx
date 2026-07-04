@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { sql } from "drizzle-orm";
 import { getDb, rowsOf } from "@/db";
-import { AuMark } from "@/components/Mosaic";
+import { AuSign } from "@/components/Mosaic";
 import { AdminTabBar, AdminTopNav } from "@/components/AdminNav";
 import PalettePicker from "@/components/PalettePicker";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -61,7 +61,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="admin-rooms tabular-nums mx-auto flex min-h-svh max-w-6xl flex-col px-5 pb-32 sm:px-8 sm:pb-24">
       <header className="flex items-center justify-between gap-6 pb-10 pt-8">
         <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
-          <AuMark className="h-[14px] w-auto" />
+          <AuSign markClassName="h-[15px]" />
           <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
             Back office
           </span>
