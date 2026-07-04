@@ -358,6 +358,30 @@ its secret and sending, and the owner's word that it all works. The
 engineering board is closed; what remains is his errand list and the
 facts for the proof band (founding year, honest count, named work).
 
+**The brand, harvested (2026-07-04, owner's Instagram screenshots).**
+The client built the identity himself while the site guessed: the
+tesserae au avatar on near-black, the lowercase serif mosaic wordmark
+in sky blue, navy and glass-blue flyers, ENTERPRISES tracked beneath
+the lockup. Facts read off the page and its flyers, with provenance:
+handle instagram.com/aumosaic (current; older flyers say @aumosaics);
+t.me/aumosaics in the bio; phones 0707 755 0283 (current flyers, same
+as the book) and 0816 725 4287 (older flyers, bio lists both);
+positioning "NO.1 MOSAIC TILES IN NIGERIA", category Building
+Materials; the flyer triad Premium Mosaic Tiles, Swimming Pool
+Solutions, Mosaic Art and Installation; a standing promise "we bring
+the samples to you"; 96 posts, 1,216 followers. Trade names his
+customers already speak: Small Seed and Big Seed (plain blue),
+Crystal Mosaic, Stone Mosaic, Gold, Silver, Rose Gold mirror.
+Addresses in three eras, newest first: Shop 17A, Block 7, Agric
+Market Complex, Odunade Bustop, Orile, Lagos (current flyers); Block
+C Shop 3-4, Odunade Plaza, Agric Market, Orile (mid); Block 5 Suite
+12, 1st Floor, Agric Market, Badagry Exp Way, Orile (oldest). OPEN
+QUESTIONS for the owner: which address is the shop today; does 0816
+725 4287 still answer; does the paper sign ENTERPRISES or AU Mosaic
+and Pool Materials; should the trade names join the book's piece
+names. The royal house, the blue mark, the lockup, the icons, and
+the og card all come from this harvest.
+
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open
 balances); WhatsApp Business API tier (real automation, but a number

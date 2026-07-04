@@ -5,7 +5,7 @@ import { useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { NAV, SITE } from "@/lib/site";
 import { waQuote } from "@/lib/wa";
-import { AuMark } from "./Mosaic";
+import { AuLockup } from "./Mosaic";
 import ThemeToggle from "./ThemeToggle";
 
 /* Island navigation. A floating glass pill; the page moves beneath it.
@@ -35,12 +35,10 @@ export default function Header() {
             scrolled ? "gap-4 px-4 py-2" : "gap-5 px-5 py-2.5"
           }`}
         >
-          <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
-            {/* One voice across the island: the mark speaks lowercase,
-                the wordmark joins the nav's caps, ink so the brand
-                leads while nav items recede in dusk. */}
-            <AuMark className={`w-auto transition-all duration-500 ${scrolled ? "h-[13px]" : "h-[15px]"}`} />
-            <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">Mosaic</span>
+          <Link href="/" className="flex items-center" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
+            {/* The sign as the client's flyers set it: tesserae au,
+                serif mosaic in the brand blue. */}
+            <AuLockup className={`transition-all duration-500 ${scrolled ? "text-[12px]" : "text-[14px]"}`} />
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary">

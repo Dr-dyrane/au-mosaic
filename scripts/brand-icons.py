@@ -7,9 +7,11 @@ from PIL import Image, ImageDraw
 A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"]
 U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"]
 GRID = [A[r] + "." + U[r] for r in range(7)]
-# The house metals, night values (icons live on the night canvas).
-TONES = ["#c2a15c", "#a79e8f", "#8f7434", "#f3efe6", "#8a8172"]
-NIGHT = (12, 11, 9)
+# The brand blues, as the client's own sign wears them; the canvas
+# is the royal night sand. Keep TONES in sync with AU_TONES in
+# src/components/Mosaic.tsx.
+TONES = ["#2b5fc7", "#1e3e90", "#7fb3e8", "#c8e0f5", "#123064"]
+NIGHT = (7, 16, 34)
 
 
 def draw_mark(size):

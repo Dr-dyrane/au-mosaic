@@ -34,10 +34,10 @@ serif = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 6
 caps = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
 
 d.text((70, H - 190), "AU Mosaic", font=serif, fill=(243, 239, 230))
-# Letterspaced eyebrow in brass.
+# Letterspaced eyebrow in the brand sky blue.
 x = 74
 for ch in "THE HOUSE OF MOSAIC":
-    d.text((x, H - 105), ch, font=caps, fill=(194, 161, 92))
+    d.text((x, H - 105), ch, font=caps, fill=(127, 179, 232))
     x += d.textlength(ch, font=caps) + 7
 
 img.save(OUT, "PNG")

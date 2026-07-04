@@ -61,6 +61,20 @@ export function AuMark({ className = "" }: { className?: string }) {
   );
 }
 
+/* The full sign, as the client's own flyers set it: the tesserae au,
+   then mosaic in a lowercase serif wearing the brand blue. The word
+   picks its legible blue per sun through the brand-word rules in
+   globals; the palettes have no say, because a sign is a sign. Size
+   the lockup with a font-size on the wrapper: the mark rides at 1em. */
+export function AuLockup({ className = "" }: { className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-[0.5em] ${className}`}>
+      <AuMark className="h-[1em] w-auto shrink-0" />
+      <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
+    </span>
+  );
+}
+
 /** Small square logo mark: a 3x3 mosaic. */
 export function MosaicMark({ className = "" }: { className?: string }) {
   return (

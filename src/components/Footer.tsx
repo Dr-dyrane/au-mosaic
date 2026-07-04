@@ -2,7 +2,7 @@ import Link from "next/link";
 import { NAV, SITE } from "@/lib/site";
 import { getFacts } from "@/lib/facts";
 import { waGeneral } from "@/lib/wa";
-import { AuMark } from "./Mosaic";
+import { AuLockup } from "./Mosaic";
 import PalettePicker from "./PalettePicker";
 
 export default async function Footer() {
@@ -13,10 +13,7 @@ export default async function Footer() {
       <div className="mx-auto max-w-[1400px] rounded-[28px] bg-shell/70 sm:rounded-[40px]">
         <div className="mx-auto grid max-w-6xl gap-14 px-5 pb-10 pt-16 sm:px-8 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2.5">
-            <AuMark className="h-[17px] w-auto" />
-            <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-ink">Mosaic</span>
-          </div>
+          <AuLockup className="text-[16px]" />
           <p className="font-serif mt-6 max-w-xs text-[20px] leading-snug text-dusk">
             Everything mosaic, and the water it belongs to.
           </p>

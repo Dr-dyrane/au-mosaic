@@ -264,6 +264,12 @@ p { text-wrap: pretty; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
+/* The sign's word: the brand blue in the legible weight for each
+   sun, palette-blind like the tesserae beside it. Exempt from the
+   text gate as a logotype; the link around it carries the name. */
+.brand-word { color: #7fb3e8; }
+[data-theme="light"] .brand-word { color: #2456c4; }
+
 /* Hairline-underline link that draws itself on hover. Inline-flex,
    so a small icon sits beside its word instead of stacking above it;
    text-only links read exactly as before. */
