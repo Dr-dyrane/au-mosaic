@@ -86,9 +86,12 @@ export function PageHero({
    -mx-5 sm:mx-0); the words keep their margin. */
 export function ProductCard({ item, collection }: { item: Product; collection?: string }) {
   const label = item.variants ? `${item.name} (${item.variants.join(", ")})` : item.name;
-  /* The grid prefers the shop-style card; the piece page keeps the hero. */
-  const cardDark = item.card ?? item.image;
-  const cardLight = item.cardLight ?? item.imageLight;
+  /* The grid is the product-tile view (shop.app discipline): the clean product
+     card, or a generated tile sheet from the colourway when no card exists yet.
+     The vivid applied scenery lives on the reveal and the cinema, kept separate
+     on purpose, so the two displays never blur into one another. */
+  const cardDark = item.card;
+  const cardLight = item.cardLight;
   /* Equipment has no portrait: no image, no colourway. It gets a quiet
      panel instead of an empty frame. */
   if (!cardDark && !item.colors) {

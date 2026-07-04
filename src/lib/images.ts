@@ -160,7 +160,7 @@ export const ENVIRONMENTS = [
    one for the other; the grid shows the product card. */
 export const CARD: Record<string, { night: string; day: string }> = {
   "classic-pool-blues": { night: "/media/plate-pool-blues-night.jpg", day: "/media/plate-pool-blues-day.jpg" },
-  "solid-colour-glass": { night: "/media/plate-solid-glass-night.jpg", day: "/media/plate-solid-glass-day.jpg" },
+  "solid-colour-glass": { night: "/media/plate-neutrals-night.jpg", day: "/media/plate-neutrals-day.jpg" },
   "gold-metallic-accents": { night: "/media/plate-metallic-night.jpg", day: "/media/plate-metallic-day.jpg" },
   "custom-murals": { night: "/media/plate-custom-art-night.jpg", day: "/media/plate-custom-art-day.jpg" },
   "plain-blue-small-seed": { night: "/media/sku-plain-blue-small-seed-night.jpg", day: "/media/sku-plain-blue-small-seed-day.jpg" },
