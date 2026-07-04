@@ -16,6 +16,7 @@ git history: their decisions shipped, their prompts moved to the kit.
 | client/PROPOSAL-NONSO.md | The proposal Nonso saw. Business record. |
 | client/VIDEO-SCRIPT.md | The 3-minute walkthrough script, word for word, for the WhatsApp video. |
 | client/IMAGE-PROMPTS.md | The camera. House DNA block, still and film prompts, daylight twins, the eye gate. The owner generates; nothing ships ungated. |
+| client/PRODUCT-IMAGE-LEDGER.md | The product-image ledger. Instagram product truth, generated draft batches, image verdicts, and rollback notes. |
 
 ## The culture, in five rules
 
