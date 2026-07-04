@@ -1,18 +1,23 @@
 import Link from "next/link";
-import { OWN, DAY } from "@/lib/images";
+import { OWN, DAY, CARD } from "@/lib/images";
 import { waProduct } from "@/lib/wa";
 import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
 import Reveal from "@/components/Reveal";
 import PieceBar from "@/components/PieceBar";
 
-/* Item 12, the piece reveal. Four acts, sequenced not blended: the stage,
-   the material, the dream, the counter. Theatre is lawful on the window,
-   so the stage and material hold dark in both suns (night frame, no light
-   twin passed); the dream and counter follow the house's light. Prototyped
-   on tiny-seed-gold, gated by slug in the piece page. Reuses the house's
-   own primitives: SceneVars, ThemeImage, Reveal, PieceBar, the vignette,
-   the scrims, and CSS scroll-driven parallax. No new dependency. */
+/* Item 12, generalised. Every piece page is a four-act reveal now, the
+   shop.app product-detail discipline built the maison way. The acts are
+   data-driven so one component serves the whole catalogue:
+   - the object (stage, material, counter) is the piece's shop-style card
+     where one exists, else its own hero photo;
+   - the dream (act three) is a cinematic window frame chosen by a family
+     map, with a per-slug override for the gold pieces;
+   - the copy is generic and honest, with a bespoke override kept for
+     tiny-seed-gold, the piece the reveal debuted on.
+   Theatre is lawful on the window: the stage and material hold dark in
+   both suns; the dream and counter follow the light. Reduced motion
+   collapses every act to stills; act heights are phone-first in svh. */
 
 type RevealPiece = {
   slug: string;
@@ -26,9 +31,51 @@ type RevealPiece = {
   groupId: string;
 };
 
+type Dream = { night: string; day?: string; line: string; alt: string };
+
+const DREAM_BY_SLUG: Record<string, Dream> = {
+  "tiny-seed-gold": { night: OWN.metallicRoom, day: DAY.metallicRoom, line: "The gold takes the room, and holds the evening in it.", alt: "The gold room at evening" },
+  "gold-metallic-accents": { night: OWN.metallicRoom, day: DAY.metallicRoom, line: "Gold, silver, and rose, the room's own light.", alt: "A metallic mosaic room" },
+};
+
+const DREAM_BY_GROUP: Record<string, Dream> = {
+  "pool-mosaics": { night: OWN.poolEdge, day: DAY.poolEdge, line: "Where the blue begins.", alt: "A pool edge in seed-blue mosaic" },
+  "glass-mosaics": { night: OWN.showroomWall, day: DAY.showroomWall, line: "Every colour, within reach.", alt: "The showroom wall, the full range sampled" },
+  "feature-mosaics": { night: OWN.artGallery, day: DAY.artGallery, line: "Made to be looked at.", alt: "A commissioned mosaic art panel" },
+  "bulk-orders": { night: OWN.showroomWall, day: DAY.showroomWall, line: "Every colour, by the container.", alt: "The showroom wall, the full range sampled" },
+};
+
+function dreamFor(p: RevealPiece): Dream {
+  return DREAM_BY_SLUG[p.slug] ?? DREAM_BY_GROUP[p.groupId] ?? DREAM_BY_GROUP["glass-mosaics"];
+}
+
+type Copy = { stageSub?: string; materialTitle: string; materialBody: string };
+
+const COPY: Record<string, Copy> = {
+  "tiny-seed-gold": {
+    stageSub: "Gold, cut small, set close.",
+    materialTitle: "A thousand points of gold.",
+    materialBody: "Tiny seed, cut small and set close. Each tessera catches the light on its own, so the surface breathes instead of lying flat.",
+  },
+};
+
+const GENERIC_COPY: Copy = {
+  materialTitle: "Close enough to touch.",
+  materialBody: "Cut and set by hand, each tessera catches the light on its own, so the surface breathes instead of lying flat.",
+};
+
+function objectOf(p: RevealPiece): { night: string; day?: string } {
+  const c = CARD[p.slug];
+  if (c) return { night: c.night, day: c.day };
+  return { night: p.image ?? "", day: p.imageLight };
+}
+
 export default function PieceReveal({ piece }: { piece: RevealPiece }) {
   const wa = waProduct(piece.name);
-  const obj = piece.image ?? OWN.tinySeedGold;
+  const obj = objectOf(piece);
+  const dream = dreamFor(piece);
+  const copy = COPY[piece.slug] ?? GENERIC_COPY;
+  const stageSub = copy.stageSub ?? piece.note;
 
   return (
     <>
@@ -38,7 +85,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
         <Reveal>
           <div className="reveal-artwork">
             <ThemeImage
-              dark={obj}
+              dark={obj.night}
               alt={piece.name}
               fill
               priority
@@ -56,9 +103,11 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
             <Reveal delay={160}>
               <h1 className="font-serif text-display-hero scene-title mt-3">{piece.name}</h1>
             </Reveal>
-            <Reveal delay={240}>
-              <p className="scene-sub mt-4 text-[16px]">Gold, cut small, set close.</p>
-            </Reveal>
+            {stageSub && (
+              <Reveal delay={240}>
+                <p className="scene-sub mt-4 text-[16px]">{stageSub}</p>
+              </Reveal>
+            )}
           </div>
         </SceneVars>
         <div className="reveal-cue absolute inset-x-0 bottom-7 z-[2]" aria-hidden>
@@ -74,7 +123,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
       <section className="reveal-stage relative flex min-h-svh items-end overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
           <ThemeImage
-            dark={obj}
+            dark={obj.night}
             alt=""
             fill
             quality={85}
@@ -91,14 +140,11 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
             </Reveal>
             <Reveal delay={90}>
               <h2 className="font-serif text-display-section scene-title mt-3 max-w-[16ch]">
-                A thousand points of gold.
+                {copy.materialTitle}
               </h2>
             </Reveal>
             <Reveal delay={180}>
-              <p className="scene-sub mt-5 max-w-md text-[16px] leading-relaxed">
-                Tiny seed, cut small and set close. Each tessera catches the light on its own, so the
-                surface breathes instead of lying flat.
-              </p>
+              <p className="scene-sub mt-5 max-w-md text-[16px] leading-relaxed">{copy.materialBody}</p>
             </Reveal>
           </div>
         </SceneVars>
@@ -107,9 +153,9 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
       {/* ACT THREE — THE DREAM. The pull-back into the room; the sun returns. */}
       <section className="relative flex min-h-[72svh] items-end overflow-hidden">
         <SceneFrame
-          dark={OWN.metallicRoom}
-          light={DAY.metallicRoom}
-          alt="The gold room at evening"
+          dark={dream.night}
+          light={dream.day}
+          alt={dream.alt}
           fill
           quality={90}
           sizes="100vw"
@@ -119,11 +165,9 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
           <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
             <Reveal>
               <p className="eyebrow scene-eyebrow">Seen in</p>
-              <p className="font-serif text-display-section scene-title mt-3 max-w-xl">
-                The gold takes the room, and holds the evening in it.
-              </p>
+              <p className="font-serif text-display-section scene-title mt-3 max-w-xl">{dream.line}</p>
               <Link href={`/mosaic-tiles#${piece.groupId}`} className="link-hair scene-link mt-6 inline-block">
-                The material behind it
+                The range behind it
               </Link>
             </Reveal>
           </div>
@@ -136,8 +180,8 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
           <Reveal>
             <div className="reveal-counter-thumb mx-auto w-full max-w-[320px] md:max-w-none">
               <ThemeImage
-                dark={obj}
-                light={piece.imageLight}
+                dark={obj.night}
+                light={obj.day}
                 alt={piece.name}
                 fill
                 quality={85}
@@ -155,7 +199,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
             </Reveal>
             {piece.colors && (
               <Reveal delay={140}>
-                <div className="mt-6 flex gap-2.5" aria-label="Colourways">
+                <div className="mt-6 flex flex-wrap gap-2.5" aria-label="Colourways">
                   {piece.colors.map((c) => (
                     <span key={c} className="h-7 w-7 rounded-full" style={{ background: c }} aria-hidden />
                   ))}
