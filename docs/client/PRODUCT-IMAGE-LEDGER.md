@@ -24,9 +24,32 @@ the visible bio, highlights, first 12 post links, and media alt text from
 the earlier Instagram pass.
 
 A fresh logged-out HTTP check on July 4, 2026 returned Instagram's shell,
-not the richer public profile data. No new post evidence was added from
-that check. The ledger below therefore uses the durable harvest already in
-the repo.
+not the richer public profile data. The public profile also stopped at the
+first visible grid slice instead of loading all 96 posts.
+
+Direct post fetches and Instagram oEmbed did not expose captions. Search
+result snippets for Instagram posts did expose extra public product
+language. Treat the second pass as useful stock evidence, not a complete
+archive. A full 96-post harvest still needs owner login access, an export,
+or screenshots from the account.
+
+## Extended Instagram search pass
+
+These rows were found on July 4, 2026 through indexed Instagram result
+snippets and direct URL checks. They extend the first 12-post public
+profile pass, but they are marked as second-tier until the owner provides
+full account access or an export.
+
+| Product or service signal | Instagram evidence | Product read | Image decision |
+|---|---|---|---|
+| Tiny Seed Gold Mosaic | `/reel/DHBjg27tSi1/` says Tiny Seed Gold Mosaic is available in large quantities. `/p/DGsW9THIe2x/` says Gold Mosaic Tiles scream luxury. `/p/DGz0b7DsQLV/` frames gold mosaic for pillars, walls, and floors. | Gold is not only an accent sample. It is a stocked tiny-seed format and an application material. | Add a dedicated tiny seed gold stock pair. |
+| Silver Crystal Mosaic | `/reel/DHPq2HW7vmBY/` says Silver Crystal Mosaic Tiles, and positions them for a premium finish. | Silver crystal should not be hidden inside generic glass. It needs its own display cue. | Add a silver crystal sample pair. |
+| Deep blue, light blue, mixed blue pool colours | `/p/DSFu7VSjM_X/` asks what pool colour the buyer likes, with deep blue pool framing. `/p/DQwywuVjGXg/` names blue mosaic tiles for builders, pool dealers, and homeowners. | The blue family is a colour-selection workflow, not just one tile. | Add installed colour-bay pair with dry seed samples. |
+| White and Black Mosaic Tiles | `/p/DTm5PyDDB5m/` says White and Black Mosaic Tiles are available in Big Seed and Small Seed. | Chess board is one pattern use. White and black seed stock is the broader material truth. | Existing chess pair stands. Add stock variant later if Nonso prices it separately. |
+| Stone Mosaic Tiles | `/p/DITOgqRsugy/` frames stone mosaic for sitting room, kitchen, and office spaces. `/reel/DHJe5XwMfrY/` asks which stone mosaic a buyer prefers. | Stone is an interior finish family, not only a worktable material. | Add a stone interior application pair. |
+| Hexagon marble mosaic | `/p/DGB6SlYN80F/` describes a bathtub with hexagon marble mosaic and asks buyers to stand out. | Treat as a bathroom application signal until stock photos confirm the exact product. | Add a hexagon marble bath pair. |
+| Full pool service | `/p/DOti8tNDA0n/` welcomes buyers to AU Mosaic and names construct new pools, renovate leaking pools, and water fountains. The bio already names pool construction. | The website and CRM need a service lane alongside tile stock. | Add a pool construction consultation pair. |
+| General range promise | `/reel/DKXOjjoMo1O/` says two best-selling mosaics are fully restocked. `/p/CgPWiYDqmTD/` says AU Mosaic sells all kinds of mosaic tiles for every part of construction. | Keep a broad stockroom category, but do not invent unseen SKUs. | Covered by sample tray and future stockroom photography. |
 
 ## Product inventory from Instagram
 
@@ -35,14 +58,19 @@ the repo.
 | Pool mosaic | Pool tiles, Big Seed, deep blue, light blue, mixed blue | `classic-pool-blues` and Pool mosaics range | Sample boards and waterline scenes |
 | Aqua colour mosaic | Aqua colour mosaic post | `aqua-turquoise-blends` | Interior and pool-use frame |
 | Metallic mirror mosaic | Gold, silver, rose gold reel | `gold-metallic-accents` | Premium metallic sample study |
+| Tiny Seed Gold Mosaic | Tiny Seed Gold Mosaic search result, gold luxury posts | `gold-metallic-accents`, possible separate stock variant | Dedicated tiny seed stock frame |
+| Silver Crystal Mosaic | Silver Crystal Mosaic search result | `solid-colour-glass`, possible future range | Reflective crystal sample frame |
 | Chess board mosaic | Black and white chess board post | `solid-colour-glass` variant | Pattern sample study |
+| White and Black Mosaic Tiles | White and Black available in Big Seed and Small Seed | `solid-colour-glass` variant | Separate stock frame only if priced separately |
 | Black mosaic | Black mosaic bathroom post | Dark Bath environment and glass mosaics | Bathroom application frame |
 | Crystal mosaic | Trade name in owner harvest | `solid-colour-glass` variant | Close material and custom blend frame |
-| Stone mosaic | Trade name in owner harvest | `solid-colour-glass` variant today, possible future range | Matte stone material frame |
+| Stone mosaic | Trade name in owner harvest and interior search result | `solid-colour-glass` variant today, possible future range | Matte stone interior frame |
+| Hexagon marble mosaic | Bathtub with hexagon marble mosaic search result | Open question | Bathroom application frame, stock status unconfirmed |
 | Pool materials | Complete swimming pool materials reel | Pool materials page and stockroom family | Counter with equipment and fittings |
 | Filter tanks | Filter tank carousel | Filtration and circulation group | Equipment-led product card |
 | Samples to you | Flyer promise and Telegram sample room | Contact, WhatsApp prompts, CRM photo workflow | Sample preparation or visit frame |
-| Pool construction | Bio service and pool posts | Pools page and projects | Lagos residential pool environment |
+| Pool construction | Bio service, pool posts, construct and renovate pool search result | Pools page and projects | Lagos residential pool environment |
+| Water fountains | Full pool service search result | Open question | Hold until confirmed with owner |
 | Building tiles | Pinned timeless building tiles campaign | Open question | Do not invent a catalogue range yet |
 
 ## Draft image batch
@@ -63,7 +91,14 @@ for `DAY`, night images are candidates for `OWN`.
 | Crystal mosaic, stone mosaic, custom blend | `crystal-stone-custom-table-day.png` | `crystal-stone-custom-table-night.png` | Strong pair | Best bridge between product truth and maison craft. |
 | Pool materials, filter tank, pump, fittings, ladder | `pool-materials-counter-day.png` | `pool-materials-counter-night.png` | Strong pair | Practical stock image with enough luxury restraint. |
 | Sample flow, quote journey, samples to you | `sample-visit-tray-day.png` | `sample-visit-tray-night.png` | Strong pair | Clean after the first rejected take with number marks. |
+| Tiny Seed Gold Mosaic large-quantity stock | `tiny-seed-gold-stock-day.png` | `tiny-seed-gold-stock-night.png` | Strong pair | Dedicated to the new tiny seed gold evidence. |
+| Silver Crystal Mosaic | `silver-crystal-mosaic-day.png` | `silver-crystal-mosaic-night.png` | Strong pair | Clear reflective sheet and premium application context. |
+| Pool colour family, deep, light, mixed blue | `pool-colour-family-day.png` | `pool-colour-family-night.png` | Strong pair | Shows installed water colour plus dry seed samples. |
+| Stone Mosaic interior | `stone-mosaic-interior-day.png` | `stone-mosaic-interior-night.png` | Strong pair | Better than a worktable-only read for interior clients. |
+| Hexagon marble mosaic bath | `hexagon-marble-bath-day.png` | `hexagon-marble-bath-night.png` | Strong pair | Treat as application-led until stock status is confirmed. |
+| Pool construction consultation | `pool-construction-consult-day.png` | `pool-construction-consult-night.png` | Strong pair | Gives construction, renovation, and materials a single visual language. |
 | Batch review | `contact-sheet.png` | `contact-sheet-pairs.png` | Reference only | Pair sheet is the useful review surface now. |
+| Batch 02 review | `contact-sheet-batch-02.png` | same file | Reference only | Reviews the six new day and night pairs from the extended search pass. |
 
 Every current day and night draft is 1122 by 1402, a 4:5 portrait. Two
 night outputs arrived taller and were cropped into the batch ratio; the
@@ -180,6 +215,61 @@ numbers, no labels, no brand plates.
 Night twin: same tray, shelf lights glowing, cool palm window, blank card
 still blank, no labels or hardware marks.
 
+### Tiny seed gold stock
+
+Large-quantity tiny seed gold mosaic sheets stacked and fanned on a warm
+ivory stone plinth. Loose tiny gold tesserae in front. One upright sample
+board in the midground. Lagos luxury showroom, no labels, no logos.
+
+Night twin: same stock promise at blue hour, warm grazing lamp over the
+gold, showroom falling into calm near-black.
+
+### Silver crystal mosaic
+
+Three silver crystal mosaic sheets: one upright board, one curved sheet,
+one close foreground strip. Soft pillar and bathroom niche context behind
+them. Pearl, ivory, pale stone, and faint aqua reflections.
+
+Night twin: same material with warm architectural lamp, blue hour window,
+controlled crystal sparkle, no bloom.
+
+### Pool colour family
+
+Three installed pool colour sample bays beside shallow water: deep blue,
+light blue, and mixed blue. Dry sample boards in front for Big Seed and
+Small Seed scale comparison. Tropical daylight, tile colour readable
+through water.
+
+Night twin: same bays at blue hour with warm underwater and ledge lights.
+
+### Stone mosaic interior
+
+Lagos apartment interior with a matte stone mosaic feature panel, console
+sample sheets, a curved test strip, and loose matte tesserae in grey,
+ivory, taupe, and charcoal. Sitting room, kitchen, and office mood.
+
+Night twin: same interior under one warm architectural lamp and a cool
+blue window.
+
+### Hexagon marble bath
+
+Luxury bathroom with a freestanding bathtub, hexagon marble mosaic wall,
+and foreground sample sheet with loose hexagon tesserae. Product readable
+before architecture.
+
+Night twin: same bathroom at blue hour, warm lamps just lit, hexagon
+geometry and marble veining still readable.
+
+### Pool construction consultation
+
+Clean unfinished luxury pool shell in a Lagos villa courtyard. Foreground
+ledge holds pool mosaic samples, filter tank, pump, skimmer, drain,
+nozzles, pipe elbows, and ladder section. One small blue mosaic test area
+shows the finished direction.
+
+Night twin: same consultation setup at blue hour with villa and temporary
+work lights.
+
 ## Wiring plan
 
 Do not wire all drafts at once.
@@ -209,6 +299,12 @@ work, not just site work.
   cement should not rely on tile imagery.
 - Sample flow needs its own proof. If Nonso sends real photos of samples
   being prepared or delivered, that replaces the generated tray.
+- Confirm whether Tiny Seed Gold Mosaic is a separately priced SKU or a
+  variant of the metallic mirror range.
+- Confirm whether Silver Crystal Mosaic and Hexagon Marble Mosaic are
+  stocked products, inspiration posts, or sourcing-on-request products.
+- Add a service record for construct new pools, renovate leaking pools,
+  and water fountains only after Nonso confirms the service boundaries.
 
 ## Rollback notes
 

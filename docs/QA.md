@@ -215,6 +215,7 @@ until a logo asset exists.
 | Extended stock harvest | PASS. Logged-out Instagram still exposed only the public profile slice, direct post HTTP returned shell HTML, and oEmbed returned no captions. Search-indexed Instagram result snippets added second-tier evidence for Tiny Seed Gold, Silver Crystal, pool colour variants, White and Black seed stock, Stone Mosaic, Hexagon Marble Mosaic, and pool construction or renovation. |
 | Draft image pair set | PASS. Six new day and night pairs generated into `public/media/product-ledger-2026-07-04/`: tiny seed gold stock, silver crystal, pool colour family, stone interior, hexagon marble bath, and pool construction consultation. All are 1122 by 1402 and remain unwired. |
 | Review surface | PASS. `contact-sheet-batch-02.png` eye-checks the new pairs. No source images were taken from Instagram, and no generated draft was referenced from `src/lib/images.ts`. |
+| Verification | PASS. Forbidden dash and arrow glyph sweep on edited docs; `git diff --check`; `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 39 generated routes. |
 
 ## The visualizer and the projects gallery
 
