@@ -24,6 +24,18 @@ export const OWN = {
   goldAccents: "/media/gold-night.jpg",
   containerOrders: "/media/container-night.jpg",
   customColours: "/media/custom-night.jpg",
+  /* Nonso's green-lit SKUs, 2026-07-04: the trade names his
+     Instagram sells, photographed by the house camera. */
+  plainBlueSmallSeed: "/media/plain-blue-small-seed-night.jpg",
+  mixedBlueBigSeed: "/media/mixed-blue-big-seed-night.jpg",
+  plainWhite: "/media/plain-white-mosaic-night.jpg",
+  orangeMosaic: "/media/orange-mosaic-night.jpg",
+  greenMosaic: "/media/green-mosaic-night.jpg",
+  blackMosaic: "/media/black-mosaic-night.jpg",
+  tinySeedGold: "/media/tiny-seed-gold-night.jpg",
+  silverCrystal: "/media/silver-crystal-mosaic-night.jpg",
+  stoneMosaic: "/media/stone-mosaic-night.jpg",
+  hexagonMarble: "/media/hexagon-marble-night.jpg",
 };
 
 /* Daylight variants: the same scenes relit for light mode. Filled one
@@ -45,6 +57,16 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   goldAccents: "/media/gold-day.jpg",
   containerOrders: "/media/container-day.jpg",
   customColours: "/media/custom-day.jpg",
+  plainBlueSmallSeed: "/media/plain-blue-small-seed-day.jpg",
+  mixedBlueBigSeed: "/media/mixed-blue-big-seed-day.jpg",
+  plainWhite: "/media/plain-white-mosaic-day.jpg",
+  orangeMosaic: "/media/orange-mosaic-day.jpg",
+  greenMosaic: "/media/green-mosaic-day.jpg",
+  blackMosaic: "/media/black-mosaic-day.jpg",
+  tinySeedGold: "/media/tiny-seed-gold-day.jpg",
+  silverCrystal: "/media/silver-crystal-mosaic-day.jpg",
+  stoneMosaic: "/media/stone-mosaic-day.jpg",
+  hexagonMarble: "/media/hexagon-marble-day.jpg",
 };
 
 /* Film slot: dormant. The 720p loop softened the one surface that must be

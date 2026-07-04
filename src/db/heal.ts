@@ -48,6 +48,29 @@ const DDL: string[] = [
      the probe stops asking the moment the row is right. */
   `UPDATE settings SET value = 'https://www.instagram.com/aumosaic'
      WHERE key = 'instagram' AND value = 'https://instagram.com'`,
+  /* 2026-07-04 · Nonso's green: ten SKUs from his own Instagram
+     trade language enter the book, insert-only so nothing existing
+     can be touched. Counts start at zero and warn-at zero: the
+     shelves are his to fill. */
+  `INSERT INTO pieces (slug, range_slug, name, line, colors, image_night, image_day, sort) VALUES
+    ('plain-blue-small-seed', 'pool-mosaics', 'Plain blue mosaic', 'Small seed, the pool classic', '["#1553b8","#1e63c8","#2f79dc","#4a8fe8"]'::jsonb, '/media/plain-blue-small-seed-night.jpg', '/media/plain-blue-small-seed-day.jpg', 20),
+    ('mixed-blue-big-seed', 'pool-mosaics', 'Mixed blue mosaic', 'Big seed, deep to light in one sheet', '["#0d3a8a","#1e63c8","#3aa9d6","#7fc4ec","#b7e0f6"]'::jsonb, '/media/mixed-blue-big-seed-night.jpg', '/media/mixed-blue-big-seed-day.jpg', 21),
+    ('tiny-seed-gold', 'glass-mosaics', 'Tiny seed gold mosaic', 'Tiny seed, stocked in quantity', '["#8a6d1a","#b8942d","#d9b64a","#edd27a"]'::jsonb, '/media/tiny-seed-gold-night.jpg', '/media/tiny-seed-gold-day.jpg', 20),
+    ('silver-crystal-mosaic', 'glass-mosaics', 'Silver crystal mosaic', 'A premium reflective finish', '["#c9cdd4","#dde1e7","#eef1f5","#b7bcc4"]'::jsonb, '/media/silver-crystal-mosaic-night.jpg', '/media/silver-crystal-mosaic-day.jpg', 21),
+    ('plain-white-mosaic', 'glass-mosaics', 'Plain white mosaic', 'Clean light for walls and pools', '["#f6f7f8","#eceff1","#e2e6ea","#d7dde2"]'::jsonb, '/media/plain-white-mosaic-night.jpg', '/media/plain-white-mosaic-day.jpg', 22),
+    ('black-mosaic', 'glass-mosaics', 'Black mosaic', 'Shadow-deep, matte or gloss', '["#0d0f12","#16191d","#212529","#2c3136"]'::jsonb, '/media/black-mosaic-night.jpg', '/media/black-mosaic-day.jpg', 23),
+    ('green-mosaic', 'glass-mosaics', 'Green mosaic', 'Kitchens, baths, and courtyards', '["#1c8a4a","#27a35a","#3cba6e","#66d08e"]'::jsonb, '/media/green-mosaic-night.jpg', '/media/green-mosaic-day.jpg', 24),
+    ('orange-mosaic', 'glass-mosaics', 'Orange mosaic', 'A warm accent colourway', '["#e07020","#f08430","#f89a4a","#ffb066"]'::jsonb, '/media/orange-mosaic-night.jpg', '/media/orange-mosaic-day.jpg', 25),
+    ('stone-mosaic', 'feature-mosaics', 'Stone mosaic', 'Matte stone for quiet rooms', '["#8d857a","#a49b8e","#bcb3a5","#6f685e"]'::jsonb, '/media/stone-mosaic-night.jpg', '/media/stone-mosaic-day.jpg', 20),
+    ('hexagon-marble', 'feature-mosaics', 'Hexagon marble mosaic', 'Marble hexagons for the bath', '["#e8e4dd","#d9d3c9","#c6bfb2","#f2efe9"]'::jsonb, '/media/hexagon-marble-night.jpg', '/media/hexagon-marble-day.jpg', 21)
+   ON CONFLICT (slug) DO NOTHING`,
+  `INSERT INTO stock_levels (piece_slug)
+   SELECT s FROM unnest(ARRAY[
+     'plain-blue-small-seed','mixed-blue-big-seed','tiny-seed-gold',
+     'silver-crystal-mosaic','plain-white-mosaic','black-mosaic',
+     'green-mosaic','orange-mosaic','stone-mosaic','hexagon-marble'
+   ]) AS s
+   ON CONFLICT (piece_slug) DO NOTHING`,
 ];
 
 let healed = false;
@@ -62,9 +85,10 @@ export async function healSchema(): Promise<void> {
              (select 1 from information_schema.columns
                 where table_name = 'enquiries' and column_name = 'session_id') as sid,
              (select 1 from settings
-                where key = 'instagram' and value = 'https://instagram.com') as stale_ig`);
-    const row = rowsOf<{ staff: string | null; push: string | null; sid: number | null; stale_ig: number | null }>(probe)[0];
-    if (row?.staff && row?.push && row?.sid && !row?.stale_ig) {
+                where key = 'instagram' and value = 'https://instagram.com') as stale_ig,
+             (select 1 from pieces where slug = 'hexagon-marble') as skus`);
+    const row = rowsOf<{ staff: string | null; push: string | null; sid: number | null; stale_ig: number | null; skus: number | null }>(probe)[0];
+    if (row?.staff && row?.push && row?.sid && !row?.stale_ig && row?.skus) {
       healed = true;
       return;
     }

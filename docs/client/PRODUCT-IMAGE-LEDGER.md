@@ -422,6 +422,17 @@ Do not wire all drafts at once.
 Content swap on canonical names: no code changed, the book's paths
 stand, the eye gate ran on a four-up proof sheet before the copy.
 
+## Green-lit, 2026-07-04: the SKU set enters the book
+
+Nonso confirmed the full stock set. Ten pairs left the draft folder
+as canonical media, ten pieces joined the catalogue and the book:
+plain-blue-small-seed and mixed-blue-big-seed under pool mosaics;
+tiny-seed-gold, silver-crystal-mosaic, plain-white-mosaic,
+black-mosaic, green-mosaic, and orange-mosaic under glass mosaics;
+stone-mosaic and hexagon-marble under feature mosaics. Rows arrive
+through heal, insert-only, counts and warn-at zero: the shelves are
+the owner's to fill from the stockroom.
+
 ## Back office implications
 
 The CRM heart is the piece record. These images suggest future stockroom
