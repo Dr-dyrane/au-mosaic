@@ -97,12 +97,18 @@ export default async function AdminHome() {
               <p className="mt-3 text-[12px] uppercase tracking-[0.14em] text-mist">{c.note}</p>
             </Link>
           ))}
+          {/* Rooms of different sizes, like a floor plan: the daily
+              three wear serif, the occasional six wrap as a quiet
+              cloud. Size is frequency, the mosaic is typographic,
+              and nothing new is ornamental. */}
           <div className="panel flex flex-col justify-center">
-            <p className="font-serif text-[20px]">The rooms</p>
-            <ul className="mt-4 space-y-2.5">
-              <li><Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">The stockroom</Link></li>
-              <li><Link href="/admin/orders" className="link-hair text-dusk text-[13px]">Orders</Link></li>
-              <li><Link href="/admin/customers" className="link-hair text-dusk text-[13px]">Customers</Link></li>
+            <p className="eyebrow">The rooms</p>
+            <ul className="mt-5 space-y-3">
+              <li><Link href="/admin/pieces" className="font-serif block text-[21px] leading-snug transition-colors duration-300 hover:text-gold">The stockroom</Link></li>
+              <li><Link href="/admin/orders" className="font-serif block text-[21px] leading-snug transition-colors duration-300 hover:text-gold">Orders</Link></li>
+              <li><Link href="/admin/customers" className="font-serif block text-[21px] leading-snug transition-colors duration-300 hover:text-gold">Customers</Link></li>
+            </ul>
+            <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3.5">
               <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[13px]">Deliveries</Link></li>
               <li><Link href="/admin/debts" className="link-hair text-dusk text-[13px]">Who owes what</Link></li>
               <li><Link href="/admin/insights" className="link-hair text-dusk text-[13px]">Insights</Link></li>
