@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { OWN, DAY, CARD } from "@/lib/images";
+import { OWN, DAY } from "@/lib/images";
 import { waProduct } from "@/lib/wa";
 import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
@@ -64,9 +64,10 @@ const GENERIC_COPY: Copy = {
   materialBody: "Cut and set by hand, each tessera catches the light on its own, so the surface breathes instead of lying flat.",
 };
 
+/* The reveal stars the piece's own image, never the grid's shop card, so the
+   distinctive frames (the beetle mural, the koi mural, the glass jewels) are
+   the object under the spotlight. The shop card lives on the grid only. */
 function objectOf(p: RevealPiece): { night: string; day?: string } {
-  const c = CARD[p.slug];
-  if (c) return { night: c.night, day: c.day };
   return { night: p.image ?? "", day: p.imageLight };
 }
 
