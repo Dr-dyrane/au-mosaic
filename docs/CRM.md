@@ -242,8 +242,9 @@ keepValues, icons components exist).
    from the Phase 6 queries, FAQ on page and in schema, WhatsApp
    closes with journal-slug sources, sitemap and footer. STILL OPEN,
    no-code errands: Nonso claims Google Business Profile; Dyrane
-   verifies Search Console and submits /sitemap.xml; the real
-   Instagram handle into site.ts.
+   verifies Search Console and submits /sitemap.xml. The real
+   Instagram handle already landed, corrected in the book by the
+   heal channel at boot.
 6. DONE 2026-07-03: onboarding, both halves. The word-for-word
    script lives at docs/client/VIDEO-SCRIPT.md, under three minutes,
    covering glance, new order, list versus given, payment, who owes
@@ -350,7 +351,7 @@ keepValues, icons components exist).
     gold focus ring were already true and are recorded; zig-zag
     declined with reason, the history ledger scans better straight.
 
-12. PLANNED 2026-07-04 (owner's brief, discussed and agreed): THE
+12. DONE 2026-07-04, shipped then generalised to every piece: THE
     PIECE REVEAL, the window's piece page in four acts. Target named
     by the owner: shop.app's product-as-object, Apple's reveal
     ceremony, and the maison's museum cinematography, sequenced, not
@@ -375,7 +376,7 @@ keepValues, icons components exist).
     on any new scrim text, LCP not regressed, lint and build green,
     ledger row, story commit.
 
-13. PLANNED 2026-07-04 (owner's brief): THE HOUSES LEARN ATTITUDE.
+13. DONE 2026-07-04, Oba shipped and gate-clean: THE HOUSES LEARN ATTITUDE.
     Palettes become characters with Lagos as the ground truth, and
     majesty speaks Yoruba, not Gulf pastiche: the gold king is OBA.
     Cast so far: Royal, the brand on its throne, already default;
@@ -391,7 +392,7 @@ keepValues, icons components exist).
     both suns for every house, swatch shipped, characters written,
     ledger row.
 
-14. PLANNED 2026-07-04 (owner's question, take recorded): THE PRODUCT
+14. DONE 2026-07-04, grid tiles and reveal render both: THE PRODUCT
     DISCIPLINE, because one sample piece is not enough. Shop.app taught
     two lanes and they are different jobs. The grid is purchasable
     objects: every piece a clean card, the object filling the frame on
@@ -435,6 +436,12 @@ keepValues, icons components exist).
     (c) The reveal's dream is swappable per piece by the family map
     above; tiny-seed-gold's dream is the gold room, reversible to the
     gold vault.
+    (d) Real project proof stays in the sales channels Nonso already
+    trusts: WhatsApp and Instagram. The website remains the showroom
+    promise, but it may still stage real projects as showroom proof:
+    installed-context vignettes, product props, and quiet credibility.
+    Do not turn it into a delivered-project archive with client files,
+    dates, and case-study weight unless the owner reverses this ruling.
 
 **2026-07-04, the night everything held.** Every outside seam proven
 live, not assumed: the book under every room, the public blob store

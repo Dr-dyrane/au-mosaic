@@ -51,7 +51,7 @@ clean, trusted showroom behind the Instagram page.
 | Followers | 1,216 visible in page UI | Record as social context only. Counts move. |
 | Following | 239 visible in page UI | Do not surface on the website. |
 | Meta cache | 1,214 followers and 263 following in OG tags | Do not use. UI is fresher than cached meta. |
-| Positioning | No. 1 mosaic tiles in Nigeria | Site tagline and homepage hero claim. |
+| Positioning | No. 1 mosaic tiles in Nigeria | Instagram flyer claim only. NOT the site tagline or hero: leading with it was tried and reverted to the maison voice (CODEX.md law 1). Kept as a brand fact, not site copy. |
 | Bio categories | Mosaic tiles, pool tiles, swimming pool materials, pool construction | Homepage brand band and site routing. |
 | Sample channel | `t.me/aumosaics` | Footer and contact page. |
 | Instagram URL | `https://www.instagram.com/aumosaic/` | Footer, contact, JSON-LD sameAs. |
@@ -306,7 +306,7 @@ But the brand bridge changes the emphasis:
 
 | Site area | Direction |
 |---|---|
-| Homepage hero | Lead with the Instagram claim and categories. |
+| Homepage hero | The maison voice, not the flyer claim. Leading with the No. 1 line was tried and reverted (CODEX.md law 1); the hero says "Spaces that begin with water" over owned cinematography. |
 | Early homepage | Add a category bridge before cinematic environment cards. |
 | Materials band | Include gold and silver mosaic as a first-class family. |
 | Catalogue | Preserve customer trade names. |
