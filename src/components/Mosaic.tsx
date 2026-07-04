@@ -12,67 +12,51 @@ const PALETTE = [
 
 const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
 
-/* The brand mark: Nonso's "au" sign, read closely off his own logo.
-   Not pixel letters: his a and u are smooth rounded lowercase
-   letterforms, and the mosaic lives INSIDE them, tiny tesserae with
-   visible grout filling soft letter shapes. Here the letters are
-   thick round-capped strokes (a single-storey a: bowl and stem; a u:
-   two stems on a curve) and the stroke paints through a deterministic
-   tesserae pattern in his blues. A logo is toner, not chrome: these
-   blues hold in every house and both suns. Keep geometry and tones
-   in sync with scripts/brand-icons.py. */
+/* The brand mark: Nonso's "au" mosaic sign, rebuilt as deterministic
+   tesserae in his own blues, the ones his Instagram has worn all
+   along: navy, royal, sky, and pale glass. A logo is toner, not
+   chrome, so the mark keeps these blues in every house and both
+   suns; the palettes may change the room, never the sign above the
+   door. No period, per the client's logo. Keep the bitmap in sync
+   with scripts/brand-icons.py. */
 
-const AU_TONES = ["#2b5fc7", "#1e3e90", "#7fb3e8", "#c8e0f5", "#123064"];
-const AU_GROUT = "#0a1a3e";
+const AU_A = [".#####.", "##...##", ".....##", ".######", "##...##", "##...##", ".######"];
+const AU_U = ["##...##", "##...##", "##...##", "##...##", "##...##", "##...##", ".######"];
+const AU_GRID = AU_A.map((row, r) => row + "." + AU_U[r]);
+const AU_TONES = [
+  "#2b5fc7",
+  "#1e3e90",
+  "#7fb3e8",
+  "#c8e0f5",
+  "#123064",
+];
 
-/* One pre-laid pattern tile of 5x5 tesserae, hash-cycled so server
-   and client agree. */
-function TesseraePattern({ id }: { id: string }) {
-  const C = 6;
-  const cells: React.ReactNode[] = [];
-  for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
-      const i = r * 5 + c;
-      cells.push(
+export function AuMark({ className = "" }: { className?: string }) {
+  const T = 10;
+  const w = AU_GRID[0].length * T;
+  const h = AU_GRID.length * T;
+  const tiles: React.ReactNode[] = [];
+  let i = 0;
+  for (let r = 0; r < AU_GRID.length; r++) {
+    for (let c = 0; c < AU_GRID[r].length; c++) {
+      i++;
+      if (AU_GRID[r][c] !== "#") continue;
+      tiles.push(
         <rect
-          key={i}
-          x={c * C + 0.5}
-          y={r * C + 0.5}
-          width={C - 1}
-          height={C - 1}
-          rx="0.8"
+          key={`${r}-${c}`}
+          x={c * T + 1}
+          y={r * T + 1}
+          width={T - 2}
+          height={T - 2}
+          rx="2"
           fill={AU_TONES[(i * 13 + 5) % AU_TONES.length]}
         />
       );
     }
   }
   return (
-    <pattern id={id} patternUnits="userSpaceOnUse" width={30} height={30}>
-      <rect width="30" height="30" fill={AU_GROUT} />
-      {cells}
-    </pattern>
-  );
-}
-
-export function AuMark({ className = "" }: { className?: string }) {
-  /* Letter skeletons, drawn as strokes and dressed by the pattern.
-     The a: a round bowl with its stem on the right. The u: two
-     stems joined by the bowl's own curve, the right stem running
-     to the baseline. Round caps everywhere: his font is soft. */
-  const stroke = { fill: "none" as const, strokeWidth: 17, strokeLinecap: "round" as const };
-  return (
-    <svg viewBox="0 0 150 70" className={className} aria-hidden>
-      <defs>
-        <TesseraePattern id="au-tess" />
-      </defs>
-      <g stroke="url(#au-tess)" {...stroke}>
-        {/* a */}
-        <circle cx="38" cy="42" r="18" />
-        <path d="M 56 24 L 56 60" />
-        {/* u */}
-        <path d="M 84 12 L 84 42 A 19 19 0 0 0 122 42 L 122 12" />
-        <path d="M 122 34 L 122 60" />
-      </g>
+    <svg viewBox={`0 0 ${w} ${h}`} className={className} aria-hidden>
+      {tiles}
     </svg>
   );
 }
