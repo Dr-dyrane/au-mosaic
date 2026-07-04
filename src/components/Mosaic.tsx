@@ -46,7 +46,7 @@ export function AuLockup({ className = "" }: { className?: string }) {
      without ever borrowing the room's colours. */
   return (
     <span
-      className={`inline-flex items-end gap-[0.18em] rounded-full bg-sand px-[0.6em] py-[0.32em] ${className}`}
+      className={`brand-pill inline-flex items-end gap-[0.18em] rounded-full px-[0.6em] py-[0.32em] ${className}`}
     >
       <AuSign markClassName="h-[1.04em] shrink-0 translate-y-[-0.17em]" />
       <span className="brand-word font-serif text-[1.6em] leading-none">mosaic</span>

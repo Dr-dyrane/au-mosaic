@@ -264,21 +264,24 @@ p { text-wrap: pretty; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
-/* The sign's word: always the brand blues, like the mark beside
-   it, because one sign means the whole sign. The sun picks which
-   gradient reads on the pill's ground; the palettes have no say.
-   Exempt from the text gate as a logotype; the link around it
-   carries the name. */
+/* The sign's ground: the palette's own night sand in BOTH suns,
+   because the logo was born on a dark ground and a badge keeps its
+   ground. Each house tints it (royal navy, terracotta umber, onyx
+   near-black) through the mode-invariant triplet. */
+.brand-pill {
+  background: rgb(var(--sand-night-rgb));
+}
+
+/* The sign's word: always the brand blues on the always-dark pill,
+   one gradient in every house and both suns, like the avatar it
+   came from. Exempt from the text gate as a logotype; the link
+   around it carries the name. */
 .brand-word {
   color: #7fb3e8;
   background-image: linear-gradient(180deg, #c8e0f5 0%, #7fb3e8 55%, #2b5fc7 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-[data-theme="light"] .brand-word {
-  color: #2456c4;
-  background-image: linear-gradient(180deg, #7fb3e8 0%, #2456c4 60%, #1e3e90 100%);
 }
 
 /* Hairline-underline link that draws itself on hover. Inline-flex,
