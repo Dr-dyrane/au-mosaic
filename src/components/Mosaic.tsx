@@ -32,39 +32,64 @@ const AU_GRID = [
   "##...##...##",
   ".###########",
 ];
-const AU_TONES = [
-  "#2b5fc7",
-  "#1e3e90",
-  "#7fb3e8",
-  "#c8e0f5",
-  "#123064",
+/* The light lives in the sign: his tiles run deep navy at the
+   bottom-left and brighten to glass at the top-right, with a hash
+   jitter so no two neighbours match. Position picks the tone, the
+   hash breaks the banding, and the same arithmetic runs in
+   scripts/brand-icons.py. */
+const AU_RAMP = ["#12275e", "#1e3e90", "#2b5fc7", "#5b8fd9", "#7fb3e8", "#c8e0f5"];
+
+function auTone(r: number, c: number, rows: number, cols: number, i: number) {
+  const w = 0.55 * (1 - r / (rows - 1)) + 0.45 * (c / (cols - 1));
+  const jitter = (((i * 13 + 5) % 5) - 2) * 0.35;
+  const idx = Math.min(AU_RAMP.length - 1, Math.max(0, Math.round(w * (AU_RAMP.length - 1) + jitter)));
+  return AU_RAMP[idx];
+}
+
+/* Loose tesserae scattering off the a's shoulder, the sign still
+   assembling: x, y, size, tone index, opacity. */
+const AU_SCATTER: Array<[number, number, number, number, number]> = [
+  [2, 14, 5, 4, 0.55],
+  [9, 5, 6, 5, 0.7],
+  [20, 1, 5, 3, 0.5],
+  [1, 30, 4, 2, 0.4],
+  [30, 6, 4, 4, 0.35],
 ];
 
 export function AuMark({ className = "" }: { className?: string }) {
   const T = 10;
-  const w = AU_GRID[0].length * T;
-  const h = AU_GRID.length * T;
+  const rows = AU_GRID.length;
+  const cols = AU_GRID[0].length;
+  /* A small margin on the top and left gives the scattered tiles
+     room to float off the a's shoulder. */
+  const MX = 10;
+  const MY = 9;
+  const w = cols * T + MX;
+  const h = rows * T + MY;
   const tiles: React.ReactNode[] = [];
   let i = 0;
-  for (let r = 0; r < AU_GRID.length; r++) {
-    for (let c = 0; c < AU_GRID[r].length; c++) {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
       i++;
       if (AU_GRID[r][c] !== "#") continue;
       tiles.push(
         <rect
           key={`${r}-${c}`}
-          x={c * T + 1}
-          y={r * T + 1}
+          x={MX + c * T + 1}
+          y={MY + r * T + 1}
           width={T - 2}
           height={T - 2}
           rx="2"
-          fill={AU_TONES[(i * 13 + 5) % AU_TONES.length]}
+          fill={auTone(r, c, rows, cols, i)}
         />
       );
     }
   }
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className={className} aria-hidden>
+      {AU_SCATTER.map(([x, y, s, t, o], k) => (
+        <rect key={`s${k}`} x={x} y={y} width={s} height={s} rx="1.2" fill={AU_RAMP[t]} opacity={o} />
+      ))}
       {tiles}
     </svg>
   );
@@ -77,8 +102,8 @@ export function AuMark({ className = "" }: { className?: string }) {
    the lockup with a font-size on the wrapper: the mark rides at 1em. */
 export function AuLockup({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-[0.5em] ${className}`}>
-      <AuMark className="h-[1em] w-auto shrink-0" />
+    <span className={`inline-flex items-center gap-[0.3em] ${className}`}>
+      <AuMark className="h-[1.12em] w-auto shrink-0" />
       <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
     </span>
   );
