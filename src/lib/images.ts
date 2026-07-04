@@ -152,13 +152,17 @@ export const ENVIRONMENTS = [
   },
 ];
 
-/* Shop-style product cards, batch 07 exact SKU cards: the product on a studio
-   ground, warm off-white by day and near-black by night. Keyed by slug, used
-   for the grid card only; the piece page keeps its own hero photo, so nothing
-   is retired. The family plates (pool blues, glass, metallic, custom art) are
-   NOT here: they would shadow distinctive scenes and murals on the grid, so
-   they live on the home "By the sheet" strip instead, appended not swapped. */
+/* The product-simple half of each tile: batch 05 family plates and batch 07
+   exact SKU cards, the product on a studio ground, warm off-white by day and
+   near-black by night. Keyed by slug. The other half is the applied mosaic,
+   the piece's own cinematic scene (its image). The reveal renders BOTH, the
+   product card as the stage object and the applied mosaic as the dream, never
+   one for the other; the grid shows the product card. */
 export const CARD: Record<string, { night: string; day: string }> = {
+  "classic-pool-blues": { night: "/media/plate-pool-blues-night.jpg", day: "/media/plate-pool-blues-day.jpg" },
+  "solid-colour-glass": { night: "/media/plate-solid-glass-night.jpg", day: "/media/plate-solid-glass-day.jpg" },
+  "gold-metallic-accents": { night: "/media/plate-metallic-night.jpg", day: "/media/plate-metallic-day.jpg" },
+  "custom-murals": { night: "/media/plate-custom-art-night.jpg", day: "/media/plate-custom-art-day.jpg" },
   "plain-blue-small-seed": { night: "/media/sku-plain-blue-small-seed-night.jpg", day: "/media/sku-plain-blue-small-seed-day.jpg" },
   "mixed-blue-big-seed": { night: "/media/sku-mixed-blue-big-seed-night.jpg", day: "/media/sku-mixed-blue-big-seed-day.jpg" },
   "plain-white-mosaic": { night: "/media/sku-plain-white-mosaic-night.jpg", day: "/media/sku-plain-white-mosaic-day.jpg" },

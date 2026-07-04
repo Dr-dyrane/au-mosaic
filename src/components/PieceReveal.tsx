@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { OWN, DAY } from "@/lib/images";
+import { OWN, DAY, CARD } from "@/lib/images";
 import { waProduct } from "@/lib/wa";
 import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
@@ -46,6 +46,13 @@ const DREAM_BY_GROUP: Record<string, Dream> = {
 };
 
 function dreamFor(p: RevealPiece): Dream {
+  /* Render both types. When a product card is the stage object, the dream is
+     the piece's own applied mosaic, its legacy cinematic scene, so the product
+     and the application both show. When there is no card, the applied image is
+     already the object, so the dream is a family window frame instead. */
+  if (CARD[p.slug] && p.image) {
+    return { night: p.image, day: p.imageLight, line: "Made real, tessera by tessera.", alt: `${p.name}, applied` };
+  }
   return DREAM_BY_SLUG[p.slug] ?? DREAM_BY_GROUP[p.groupId] ?? DREAM_BY_GROUP["glass-mosaics"];
 }
 
@@ -64,11 +71,13 @@ const GENERIC_COPY: Copy = {
   materialBody: "Cut and set by hand, each tessera catches the light on its own, so the surface breathes instead of lying flat.",
 };
 
-/* The reveal stars the piece's own image, never the grid's shop card, so the
-   distinctive frames (the beetle mural, the koi mural, the glass jewels) are
-   the object under the spotlight. The shop card lives on the grid only. */
+/* Two image types per tile, rendered both. The product simple (the shop card)
+   is the object under the spotlight; the applied mosaic (the piece's own
+   cinematic scene) becomes the dream. Where a piece has no product card, its
+   own image is the object and the dream is a family window frame. */
 function objectOf(p: RevealPiece): { night: string; day?: string } {
-  return { night: p.image ?? "", day: p.imageLight };
+  const c = CARD[p.slug];
+  return c ? { night: c.night, day: c.day } : { night: p.image ?? "", day: p.imageLight };
 }
 
 export default function PieceReveal({ piece }: { piece: RevealPiece }) {
