@@ -24,13 +24,13 @@ const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
    and the u's left wall are one shared stroke, a ligature, and the
    two bases meet at its foot. */
 const AU_GRID = [
-  ".######...##",
-  "##...##...##",
-  ".....##...##",
-  ".######...##",
-  "##...##...##",
-  "##...##...##",
-  ".###########",
+  ".######...##.",
+  "##...##...##.",
+  ".....##...##.",
+  ".######...##.",
+  "##...##...##.",
+  "##...##...##.",
+  ".############",
 ];
 /* The light lives in the sign: his tiles run deep navy at the
    bottom-left and brighten to glass at the top-right, with a hash
@@ -39,11 +39,27 @@ const AU_GRID = [
    scripts/brand-icons.py. */
 const AU_RAMP = ["#12275e", "#1e3e90", "#2b5fc7", "#5b8fd9", "#7fb3e8", "#c8e0f5"];
 
-function auTone(r: number, c: number, rows: number, cols: number, i: number) {
+/* Two voices, one sign. Brand: the canonical blues, for every
+   surface that is the company's identity to the outside (icons,
+   badges, paper). Room: the same arithmetic over the house tokens,
+   so inside the site and the office the mark relights with the
+   palette and the sun; in the Royal default the two voices agree. */
+const AU_ROOM_RAMP = [
+  "var(--color-gold-deep)",
+  "var(--color-gold-deep)",
+  "var(--color-gold)",
+  "var(--color-gold)",
+  "var(--color-ink)",
+  "var(--color-ink)",
+];
+
+export type AuVoice = "room" | "brand";
+
+function auTone(ramp: string[], r: number, c: number, rows: number, cols: number, i: number) {
   const w = 0.55 * (1 - r / (rows - 1)) + 0.45 * (c / (cols - 1));
   const jitter = (((i * 13 + 5) % 5) - 2) * 0.35;
-  const idx = Math.min(AU_RAMP.length - 1, Math.max(0, Math.round(w * (AU_RAMP.length - 1) + jitter)));
-  return AU_RAMP[idx];
+  const idx = Math.min(ramp.length - 1, Math.max(0, Math.round(w * (ramp.length - 1) + jitter)));
+  return ramp[idx];
 }
 
 /* Loose tesserae scattering off the a's shoulder, the sign still
@@ -56,10 +72,11 @@ const AU_SCATTER: Array<[number, number, number, number, number]> = [
   [30, 6, 4, 4, 0.35],
 ];
 
-export function AuMark({ className = "" }: { className?: string }) {
+export function AuMark({ className = "", voice = "room" }: { className?: string; voice?: AuVoice }) {
   const T = 10;
   const rows = AU_GRID.length;
   const cols = AU_GRID[0].length;
+  const ramp = voice === "brand" ? AU_RAMP : AU_ROOM_RAMP;
   /* A small margin on the top and left gives the scattered tiles
      room to float off the a's shoulder. */
   const MX = 10;
@@ -80,7 +97,7 @@ export function AuMark({ className = "" }: { className?: string }) {
           width={T - 2}
           height={T - 2}
           rx="2"
-          fill={auTone(r, c, rows, cols, i)}
+          fill={auTone(ramp, r, c, rows, cols, i)}
         />
       );
     }
@@ -88,7 +105,7 @@ export function AuMark({ className = "" }: { className?: string }) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className={className} aria-hidden>
       {AU_SCATTER.map(([x, y, s, t, o], k) => (
-        <rect key={`s${k}`} x={x} y={y} width={s} height={s} rx="1.2" fill={AU_RAMP[t]} opacity={o} />
+        <rect key={`s${k}`} x={x} y={y} width={s} height={s} rx="1.2" fill={ramp[t]} opacity={o} />
       ))}
       {tiles}
     </svg>
@@ -100,10 +117,10 @@ export function AuMark({ className = "" }: { className?: string }) {
    picks its legible blue per sun through the brand-word rules in
    globals; the palettes have no say, because a sign is a sign. Size
    the lockup with a font-size on the wrapper: the mark rides at 1em. */
-export function AuLockup({ className = "" }: { className?: string }) {
+export function AuLockup({ className = "", voice = "room" }: { className?: string; voice?: AuVoice }) {
   return (
     <span className={`inline-flex items-center gap-[0.3em] ${className}`}>
-      <AuMark className="h-[1.12em] w-auto shrink-0" />
+      <AuMark voice={voice} className="h-[1.12em] w-auto shrink-0" />
       <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
     </span>
   );

@@ -78,7 +78,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         <header className="flex items-start justify-between gap-8">
           <div>
             <div className="flex items-center gap-2.5 text-[#17150F]">
-              <AuMark className="h-[15px] w-auto" />
+              {/* Paper carries the canonical sign: toner has one theme. */}
+              <AuMark voice="brand" className="h-[15px] w-auto" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">
                 Mosaic
               </span>

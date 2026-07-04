@@ -265,19 +265,22 @@ p { text-wrap: pretty; }
 }
 
 /* The sign's word: gradient glass like his print, light falling
-   from the top, palette-blind like the tesserae beside it. Exempt
-   from the text gate as a logotype; the link around it carries the
-   name. Each sun gets the gradient that reads on its ground. */
+   from the top. In the chrome it reads the house tokens, so the
+   word relights with the palette and the sun; in the Royal default
+   the tokens ARE the brand blues, so the print look holds at the
+   front door. Exempt from the text gate as a logotype; the link
+   around it carries the name. */
 .brand-word {
-  color: #7fb3e8;
-  background-image: linear-gradient(180deg, #c8e0f5 0%, #7fb3e8 55%, #2b5fc7 100%);
+  color: var(--color-gold);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-gold) 45%, white) 0%,
+    var(--color-gold) 55%,
+    var(--color-gold-deep) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-[data-theme="light"] .brand-word {
-  color: #2456c4;
-  background-image: linear-gradient(180deg, #7fb3e8 0%, #2456c4 60%, #1e3e90 100%);
 }
 
 /* Hairline-underline link that draws itself on hover. Inline-flex,

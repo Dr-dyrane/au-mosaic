@@ -8,13 +8,13 @@ from PIL import Image, ImageDraw
 # Joined as his sign joins them: the a's stem and the u's left wall
 # share one stroke, and the bases meet at its foot.
 GRID = [
-    ".######...##",
-    "##...##...##",
-    ".....##...##",
-    ".######...##",
-    "##...##...##",
-    "##...##...##",
-    ".###########",
+    ".######...##.",
+    "##...##...##.",
+    ".....##...##.",
+    ".######...##.",
+    "##...##...##.",
+    "##...##...##.",
+    ".############",
 ]
 
 # The light lives in the sign: deep navy bottom-left brightening to
