@@ -350,6 +350,47 @@ keepValues, icons components exist).
     gold focus ring were already true and are recorded; zig-zag
     declined with reason, the history ledger scans better straight.
 
+12. PLANNED 2026-07-04 (owner's brief, discussed and agreed): THE
+    PIECE REVEAL, the window's piece page in four acts. Target named
+    by the owner: shop.app's product-as-object, Apple's reveal
+    ceremony, and the maison's museum cinematography, sequenced, not
+    blended. Act one, the stage: a dark opening, the sheet standing
+    alone under the spotlight vignette, the night stock board or the
+    owner's blob upload as the object, image priority so the act
+    paints first. Act two, the material: a light-sweep macro band
+    across the tesserae, scroll-driven CSS only, close enough to
+    touch. Act three, the dream: the pull-back into the piece's
+    environment, the Seen-in scene elevated. Act four, the counter:
+    the facts and the one gold Enquire, shop-crisp. Laws that bind
+    it: theatre is lawful on the window only; reduced motion
+    collapses every act to stills; phone-first act heights in svh;
+    no new dependencies, the house already owns Reveal, TiltFrame,
+    scrims, and scroll-driven CSS; the home page keeps its
+    cinematography untouched per the owner's standing ruling, and
+    pieces lacking a stock board simply skip act two. DISCIPLINE:
+    prototype on ONE piece first, tiny-seed-gold, the reveal
+    debuting on the king's own metal; the owner's eye gates the
+    prototype in chat like the logo drafts; only then does the
+    pattern generalise. Done means: prototype approved, AA measured
+    on any new scrim text, LCP not regressed, lint and build green,
+    ledger row, story commit.
+
+13. PLANNED 2026-07-04 (owner's brief): THE HOUSES LEARN ATTITUDE.
+    Palettes become characters with Lagos as the ground truth, and
+    majesty speaks Yoruba, not Gulf pastiche: the gold king is OBA.
+    Cast so far: Royal, the brand on its throne, already default;
+    Oba, Lagos majesty, gold on warm midnight with coral fire, to
+    build; Lagoon, water at rest; Terracotta, Agric earth; Onyx,
+    the dark bath. The Oba build is one palette block in globals
+    (nine tokens, both suns), a picker swatch, and the theme-check
+    gate; whether Oba replaces Maison or joins beside it is the
+    owner's call at build time. Attitude lives in tokens, names,
+    and one-line characters recorded in THEMING.md; the media stays
+    the shared maison photography per the theming contract, because
+    costume imagery is where attitude dies. Done means: gate passed
+    both suns for every house, swatch shipped, characters written,
+    ledger row.
+
 **2026-07-04, the night everything held.** Every outside seam proven
 live, not assumed: the book under every room, the public blob store
 under the photographs (first real upload landed), the window serving
