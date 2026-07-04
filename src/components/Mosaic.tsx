@@ -105,9 +105,14 @@ export function AuMark({ className = "", voice = "room" }: { className?: string;
    globals; the palettes have no say, because a sign is a sign. Size
    the lockup with a font-size on the wrapper: the mark rides at 1em. */
 export function AuLockup({ className = "", voice = "room" }: { className?: string; voice?: AuVoice }) {
+  /* Aligned the way the print lockup is set: baselines married, not
+     centers. The word has no descenders, so its bottom edge IS the
+     baseline; the mark stands on that line, taller than the word's
+     x-height, and its tail row (the eighth of its height below the
+     base) dips under the line exactly as his artwork dips. */
   return (
-    <span className={`inline-flex items-center gap-[0.3em] ${className}`}>
-      <AuMark voice={voice} className="h-[1.12em] w-auto shrink-0" />
+    <span className={`inline-flex items-end gap-[0.28em] ${className}`}>
+      <AuMark voice={voice} className="h-[1.45em] w-auto shrink-0 translate-y-[0.18em]" />
       <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
     </span>
   );
