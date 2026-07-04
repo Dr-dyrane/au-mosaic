@@ -76,16 +76,20 @@ export default async function DeliveriesPage({
 
   return (
     <main>
-      <p className="eyebrow">The road</p>
-      <h1 className="font-serif text-display-section mt-3">Deliveries.</h1>
-      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Every job on its way to a wall.
-        <Teach>
-          {" "}Send it out, mark it delivered, and the house remembers
-          the day it landed.
-        </Teach>
-      </p>
-      <div className="mt-6">
+      {/* Title left, the one gold right; the phone wraps it back
+          under the thumb. */}
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
+        <div>
+          <p className="eyebrow">The road</p>
+          <h1 className="font-serif text-display-section mt-3">Deliveries.</h1>
+          <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
+            Every job on its way to a wall.
+            <Teach>
+              {" "}Send it out, mark it delivered, and the house remembers
+              the day it landed.
+            </Teach>
+          </p>
+        </div>
         <Link href="/admin/deliveries/new" className="btn-gold">
           New delivery
         </Link>

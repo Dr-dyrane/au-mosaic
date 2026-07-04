@@ -61,15 +61,21 @@ export default async function OrdersPage({
 
   return (
     <main>
-      <p className="eyebrow">Ledger</p>
-      <h1 className="font-serif text-display-section mt-3">The orders.</h1>
-      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        List sits beside given. A discount is a number, not a feeling.
-      </p>
-      <div className="mt-8 flex flex-wrap items-center gap-6" data-tour="orders">
+      {/* Title left, the one gold right; the phone wraps it back
+          under the thumb. */}
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
+        <div>
+          <p className="eyebrow">Ledger</p>
+          <h1 className="font-serif text-display-section mt-3">The orders.</h1>
+          <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
+            List sits beside given. A discount is a number, not a feeling.
+          </p>
+        </div>
         <Link href="/admin/orders/new" className="btn-gold" data-tour="order-new">
           New order
         </Link>
+      </div>
+      <div className="mt-8 flex flex-wrap items-center gap-6" data-tour="orders">
         {/* No-JS search, the customers-room way: type a name, press
             Enter. */}
         <form method="GET" className="w-full max-w-xs">

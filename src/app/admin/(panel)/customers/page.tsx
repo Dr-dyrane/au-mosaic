@@ -85,12 +85,21 @@ export default async function CustomersPage({
 
   return (
     <main>
-      <p className="eyebrow">People</p>
-      <h1 className="font-serif text-display-section mt-3">The customers.</h1>
-      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Orders, balance, chat: one tap.
-        {total > 0 && ` ${total} ${total === 1 ? "person" : "people"} in the book.`}
-      </p>
+      {/* Title left, the one gold right; the phone wraps it back
+          under the thumb. */}
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
+        <div>
+          <p className="eyebrow">People</p>
+          <h1 className="font-serif text-display-section mt-3">The customers.</h1>
+          <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
+            Orders, balance, chat: one tap.
+            {total > 0 && ` ${total} ${total === 1 ? "person" : "people"} in the book.`}
+          </p>
+        </div>
+        <Link href="/admin/customers/new" className="btn-gold shrink-0" data-tour="people-new">
+          New customer
+        </Link>
+      </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-4" data-tour="people">
         <form action="/admin/customers" method="get" className="min-w-0 flex-1 basis-64" data-tour="people-search">
@@ -103,10 +112,7 @@ export default async function CustomersPage({
             className={field}
           />
         </form>
-        <Link href="/admin/customers/new" className="btn-gold shrink-0" data-tour="people-new">
-          New customer
-        </Link>
-        <button data-tour-start="people" className="link-hair text-dusk text-[13px]">
+        <button data-tour-start="people" className="link-hair shrink-0 text-dusk text-[13px]">
           Learn this room
         </button>
       </div>

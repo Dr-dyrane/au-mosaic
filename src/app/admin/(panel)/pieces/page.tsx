@@ -92,17 +92,23 @@ export default async function PiecesPage({
 
   return (
     <main>
-      <p className="eyebrow">Inventory</p>
-      <h1 className="font-serif text-display-section mt-3">The book.</h1>
-      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk" data-tour="drafts">
-        Everything you stock. The window shows only what you choose.
-        {rows.filter((r) => !r.piece.published).length > 0 &&
-          ` ${rows.filter((r) => !r.piece.published).length} waiting off the site.`}
-      </p>
-      <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
+      {/* Title left, the one gold right; the phone wraps it back
+          under the thumb. */}
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
+        <div>
+          <p className="eyebrow">Inventory</p>
+          <h1 className="font-serif text-display-section mt-3">The book.</h1>
+          <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk" data-tour="drafts">
+            Everything you stock. The window shows only what you choose.
+            {rows.filter((r) => !r.piece.published).length > 0 &&
+              ` ${rows.filter((r) => !r.piece.published).length} waiting off the site.`}
+          </p>
+        </div>
         <Link href="/admin/pieces/new" className="btn-gold" data-tour="new-piece">
           New piece
         </Link>
+      </div>
+      <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
         <Link href="/admin/ranges" className="link-hair text-dusk text-[13px]">
           The ranges
         </Link>
