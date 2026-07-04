@@ -19,9 +19,9 @@ export default async function PoolMaterialsPage() {
         eyebrow={`${SITE.poolBrand} equipment · in stock`}
         title="Everything a pool needs."
         sub="From the pump to the waterfall. Any item, photos and today's price on WhatsApp."
-        image={OWN.privatePool}
-        imageLight={DAY.privatePool}
-        alt="A chrome ladder entering clear water over aqua mosaic"
+        image={OWN.materialsCounter}
+        imageLight={DAY.materialsCounter}
+        alt="Pool equipment and mosaic samples on a materials counter"
         cta={{ href: waQuote(), label: "Send us your materials list" }}
       />
 

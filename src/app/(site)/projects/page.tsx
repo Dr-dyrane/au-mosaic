@@ -20,9 +20,9 @@ export default async function ProjectsPage() {
         eyebrow="Projects"
         title="The work speaks quietly."
         sub="Pools, interiors, and commissions. Each one starts with a conversation."
-        image={OWN.villaPalms}
-        imageLight={DAY.villaPalms}
-        alt="A villa and palms mirrored in still mosaic water"
+        image={OWN.artGallery}
+        imageLight={DAY.artGallery}
+        alt="A commissioned mosaic art panel of sun, moon, and waves"
         cta={{ href: waPool(), label: "Begin your own" }}
       />
 

@@ -25,6 +25,12 @@ export const OWN = {
   metallicRoom: "/media/metallic-room-night.jpg",
   containerOrders: "/media/container-night.jpg",
   customColours: "/media/custom-night.jpg",
+  /* Cinematic window frames, 2026-07-04: museum scenes for the window pages. */
+  showroomWall: "/media/showroom-wall-night.jpg",
+  poolEdge: "/media/pool-edge-night.jpg",
+  artisanTable: "/media/artisan-table-night.jpg",
+  materialsCounter: "/media/materials-counter-night.jpg",
+  artGallery: "/media/art-gallery-night.jpg",
   /* Nonso's green-lit SKUs, 2026-07-04: the trade names his
      Instagram sells, photographed by the house camera. */
   plainBlueSmallSeed: "/media/plain-blue-small-seed-night.jpg",
@@ -59,6 +65,11 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   metallicRoom: "/media/metallic-room-day.jpg",
   containerOrders: "/media/container-day.jpg",
   customColours: "/media/custom-day.jpg",
+  showroomWall: "/media/showroom-wall-day.jpg",
+  poolEdge: "/media/pool-edge-day.jpg",
+  artisanTable: "/media/artisan-table-day.jpg",
+  materialsCounter: "/media/materials-counter-day.jpg",
+  artGallery: "/media/art-gallery-day.jpg",
   plainBlueSmallSeed: "/media/plain-blue-small-seed-day.jpg",
   mixedBlueBigSeed: "/media/mixed-blue-big-seed-day.jpg",
   plainWhite: "/media/plain-white-mosaic-day.jpg",
@@ -111,5 +122,21 @@ export const ENVIRONMENTS = [
     line: "Shadow, texture, calm.",
     materials: "Textured dark mosaic, matte grout, warm light",
     href: "/mosaic-tiles#glass-mosaics",
+  },
+  {
+    src: OWN.showroomWall,
+    srcDay: DAY.showroomWall,
+    place: "The Showroom Wall",
+    line: "Every colour, within reach.",
+    materials: "The full range in glass, stone, and metal, sampled",
+    href: "/mosaic-tiles",
+  },
+  {
+    src: OWN.poolEdge,
+    srcDay: DAY.poolEdge,
+    place: "The Pool Edge",
+    line: "Where the blue begins.",
+    materials: "Pool mosaic in seed blues, coping stone, still water",
+    href: "/mosaic-tiles#pool-mosaics",
   },
 ];

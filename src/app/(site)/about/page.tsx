@@ -42,9 +42,9 @@ export default function AboutPage() {
         </div>
         <div className="relative -mx-5 mt-16 aspect-[21/9] overflow-hidden rounded-none sm:mx-0 sm:rounded-[26px]">
           <ThemeImage
-            dark={OWN.craftHands}
-            light={DAY.craftHands}
-            alt="Hands pressing mosaic into fresh adhesive"
+            dark={OWN.artisanTable}
+            light={DAY.artisanTable}
+            alt="An artisan table of tesserae bowls and sample blends"
             fill
             quality={90}
             sizes="(max-width: 640px) 100vw, 60vw"
