@@ -1,19 +1,31 @@
 {
-  "name": "AU Mosaic · Back office",
+  "name": "AU Mosaic \u00b7 Back office",
   "short_name": "Back office",
   "description": "The book, the orders, and who owes what.",
   "start_url": "/admin",
   "scope": "/admin",
   "display": "standalone",
-  "background_color": "#eef6f3",
-  "theme_color": "#eef6f3",
+  "background_color": "#071022",
+  "theme_color": "#eef3fa",
   "share_target": {
     "action": "/admin/share",
     "method": "GET",
-    "params": { "title": "title", "text": "text", "url": "url" }
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
   },
   "icons": [
-    { "src": "/icon.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/apple-icon.png", "sizes": "180x180", "type": "image/png" }
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
   ]
 }

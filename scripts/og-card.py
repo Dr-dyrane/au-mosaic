@@ -30,14 +30,21 @@ for y in range(H):
 img.paste(Image.new("RGB", (W, H), (12, 11, 9)), (0, 0), overlay)
 
 d = ImageDraw.Draw(img)
-serif = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 64)
 caps = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
 
-d.text((70, H - 190), "AU Mosaic", font=serif, fill=(243, 239, 230))
+# The owner's own sign carries the card: his mark, trimmed of its
+# whisper-alpha, set in the shadowed band.
+mark = Image.open("assets/brand/au-logo-master.png").convert("RGBA")
+ma = mark.split()[3].point(lambda v: 255 if v > 24 else 0)
+mark = mark.crop(ma.getbbox())
+mh = 96
+mark = mark.resize((round(mark.width * mh / mark.height), mh), Image.LANCZOS)
+img.paste(mark, (70, H - 200), mark)
+
 # Letterspaced eyebrow in the brand sky blue.
 x = 74
 for ch in "THE HOUSE OF MOSAIC":
-    d.text((x, H - 105), ch, font=caps, fill=(127, 179, 232))
+    d.text((x, H - 84), ch, font=caps, fill=(127, 179, 232))
     x += d.textlength(ch, font=caps) + 7
 
 img.save(OUT, "PNG")

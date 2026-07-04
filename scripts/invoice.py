@@ -42,11 +42,27 @@ BRASS = (0xC2 / 255, 0xA1 / 255, 0x5C / 255)
 GOLD_DEEP = (0x8F / 255, 0x74 / 255, 0x34 / 255)
 STONE = (0xB8 / 255, 0xB2 / 255, 0xA6 / 255)
 
-TILE_ROW = [BRASS, GOLD_DEEP, DUSK, STONE, INK]
+# The ornament row wears the sign's own blues now: the paper and
+# the logo speak one language.
+ROYAL_DEEP = (0x12 / 255, 0x27 / 255, 0x5E / 255)
+ROYAL_NAVY = (0x1E / 255, 0x3E / 255, 0x90 / 255)
+ROYAL = (0x2B / 255, 0x5F / 255, 0xC7 / 255)
+SKY = (0x7F / 255, 0xB3 / 255, 0xE8 / 255)
+GLASS = (0xC8 / 255, 0xE0 / 255, 0xF5 / 255)
+TILE_ROW = [ROYAL_DEEP, ROYAL_NAVY, ROYAL, SKY, GLASS]
 
 PAGE_W, PAGE_H = A4
 MARGIN = 64
 NAIRA = "₦"
+
+# The owner's sign, trimmed of its whisper-alpha, for the header.
+from PIL import Image as PILImage  # noqa: E402
+from reportlab.lib.utils import ImageReader  # noqa: E402
+
+_mark_im = PILImage.open(ROOT / "assets/brand/au-logo-master.png").convert("RGBA")
+_mark_a = _mark_im.split()[3].point(lambda v: 255 if v > 24 else 0)
+MARK = _mark_im.crop(_mark_a.getbbox())
+MARK_READER = ImageReader(MARK)
 
 SITE = {
     "short": "AU Mosaic",
@@ -249,10 +265,14 @@ def draw_invoice(order, out_pdf: Path):
     money_serif = "MaisonSerif" if has_glyph("MaisonSerif", NAIRA) else "MaisonSans"
 
     def header(y):
-        # The wordmark and the house facts.
+        # The owner's sign, then the word, the lockup law on paper:
+        # the mark at the wordmark's letter height, baselines married.
+        mark_h = 15
+        mark_w = mark_h * MARK.width / MARK.height
+        c.drawImage(MARK_READER, MARGIN, y - 2, width=mark_w, height=mark_h, mask="auto")
         c.setFillColorRGB(*INK)
         c.setFont("MaisonSerif", 21)
-        c.drawString(MARGIN, y, "AU Mosaic")
+        c.drawString(MARGIN + mark_w + 6, y, "Mosaic")
         c.setFont("MaisonSans", 8)
         c.setFillColorRGB(*DUSK)
         for i, line in enumerate([SITE["name"], order["facts"]["location"], order["facts"]["phone"]]):

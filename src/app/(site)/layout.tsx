@@ -19,6 +19,7 @@ const jsonLd = {
   url: SITE.url,
   telephone: SITE.phoneDisplay,
   image: `${SITE.url.replace(/\/$/, "")}/og.png`,
+  logo: `${SITE.url.replace(/\/$/, "")}/media/logo/mark.png`,
   priceRange: "₦₦",
   address: {
     "@type": "PostalAddress",
