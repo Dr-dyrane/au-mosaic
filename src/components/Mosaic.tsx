@@ -21,8 +21,10 @@ const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
    with scripts/brand-icons.py. */
 
 /* The letters are joined the way his sign joins them: the a's stem
-   and the u's left wall are one shared stroke, a ligature, and the
-   two bases meet at its foot. */
+   and the u's left wall are one shared stroke, a ligature. The a's
+   bowl rounds at its lower left (the base steps in), and the u's
+   tail dips below the baseline and hooks back, both read off his
+   own artwork. */
 const AU_GRID = [
   ".######...##.",
   "##...##...##.",
@@ -30,7 +32,8 @@ const AU_GRID = [
   ".######...##.",
   "##...##...##.",
   "##...##...##.",
-  ".############",
+  "..##########.",
+  ".........##..",
 ];
 /* The light lives in the sign: his tiles run deep navy at the
    bottom-left and brighten to glass at the top-right, with a hash
@@ -62,27 +65,14 @@ function auTone(ramp: string[], r: number, c: number, rows: number, cols: number
   return ramp[idx];
 }
 
-/* Loose tesserae scattering off the a's shoulder, the sign still
-   assembling: x, y, size, tone index, opacity. */
-const AU_SCATTER: Array<[number, number, number, number, number]> = [
-  [2, 14, 5, 4, 0.55],
-  [9, 5, 6, 5, 0.7],
-  [20, 1, 5, 3, 0.5],
-  [1, 30, 4, 2, 0.4],
-  [30, 6, 4, 4, 0.35],
-];
 
 export function AuMark({ className = "", voice = "room" }: { className?: string; voice?: AuVoice }) {
   const T = 10;
   const rows = AU_GRID.length;
   const cols = AU_GRID[0].length;
   const ramp = voice === "brand" ? AU_RAMP : AU_ROOM_RAMP;
-  /* A small margin on the top and left gives the scattered tiles
-     room to float off the a's shoulder. */
-  const MX = 10;
-  const MY = 9;
-  const w = cols * T + MX;
-  const h = rows * T + MY;
+  const w = cols * T;
+  const h = rows * T;
   const tiles: React.ReactNode[] = [];
   let i = 0;
   for (let r = 0; r < rows; r++) {
@@ -92,8 +82,8 @@ export function AuMark({ className = "", voice = "room" }: { className?: string;
       tiles.push(
         <rect
           key={`${r}-${c}`}
-          x={MX + c * T + 1}
-          y={MY + r * T + 1}
+          x={c * T + 1}
+          y={r * T + 1}
           width={T - 2}
           height={T - 2}
           rx="2"
@@ -104,9 +94,6 @@ export function AuMark({ className = "", voice = "room" }: { className?: string;
   }
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className={className} aria-hidden>
-      {AU_SCATTER.map(([x, y, s, t, o], k) => (
-        <rect key={`s${k}`} x={x} y={y} width={s} height={s} rx="1.2" fill={ramp[t]} opacity={o} />
-      ))}
       {tiles}
     </svg>
   );
