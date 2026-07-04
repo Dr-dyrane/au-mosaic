@@ -14,10 +14,20 @@ import { ProductCard } from "@/components/ui";
    screen; everything else whispers. */
 
 const MATERIALS = [
-  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.platePoolBlues, srcDay: DAY.platePoolBlues },
-  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.plateSolidGlass, srcDay: DAY.plateSolidGlass },
-  { title: "Gold and silver mosaic", line: "Gold, silver, and rose gold mirror.", href: "/piece/gold-metallic-accents", src: OWN.plateMetallic, srcDay: DAY.plateMetallic },
-  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.plateCustomArt, srcDay: DAY.plateCustomArt },
+  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues, srcDay: DAY.poolBlues },
+  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.glassJewels, srcDay: DAY.glassJewels },
+  { title: "Gold and silver mosaic", line: "Gold, silver, and rose gold mirror.", href: "/piece/gold-metallic-accents", src: OWN.goldAccents, srcDay: DAY.goldAccents },
+  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.koiMural, srcDay: DAY.koiMural },
+];
+
+/* The same families, sampled: the shop-clarity plates ride below the
+   rooms, so the home shows the space and the sheet, never one for the
+   other. */
+const PLATES = [
+  { title: "Pool blues", href: "/mosaic-tiles#pool-mosaics", src: OWN.platePoolBlues, srcDay: DAY.platePoolBlues },
+  { title: "Solid colour glass", href: "/mosaic-tiles#glass-mosaics", src: OWN.plateSolidGlass, srcDay: DAY.plateSolidGlass },
+  { title: "Gold and silver", href: "/piece/gold-metallic-accents", src: OWN.plateMetallic, srcDay: DAY.plateMetallic },
+  { title: "Custom art", href: "/mosaic-tiles#feature-mosaics", src: OWN.plateCustomArt, srcDay: DAY.plateCustomArt },
 ];
 
 export default async function Home() {
@@ -136,6 +146,24 @@ export default async function Home() {
                   </Link>
                 </Reveal>
               ))}
+            </div>
+            <div className="mt-20">
+              <Reveal>
+                <p className="eyebrow">By the sheet</p>
+                <p className="mt-3 max-w-md text-[14px] text-dusk">The same colours, sampled. What arrives at your door.</p>
+              </Reveal>
+              <div className="-mx-5 mt-8 grid grid-cols-2 gap-4 sm:mx-0 sm:grid-cols-4">
+                {PLATES.map((pl, i) => (
+                  <Reveal key={pl.title} delay={i * 70}>
+                    <Link href={pl.href} className="group block">
+                      <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[18px]">
+                        <ThemeImage dark={pl.src} light={pl.srcDay} alt={pl.title} fill sizes="(max-width: 640px) 50vw, 22vw" className="img-glide media-lux object-cover" />
+                      </div>
+                      <p className="mt-3 px-5 text-[13px] text-mist sm:px-0">{pl.title}</p>
+                    </Link>
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </div>
         </div>
