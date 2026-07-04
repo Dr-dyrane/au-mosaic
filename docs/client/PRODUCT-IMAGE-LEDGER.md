@@ -52,15 +52,22 @@ Folder: `public/media/product-ledger-2026-07-04/`
 This folder is ignored by git on purpose. It is a draft batch, not a
 shipped media set. Nothing here is referenced from `src/lib/images.ts`.
 
-| File | Product role | Verdict | Notes |
-|---|---|---|---|
-| `pool-blue-seed-samples.png` | Pool blues, small seed, big seed, deep, light, mixed blue | Strong draft | Lagos daylight, clear glass, good category image. |
-| `metallic-mirror-trio.png` | Gold, silver, rose gold mirror | Strong draft | Premium and direct. Good material card candidate. |
-| `chess-board-mosaic-study.png` | Chess board mosaic | Usable draft | Product reads clearly. Could use a darker architectural retake later. |
-| `crystal-stone-custom-table.png` | Crystal mosaic, stone mosaic, custom blend | Strong draft | Best bridge between product truth and maison craft. |
-| `pool-materials-counter.png` | Pool materials, filter tank, pump, fittings, ladder | Strong draft | Commercially useful. Says real stock without clutter. |
-| `sample-visit-tray.png` | Sample flow, quote journey, samples to you | Strong draft | Replaces a first take that had number marks on a tape measure. |
-| `contact-sheet.png` | Batch review | Reference only | Contact sheet for eye review. |
+The batch now follows the app's two-sun pattern: day images are candidates
+for `DAY`, night images are candidates for `OWN`.
+
+| Product role | Day file | Night file | Verdict | Notes |
+|---|---|---|---|---|
+| Pool blues, small seed, big seed, deep, light, mixed blue | `pool-blue-seed-samples-day.png` | `pool-blue-seed-samples-night.png` | Strong pair | Day and night hold the same ledge, boards, and Lagos showroom feel. |
+| Gold, silver, rose gold mirror | `metallic-mirror-trio-day.png` | `metallic-mirror-trio-night.png` | Strong pair | Night is richer; day reads cleanly for light mode. |
+| Chess board mosaic | `chess-board-mosaic-study-day.png` | `chess-board-mosaic-study-night.png` | Usable pair | Night is stronger than day. Consider a calmer day retake before wiring. |
+| Crystal mosaic, stone mosaic, custom blend | `crystal-stone-custom-table-day.png` | `crystal-stone-custom-table-night.png` | Strong pair | Best bridge between product truth and maison craft. |
+| Pool materials, filter tank, pump, fittings, ladder | `pool-materials-counter-day.png` | `pool-materials-counter-night.png` | Strong pair | Practical stock image with enough luxury restraint. |
+| Sample flow, quote journey, samples to you | `sample-visit-tray-day.png` | `sample-visit-tray-night.png` | Strong pair | Clean after the first rejected take with number marks. |
+| Batch review | `contact-sheet.png` | `contact-sheet-pairs.png` | Reference only | Pair sheet is the useful review surface now. |
+
+Every current day and night draft is 1122 by 1402, a 4:5 portrait. Two
+night outputs arrived taller and were cropped into the batch ratio; the
+raw originals remain in the generator cache.
 
 Earlier folders:
 
@@ -96,6 +103,22 @@ Mood: real stock, rendered with calm.
 Output: 4K, portrait 4:5 unless a hero or journal header needs wide.
 ```
 
+## Two-sun rule for product images
+
+Each product image needs two files before it can be wired:
+
+- `*-night`: the dark-mode image. This is the `OWN` candidate.
+- `*-day`: the light-mode image. This is the `DAY` candidate.
+
+Night is not a filter. It is blue hour, lamps just lit, warm near-black,
+and product detail still readable. Day is not a washed copy. It is
+mid-morning Lagos daylight, pale warm ivory surroundings, and honest
+material colour.
+
+When creating a twin, preserve the subject, layout, crop rhythm, and
+product count as much as the generator allows. The site can tolerate
+natural photographic drift, but not a different product promise.
+
 ## Generated prompts, compact archive
 
 The exact generator prompts used the house format. These are the reusable
@@ -108,11 +131,17 @@ blue, big seed blue, deep blue, and light blue. Mixed blue blend loose in
 the foreground. Glass tesserae and pale grout readable. Lagos showroom,
 soft tropical daylight, warm stone, no text, no people.
 
+Night twin: same ledge and boards, blue hour outside, lamps just lit,
+warm architectural light across the glass, product still readable.
+
 ### Metallic mirror trio
 
 Three metallic mirror sample boards on a dark warm stone plinth: gold,
 silver, rose gold. Blue hour showroom, warm grazing lamp, controlled
 reflections, quiet dark negative space above, no labels, no logos.
+
+Day twin: same product arrangement in mid-morning daylight, pale warm
+stone, controlled reflections, no jewelry-ad energy.
 
 ### Chess board mosaic study
 
@@ -120,11 +149,17 @@ Black and white chess board mosaic sheet on a warm stone counter. Loose
 black and white tesserae in a disciplined line. Lagos apartment showroom,
 soft daylight, no chess pieces, no text.
 
+Night twin: same product, darker architectural interior, warm lamp across
+the glass, feature wall receding into shadow.
+
 ### Crystal and stone custom table
 
 Overhead showroom worktable. Crystal glass sheets on one side, stone
 mosaic sheets on the other. A custom blend strip is being assembled between
 them. Loose tesserae in ceramic bowls. Warm work lamp plus daylight.
+
+Night twin: same worktable, blue hour window, one warm work lamp, bowls
+casting soft shadows, glass glints held under control.
 
 ### Pool materials counter
 
@@ -132,12 +167,18 @@ Pool materials counter with filter tank, pump, skimmer basket, floor
 drain, nozzles, stainless ladder section, hose, and turned-away bags of
 gum cement. Mosaic sample shelves behind. No readable text or logos.
 
+Night twin: same practical counter after closing, warm overhead lamp,
+near-black shelves, equipment still clear.
+
 ### Sample visit tray
 
 Open matte black presentation tray with pool blue, aqua, black, gold,
 silver, rose gold, crystal glass, and stone sample boards. Clear pouch of
 loose tesserae, blank ivory card, plain unmarked brass straightedge. No
 numbers, no labels, no brand plates.
+
+Night twin: same tray, shelf lights glowing, cool palm window, blank card
+still blank, no labels or hardware marks.
 
 ## Wiring plan
 
