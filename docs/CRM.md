@@ -391,6 +391,51 @@ keepValues, icons components exist).
     both suns for every house, swatch shipped, characters written,
     ledger row.
 
+14. PLANNED 2026-07-04 (owner's question, take recorded): THE PRODUCT
+    DISCIPLINE, because one sample piece is not enough. Shop.app taught
+    two lanes and they are different jobs. The grid is purchasable
+    objects: every piece a clean card, the object filling the frame on
+    a studio ground, warm off-white by day and near-black by night, no
+    scene, no text, comparison fast because the camera barely moves. The
+    detail page is large and quiet: the reveal, the four acts, which is
+    exactly shop.app's product-detail discipline built the maison way.
+    So the answer to "we did one, we need others" is two moves, not one.
+    First the grid: the other session's Batch 07 exact SKU cards (the
+    ten stocked trade names) plus the Batch 05 family plates give the
+    catalogue its clean cards; wire them to the piece cards so every
+    product reads intentional, not only tiny-seed-gold. The gap, named:
+    a handful of the original eleven (aqua, deep-midnight, patterned-
+    borders, gradient, container, custom-colours) still lack a clean
+    card and keep their scene until one is drawn. Second the detail: the
+    reveal generalises without hand-building each piece, because its
+    acts already map to the lanes. The stage and counter object is the
+    piece's SKU card; the material act is the same in macro; the dream
+    act is a window frame chosen by a family map, pool to the pool edge,
+    gold to the metallic room, glass to the showroom wall, art to the
+    custom-art gallery, stone and neutral to the artisan table or the
+    hammam. Un-gate the slug, add the family-to-dream map, and every
+    piece page becomes its own reveal. RESTRAINT holds where it belongs:
+    the five-pieces-then-explore law governs the grid and the home, not
+    the detail page, so a rich reveal on every piece is on-brand, the
+    way every shop.app product has a full page. DISCIPLINE: gate the
+    Batch 07 cards by the owner's eye first because they are drafts,
+    then wire the grid, then generalise the reveal with the map, gating
+    two or three pieces one per family before the full roll. Done means:
+    cards wired, reveal generalised, AA held on any new scrim text, LCP
+    not regressed, lint and build green, ledger rows.
+
+    STANDING DECISIONS, so these stop being chat questions:
+    (a) plate-neutrals stays on the bench, converted but unwired, until
+    a Speciality neutrals card or piece earns it; wire it the day a
+    neutrals home exists, do not ask again.
+    (b) Pool materials stay presentational, images on the page, until
+    the owner asks the shelf be managed; then they become stockable
+    records through the ranges family=pool enum and the insert-only
+    heal channel, no new table, per the map already proven.
+    (c) The reveal's dream is swappable per piece by the family map
+    above; tiny-seed-gold's dream is the gold room, reversible to the
+    gold vault.
+
 **2026-07-04, the night everything held.** Every outside seam proven
 live, not assumed: the book under every room, the public blob store
 under the photographs (first real upload landed), the window serving
