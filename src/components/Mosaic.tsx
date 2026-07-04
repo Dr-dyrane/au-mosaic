@@ -122,14 +122,18 @@ export function AuSign({ markClassName = "h-[15px]" }: { markClassName?: string 
 }
 
 export function AuLockup({ className = "" }: { className?: string }) {
-  /* Aligned the way the print lockup is set: baselines married, not
-     centers. The word has no descenders, so its bottom edge IS the
-     baseline; the mark stands on that line, taller than the word's
-     x-height, and its tail row (the eighth of its height below the
-     base) dips under the line exactly as his artwork dips. */
+  /* The lockup by the owner's spec, measured off his file. The mark
+     stands 1.45 times the word's x-height (0.95em against the
+     1.4em serif), the u's stem bottom lands on the word's baseline
+     (the file's baseline sits at 95.8% of its height, so a 0.04em
+     drop closes the gap and lets only the tail kiss below), and the
+     space between sign and word is a breath, not a corridor. The
+     mark stays shorter than the word's line box, so the island can
+     centre the lockup against the nav without the sign inflating
+     the row. */
   return (
-    <span className={`inline-flex items-end gap-[0.28em] ${className}`}>
-      <AuSign markClassName="h-[1.45em] shrink-0 translate-y-[0.18em]" />
+    <span className={`inline-flex items-end gap-[0.1em] ${className}`}>
+      <AuSign markClassName="h-[0.95em] shrink-0 translate-y-[0.04em]" />
       <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
     </span>
   );
