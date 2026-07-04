@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { BRAND_PROFILE } from "@/lib/brand";
 import { getFacts } from "@/lib/facts";
+import { SITE } from "@/lib/site";
 import { DAY, OWN } from "@/lib/images";
 import { waGeneral, waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
@@ -46,6 +48,42 @@ export default async function ContactPage() {
 
       <Section
         tint
+        eyebrow="From the profile"
+        title="Samples begin in chat."
+        sub={BRAND_PROFILE.samplePromise}
+      >
+        <div className="grid gap-5 md:grid-cols-3">
+          <a href={waQuote()} target="_blank" rel="noopener" data-wa="cta" className="panel group block">
+            <p className="eyebrow">WhatsApp</p>
+            <p className="font-serif mt-3 text-[20px] transition-colors duration-300 group-hover:text-gold">
+              Ask for samples.
+            </p>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
+              Send a tile, colour, room, or materials list.
+            </p>
+          </a>
+          <a href={facts.instagram} target="_blank" rel="noopener" className="panel group block">
+            <p className="eyebrow">Instagram</p>
+            <p className="font-serif mt-3 text-[20px] transition-colors duration-300 group-hover:text-gold">
+              {BRAND_PROFILE.handle}
+            </p>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
+              Latest stock, reels, flyers, and home inspiration.
+            </p>
+          </a>
+          <a href={SITE.telegram} target="_blank" rel="noopener" className="panel group block">
+            <p className="eyebrow">Telegram</p>
+            <p className="font-serif mt-3 text-[20px] transition-colors duration-300 group-hover:text-gold">
+              View the sample room.
+            </p>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
+              The profile points buyers there for sample viewing.
+            </p>
+          </a>
+        </div>
+      </Section>
+
+      <Section
         eyebrow="Ready when you are"
         title="Send your list, get your quote."
         sub="Materials list, tile colours, or a pool idea. One message starts it."

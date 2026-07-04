@@ -8,6 +8,7 @@ git history: their decisions shipped, their prompts moved to the kit.
 | Document | Role |
 |---|---|
 | DESIGN.md | The law. Palette, typography ramp, geometry, glass, motion. Read before touching any UI. |
+| BRAND.md | The bridge. Instagram facts, product language, and how the site maps them into the house. |
 | CRM.md | The back-office law and the session memory. The piece record as the heart, the ten laws, the rooms, the cautions paid for. Read before touching /admin. |
 | SAAS-QA.md | The standards board. Modern SaaS admin checklist with honest verdicts. Update verdicts as passes land. |
 | QA.md | The ledger. Every checkpoint with evidence. Updated each pass, never rewritten. |

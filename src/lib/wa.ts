@@ -7,13 +7,13 @@ export function wa(message: string): string {
 }
 
 export const waGeneral = () =>
-  wa("Hello AU Mosaic, I'd like to make an enquiry.");
+  wa("Hello AU Mosaic, I'd like to ask about mosaic tiles or pool materials.");
 
 export const waProduct = (product: string) =>
   wa(`Hello AU Mosaic, please send me photos and a price for: ${product}.`);
 
 export const waQuote = () =>
-  wa("Hello AU Mosaic, I'd like a quote. Here's what I need: ");
+  wa("Hello AU Mosaic, I'd like samples and a quote. Here's what I need: ");
 
 export const waPool = () =>
   wa("Hello AU Mosaic, I'm interested in pool construction. Can we talk?");

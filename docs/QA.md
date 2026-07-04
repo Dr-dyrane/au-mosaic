@@ -1,7 +1,7 @@
 # QA ledger · The Mosaic Maison
 
 Every checkpoint verified with evidence, not opinion. Updated each pass.
-Last pass: 2026-07-02.
+Last pass: 2026-07-04.
 
 ## The owner's checklist
 
@@ -195,6 +195,18 @@ default and night is one tap away. Served HTML, server snapshots,
 theme color, and the pre-paint script all flipped together; a saved
 night preference still wins before paint. The logo request is parked
 until a logo asset exists.
+
+## Instagram brand bridge
+
+| Item | Status |
+|---|---|
+| Source harvest | PASS. Public `@aumosaic` profile checked on 2026-07-04: AU MOSAIC, Building Materials, No. 1 mosaic tiles in Nigeria, four bio services, Telegram samples link, 96 posts, 1,216 followers, four highlights. Owner screenshot and CRM harvest cross-checked. |
+| Data layer | PASS. `src/lib/brand.ts` holds the Instagram facts; `src/lib/site.ts`, `src/lib/facts.ts`, and JSON-LD read the address, channels, and brand claim from stable sources. |
+| Site mapping | PASS. Home hero now carries the Instagram claim, a four-pillar profile band routes each bio service, materials include gold and silver mosaic, contact groups WhatsApp, Instagram, and Telegram, footer exposes the same channels. |
+| Product language | PASS. Catalogue copy now names Small Seed, Big Seed, Deep Blue, Light Blue, Mixed Blue, Aqua Colour, Crystal, Stone, Chess Board, Gold, Silver, and Rose Gold mirror without adding speculative new stock. |
+| Brand dossier | PASS. `docs/BRAND.md` now records profile facts, logo anatomy, colour and type cues, highlight map, visible first-grid media, product taxonomy, sales flow, database caveat, open questions, and design warnings. |
+| Address hygiene | PASS. New seeds write the full Shop 17A address; `getFacts` treats old generic Agric Market values as placeholders and falls back to the fuller profile address. |
+| Verification | PASS. `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 39 generated routes. Copy sweep found no em dashes or imported Instagram emoji in edited source and docs. |
 
 ## The visualizer and the projects gallery
 

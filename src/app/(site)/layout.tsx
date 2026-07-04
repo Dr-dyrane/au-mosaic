@@ -22,14 +22,14 @@ const jsonLd = {
   priceRange: "₦₦",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Agric Market",
+    streetAddress: SITE.address,
     addressLocality: "Lagos",
     addressCountry: "NG",
   },
   areaServed: "Nigeria",
   openingHours: "Mo-Sa 08:30-17:00",
   ...(SITE.instagram.includes("instagram.com/") && SITE.instagram !== "https://instagram.com"
-    ? { sameAs: [SITE.instagram] }
+    ? { sameAs: [SITE.instagram, SITE.telegram] }
     : {}),
 };
 

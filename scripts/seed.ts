@@ -83,7 +83,7 @@ async function main() {
     whatsapp: SITE.whatsapp,
     phone_display: SITE.phoneDisplay,
     hours: SITE.hours,
-    location: SITE.location,
+    location: SITE.address,
     instagram: SITE.instagram,
   };
   for (const [key, value] of Object.entries(facts)) {

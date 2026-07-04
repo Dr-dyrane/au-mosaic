@@ -25,13 +25,18 @@ const readFacts = unstable_cache(
   { tags: ["facts"], revalidate: 3600 }
 );
 
+const GENERIC_LOCATIONS = new Set(["Agric Market", "Agric Market, Lagos"]);
+
 export async function getFacts(): Promise<Facts> {
   let v: Record<string, string> = {};
   try {
     v = await readFacts();
   } catch {}
   return {
-    location: v.location || SITE.location,
+    location:
+      v.location && !GENERIC_LOCATIONS.has(v.location)
+        ? v.location
+        : SITE.address,
     hours: v.hours || SITE.hours,
     phoneDisplay: v.phone_display || SITE.phoneDisplay,
     /* The early placeholder (bare instagram.com) never outranks the

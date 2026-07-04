@@ -27,6 +27,14 @@ export default async function Footer() {
           <a href={waGeneral()} target="_blank" rel="noopener" data-wa="footer" className="link-hair mt-6 text-dusk">
             WhatsApp the house
           </a>
+          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+            <a href={facts.instagram} target="_blank" rel="noopener" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+              Instagram
+            </a>
+            <a href={SITE.telegram} target="_blank" rel="noopener" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+              Telegram samples
+            </a>
+          </div>
         </div>
 
         <nav>

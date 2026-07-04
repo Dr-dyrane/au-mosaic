@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND_PROFILE } from "@/lib/brand";
 import { SITE } from "@/lib/site";
 import { getMosaicRanges, getProjects } from "@/lib/catalog";
 import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
@@ -16,6 +17,7 @@ import { ProductCard } from "@/components/ui";
 const MATERIALS = [
   { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues, srcDay: DAY.poolBlues },
   { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.glassJewels, srcDay: DAY.glassJewels },
+  { title: "Gold and silver mosaic", line: "Gold, silver, and rose gold mirror.", href: "/piece/gold-metallic-accents", src: OWN.goldAccents, srcDay: DAY.goldAccents },
   { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.koiMural, srcDay: DAY.koiMural },
 ];
 
@@ -46,16 +48,16 @@ export default async function Home() {
           <div className="scrim-hero pointer-events-none absolute inset-0" />
           <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
             <Reveal>
-              <p className="eyebrow scene-eyebrow">AU Mosaic · Lagos</p>
+              <p className="eyebrow scene-eyebrow">AU Mosaic · Building Materials</p>
               <h1 className="font-serif text-display-hero scene-title mt-5 max-w-3xl">
-                Spaces that begin with water.
+                No. 1 mosaic tiles in Nigeria.
               </h1>
               <p className="scene-sub mt-6 max-w-md text-[16px] leading-relaxed">
-                Mosaic for pools, walls, and rooms people remember.
+                Mosaic tiles, pool tiles, swimming pool materials, and pool construction from Lagos.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-8">
                 <a href={waQuote()} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
-                  Begin a project
+                  Ask for samples
                 </a>
                 <Link href="/mosaic-tiles" className="link-hair scene-link">
                   View the collection
@@ -64,6 +66,44 @@ export default async function Home() {
             </Reveal>
           </div>
         </SceneFrame>
+      </section>
+
+      {/* Instagram promise: the public profile arranged for action */}
+      <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
+        <Reveal>
+          <p className="eyebrow">{BRAND_PROFILE.handle}</p>
+          <h2 className="font-serif text-display-section mt-4 max-w-xl">
+            The profile promise, arranged.
+          </h2>
+          <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
+            Four things the profile sells every day. The site makes each one easy to find.
+          </p>
+        </Reveal>
+
+        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {BRAND_PROFILE.pillars.map((pillar, i) => (
+            <Reveal key={pillar.title} delay={i * 70}>
+              <Link href={pillar.href} className="panel group block h-full">
+                <p className="eyebrow">0{i + 1}</p>
+                <h3 className="font-serif mt-3 text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
+                  {pillar.title}
+                </h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-dusk">{pillar.line}</p>
+                <span className="link-hair mt-6 text-dusk">Open</span>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal>
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            {BRAND_PROFILE.highlights.map((item) => (
+              <Link key={item.title} href={item.href} className="chip-solid">
+                {item.title}
+              </Link>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/* Environments: the dream first */}
@@ -111,22 +151,22 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Materials: three ways to build with light */}
+      {/* Materials: four ways to build with light */}
       <section className="px-4 sm:px-6">
         <div className="mx-auto max-w-[1400px] rounded-[40px] bg-shell/70">
           <div className="mx-auto max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
             <Reveal>
               <p className="eyebrow">Materials</p>
               <h2 className="font-serif text-display-section mt-4 max-w-xl">
-                Three ways to build with light.
+                Four ways to build with light.
               </h2>
             </Reveal>
-            <div className="-mx-5 mt-16 grid gap-10 sm:mx-0 sm:grid-cols-3">
+            <div className="-mx-5 mt-16 grid gap-10 sm:mx-0 sm:grid-cols-2 lg:grid-cols-4">
               {MATERIALS.map((m, i) => (
                 <Reveal key={m.title} delay={i * 90}>
                   <Link href={m.href} className="group block">
                     <div className="relative aspect-square overflow-hidden rounded-none sm:rounded-[22px]">
-                      <ThemeImage dark={m.src} light={m.srcDay} alt={m.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="img-glide media-lux object-cover" />
+                      <ThemeImage dark={m.src} light={m.srcDay} alt={m.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="img-glide media-lux object-cover" />
                     </div>
                     <div className="px-5 sm:px-0">
                       <h3 className="font-serif mt-6 text-[20px] transition-colors duration-300 group-hover:text-gold">{m.title}</h3>
