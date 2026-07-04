@@ -139,9 +139,36 @@ for `DAY`, night images are candidates for `OWN`.
 | Orange Mosaic stock | `orange-mosaic-stock-day.png` | `orange-mosaic-stock-night.png` | Strong pair | Named colourway, still needs owner confirmation before wiring. |
 | Black Mosaic stock | `black-mosaic-stock-day.png` | `black-mosaic-stock-night.png` | Strong pair | Product display, not bathroom scene. |
 | Green Mosaic stock | `green-mosaic-stock-day.png` | `green-mosaic-stock-night.png` | Strong pair | Product display, not kitchen scene. |
+| Classic showroom sample library | `classic-sample-library-day.png` | `classic-sample-library-night.png` | Strong pair | Best bridge between Instagram stock breadth and the website's calm showroom tone. |
+| Classic pool blue decision ledge | `classic-pool-blue-decision-ledge-day.png` | `classic-pool-blue-decision-ledge-night.png` | Strong pair | Pool blues read as a buyer choice flow: deep, light, mixed, aqua, and border samples. |
+| Classic metallic range ledger | `classic-metallic-range-ledger-day.png` | `classic-metallic-range-ledger-night.png` | Strong pair | Gold, silver, rose gold, and tiny seed logic in one premium stock moment. |
+| Classic speciality neutral ledger | `classic-speciality-neutral-ledger-day.png` | `classic-speciality-neutral-ledger-night.png` | Strong pair | Crystal, stone, chess board, hex, black, and white without turning into a flyer. |
+| Classic bold colour stock family | `classic-bold-colour-stock-family-day.png` | `classic-bold-colour-stock-family-night.png` | Strong pair | Orange, green, black, white, aqua, and royal blue as selectable stocked samples. |
+| Classic pool materials quote counter | `classic-pool-materials-quote-counter-day.png` | `classic-pool-materials-quote-counter-night.png` | Strong pair | Practical list quote material, but photographed with the same house camera as the tile stock. |
 | Batch review | `contact-sheet.png` | `contact-sheet-pairs.png` | Reference only | Pair sheet is the useful review surface now. |
 | Batch 02 review | `contact-sheet-batch-02.png` | same file | Reference only | Reviews the six new day and night pairs from the extended search pass. |
 | Batch 03 stock review | `contact-sheet-batch-03-stock.png` | same file | Reference only | Reviews six SKU-style stock product display pairs. |
+| Batch 04 classic stock review | `contact-sheet-batch-04-classic-stock.png` | same file | Reference only | Reviews six classic stock display pairs after rendered-site audit. |
+
+## Rendered site audit for Batch 04
+
+The local site was rendered on July 4, 2026 at desktop and mobile widths
+before this batch was generated. The audit used the homepage, the mosaic
+tiles page, the classic pool blues piece page, and the pool materials
+page.
+
+Findings:
+
+- The website's strongest images are not busy. They give one subject air.
+- The hero and piece pages use water, stone, and depth as the luxury cue.
+- Batch 03 is correct inventory proof, but it feels closer to a clean
+  catalogue board than the house camera.
+- The better direction is stock clarity inside a composed material scene:
+  ledge, tray, pool edge, or quote counter.
+- Mobile crops reward centered products and punish labels, shelf clutter,
+  and in-image text.
+- The next wired assets should keep product count legible without letting
+  the image become a social flyer.
 
 ## Next image queue
 
@@ -150,11 +177,10 @@ queue once the current batch is approved.
 
 | Priority | Image pair | Why |
 |---|---|---|
-| 1 | Showroom sample wall, day and night | The screenshots show shelves and walls of stock. This proves breadth better than one tray. |
-| 2 | Gold stock variants, day and night | The screenshots show multiple gold sheets. We have tiny seed and metallic trio, but a cleaner SKU board set may still help. |
-| 3 | Crystal stock variants, day and night | The screenshots show more than one crystal look. We have silver crystal, but warmer crystal stock may be needed. |
-| 4 | Custom mosaic art and pool motif, day and night | Sacred Heart, logo art, crescent, and sun motifs prove custom work. |
-| 5 | Kitchen backsplash and sink, day and night | This is useful after the stock inventory lane, not before it. |
+| 1 | Custom mosaic art and pool motif, day and night | Sacred Heart, logo art, crescent, and sun motifs prove custom work. |
+| 2 | Kitchen backsplash and sink, day and night | Kitchens are a real application lane in the screenshots. |
+| 3 | Exterior cladding, day and night | Hold until there is clearer project proof or owner confirmation. |
+| 4 | Gold pillar or TV wall, day and night | Generate only if the website needs application imagery beyond the stock ledgers. |
 
 Every current day and night draft is 1122 by 1402, a 4:5 portrait. Two
 night outputs arrived taller and were cropped into the batch ratio; the
@@ -342,6 +368,36 @@ tile colour, crisp grout and tile edges.
 Night twins: same product board logic at blue hour, warm architectural
 lamp grazing across the glass, shelves falling into warm near-black.
 
+### Batch 04 classic stock display
+
+The rendered-site audit corrected the camera. The batch keeps the stock
+truth from Instagram, but frames it as the website frames everything else:
+one composed product moment, quiet stone, water or showroom depth, and no
+flyer language.
+
+Pairs:
+
+- Showroom sample library: open sample folio and drawer with pool blues,
+  aqua, white, black, orange, green, gold, silver, rose gold, crystal,
+  stone, and chess board.
+- Pool blue decision ledge: deep blue, light blue, mixed blue, aqua, and
+  patterned waterline samples at a pool edge.
+- Metallic range ledger: gold, silver, rose gold, and tiny seed gold on
+  an ivory showroom ledge.
+- Speciality neutrals: crystal, stone, hexagon marble, chess board,
+  black, and white for bathroom selection.
+- Bold colour stock family: orange, green, black, white, aqua, and royal
+  blue sample sheets.
+- Pool materials quote counter: filter tank, pump, skimmer, floor drain,
+  nozzles, fittings, ladder, gum cement, white cement, and blue mosaic
+  samples.
+
+Day twins: Lagos mid-morning daylight, soft white sun, warm ivory stone,
+honest product colour.
+
+Night twins: blue hour, warm low lamps, warm near-black distance, product
+detail still readable.
+
 ## Wiring plan
 
 Do not wire all drafts at once.
@@ -355,6 +411,16 @@ Do not wire all drafts at once.
 6. Update this ledger with the final filename and the rejected draft it
    replaces.
 7. Run the normal ritual: lint, build, QA row, story commit.
+
+## Wired from this batch
+
+| Date | Draft pair | Canonical name | Replaces | Where it shows |
+|---|---|---|---|---|
+| 2026-07-04 | `metallic-mirror-trio-*` | `gold-night.jpg`, `gold-day.jpg` | First-generation gold accents scene | Piece `gold-metallic-accents`, site and office, both suns |
+| 2026-07-04 | `crystal-stone-custom-table-*` | `custom-night.jpg`, `custom-day.jpg` | First-generation custom colours scene | Piece `custom-colours-sizes`, site and office, both suns |
+
+Content swap on canonical names: no code changed, the book's paths
+stand, the eye gate ran on a four-up proof sheet before the copy.
 
 ## Back office implications
 
