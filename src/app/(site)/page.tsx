@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { BRAND_PROFILE } from "@/lib/brand";
 import { SITE } from "@/lib/site";
 import { getMosaicRanges, getProjects } from "@/lib/catalog";
 import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
@@ -48,16 +47,16 @@ export default async function Home() {
           <div className="scrim-hero pointer-events-none absolute inset-0" />
           <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
             <Reveal>
-              <p className="eyebrow scene-eyebrow">AU Mosaic · Building Materials</p>
+              <p className="eyebrow scene-eyebrow">AU Mosaic · Lagos</p>
               <h1 className="font-serif text-display-hero scene-title mt-5 max-w-3xl">
-                No. 1 mosaic tiles in Nigeria.
+                Spaces that begin with water.
               </h1>
               <p className="scene-sub mt-6 max-w-md text-[16px] leading-relaxed">
-                Mosaic tiles, pool tiles, swimming pool materials, and pool construction from Lagos.
+                Mosaic for pools, walls, and rooms people remember.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-8">
                 <a href={waQuote()} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
-                  Ask for samples
+                  Begin a project
                 </a>
                 <Link href="/mosaic-tiles" className="link-hair scene-link">
                   View the collection
@@ -66,44 +65,6 @@ export default async function Home() {
             </Reveal>
           </div>
         </SceneFrame>
-      </section>
-
-      {/* Instagram promise: the public profile arranged for action */}
-      <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
-        <Reveal>
-          <p className="eyebrow">{BRAND_PROFILE.handle}</p>
-          <h2 className="font-serif text-display-section mt-4 max-w-xl">
-            The profile promise, arranged.
-          </h2>
-          <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
-            Four things the profile sells every day. The site makes each one easy to find.
-          </p>
-        </Reveal>
-
-        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {BRAND_PROFILE.pillars.map((pillar, i) => (
-            <Reveal key={pillar.title} delay={i * 70}>
-              <Link href={pillar.href} className="panel group block h-full">
-                <p className="eyebrow">0{i + 1}</p>
-                <h3 className="font-serif mt-3 text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
-                  {pillar.title}
-                </h3>
-                <p className="mt-2 text-[14px] leading-relaxed text-dusk">{pillar.line}</p>
-                <span className="link-hair mt-6 text-dusk">Open</span>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            {BRAND_PROFILE.highlights.map((item) => (
-              <Link key={item.title} href={item.href} className="chip-solid">
-                {item.title}
-              </Link>
-            ))}
-          </div>
-        </Reveal>
       </section>
 
       {/* Environments: the dream first */}

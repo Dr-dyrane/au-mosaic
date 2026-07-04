@@ -6,7 +6,9 @@ import { BRAND_PROFILE } from "./brand";
 export const SITE = {
   name: "AU Mosaic and Pool Materials",
   shortName: "AU Mosaic",
-  tagline: BRAND_PROFILE.position,
+  /* The window's own voice. The Instagram position line lives in
+     BRAND_PROFILE for flyers and data; the maison does not shout. */
+  tagline: "The house of mosaic.",
   description:
     "Mosaic tiles, pool tiles, swimming pool materials, and pool construction in Lagos. Samples, photos, quotes, and delivery start on WhatsApp.",
   location: "Agric Market, Orile, Lagos",
