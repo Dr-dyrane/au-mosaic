@@ -13,6 +13,11 @@ import { CtaRow } from "@/components/ui";
 import Reveal from "@/components/Reveal";
 import PieceBar from "@/components/PieceBar";
 import TiltFrame from "@/components/TiltFrame";
+import PieceReveal from "@/components/PieceReveal";
+
+/* Item 12 rides on this one piece first. The owner's eye gates it before the
+   pattern generalises; add slugs here only after the prototype is approved. */
+const REVEAL_SLUGS = new Set<string>(["tiny-seed-gold"]);
 
 /* The piece, presented the Apple way: the image is the screen, the words
    sit on it, nothing frames it. Facts follow below, quietly. */
@@ -64,6 +69,22 @@ export default async function PiecePage({ params }: { params: Params }) {
       { "@type": "ListItem", position: 3, name: piece.name, item: `${base}/piece/${piece.slug}` },
     ],
   };
+
+  if (REVEAL_SLUGS.has(piece.slug)) {
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: scriptJson(productLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: scriptJson(crumbsLd) }}
+        />
+        <PieceReveal piece={piece} />
+      </>
+    );
+  }
 
   return (
     <>

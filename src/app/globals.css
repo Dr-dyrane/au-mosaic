@@ -672,3 +672,72 @@ a:active .chip-glass,
   body { background: #fff !important; }
   @page { margin: 14mm; }
 }
+
+/* ---- piece reveal · item 12 --------------------------------------------------- */
+
+/* Theatre lawful on the window only. The stage and material hold dark in both
+   suns (night frame, no light twin); the dream and counter follow the house's
+   light. Reuses vignette, scrims, kenburns, parallax-y, and the scene vars;
+   adds only the sheet's glow, the macro zoom, the light-sweep, and the cue. */
+.reveal-stage { background: rgb(var(--sand-night-rgb)); }
+.reveal-artwork {
+  position: relative;
+  width: min(74vmin, 520px);
+  aspect-ratio: 4 / 5;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow:
+    0 44px 120px rgb(0 0 0 / 0.62),
+    inset 0 0 0 1px rgb(243 239 230 / 0.06),
+    inset 0 0 70px rgb(0 0 0 / 0.30);
+}
+.reveal-macro-img { transform: scale(2.15); object-position: 50% 46%; }
+.reveal-sweep {
+  mix-blend-mode: screen;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgb(226 199 128 / 0.12) 47%,
+    rgb(255 244 214 / 0.30) 50%,
+    rgb(226 199 128 / 0.12) 53%,
+    transparent 62%
+  );
+  background-size: 280% 100%;
+  animation: reveal-sweep 6s linear infinite;
+}
+@keyframes reveal-sweep {
+  from { background-position: 150% 0; }
+  to { background-position: -120% 0; }
+}
+.reveal-cue {
+  color: rgb(243 239 230 / 0.55);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.reveal-cue i {
+  display: block;
+  width: 15px;
+  height: 15px;
+  margin: 8px auto 0;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  animation: reveal-bob 2.4s var(--ease-glide) infinite;
+}
+@keyframes reveal-bob {
+  0%, 100% { transform: rotate(45deg) translate(0, 0); }
+  50% { transform: rotate(45deg) translate(3px, 3px); }
+}
+.reveal-counter-thumb {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 34px 90px rgb(0 0 0 / 0.28), inset 0 0 0 1px rgb(128 116 90 / 0.14);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-sweep { animation: none; opacity: 0; }
+  .reveal-cue i { animation: none; }
+  .reveal-macro-img { transform: scale(2); }
+}
