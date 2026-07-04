@@ -405,6 +405,29 @@ p { text-wrap: pretty; }
   .skel::after { animation: none; }
 }
 
+/* ---- quiet motion behind the door ------------------------------------------
+
+   Rooms rise four pixels as they arrive: 200ms, stagger capped at
+   60ms, motion that says alive and never theatre. The translate
+   property ends at none rather than a zero transform, so sticky
+   children keep the viewport as their anchor. The flagship's
+   ken-burns stays on its side of the door. */
+@media (prefers-reduced-motion: no-preference) {
+  .admin-rooms main > * { animation: room-rise 0.2s var(--ease-glide) both; }
+  .admin-rooms main > *:nth-child(2) { animation-delay: 20ms; }
+  .admin-rooms main > *:nth-child(3) { animation-delay: 40ms; }
+  .admin-rooms main > *:nth-child(n + 4) { animation-delay: 60ms; }
+}
+@keyframes room-rise {
+  from { opacity: 0; translate: 0 4px; }
+  to { opacity: 1; translate: none; }
+}
+
+/* Hands say what taps: anything pressable behind the door carries
+   the pointer. */
+.admin-rooms button:not(:disabled),
+.admin-rooms summary { cursor: pointer; }
+
 /* Solid chip for the back office: same body as chip-glass, but
    theme-aware and made for panels, not imagery. is-on means risen. */
 .chip-solid {

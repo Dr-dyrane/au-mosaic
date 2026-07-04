@@ -310,14 +310,14 @@ keepValues, icons components exist).
    confirmation audit with the accepted-without-ceremony reasons
    written.
 
-10. Tour reset in Settings (Dyrane asked): a small row in the
+10. DONE 2026-07-03, as specced. The welcome panel in Settings: a small row in the
     Settings page, house voice ("Begin again. The welcome returns on
     this device."), one link-hair button that clears every
     aumosaic.toured.* flag in localStorage on this device and answers
     in a sentence; the first-login offer returns on next visit to the
     glance. Client-only, no server action, no ceremony.
 
-11. Desktop composition and quiet motion (Dyrane reviewed: vertical
+11. DONE 2026-07-03, both halves. (Dyrane reviewed: vertical
     stacks waste large screens; wants horizontal and zig-zag flow,
     progressive disclosure, animate-to-reveal, microinteractions).
     (a) Composition, lg and up: the piece record becomes two columns
@@ -341,6 +341,14 @@ keepValues, icons components exist).
     (d) Microinteraction sweep on desktop: hover states on rows match
     the cards (name warms to gold), focus-visible ring audit behind
     the door, cursor affordances on do-anything elements.
+    OUTCOME: composition shipped across the shell and desk passes
+    (piece record, order record, settings, share, customers all
+    pair; stockroom three columns at xl); photographs sticky at xl;
+    room-rise 200ms via the translate property so sticky survives
+    fill mode; story field folds behind a quiet More (order note
+    stayed open, one short paragraph is not a fold); hovers and the
+    gold focus ring were already true and are recorded; zig-zag
+    declined with reason, the history ledger scans better straight.
 
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open

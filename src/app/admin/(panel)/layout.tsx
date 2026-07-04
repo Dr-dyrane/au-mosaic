@@ -58,7 +58,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     /* A flex column so short rooms still hold the footer at the
        floor: the children stretch, the footer never drifts up. */
-    <div className="tabular-nums mx-auto flex min-h-svh max-w-6xl flex-col px-5 pb-32 sm:px-8 sm:pb-24">
+    <div className="admin-rooms tabular-nums mx-auto flex min-h-svh max-w-6xl flex-col px-5 pb-32 sm:px-8 sm:pb-24">
       <header className="flex items-center justify-between gap-6 pb-10 pt-8">
         <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
           <AuMark className="h-[14px] w-auto" />

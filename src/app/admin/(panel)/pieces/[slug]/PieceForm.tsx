@@ -88,10 +88,31 @@ export default function PieceForm({ piece, stock }: Props) {
           <label htmlFor="line" className={label}>One line under the name</label>
           <input id="line" name="line" defaultValue={piece.line} className={field} />
         </div>
-        <div>
-          <label htmlFor="story" className={label}>The longer story (piece page)</label>
-          <textarea id="story" name="story" defaultValue={piece.story} rows={4} className={field} />
-        </div>
+        {/* The story is secondary and often long: it rests folded
+            behind one line and a quiet More. Closed still submits;
+            the words are never lost, only resting. */}
+        <details className="group">
+          <summary className="flex list-none items-baseline justify-between gap-4 [&::-webkit-details-marker]:hidden">
+            <span className="min-w-0">
+              <span className="eyebrow block">The longer story (piece page)</span>
+              <span className="mt-1.5 block truncate text-[13px] text-mist group-open:hidden">
+                {piece.story || "Nothing written yet."}
+              </span>
+            </span>
+            <span className="link-hair shrink-0 text-dusk text-[12px]">
+              <span className="group-open:hidden">More</span>
+              <span className="hidden group-open:inline">Less</span>
+            </span>
+          </summary>
+          <textarea
+            id="story"
+            name="story"
+            aria-label="The longer story (piece page)"
+            defaultValue={piece.story}
+            rows={4}
+            className={`${field} mt-2.5`}
+          />
+        </details>
         <div>
           <label htmlFor="priceNote" className={label}>Price note</label>
           <input id="priceNote" name="priceNote" defaultValue={piece.priceNote} placeholder="Quote per job" className={field} />

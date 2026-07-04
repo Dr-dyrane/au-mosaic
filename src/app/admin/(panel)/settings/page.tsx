@@ -6,6 +6,7 @@ import SettingsForm from "./SettingsForm";
 import AddStaffForm from "./AddStaffForm";
 import KeyRow from "./KeyRow";
 import NotifyToggle from "./NotifyToggle";
+import TourReset from "./TourReset";
 import Teach from "../Teach";
 
 /* The facts of the house, and the keys to its door. Today the site
@@ -108,6 +109,14 @@ export default async function SettingsPage() {
         >
           Read the history
         </Link>
+      </div>
+
+      <div className="panel">
+        <p className="font-serif text-[20px]">The welcome</p>
+        <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+          Begin again. The welcome returns on this device.
+        </p>
+        <TourReset />
       </div>
         </div>
       </div>

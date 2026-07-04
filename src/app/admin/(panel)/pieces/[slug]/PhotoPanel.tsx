@@ -190,7 +190,9 @@ export default function PhotoPanel({
   imageDay: string | null;
 }) {
   return (
-    <section className="panel grid gap-8" data-tour="photos">
+    /* On the desk the face keeps the eye while the form scrolls:
+       sticky under the header, released on the phone's single file. */
+    <section className="panel grid gap-8 xl:sticky xl:top-6" data-tour="photos">
       <div>
         <p className="font-serif text-[20px]">The photographs</p>
         <Teach until="stockroom">
