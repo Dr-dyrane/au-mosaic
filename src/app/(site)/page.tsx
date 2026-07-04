@@ -14,10 +14,10 @@ import { ProductCard } from "@/components/ui";
    screen; everything else whispers. */
 
 const MATERIALS = [
-  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.poolBlues, srcDay: DAY.poolBlues },
-  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.glassJewels, srcDay: DAY.glassJewels },
-  { title: "Gold and silver mosaic", line: "Gold, silver, and rose gold mirror.", href: "/piece/gold-metallic-accents", src: OWN.goldAccents, srcDay: DAY.goldAccents },
-  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.koiMural, srcDay: DAY.koiMural },
+  { title: "Pool mosaic", line: "Designed for water, light, and time.", href: "/mosaic-tiles#pool-mosaics", src: OWN.platePoolBlues, srcDay: DAY.platePoolBlues },
+  { title: "Glass mosaic", line: "Colour you can stand in.", href: "/mosaic-tiles#glass-mosaics", src: OWN.plateSolidGlass, srcDay: DAY.plateSolidGlass },
+  { title: "Gold and silver mosaic", line: "Gold, silver, and rose gold mirror.", href: "/piece/gold-metallic-accents", src: OWN.plateMetallic, srcDay: DAY.plateMetallic },
+  { title: "Art mosaic", line: "Pictures made of stone and glass.", href: "/mosaic-tiles#feature-mosaics", src: OWN.plateCustomArt, srcDay: DAY.plateCustomArt },
 ];
 
 export default async function Home() {

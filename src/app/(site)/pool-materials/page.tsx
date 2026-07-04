@@ -4,6 +4,7 @@ import { SITE } from "@/lib/site";
 import { DAY, OWN } from "@/lib/images";
 import { waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, ProductGroupBlock, Section } from "@/components/ui";
+import ThemeImage from "@/components/ThemeImage";
 
 export const metadata: Metadata = {
   title: "Swimming pool materials and equipment in Lagos",
@@ -26,6 +27,17 @@ export default async function PoolMaterialsPage() {
       />
 
       <Section title="The shelf">
+        <div className="relative -mx-5 mb-14 aspect-[4/3] overflow-hidden rounded-none sm:mx-0 sm:rounded-[26px]">
+          <ThemeImage
+            dark={OWN.poolKit}
+            light={DAY.poolKit}
+            alt="A pump, filter tank, ladder, and fittings beside mosaic samples"
+            fill
+            quality={90}
+            sizes="(max-width: 640px) 100vw, 90vw"
+            className="media-lux object-cover"
+          />
+        </div>
         <div className="space-y-14">
           {materials.map((g) => (
             <ProductGroupBlock key={g.id} group={g} />

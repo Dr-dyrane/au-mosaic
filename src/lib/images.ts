@@ -31,6 +31,12 @@ export const OWN = {
   artisanTable: "/media/artisan-table-night.jpg",
   materialsCounter: "/media/materials-counter-night.jpg",
   artGallery: "/media/art-gallery-night.jpg",
+  /* Commerce product plates, 2026-07-04: shop-style tiles on studio grounds. */
+  platePoolBlues: "/media/plate-pool-blues-night.jpg",
+  plateMetallic: "/media/plate-metallic-night.jpg",
+  plateSolidGlass: "/media/plate-solid-glass-night.jpg",
+  plateCustomArt: "/media/plate-custom-art-night.jpg",
+  poolKit: "/media/plate-pool-kit-night.jpg",
   /* Nonso's green-lit SKUs, 2026-07-04: the trade names his
      Instagram sells, photographed by the house camera. */
   plainBlueSmallSeed: "/media/plain-blue-small-seed-night.jpg",
@@ -70,6 +76,11 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   artisanTable: "/media/artisan-table-day.jpg",
   materialsCounter: "/media/materials-counter-day.jpg",
   artGallery: "/media/art-gallery-day.jpg",
+  platePoolBlues: "/media/plate-pool-blues-day.jpg",
+  plateMetallic: "/media/plate-metallic-day.jpg",
+  plateSolidGlass: "/media/plate-solid-glass-day.jpg",
+  plateCustomArt: "/media/plate-custom-art-day.jpg",
+  poolKit: "/media/plate-pool-kit-day.jpg",
   plainBlueSmallSeed: "/media/plain-blue-small-seed-day.jpg",
   mixedBlueBigSeed: "/media/mixed-blue-big-seed-day.jpg",
   plainWhite: "/media/plain-white-mosaic-day.jpg",
