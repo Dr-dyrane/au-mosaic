@@ -383,7 +383,7 @@ sleeps through it. The cure, both halves: rsync -c (checksum), then
 grep a string you just added in the /tmp/bm copy before building, and
 run kickoff plus sleep plus log-read inside one call. (7) The environment
 files: .env holds real secrets and is gitignored; .env.example ships
-placeholders only. (8) House voice in all repo content: no em dashes,
+placeholders only. (8) Vercel Blob stores choose public or private at creation and never change: a private store refuses put with public access, and the window needs public. The first store was private; the cure was a new public store, connected in the dashboard, carried by the next deploy. Proven end to end 2026-07-04: refine on the phone, blob in the store, URL in the book, photograph in the window. (9) House voice in all repo content: no em dashes,
 no arrows, Apple-terse, one gold per screen, no hairlines, nothing
 ever deleted.
 
