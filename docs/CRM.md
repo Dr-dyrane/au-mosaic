@@ -399,10 +399,9 @@ live in assets/brand (au-logo-master.png, au-logo-3d.png, never
 served); the chrome derivative is public/media/logo/mark.png, 41KB
 quantized. Canonical everywhere the company faces outward: icons,
 favicon, PWA tiles, invoice paper, all generated from his file by
-scripts/brand-icons.py. His ruling on the chrome: Royal wears the
-file, every other house relights the token AuMark, switched by CSS
-(mark-file and mark-token classes) on the palette attribute, so the
-swap is flashless. The freeze is lifted; the sign is his.
+scripts/brand-icons.py. Final ruling (updated same day): the file in EVERY house and both
+suns; the token mark and its two-voice CSS retired to git history.
+A logo does not change clothes with the room. The sign is his.
 
 **Phase 3 quotes, not builds:** payments inbox via Mono or Okra bank
 feed (unmatched inflows, tap to attach, suggest by amount and open

@@ -264,14 +264,6 @@ p { text-wrap: pretty; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
-/* The owner's ruling on the sign: the Royal house wears his logo
-   file; every other house relights the token mark. Both live in
-   the tree and the palette attribute picks before first paint, so
-   the swap can never flash. */
-.mark-file { display: none; }
-[data-palette="royal"] .mark-file { display: inline-block; }
-[data-palette="royal"] .mark-token { display: none; }
-
 /* The sign's word: gradient glass like his print, light falling
    from the top. In the chrome it reads the house tokens, so the
    word relights with the palette and the sun; in the Royal default

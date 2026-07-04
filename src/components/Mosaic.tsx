@@ -13,111 +13,21 @@ const PALETTE = [
 
 const tone = (i: number) => PALETTE[(i * 7 + 3) % PALETTE.length];
 
-/* The brand mark: Nonso's "au" mosaic sign, rebuilt as deterministic
-   tesserae in his own blues, the ones his Instagram has worn all
-   along: navy, royal, sky, and pale glass. A logo is toner, not
-   chrome, so the mark keeps these blues in every house and both
-   suns; the palettes may change the room, never the sign above the
-   door. No period, per the client's logo. Keep the bitmap in sync
-   with scripts/brand-icons.py. */
-
-/* The letters are joined the way his sign joins them: the a's stem
-   and the u's left wall are one shared stroke, a ligature. The a's
-   bowl rounds at its lower left (the base steps in), and the u's
-   tail dips below the baseline and hooks back, both read off his
-   own artwork. */
-const AU_GRID = [
-  ".######...##.",
-  "##...##...##.",
-  ".....##...##.",
-  ".######...##.",
-  "##...##...##.",
-  "##...##...##.",
-  "..##########.",
-  ".........##..",
-];
-/* The light lives in the sign: his tiles run deep navy at the
-   bottom-left and brighten to glass at the top-right, with a hash
-   jitter so no two neighbours match. Position picks the tone, the
-   hash breaks the banding, and the same arithmetic runs in
-   scripts/brand-icons.py. */
-/* The token mark's ramp: the room's own metals, the same gradient
-   arithmetic the owner's logo carries. The canonical blues live in
-   his file now (assets/brand, served at /media/logo/mark.png); this
-   ramp exists so the other houses can relight the sign. */
-const AU_ROOM_RAMP = [
-  "var(--color-gold-deep)",
-  "var(--color-gold-deep)",
-  "var(--color-gold)",
-  "var(--color-gold)",
-  "var(--color-ink)",
-  "var(--color-ink)",
-];
-
-function auTone(ramp: string[], r: number, c: number, rows: number, cols: number, i: number) {
-  const w = 0.55 * (1 - r / (rows - 1)) + 0.45 * (c / (cols - 1));
-  const jitter = (((i * 13 + 5) % 5) - 2) * 0.35;
-  const idx = Math.min(ramp.length - 1, Math.max(0, Math.round(w * (ramp.length - 1) + jitter)));
-  return ramp[idx];
-}
-
-
-export function AuMark({ className = "" }: { className?: string }) {
-  const T = 10;
-  const rows = AU_GRID.length;
-  const cols = AU_GRID[0].length;
-  const ramp = AU_ROOM_RAMP;
-  const w = cols * T;
-  const h = rows * T;
-  const tiles: React.ReactNode[] = [];
-  let i = 0;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      i++;
-      if (AU_GRID[r][c] !== "#") continue;
-      tiles.push(
-        <rect
-          key={`${r}-${c}`}
-          x={c * T + 1}
-          y={r * T + 1}
-          width={T - 2}
-          height={T - 2}
-          rx="2"
-          fill={auTone(ramp, r, c, rows, cols, i)}
-        />
-      );
-    }
-  }
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className={className} aria-hidden>
-      {tiles}
-    </svg>
-  );
-}
-
-/* The full sign, as the client's own flyers set it: the tesserae au,
-   then mosaic in a lowercase serif wearing the brand blue. The word
-   picks its legible blue per sun through the brand-word rules in
-   globals; the palettes have no say, because a sign is a sign. Size
-   the lockup with a font-size on the wrapper: the mark rides at 1em. */
-/* The sign with the owner's ruling built in: Royal wears his logo
-   file, every other house relights the token mark. Both render and
-   the palette attribute picks via the mark-file and mark-token
-   rules in globals, flashless because the attribute lands before
-   first paint. */
+/* The sign, final ruling: the owner's file in every house and both
+   suns, because a logo does not change clothes with the room.
+   Coca-Cola stays red in any theme; au mosaic stays blue in any
+   house. The token pixel-mark that once relit per palette retired
+   to git history the day the real sign landed. */
 export function AuSign({ markClassName = "h-[15px]" }: { markClassName?: string }) {
   return (
-    <>
-      <Image
-        src="/media/logo/mark.png"
-        alt=""
-        aria-hidden
-        width={473}
-        height={360}
-        className={`mark-file w-auto ${markClassName}`}
-      />
-      <AuMark className={`mark-token w-auto ${markClassName}`} />
-    </>
+    <Image
+      src="/media/logo/mark.png"
+      alt=""
+      aria-hidden
+      width={473}
+      height={360}
+      className={`w-auto ${markClassName}`}
+    />
   );
 }
 
