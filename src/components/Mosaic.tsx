@@ -132,7 +132,7 @@ export function AuLockup({ className = "" }: { className?: string }) {
      centre the lockup against the nav without the sign inflating
      the row. */
   return (
-    <span className={`inline-flex items-end gap-[0.1em] ${className}`}>
+    <span className={`inline-flex items-end gap-[0.18em] ${className}`}>
       <AuSign markClassName="h-[0.95em] shrink-0 translate-y-[0.04em]" />
       <span className="brand-word font-serif text-[1.4em] leading-none">mosaic</span>
     </span>
