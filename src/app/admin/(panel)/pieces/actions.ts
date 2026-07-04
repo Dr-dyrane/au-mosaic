@@ -61,22 +61,33 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return { ok: false, message: "The photo store is not connected yet. Add BLOB_READ_WRITE_TOKEN." };
   }
+  /* Two doors, two sentences: the store and the book fail in their
+     own words, and each failure names itself in the runtime logs, so
+     a silent catch can never send the owner guessing again. */
+  let url: string;
   try {
     const ext = file.type === "image/png" ? "png" : "jpg";
     const blob = await put(`pieces/${slug}-${which}-${Date.now()}.${ext}`, file, {
       access: "public",
       addRandomSuffix: false,
     });
+    url = blob.url;
+  } catch (e) {
+    console.error("[photograph] the store refused the upload", e);
+    return { ok: false, message: "The photo store refused the file. Try once more; if it holds, the store key needs a look." };
+  }
+  try {
     await getDb()
       .update(schema.pieces)
       .set(
         which === "night"
-          ? { imageNight: blob.url, updatedAt: sql`now()` }
-          : { imageDay: blob.url, updatedAt: sql`now()` }
+          ? { imageNight: url, updatedAt: sql`now()` }
+          : { imageDay: url, updatedAt: sql`now()` }
       )
       .where(eq(schema.pieces.slug, slug));
-  } catch {
-    return { ok: false, message: "The upload did not land. Try again." };
+  } catch (e) {
+    console.error("[photograph] the book did not take the URL", e);
+    return { ok: false, message: "The photograph landed but the book did not take it. Try again." };
   }
   await logAction("put up a photograph", slug, which === "night" ? "the night slot" : "the day slot");
   revalidatePath(`/admin/pieces/${slug}`);
