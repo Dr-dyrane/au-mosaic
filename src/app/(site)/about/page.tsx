@@ -3,6 +3,7 @@ import { SITE } from "@/lib/site";
 import { DAY, OWN } from "@/lib/images";
 import { waGeneral } from "@/lib/wa";
 import ThemeImage from "@/components/ThemeImage";
+import Proof from "@/components/Proof";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -57,6 +58,9 @@ export default function AboutPage() {
         title="Ten years, one market, one factory."
         sub={`A showroom at ${SITE.location}. A team that runs with or without the boss around. Goods sourced directly from our factory in ${SITE.factory}, which is why our prices are hard to beat.`}
       >
+        <div className="mb-14">
+          <Proof />
+        </div>
         <CtaRow href={waGeneral()} label="Say hello on WhatsApp" />
       </Section>
     </>

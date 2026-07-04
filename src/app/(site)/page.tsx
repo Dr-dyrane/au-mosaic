@@ -4,6 +4,7 @@ import { getMosaicRanges, getProjects } from "@/lib/catalog";
 import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
+import Proof from "@/components/Proof";
 import SceneFrame from "@/components/SceneFrame";
 import ThemeImage from "@/components/ThemeImage";
 import ProjectCard from "@/components/ProjectCard";
@@ -206,16 +207,18 @@ export default async function Home() {
                 Kerakoll sits beneath every surface we install, and we tell
                 every client the honest difference before they buy.
               </p>
-              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
-                Ten years in the market. Our own factory line in {SITE.factory}.
-                The largest mosaic stock on the ground in Lagos.
-              </p>
               <a href={waPool()} target="_blank" rel="noopener" data-wa="craft" className="link-hair mt-8 text-dusk">
                 Build a pool with us
               </a>
             </div>
           </Reveal>
         </div>
+      </section>
+
+      {/* The proof: the stat prose becomes four stones the eye can
+          rest on, every one true across the counter. */}
+      <section className="mx-auto max-w-6xl px-5 pb-28 sm:px-8 sm:pb-36">
+        <Proof />
       </section>
 
       {/* The work: two projects, then the rest */}
