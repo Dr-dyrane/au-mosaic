@@ -11,7 +11,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-/* The back office, as tables. Phase 5 of docs/PLAN.md.
+/* The back office, as tables. Phase 5 of the product plan, which
+   shipped whole and retired to git history.
 
    Two families. Catalogue tables (ranges, pieces, stock) are keyed by
    slug, the same stable keys the public site has used since day one,

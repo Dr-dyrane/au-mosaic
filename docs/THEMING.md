@@ -54,7 +54,7 @@ surprise.
 
 If the media should follow the brand too (a different mood, not just
 different chrome), the DAY pipeline already exists: generate twins
-per MEDIA-BRIEF, drop, wire, done.
+per client/IMAGE-PROMPTS.md, drop, wire, done.
 
 ## The houses (the second axis, built)
 

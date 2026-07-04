@@ -1,18 +1,20 @@
 # The documents, and what each one is for
 
-One law, one ledger, one plan. Nothing here repeats; when two documents
-disagree, the law wins.
+Two laws, one ledger, one standards board, one contract. Nothing here
+repeats; when two documents disagree, the law wins. The retired papers
+(the product plan, the dated UX review, the old media brief) live in
+git history: their decisions shipped, their prompts moved to the kit.
 
 | Document | Role |
 |---|---|
 | DESIGN.md | The law. Palette, typography ramp, geometry, glass, motion. Read before touching any UI. |
-| CRM.md | The back-office law. The piece record as the heart, the ten laws, the rooms and their status, the measure of done. Read before touching /admin. |
-| SAAS-QA.md | The standards list. Modern SaaS admin checklist with honest verdicts (pass, partial, missing) and the prioritised missing list. Update verdicts as passes land. |
-| QA.md | The ledger. Every checkpoint with evidence: contrast math, imagery provenance, regression checks, the CMS seam. Updated each pass, never rewritten. |
-| UX-REVIEW.md | The dated review. Benchmark verdict and the improvement map it produced. Historical once its tiers ship. |
-| MEDIA-BRIEF.md | The generation brief. Style block, film slots, dimensional still recipe, reference frames. The owner generates; the gate is an eye check here before anything ships. |
-| PLAN.md | The product plan. Why Apple Store and not shop.com, and the phases. |
-| client/ | What Nonso sees. The proposal in markdown and the PDF built from it. Business emails only, never personal. |
+| CRM.md | The back-office law and the session memory. The piece record as the heart, the ten laws, the rooms, the cautions paid for. Read before touching /admin. |
+| SAAS-QA.md | The standards board. Modern SaaS admin checklist with honest verdicts. Update verdicts as passes land. |
+| QA.md | The ledger. Every checkpoint with evidence. Updated each pass, never rewritten. |
+| THEMING.md | The theming contract. Nine tokens, three scenes; the whole job when brand colours arrive. |
+| client/PROPOSAL-NONSO.md | The proposal Nonso saw. Business record. |
+| client/VIDEO-SCRIPT.md | The 3-minute walkthrough script, word for word, for the WhatsApp video. |
+| client/IMAGE-PROMPTS.md | The camera. House DNA block, still and film prompts, daylight twins, the eye gate. The owner generates; nothing ships ungated. |
 
 ## The culture, in five rules
 

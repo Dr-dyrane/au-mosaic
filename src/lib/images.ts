@@ -50,7 +50,8 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
 /* Film slot: dormant. The 720p loop softened the one surface that must be
    the sharpest, so the hero is a still until a 1080p or better loop passes
    the eye gate. The old loop lives in git history; the pipeline (poster =
-   first frame, seamless by construction) is documented in MEDIA-BRIEF. */
+   first frame, seamless by construction) is documented in
+   docs/client/IMAGE-PROMPTS.md. */
 
 /* Environments: the dream first. Materials follow. srcDay arrives per
    frame; until then the night frame holds both themes. */

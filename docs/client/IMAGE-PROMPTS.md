@@ -78,6 +78,46 @@ suns before a customer ever sees it.
 > stockroom], 21:9, heavy negative space on the [left/right] for
 > the headline to breathe, [night/day sun line]."
 
+## Films: dormant, and how they wake
+
+The hero film slot is dormant by quality gate: a 720p loop once
+softened the one surface that must be the sharpest, so film re-enters
+only at 1080p or better, eye-gated. The old loop lives in git
+history. When a generator cooperates, the pipeline that already
+worked:
+
+- Feed the slot's live still from public/media as the start frame
+  (image-to-video) and add: "Begin exactly on this frame. Keep the
+  composition, framing, and colour grading. Animate only the water,
+  light, or steam. End near the opening frame so it loops."
+- The film's first frame is the poster and the poster is the page,
+  so it lands with no visible cut. Every slot falls back to its
+  still, so films ship one at a time.
+- Delivery: 16:9, 1080p or better, 24 or 30 fps, 8 to 12 seconds,
+  seamless loop, highest-bitrate mp4. Compression to under 10MB
+  happens here before wiring.
+
+Until then, the dimensional still does the work. The site already
+supplies motion (ken-burns drift, tilt, parallax); a still only needs
+depth. Append to any prompt above:
+
+> "Strong depth of field: one sharp subject in the foreground,
+> softly blurred distance behind it. Raking warm light travels
+> across the mosaic so every tessera casts a tiny shadow and the
+> surface reads as relief, not print. Clear foreground, midground,
+> and background layers."
+
+## Daylight twins
+
+Every night frame earns a day pair, generated image-to-image from
+the live frame: "The exact same scene and composition, relit in
+bright natural daylight. Soft morning sun, pale warm ivory
+surroundings instead of darkness, same materials, same camera, same
+framing. Keep every mosaic tile identical." Drops land in
+public/media as name-day, wired into DAY in src/lib/images.ts. The
+set is complete today except dark-bath-day; borders, villa-palms,
+private-pool, and pool-blues are daylight singles by design.
+
 ## The gate, unchanged
 
 Generate large, view at full size, and ask the three questions: does

@@ -116,7 +116,7 @@ gyroscope (overscaled so edges never show). Mid-page scenes drift
 slower than the page via CSS scroll-driven animation where supported.
 The film slot is dormant by quality gate: the hero is a still until a
 1080p or better loop passes the eye; the pipeline lives in
-MEDIA-BRIEF.
+client/IMAGE-PROMPTS.md.
 
 ## Navigation and floating surfaces
 
