@@ -41,8 +41,13 @@ export function AuLockup({ className = "" }: { className?: string }) {
      mark stays shorter than the word's line box, so the island can
      centre the lockup against the nav without the sign inflating
      the row. */
+  /* The sign carries its own ground: a quiet pill in the palette's
+     sand, night or day, so the blue lockup reads in every house
+     without ever borrowing the room's colours. */
   return (
-    <span className={`inline-flex items-end gap-[0.18em] ${className}`}>
+    <span
+      className={`inline-flex items-end gap-[0.18em] rounded-full bg-sand px-[0.6em] py-[0.32em] ${className}`}
+    >
       <AuSign markClassName="h-[1.04em] shrink-0 translate-y-[-0.17em]" />
       <span className="brand-word font-serif text-[1.6em] leading-none">mosaic</span>
     </span>
