@@ -22,6 +22,7 @@ export const OWN = {
   midnightBlends: "/media/midnight-night.jpg",
   gradientBlends: "/media/gradient-night.jpg",
   goldAccents: "/media/gold-night.jpg",
+  metallicRoom: "/media/metallic-room-night.jpg",
   containerOrders: "/media/container-night.jpg",
   customColours: "/media/custom-night.jpg",
   /* Nonso's green-lit SKUs, 2026-07-04: the trade names his
@@ -55,6 +56,7 @@ export const DAY: Partial<Record<keyof typeof OWN, string>> = {
   midnightBlends: "/media/midnight-day.jpg",
   gradientBlends: "/media/gradient-day.jpg",
   goldAccents: "/media/gold-day.jpg",
+  metallicRoom: "/media/metallic-room-day.jpg",
   containerOrders: "/media/container-day.jpg",
   customColours: "/media/custom-day.jpg",
   plainBlueSmallSeed: "/media/plain-blue-small-seed-day.jpg",

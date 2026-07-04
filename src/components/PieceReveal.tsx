@@ -107,9 +107,9 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
       {/* ACT THREE — THE DREAM. The pull-back into the room; the sun returns. */}
       <section className="relative flex min-h-[72svh] items-end overflow-hidden">
         <SceneFrame
-          dark={OWN.goldAccents}
-          light={DAY.goldAccents}
-          alt="The vault of the house"
+          dark={OWN.metallicRoom}
+          light={DAY.metallicRoom}
+          alt="The gold room at evening"
           fill
           quality={90}
           sizes="100vw"
@@ -120,7 +120,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
             <Reveal>
               <p className="eyebrow scene-eyebrow">Seen in</p>
               <p className="font-serif text-display-section scene-title mt-3 max-w-xl">
-                The vault of the house. Where gold keeps its evening.
+                The gold takes the room, and holds the evening in it.
               </p>
               <Link href={`/mosaic-tiles#${piece.groupId}`} className="link-hair scene-link mt-6 inline-block">
                 The material behind it
