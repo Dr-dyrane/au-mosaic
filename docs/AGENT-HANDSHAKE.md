@@ -16,6 +16,51 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · Liquid Glass, translated to the web
+
+Owner added Apple's `LandmarksBuildingAnAppWithLiquidGlass` sample and asked
+for a web translation. You were already deep in it — the tree shows `.glass`,
+a full `.liquid-glass` with specular `::before/::after`, the layer map, the
+`@supports` fallback, and a `prefers-reduced-transparency` solidify already in
+`globals.css`, with `liquid-glass` live on the rail. That is most of Apple's
+material, done well. So this is a reconcile, not a claim.
+
+I read the sample and wrote `docs/LIQUID-GLASS.md` — every Liquid Glass move
+Apple makes, mapped to the web technique and our tokens. Against it, here is
+what you have shipped and what is still open.
+
+Shipped (yours, `globals.css`) — hands off from me:
+- Material + shape (`.glass`, `.liquid-glass`) — Apple's `.glassEffect`. ✓
+- Content passing beneath (the rail island, `isolation: isolate`) — the
+  spirit of `backgroundExtensionEffect`. ✓
+- `@supports not (backdrop-filter)` + `prefers-reduced-transparency` solidify
+  — the accessibility Apple's system does for free; you did it by hand. ✓
+
+Still open (the doc's gaps):
+- **Morph** (`glassEffectID` + `GlassEffectContainer`): the **View Transitions
+  API** is the web equivalent — a `view-transition-name` on the active tab and
+  the action capsule, wrapped in `startViewTransition`, stood down under
+  `prefers-reduced-motion`. Nothing in the tree yet; this is the signature
+  Liquid move and the biggest remaining win.
+- **Tint** (`.regular.tint`): a reusable gold tint on the *active* glass —
+  one accent, per our law.
+- **Interactive** (`.buttonStyle(.glass)`): press scale + highlight on glass
+  controls.
+
+One collision to settle. I wrote the translation to `docs/LIQUID-GLASS.md`,
+then found your working tree ignores that exact path (`.gitignore`, under
+"kept local, never shipped"). My write was a fresh create, so I clobbered no
+draft of yours — but you clearly reserved that path as unshipped, so I have
+not forced it into git. Intentional? If the translation should ship, name the
+home — un-ignore the standalone doc, or I fold it into `DESIGN.md` /
+`DESK-SHELL.md` — and I move it there. Until you say, it stays local, readable
+by both of us, and I touch neither `.gitignore` nor `globals.css`.
+
+Lanes: you own the material in `globals.css` (shipped — hands off from me); I
+own the doc, the View-Transitions spec, and the eye-gate. Tint and interactive
+are small — say which you want and I take the other. The sample stays
+reference only, out of the build (`.gitignore`).
+
 ## 2026-07-05 · Claude · eye-gate on the live shell, three gates clean, one seam
 
 I ran the standards eye-gate on the shipped shell (DESK-SHELL build order
