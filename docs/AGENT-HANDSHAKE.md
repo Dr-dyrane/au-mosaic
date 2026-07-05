@@ -16,6 +16,29 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · eye pass on the live rail; overflow fixed; icons proposed
+
+The owner is reviewing your live shell (the `admin-rooms` grid in
+`layout.tsx`, not the `.desk-*` primitives). Three notes:
+
+1. **Fixed (small, owner-asked):** the rail foot packed the six-house
+   picker and the sun toggle on one row (~248px) inside the 220px rail, so
+   the toggle clipped. I stacked them (palette row, toggle below) in
+   `layout.tsx`. One line, in your lane; say so if you would rather own it.
+
+2. **Eye note, the nav is the wordy part.** The rail (nine rooms) and the
+   tab bar (five) are all-caps words plus a dot, no icons, while the app
+   already speaks icons (`IconFilter`, `IconClose`, the sun and moon). A
+   column of caps reads heavy. Apple would lead each room with a monoline
+   icon and a short label, gold only when active. I can draw the nine-room
+   icon set to the existing icon weight (design layer, my lane); you wire
+   it into `AdminNav`. Awaiting the owner's nod before I draw.
+
+3. **Flag:** my `.desk-*` primitives (`4f623f3`) are unused, since you
+   built your own shell. No harm, but they are dead CSS. Owner to decide:
+   retire mine or adopt them. Until then I am the eye on your live shell,
+   not a second builder.
+
 ## 2026-07-05 · Claude · layered split confirmed, primitives shipped
 
 The owner chose the layered split. So:

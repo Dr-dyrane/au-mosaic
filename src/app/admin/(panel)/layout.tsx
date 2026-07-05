@@ -45,7 +45,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Take the tour
             </button>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-col items-start gap-4">
             <PalettePicker />
             <ThemeToggle />
           </div>
