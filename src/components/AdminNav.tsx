@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -20,16 +20,16 @@ import {
   ADMIN_PHONE_ROOMS,
   ADMIN_ROOMS,
   type AdminRoom,
-  type AdminRoomId,
   isActiveRoom,
-  roomForPath,
 } from "@/lib/admin-rooms";
 import {
-  ADMIN_ACTION_INTENTS,
   dispatchAdminActionIntent,
   isPlainAdminClick,
-  type AdminActionIntent,
 } from "@/components/admin-action-intents";
+import {
+  type AdminPageAction as RoomAction,
+  useResolvedAdminAction,
+} from "@/components/admin-page-action";
 
 /* Wayfinding for the back office, HIG style: you can always see
    where you are, and the primary rooms are always one tap away. On
@@ -58,68 +58,6 @@ function RoomGlyph({ room, className }: { room: AdminRoom; className?: string })
   return <Glyph className={className} />;
 }
 
-function roomById(id: AdminRoomId) {
-  return ADMIN_ROOMS.find((room) => room.id === id) ?? ADMIN_ROOMS[0];
-}
-
-type RoomAction = {
-  href: string;
-  label: string;
-  room: AdminRoom;
-  external?: boolean;
-  tour?: string;
-  intent?: AdminActionIntent;
-};
-
-function roomActionFor(pathname: string, owed: number): RoomAction {
-  const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-  const orderMatch = new RegExp(`^/admin/orders/(${uuid})$`, "i").exec(pathname);
-  if (orderMatch) {
-    return { href: `${pathname}#payment`, label: "Add payment", room: roomById("owed") };
-  }
-
-  const customerMatch = new RegExp(`^/admin/customers/(${uuid})$`, "i").exec(pathname);
-  if (customerMatch) {
-    return {
-      href: `/admin/orders/new?customer=${customerMatch[1]}`,
-      label: "New order",
-      room: roomById("orders"),
-      tour: "order-new",
-    };
-  }
-
-  if (/^\/admin\/pieces\/(?!new$)[^/]+/.test(pathname)) {
-    return { href: `${pathname}#stock`, label: "Reorder", room: roomById("stock") };
-  }
-
-  const room = roomForPath(pathname);
-  switch (room.id) {
-    case "home":
-      return { href: "/admin/orders/new", label: "New order", room: roomById("orders"), tour: "order-new" };
-    case "stock":
-      return { href: "/admin/pieces/new", label: "New piece", room: roomById("stock"), tour: "new-piece" };
-    case "orders":
-      return { href: "/admin/orders/new", label: "New order", room: roomById("orders"), tour: "order-new" };
-    case "people":
-      return { href: "/admin/customers/new", label: "New customer", room: roomById("people"), tour: "people-new" };
-    case "owed":
-      return { href: "/admin/debts", label: owed > 0 ? "Remind" : "Orders", room: roomById("owed") };
-    case "deliveries":
-      return { href: "/admin/deliveries/new", label: "New delivery", room: roomById("deliveries") };
-    case "photos":
-      return {
-        href: "/admin/media#media-add-photo",
-        label: "Add photo",
-        room: roomById("photos"),
-        intent: ADMIN_ACTION_INTENTS.mediaCreate,
-      };
-    case "insights":
-      return { href: "/admin", label: "Today", room: roomById("home") };
-    case "settings":
-      return { href: "/admin/settings/history", label: "History", room: roomById("settings") };
-  }
-}
-
 function ActionGlyph({ action }: { action: RoomAction }) {
   const addAction = /^(Add|New)\b/.test(action.label);
   if (addAction) return <IconAdd className="h-5 w-5" />;
@@ -140,42 +78,6 @@ function useChromeCompact() {
   }, []);
 
   return compact;
-}
-
-function pageActionFromDom(): RoomAction | null {
-  const el = document.querySelector<HTMLElement>("[data-admin-action]");
-  if (!el) return null;
-  const href = el.dataset.href;
-  const label = el.dataset.label;
-  const roomId = el.dataset.room as AdminRoomId | undefined;
-  if (!href || !label || !roomId) return null;
-  return {
-    href,
-    label,
-    room: roomById(roomId),
-    external: el.dataset.external === "true",
-    tour: el.dataset.tour,
-    intent: el.dataset.intent as AdminActionIntent | undefined,
-  };
-}
-
-function usePageAction(pathname: string) {
-  const [pageAction, setPageAction] = useState<RoomAction | null>(null);
-
-  useEffect(() => {
-    const sync = () => setPageAction(pageActionFromDom());
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["data-admin-action", "data-href", "data-label", "data-room", "data-external", "data-tour", "data-intent"],
-    });
-    return () => observer.disconnect();
-  }, [pathname]);
-
-  return pageAction;
 }
 
 /* A quiet gold count beside a room's name: how many people owe. */
@@ -219,9 +121,7 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
   const pathname = usePathname();
   const isActive = useActive();
   const compact = useChromeCompact();
-  const pageAction = usePageAction(pathname);
-  const routeAction = useMemo(() => roomActionFor(pathname, owed), [pathname, owed]);
-  const action = pageAction ?? routeAction;
+  const action = useResolvedAdminAction(pathname, owed);
 
   return (
     <>

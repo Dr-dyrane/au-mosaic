@@ -13,6 +13,11 @@ import {
   type AdminActionIntent,
 } from "@/components/admin-action-intents";
 import {
+  adminRouteActionFor,
+  type AdminPageAction,
+  useAdminPageAction,
+} from "@/components/admin-page-action";
+import {
   clearAdminContextPanel,
   getAdminContextPanel,
   subscribeAdminContextPanel,
@@ -24,7 +29,13 @@ import AddPaymentForm from "@/app/admin/(panel)/orders/[id]/AddPaymentForm";
 import AddReturnForm from "@/app/admin/(panel)/orders/[id]/AddReturnForm";
 
 type Metric = { label: string; value: string; href?: string };
-type Action = { label: string; href: string; intent?: AdminActionIntent };
+type Action = {
+  label: string;
+  href: string;
+  intent?: AdminActionIntent;
+  external?: boolean;
+  tour?: string;
+};
 type ContextModel = {
   eyebrow: string;
   title: string;
@@ -159,6 +170,7 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
       eyebrow: "New record",
       title: "Write only what is true now.",
       line: "The book can grow later. Today needs the next honest detail.",
+      actions: [],
     };
   }
   if (/^\/admin\/orders\/[^/]+/.test(pathname)) {
@@ -167,6 +179,7 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
       eyebrow: "Order record",
       title: "Money, stock, and message.",
       line: "Check the balance, name the stock movement, then send the customer the next word.",
+      actions: [],
     };
   }
   if (/^\/admin\/customers\/[^/]+/.test(pathname)) {
@@ -175,6 +188,7 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
       eyebrow: "Customer record",
       title: "One person, one memory.",
       line: "Their chat stays in WhatsApp. Their history stays here.",
+      actions: [],
     };
   }
   if (/^\/admin\/pieces\/[^/]+/.test(pathname)) {
@@ -183,6 +197,7 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
       eyebrow: "Piece record",
       title: "The piece is the heart.",
       line: "Name, image, stock, price note, and window switch live together.",
+      actions: [],
     };
   }
   if (pathname === "/admin/share") {
@@ -191,12 +206,37 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
       eyebrow: "From WhatsApp",
       title: "Keep the thread's memory.",
       line: "Tie the shared chat to a person, then continue in WhatsApp.",
+      actions: [],
     };
   }
   return ctx;
 }
 
-function ContextBody({ ctx, compact = false }: { ctx: ContextModel; compact?: boolean }) {
+function contextActionsFor(
+  pathname: string,
+  ctx: ContextModel,
+  pageAction: AdminPageAction | null,
+  routeAction: AdminPageAction
+) {
+  if (pageAction && (pathname === "/admin/share" || pathname.startsWith("/admin/ranges"))) {
+    return [pageAction];
+  }
+  if (/^\/admin\/(orders|customers|pieces)\/(?!new$)[^/]+/.test(pathname)) {
+    return [pageAction ?? routeAction];
+  }
+  return ctx.actions;
+}
+
+function ContextBody({
+  ctx,
+  compact = false,
+  actions,
+}: {
+  ctx: ContextModel;
+  compact?: boolean;
+  actions?: Action[];
+}) {
+  const visibleActions = actions ?? ctx.actions;
   return (
     <>
       <p className="eyebrow">{ctx.eyebrow}</p>
@@ -218,12 +258,15 @@ function ContextBody({ ctx, compact = false }: { ctx: ContextModel; compact?: bo
           ))}
         </dl>
       )}
-      {ctx.actions.length > 0 && (
+      {visibleActions.length > 0 && (
         <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3">
-          {ctx.actions.map((action) => (
+          {visibleActions.map((action) => (
             <Link
               key={`${action.href}-${action.label}`}
               href={action.href}
+              target={action.external ? "_blank" : undefined}
+              rel={action.external ? "noreferrer" : undefined}
+              data-tour={action.tour}
               onClick={(event) => {
                 if (!action.intent) return;
                 if (!isPlainAdminClick(event)) return;
@@ -244,6 +287,9 @@ function ContextBody({ ctx, compact = false }: { ctx: ContextModel; compact?: bo
 export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
   const pathname = usePathname();
   const ctx = contextFor(pathname, pulse);
+  const pageAction = useAdminPageAction(pathname);
+  const routeAction = adminRouteActionFor(pathname, pulse.owingCustomers);
+  const actions = contextActionsFor(pathname, ctx, pageAction, routeAction);
   if (pathname === "/admin") return null;
   return (
     <details className="admin-context glass liquid-glass mb-8 rounded-[28px] px-5 py-4 xl:hidden">
@@ -255,7 +301,7 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">Open</span>
       </summary>
       <div className="mt-7">
-        <ContextBody ctx={ctx} compact />
+        <ContextBody ctx={ctx} compact actions={actions} />
       </div>
     </details>
   );
@@ -264,6 +310,9 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
 export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const pathname = usePathname();
   const ctx = contextFor(pathname, pulse);
+  const pageAction = useAdminPageAction(pathname);
+  const routeAction = adminRouteActionFor(pathname, pulse.owingCustomers);
+  const actions = contextActionsFor(pathname, ctx, pageAction, routeAction);
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
   const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
@@ -397,7 +446,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
               </div>
             </div>
           ) : (
-            <ContextBody ctx={ctx} />
+            <ContextBody ctx={ctx} actions={actions} />
           )}
         </div>
         <p className="mt-12 text-[11px] uppercase tracking-[0.18em] text-mist">
