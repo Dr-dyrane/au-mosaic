@@ -160,6 +160,11 @@ public/media/*
 !public/media/interior-black-bath.jpg
 !public/media/interior-chess.jpg
 !public/media/interior-blue-study.jpg
+# Portfolio concept studies (2026-07-05).
+!public/media/project-stone-wall-night.jpg
+!public/media/project-stone-wall-day.jpg
+!public/media/project-marble-bath-night.jpg
+!public/media/project-marble-bath-day.jpg
 !.env.example
 
 # rendered paper (scripts/invoice.py)

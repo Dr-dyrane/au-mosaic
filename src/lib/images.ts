@@ -317,3 +317,12 @@ export const INTERIOR_SCENES: { src: string; place: string; line: string; alt: s
     alt: "Blue glass-mosaic sample boards laid on a stone counter in a warm study",
   },
 ];
+
+/* Portfolio concept studies, 2026-07-05: applied scenes for /projects.
+   Day/night pairs. */
+export const PROJECT = {
+  stoneWall: "/media/project-stone-wall-night.jpg",
+  stoneWallDay: "/media/project-stone-wall-day.jpg",
+  marbleBath: "/media/project-marble-bath-night.jpg",
+  marbleBathDay: "/media/project-marble-bath-day.jpg",
+};

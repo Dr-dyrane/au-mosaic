@@ -1,4 +1,4 @@
-import { DAY, OWN } from "./images";
+import { DAY, OWN, PROJECT } from "./images";
 
 /* Projects: the proof of work. These four are CONCEPT STUDIES built
    from the house's owned imagery so the owner sees the format and the
@@ -87,6 +87,38 @@ export const PROJECTS: Project[] = [
       { src: OWN.beetleMural, srcDay: DAY.beetleMural, alt: "The scarab mural" },
       { src: OWN.customColours, srcDay: DAY.customColours, alt: "The blend being composed" },
       { src: OWN.glassJewels, srcDay: DAY.glassJewels, alt: "The glass range behind it" },
+    ],
+    concept: true,
+  },
+  {
+    slug: "a-stone-feature-wall",
+    title: "A Stone Feature Wall",
+    line: "Texture that reads at every hour.",
+    scope: ["Interior mosaic", "Feature wall", "Grazing light"],
+    materials: ["stone-mosaic", "solid-colour-glass"],
+    story:
+      "A living-room wall run floor to ceiling in split-face stone mosaic — warm greys and umber, grazed by hidden light so the surface changes as the day does. The one wall the room is built around.",
+    cover: PROJECT.stoneWall,
+    coverDay: PROJECT.stoneWallDay,
+    images: [
+      { src: PROJECT.stoneWall, srcDay: PROJECT.stoneWallDay, alt: "A stone mosaic feature wall grazed by warm light" },
+      { src: OWN.showroomWall, srcDay: DAY.showroomWall, alt: "The stone range on the wall" },
+    ],
+    concept: true,
+  },
+  {
+    slug: "a-marble-bath",
+    title: "A Marble Bath",
+    line: "Cool stone, quiet water.",
+    scope: ["Interior mosaic", "Bath surround", "Lit niche"],
+    materials: ["hexagon-marble", "silver-crystal-mosaic"],
+    story:
+      "A freestanding bath against a wall of white hexagon marble, a lit niche for oil and candle, brass at the tap. Cool where the hammam is warm — built for the long, quiet end of the day.",
+    cover: PROJECT.marbleBath,
+    coverDay: PROJECT.marbleBathDay,
+    images: [
+      { src: PROJECT.marbleBath, srcDay: PROJECT.marbleBathDay, alt: "A freestanding bath against a white hexagon marble mosaic wall" },
+      { src: OWN.hammam, srcDay: DAY.hammam, alt: "Warm stone in the room beyond" },
     ],
     concept: true,
   },
