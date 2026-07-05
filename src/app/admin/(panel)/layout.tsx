@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuSign } from "@/components/Mosaic";
-import { AdminRailNav, AdminTabBar, AdminTopNav } from "@/components/AdminNav";
+import { AdminRailNav, AdminTabBar } from "@/components/AdminNav";
 import { AdminContextRail, AdminMobileContext } from "@/components/AdminContext";
 import PalettePicker from "@/components/PalettePicker";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -27,9 +27,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const pulse = await readAdminPulse();
   const owed = pulse.owingCustomers;
   return (
-    <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-32 tabular-nums sm:px-8 sm:pb-24 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:px-6 lg:pb-8 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:px-8">
+    <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-36 tabular-nums sm:px-8 sm:pb-36 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:px-6 lg:pb-8 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:px-8">
       <aside className="layer-admin-nav hidden lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto lg:py-6">
-        <div className="glass flex min-h-[calc(100svh-48px)] flex-col rounded-[32px] p-5">
+        <div className="glass liquid-glass flex min-h-[calc(100svh-48px)] flex-col rounded-[32px] p-5">
           <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
             <AuSign markClassName="h-[15px]" />
             <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
@@ -74,7 +74,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </form>
           </div>
           <div className="mt-6 flex items-center justify-between gap-5">
-            <AdminTopNav owed={owed} />
             <div className="flex shrink-0 items-center gap-3">
               <PalettePicker />
               <ThemeToggle />

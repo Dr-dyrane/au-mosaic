@@ -173,7 +173,7 @@ export function AdminTopNav({ owed = 0 }: { owed?: number }) {
     <nav
       aria-label="Back office"
       data-tour="rooms"
-      className="hidden min-w-0 flex-1 items-center gap-2 overflow-x-auto sm:flex lg:hidden"
+      className="hidden min-w-0 flex-1 items-center gap-2 overflow-x-auto"
     >
       {ADMIN_ROOMS.map((r) => {
         const on = isActive(r);
@@ -239,11 +239,11 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
     <>
       <div
         data-tour="rooms"
-        className={`layer-admin-nav pointer-events-none fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] flex items-center justify-center gap-2 transition-transform duration-300 sm:hidden ${
+        className={`layer-admin-nav pointer-events-none fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] flex items-center justify-center gap-2 transition-transform duration-300 lg:hidden ${
           compact ? "translate-y-1 scale-[0.98]" : ""
         }`}
       >
-        <nav aria-label="Back office rooms" className="glass pointer-events-auto flex h-14 items-center gap-1 rounded-full p-1.5">
+        <nav aria-label="Back office rooms" className="glass liquid-glass pointer-events-auto flex h-14 items-center gap-1 rounded-full p-1.5">
           {ADMIN_PHONE_ROOMS.map((r) => {
             const on = isActive(r);
             return (
@@ -267,7 +267,7 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
           onClick={() => setMoreOpen((v) => !v)}
           aria-expanded={moreOpen}
           aria-label="More rooms"
-          className={`glass pointer-events-auto relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors duration-300 active:scale-[0.98] ${
+          className={`glass liquid-glass pointer-events-auto relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors duration-300 active:scale-[0.98] ${
             moreOn ? "text-gold" : "text-mist"
           }`}
         >
@@ -294,13 +294,13 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
           <button
             aria-label="Close rooms"
             onClick={() => setMoreOpen(false)}
-            className="filter-scrim layer-admin-scrim fixed inset-0 sm:hidden"
+            className="filter-scrim layer-admin-scrim fixed inset-0 lg:hidden"
           />
           <div
             role="dialog"
             aria-modal="true"
             aria-label="More rooms"
-            className="filter-surface layer-admin-panel fixed inset-x-3 bottom-[calc(86px+env(safe-area-inset-bottom))] max-h-[min(72svh,32rem)] overflow-auto rounded-[28px] p-5 outline-none sm:hidden"
+            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-3 bottom-[calc(86px+env(safe-area-inset-bottom))] max-h-[min(72svh,32rem)] overflow-auto rounded-[28px] p-5 outline-none lg:hidden"
           >
             <div className="flex items-center justify-between px-2">
               <p className="eyebrow">More</p>

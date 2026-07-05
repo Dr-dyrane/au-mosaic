@@ -218,7 +218,7 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
   const ctx = contextFor(pathname, pulse);
   if (pathname === "/admin") return null;
   return (
-    <details className="admin-context panel mb-8 xl:hidden">
+    <details className="admin-context glass liquid-glass mb-8 rounded-[28px] px-5 py-4 xl:hidden">
       <summary className="admin-context-summary flex items-center justify-between gap-5">
         <span>
           <span className="eyebrow block">This room</span>
@@ -238,7 +238,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const ctx = contextFor(pathname, pulse);
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
-      <div className="panel flex min-h-[calc(100svh-48px)] flex-col justify-between">
+      <div className="panel liquid-glass flex min-h-[calc(100svh-48px)] flex-col justify-between">
         <div>
           <ContextBody ctx={ctx} />
         </div>

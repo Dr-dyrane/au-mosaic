@@ -9,7 +9,13 @@ import { useEffect } from "react";
 export default function AdminSw() {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/admin-sw.js", { scope: "/admin" }).catch(() => {});
+      navigator.serviceWorker
+        .register("/admin-sw.js", { scope: "/admin", updateViaCache: "none" })
+        .then((registration) => {
+          registration.waiting?.postMessage({ type: "SKIP_WAITING" });
+          registration.update().catch(() => {});
+        })
+        .catch(() => {});
     }
   }, []);
   return null;

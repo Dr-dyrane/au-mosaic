@@ -30,6 +30,8 @@ yarn-error.log*
 
 # retired strays (kept local, never shipped)
 src/icon.png
+LandmarksBuildingAnAppWithLiquidGlass/
+docs/LIQUID-GLASS.md
 
 # owned media: only canonical, processed assets ship.
 # Raw generator drops stay local; whitelist deliberately.

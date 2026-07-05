@@ -152,7 +152,7 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
             role="dialog"
             aria-modal="true"
             aria-label="Filters"
-            className="filter-surface layer-admin-panel fixed inset-x-3 bottom-3 max-h-[min(82svh,44rem)] overflow-auto rounded-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:absolute sm:bottom-auto sm:left-0 sm:top-[calc(100%+12px)] sm:w-[28rem] sm:max-w-[calc(100vw-2rem)] sm:pb-5"
+            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-3 bottom-3 max-h-[min(82svh,44rem)] overflow-auto rounded-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:absolute sm:bottom-auto sm:left-0 sm:top-[calc(100%+12px)] sm:w-[28rem] sm:max-w-[calc(100vw-2rem)] sm:pb-5"
             data-tour="stock-sheet"
           >
             <div className="flex items-center justify-between px-2">

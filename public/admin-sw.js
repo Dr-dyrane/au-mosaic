@@ -4,7 +4,7 @@
    shell's static assets are cached, and losing the network shows a
    calm room instead of a browser error. */
 
-const VERSION = "admin-v1";
+const VERSION = "admin-v2";
 const OFFLINE_URL = "/admin/offline";
 
 self.addEventListener("install", (event) => {
@@ -22,22 +22,36 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  /* Immutable build assets: cache first. */
+  /* Build assets: online wins, cache only helps a quiet connection. */
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
-      caches.match(req).then(
-        (hit) =>
-          hit ||
-          fetch(req).then((res) => {
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
             const copy = res.clone();
             caches.open(VERSION).then((cache) => cache.put(req, copy));
-            return res;
-          })
+          }
+          return res;
+        })
+        .catch(() => caches.match(req))
+        .then(
+          (hit) =>
+            hit ||
+            new Response("", {
+              status: 504,
+              statusText: "Offline",
+            })
       )
     );
     return;
