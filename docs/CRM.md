@@ -108,6 +108,7 @@ or a log on production. The digest panel, the runtime logs, and
 | The book's history | Append-only audit in sentences, per law 8 | Open |
 | Invoices | Paper from an order: in-app print sheet, and the exclusive document via scripts/invoice.py | Open |
 | Photos | Phone upload to Vercel Blob, night and day | Open |
+| Sales motions | Customer-level sample pictures, showroom visits, site sample visits, pool-size quotes, and materials lists | Open |
 | The seam flip | DONE, law 10: the window reads the book (catalog.ts, tag-cached, updateTag on every stockroom save); the repo catalogue stands behind it, so no database can blank the window and the site still builds anywhere. Facts too: footer and contact read settings. Deploys heal their own schema (instrumentation, src/db/heal.ts): db:push retired as an errand; future schema passes append DDL there beside the drizzle file | Open |
 
 ## Guardrails for builders
@@ -257,6 +258,13 @@ keepValues, icons components exist).
    the first-login offer on the glance; a permanent Take the tour
    link sits in the rooms list; tour_start, tour_step, tour_done,
    tour_skip all tracked.
+7. DONE 2026-07-04: sample flow became customer sales motions. A
+   customer record can now hold a showroom visit, sample pictures,
+   site sample visit, pool-size quote, or materials list, with open
+   and done status, date, note, audit sentence, and no deletes.
+   Service records stay parked until Nonso confirms the real pool
+   construction, renovation, water-fountain, and site-inspection
+   boundaries.
 
 7. DONE 2026-07-03, built as decided. (a) Crossing into delivered
    (or settled) takes each line's quantity off its piece, clamped at

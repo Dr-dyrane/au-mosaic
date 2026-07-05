@@ -1,6 +1,7 @@
 import { and, asc, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { getDb, schema } from "@/db";
+import { healSchema } from "@/db/heal";
 import {
   MOSAIC_RANGES,
   POOL_MATERIALS,
@@ -92,14 +93,19 @@ const APPLIED_PROMISES: AppliedPromise[] = [
 
 const readBook = unstable_cache(
   async (): Promise<Book> => {
-    const db = getDb();
-    const ranges = await db.select().from(schema.ranges).orderBy(asc(schema.ranges.sort));
-    const pieces = await db
-      .select()
-      .from(schema.pieces)
-      .where(eq(schema.pieces.published, true))
-      .orderBy(asc(schema.pieces.sort));
-    return { ranges, pieces };
+    try {
+      await healSchema();
+      const db = getDb();
+      const ranges = await db.select().from(schema.ranges).orderBy(asc(schema.ranges.sort));
+      const pieces = await db
+        .select()
+        .from(schema.pieces)
+        .where(eq(schema.pieces.published, true))
+        .orderBy(asc(schema.pieces.sort));
+      return { ranges, pieces };
+    } catch {
+      return { ranges: [], pieces: [] };
+    }
   },
   ["catalog-book"],
   { tags: ["catalog"], revalidate: 3600 }
@@ -107,18 +113,23 @@ const readBook = unstable_cache(
 
 const readApprovedShowroomProofs = unstable_cache(
   async (): Promise<MediaAsset[]> => {
-    const db = getDb();
-    return db
-      .select()
-      .from(schema.mediaAssets)
-      .where(
-        and(
-          eq(schema.mediaAssets.batch, "batch-08"),
-          eq(schema.mediaAssets.role, "proof"),
-          eq(schema.mediaAssets.status, "approved")
+    try {
+      await healSchema();
+      const db = getDb();
+      return await db
+        .select()
+        .from(schema.mediaAssets)
+        .where(
+          and(
+            eq(schema.mediaAssets.batch, "batch-08"),
+            eq(schema.mediaAssets.role, "proof"),
+            eq(schema.mediaAssets.status, "approved")
+          )
         )
-      )
-      .orderBy(asc(schema.mediaAssets.createdAt));
+        .orderBy(asc(schema.mediaAssets.createdAt));
+    } catch {
+      return [];
+    }
   },
   ["showroom-proofs"],
   { tags: ["catalog"], revalidate: 3600 }

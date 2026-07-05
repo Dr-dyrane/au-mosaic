@@ -15,6 +15,7 @@ means not built yet. Update the verdicts as passes land.
 | Result counts shown | Pass (customers total, settled count, range book/window counts) |
 | Product trade facts | Pass (seed size, shade, and finish are editable on the piece and visible in the stockroom; stock and price do not split) |
 | Application filters | Pass (controlled place tags filter the stockroom and show on product pages without creating a project archive) |
+| Customer sales motions | Pass (showroom visits, sample pictures, site sample visits, pool-size quotes, and materials lists live on the customer record) |
 | Empty states teach | Pass (every room) |
 | Loading states | Pass (panel loading.tsx breath) |
 | Error states | Pass (panel error.tsx, calm sentence) |
@@ -188,6 +189,7 @@ and answers in a sentence instead of throwing.
 | Returns correct beside the sale | Pass (a return writes a mirrored line tied to the original line, cannot exceed what remains, restores delivered stock, and settles as customer credit or a negative refund payment) |
 | Deliveries walk one step, server-verified | Pass (the action reads true status first; a stale screen cannot push a delivery two steps) |
 | Enquiries convert themselves | Pass (opening an order marks that customer's new and replied enquiries converted; attach ties a name without touching status) |
+| Sample motions are reversible | Pass (sales motions move between open and done, carry notes and dates, and are never deleted) |
 | Settled orders leave the ledger | Pass (debts and the glance exclude enquiry and settled everywhere, including the owed badge) |
 
 ## Consequence and confirmation · the audit
@@ -218,6 +220,8 @@ The unsaved-changes guard shipped earlier with feel item 16. New
 gaps join a new list when they earn a name.
 
 Schema healing retired the db:push errand. staff, audit_log,
-push_subscriptions, media_assets, and card slots ride with the deploy
-through instrumentation. If healing cannot reach the book, the rooms
-fail open and teach rather than crashing.
+push_subscriptions, media_assets, card slots, trade facts, application
+tags, returns, and sales motions ride with the deploy through
+instrumentation. Public catalogue reads also wait for healing and fall
+back quietly when a stale book cannot answer. If healing cannot reach
+the book, the rooms fail open and teach rather than crashing.

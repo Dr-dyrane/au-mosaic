@@ -4,6 +4,7 @@ import { desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira, waChat } from "@/lib/backoffice";
 import CustomerForm from "./CustomerForm";
+import SalesMotions from "./SalesMotions";
 import Back from "../../Back";
 import { IconShare } from "../../icons";
 import { Touch } from "../../touched";
@@ -68,6 +69,15 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     .from(schema.enquiries)
     .where(eq(schema.enquiries.customerId, id))
     .orderBy(desc(schema.enquiries.createdAt));
+
+  const motions = await db
+    .select()
+    .from(schema.salesMotions)
+    .where(eq(schema.salesMotions.customerId, id))
+    .orderBy(
+      sql`case when ${schema.salesMotions.status} = 'open' then 0 else 1 end`,
+      desc(schema.salesMotions.createdAt)
+    );
 
   const billedBy = new Map(billedRows.map((r) => [r.orderId, r.billed]));
   const paidBy = new Map(paidRows.map((r) => [r.orderId, r.paid]));
@@ -139,8 +149,22 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         )}
       </section>
 
+      <section className="xl:order-3">
+        <SalesMotions
+          customerId={customer.id}
+          motions={motions.map((motion) => ({
+            id: motion.id,
+            kind: motion.kind,
+            status: motion.status,
+            note: motion.note,
+            scheduledFor: motion.scheduledFor,
+            completedAt: motion.completedAt,
+          }))}
+        />
+      </section>
+
       {enquiries.length > 0 && (
-        <section className="xl:order-3">
+        <section className="xl:order-4">
           <p className="eyebrow">Their enquiries</p>
           <div className="mt-4 grid gap-4">
             {enquiries.map((e) => (

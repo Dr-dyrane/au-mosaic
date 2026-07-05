@@ -15,6 +15,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 | Returns | Orders now record returns beside the original sale, restore delivered stock, and settle as credit or refund without deleting a line. |
 | Product variants | Seed size, shade, and finish now live on the piece record as editable trade facts. Stock and price stay on the piece. |
 | Application tags | Kitchen, sink, bathroom, sitting room, office, exterior, swimming pool, pool floor art, logo art, and wall art now live as controlled tags on pieces. |
+| Sample flow | Customer records now track showroom visits, sample pictures, site sample visits, pool-size quotes, and materials lists as sales motions. |
 
 ## Needs owner truth
 
@@ -26,15 +27,14 @@ evidence to `docs/QA.md` and keep only the next decision here.
 | Full Instagram archive | The current harvest is strong but not all 96 posts. | Owner sends export, screenshots, or login-backed archive access. |
 | Google proof | Search trust needs the external profile, not more site copy. | Claim Google Business Profile, verify Search Console, submit sitemap. |
 | Push and digest env | The code is present, but notifications need keys and cron secret in Vercel. | Generate VAPID keys, set VAPID private and public keys, set CRON_SECRET. |
+| Pool service boundaries | Service records should not invent scope. | Nonso confirms how to record new pool construction, leaking-pool renovation, water fountains, site inspection, and service quotes. |
 
 ## Build next
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Service records | Add construct new pools, renovate leaking pools, water fountains, site inspection, and materials-list quotes only after Nonso confirms the boundaries. |
-| 2 | Sample flow | Track showroom visit, sample pictures, sample-to-site visit, pool-size quote, and materials list as first-class sales motions. |
-| 3 | Performance watch | Admin home is acceptable, but still runs five glance queries plus the owed badge. If production logs show slowness, consolidate the glance and badge into one raw query. |
-| 4 | Onyx eye pass | The contrast gate passed. The remaining work is a real visual pass on photo-slot hints and gold-on-shell pairings in the Onyx house. |
+| 1 | Performance watch | Admin home is acceptable, but still runs five glance queries plus the owed badge. If production logs show slowness, consolidate the glance and badge into one raw query. |
+| 2 | Onyx eye pass | The contrast gate passed. The remaining work is a real visual pass on photo-slot hints and gold-on-shell pairings in the Onyx house. |
 
 ## Standing decisions
 

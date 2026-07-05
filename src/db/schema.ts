@@ -161,6 +161,35 @@ export const customers = pgTable("customers", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const salesMotions = pgTable(
+  "sales_motions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => customers.id),
+    kind: text("kind", {
+      enum: [
+        "showroom_visit",
+        "sample_pictures",
+        "site_sample_visit",
+        "pool_size_quote",
+        "materials_list",
+      ],
+    }).notNull(),
+    status: text("status", { enum: ["open", "done"] }).notNull().default("open"),
+    note: text("note").notNull().default(""),
+    scheduledFor: date("scheduled_for"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("sales_motions_customer_idx").on(t.customerId),
+    index("sales_motions_status_idx").on(t.status),
+  ]
+);
+
 export const enquiries = pgTable(
   "enquiries",
   {

@@ -700,8 +700,11 @@ work, not just site work.
 - Keep colour-by-colour inventory as pieces, not as hidden variants.
 - DONE: application tags now cover kitchen, sink, bathroom, sitting room,
   office, exterior, swimming pool, pool floor art, logo art, and wall art.
-- Track the sampling flow separately: showroom visit, sample pictures,
-  site sample visit, materials list, pool-size quote, and site inspection.
+- DONE: sampling now lives on the customer record as sales motions:
+  showroom visit, sample pictures, site sample visit, materials list,
+  and pool-size quote.
+- Site inspection stays with service records until Nonso confirms the
+  pool-service boundaries.
 
 ## Rollback notes
 

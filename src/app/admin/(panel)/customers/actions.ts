@@ -2,10 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
+import {
+  cleanSalesMotionKind,
+  cleanSalesMotionStatus,
+  salesMotionLabel,
+} from "@/lib/sales-motions";
 
 /* Server actions are public HTTP endpoints whatever the UI hides, so
    every one re-checks the session before touching the ledger. The
@@ -13,9 +18,14 @@ import { logAction } from "@/lib/audit";
    is ever deleted: a customer, once written, stays in the book. */
 
 export type SaveState = { ok: boolean; message: string } | null;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function text(form: FormData, key: string) {
   return String(form.get(key) ?? "").trim();
+}
+
+function dateOrNull(raw: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
 }
 
 export async function createCustomer(_prev: SaveState, form: FormData): Promise<SaveState> {
@@ -133,4 +143,78 @@ export async function setEnquiryStatus(_prev: SaveState, form: FormData): Promis
   revalidatePath("/admin/customers");
   revalidatePath("/admin");
   return { ok: true, message: "Cleared." };
+}
+
+export async function addSalesMotion(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const customerId = text(form, "customerId");
+  const kind = cleanSalesMotionKind(text(form, "kind"));
+  if (!UUID.test(customerId)) return { ok: false, message: "Missing customer." };
+  if (!kind) return { ok: false, message: "Choose the motion." };
+
+  let name = "";
+  try {
+    const db = getDb();
+    const [customer] = await db
+      .select({ name: schema.customers.name })
+      .from(schema.customers)
+      .where(eq(schema.customers.id, customerId));
+    if (!customer) return { ok: false, message: "That person is not in the book." };
+    name = customer.name;
+    await db.insert(schema.salesMotions).values({
+      customerId,
+      kind,
+      note: text(form, "note"),
+      scheduledFor: dateOrNull(text(form, "scheduledFor")),
+    });
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+
+  await logAction("added a sales motion", name, salesMotionLabel(kind));
+  revalidatePath("/admin/customers");
+  revalidatePath(`/admin/customers/${customerId}`);
+  revalidatePath("/admin");
+  return { ok: true, message: `${salesMotionLabel(kind)} added.` };
+}
+
+export async function setSalesMotionStatus(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const id = text(form, "id");
+  const status = cleanSalesMotionStatus(text(form, "status"));
+  if (!UUID.test(id)) return { ok: false, message: "Choose a motion first." };
+  if (!status) return { ok: false, message: "Choose open or done." };
+
+  let customerId = "";
+  let detail = "";
+  try {
+    const db = getDb();
+    const [row] = await db
+      .select({
+        motion: schema.salesMotions,
+        customerName: schema.customers.name,
+      })
+      .from(schema.salesMotions)
+      .innerJoin(schema.customers, eq(schema.customers.id, schema.salesMotions.customerId))
+      .where(eq(schema.salesMotions.id, id));
+    if (!row) return { ok: false, message: "That motion is not in the book." };
+    customerId = row.motion.customerId;
+    detail = `${row.customerName}: ${salesMotionLabel(row.motion.kind)}`;
+    await db
+      .update(schema.salesMotions)
+      .set({
+        status,
+        completedAt: status === "done" ? sql`now()` : null,
+        updatedAt: sql`now()`,
+      })
+      .where(eq(schema.salesMotions.id, id));
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+
+  await logAction(status === "done" ? "finished a sales motion" : "reopened a sales motion", detail);
+  revalidatePath("/admin/customers");
+  revalidatePath(`/admin/customers/${customerId}`);
+  revalidatePath("/admin");
+  return { ok: true, message: status === "done" ? "Marked done." : "Reopened." };
 }
