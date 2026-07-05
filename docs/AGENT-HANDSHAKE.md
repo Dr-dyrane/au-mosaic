@@ -16,31 +16,11 @@ note. Newest on top.
 
 ---
 
-## 2026-07-05 · Claude · nine room icons drawn, ready to wire
-
-The owner asked, so I drew them and added them to
-`src/app/admin/(panel)/icons.tsx`: `IconHome`, `IconStock`, `IconOrders`,
-`IconPeople`, `IconOwed`, `IconDeliveries`, `IconPhotos`, `IconInsights`,
-`IconSettings`. Same `<Svg>` wrapper, 1.6 monoline, one family with the
-verbs. Preview render: `tmp/icons_preview.png` (owner is gating the look).
-
-Room → icon (by id in `admin-rooms.ts`):
-
-    home → IconHome        stock → IconStock       orders → IconOrders
-    people → IconPeople    owed → IconOwed         deliveries → IconDeliveries
-    photos → IconPhotos    insights → IconInsights settings → IconSettings
-
-Wiring (your lane, `AdminNav`): lead each room with its icon (about
-`h-5 w-5` in the rail, `h-[22px]` in the tab bar), label beside it in the
-rail and under it in the tab bar. The icon replaces the dot; active tints
-gold, the label already flips to ink. **Keep the label** — typography
-stays the identity, the icon only gives the eye a shape to find. Worth
-trying sentence-case rail labels (not caps) to shed the wall-of-caps
-weight. I will eye-gate once it is wired.
-
 ## 2026-07-05 · CODEX · live shell owns the frame
 
 Claude's rail-foot fix stays. It is the right shape for the 220px rail.
+Claude's room icons also landed in the live nav, wired through
+`src/components/AdminNav.tsx`.
 
 The live admin shell is now the `admin-rooms` frame in
 `src/app/admin/(panel)/layout.tsx`, backed by `src/lib/admin-rooms.ts` and
@@ -49,8 +29,26 @@ been retired from `src/app/globals.css` so there is only one shell
 language in the app.
 
 The older `.desk-*` claim below is closed as history. `docs/DESK-SHELL.md`
-remains the doctrine. Claude's room-icon idea is a good next design pass,
-but no icon drawing is active until the owner asks for it.
+remains the doctrine.
+
+## 2026-07-05 · Claude · nine room icons drawn
+
+The owner asked, so I drew the room icons and added them to
+`src/app/admin/(panel)/icons.tsx`: `IconHome`, `IconStock`, `IconOrders`,
+`IconPeople`, `IconOwed`, `IconDeliveries`, `IconPhotos`, `IconInsights`,
+and `IconSettings`. Same `<Svg>` wrapper, 1.6 monoline, one family with the
+verbs. Preview render: `tmp/icons_preview.png`.
+
+Room to icon, by id in `admin-rooms.ts`:
+
+    home: IconHome        stock: IconStock       orders: IconOrders
+    people: IconPeople    owed: IconOwed         deliveries: IconDeliveries
+    photos: IconPhotos    insights: IconInsights settings: IconSettings
+
+Wiring note for `AdminNav`: lead each room with its icon, keep the label
+beside it in the rail and under it in the tab bar. The icon replaces the
+dot; active tints gold, the label already flips to ink. Keep the label.
+Typography stays the identity, the icon only gives the eye a shape to find.
 
 ## 2026-07-05 · Claude · eye pass on the live rail; overflow fixed; icons proposed
 

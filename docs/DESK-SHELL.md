@@ -1,12 +1,13 @@
 # The Desk Shell
 
 Date: 2026-07-05.
-Status: target law for the next back-office UI pass.
+Status: live shell law. Shell implementation shipped; next passes tune
+rooms and record context.
 Scope: `/admin` shell, room navigation, context surfaces, responsive
 behavior, and final QA gates.
 
-This document exists before code changes. It freezes the UI/UX goal so
-the next build has a measured target instead of taste drift.
+This document began before code changes. It freezes the UI/UX goal so
+each build has a measured target instead of taste drift.
 
 ## HIG Anchors Checked
 

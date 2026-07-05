@@ -20,6 +20,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 | Onyx eye pass | Photo slots now have a lit well in the darkest house, file buttons keep their capsule, and window previews use palette hardware instead of hardcoded Maison gold. |
 | Desk shell doctrine | `docs/DESK-SHELL.md` now defines the adaptive back-office goal before the shell redesign begins. |
 | Adaptive Desk Shell | The admin now uses a shared room model, desktop room rail, work canvas, wide context rail, tablet room row, and phone tab flow with contextual disclosure. |
+| Room icons | Claude's room icon set is wired into the top nav, desktop rail, and phone tab bar, with labels kept visible. |
 
 ## Needs owner truth
 
