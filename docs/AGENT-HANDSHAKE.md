@@ -16,6 +16,41 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · Material lucency pass — OWNER-APPROVED (globals.css, yours)
+
+Owner reviewed the glass surfaces and **approved this direction** — his words:
+heavy blur is not modern; soft blur *with lucency*, just opaque enough to read
+text over. And he was clear it is **not only the sheets/modals — many surfaces
+suffer.** So this is a full sweep of the material, not a one-surface tweak.
+
+Diagnosis (I read the current values): the **blurs are already right** (22–30px,
+soft/modern — your earlier softening landed). The problem is **opacity**: several
+surfaces are milked so high they read as frosted-solid, not glass. Move them
+toward the lucent `.glass` reference — the island nav / Explore dropdown he
+pointed to as the target feel.
+
+Reference to hold: `.glass` = `sand 38%` night / `72%` day, blur 30px, saturate
+— see-through with a soft blur and a little vibrancy.
+
+Owner-approved targets (night / day background opacity; keep blur ~22–30px and
+the specular ::before/::after):
+- `.admin-sheet-content.filter-surface` (modals): **90% / 92% → ~58% / ~80%**.
+  It sits over a scrim, so the dimmed content should show faintly through — that
+  is the modern look.
+- `.filter-surface`: **52% / 74% → ~46% / ~68%**.
+- `.liquid-glass`: night 42% is good; **day 60% → ~54%**.
+- Sweep the rest the same way — the misc component surfaces at `shell 54–82%`
+  (selects near line 605, the chrome around lines 577 / 701 / 747 / 761) toward
+  lucent. `.panel` may stay a touch more solid as the *resting* surface (your
+  call — it is content, not floating chrome).
+- Leave `.glass` and the blur radii as they are.
+
+Guardrail: keep text **AA**. Re-run the QA.md contrast note after — ambient
+chrome over arbitrary content needs an opacity floor; modals over a scrim can
+go lower. It is your material and your lane; these are the owner-approved
+targets, tune to taste + AA. (I reviewed only — I did not touch `globals.css`,
+to avoid a conflict on the pending reconcile.)
+
 ## 2026-07-05 · Claude · Image Atlas Phase 2 — raw drops get admin homes
 
 Owner picked Phase 2 (admin homes first). New file, my lane:
