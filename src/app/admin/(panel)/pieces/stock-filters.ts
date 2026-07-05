@@ -13,6 +13,10 @@ export type StockFilters = {
   sort?: string;
 };
 
+export function cleanSort(sort?: string) {
+  return sort === "name" || sort === "low" ? sort : undefined;
+}
+
 export function makeStockHref(cur: StockFilters, patch: Partial<StockFilters>) {
   const next = { ...cur, ...patch };
   const p = new URLSearchParams();
@@ -20,7 +24,8 @@ export function makeStockHref(cur: StockFilters, patch: Partial<StockFilters>) {
   if (next.low) p.set("low", "1");
   if (next.hue) p.set("hue", next.hue);
   if (next.app) p.set("app", next.app);
-  if (next.sort === "name" || next.sort === "low") p.set("sort", next.sort);
+  const sort = cleanSort(next.sort);
+  if (sort) p.set("sort", sort);
   const s = p.toString();
   return s ? `/admin/pieces?${s}` : "/admin/pieces";
 }
@@ -41,3 +46,18 @@ export const HUES = [
 ];
 
 export const APPLICATION_FILTERS = APPLICATION_TAGS.map((tag) => ({ key: tag, label: tag }));
+
+export function activeStockFilterLabels(cur: StockFilters) {
+  const labels: string[] = [];
+  if (cur.family === "mosaic") labels.push("Tiles");
+  if (cur.family === "pool") labels.push("Materials");
+  if (cur.low) labels.push("Running low");
+  const hue = HUES.find((h) => h.key === cur.hue);
+  if (hue) labels.push(hue.label);
+  const app = APPLICATION_FILTERS.find((a) => a.key === cur.app);
+  if (app) labels.push(app.label);
+  const sort = cleanSort(cur.sort);
+  const sortLabel = SORTS.find((s) => s.key === sort)?.label;
+  if (sortLabel && sort) labels.push(sortLabel);
+  return labels;
+}

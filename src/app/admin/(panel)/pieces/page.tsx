@@ -3,7 +3,13 @@ import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import FilterSheet from "./FilterSheet";
 import StockStarter from "./StockStarter";
-import { APPLICATION_FILTERS, HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
+import {
+  APPLICATION_FILTERS,
+  activeStockFilterLabels,
+  cleanSort,
+  makeStockHref,
+  type StockFilters,
+} from "./stock-filters";
 
 /* First colour decides the hue shelf: low saturation is neutral,
    then blue, green, or earth by the wheel. */
@@ -67,7 +73,8 @@ export default async function PiecesPage({
           row.piece.applicationTags.includes(filters.app)))
   );
   const filtering = Boolean(filters.family || filters.low || filters.hue || filters.app);
-  const sort = filters.sort === "name" || filters.sort === "low" ? filters.sort : undefined;
+  const sort = cleanSort(filters.sort);
+  const activeLabels = activeStockFilterLabels(filters);
 
   /* A shop is not handed over empty: while most shelves have never
      been touched (no count, no warn-me-at), the room offers one tap
@@ -113,14 +120,13 @@ export default async function PiecesPage({
           New piece
         </Link>
       </div>
-      <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
+      <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
         <Link href="/admin/ranges" className="link-hair text-dusk text-[13px]">
           The ranges
         </Link>
         <Link href="/admin/media" className="link-hair text-dusk text-[13px]">
           Photos
         </Link>
-        <FilterSheet current={filters} />
         <button data-tour-start="stockroom" className="link-hair text-dusk text-[13px]">
           Learn this room
         </button>
@@ -138,9 +144,9 @@ export default async function PiecesPage({
         </section>
       )}
 
-      {/* The desk sees its filters laid out; the phone keeps them in
-          the sheet. Links, so the URL remembers. */}
-      <div className="mt-6 hidden flex-wrap items-center gap-2 sm:flex" data-tour="stock-filters">
+      {/* Quick filters stay visible; the long-tail facets live inside
+          Filter. Links, so the URL remembers. */}
+      <div className="mt-5 flex flex-wrap items-center gap-2" data-tour="stock-filters">
         <Link href={makeStockHref(filters, { family: undefined })} className={`chip-solid ${!filters.family ? "is-on" : ""}`}>
           All
         </Link>
@@ -153,47 +159,16 @@ export default async function PiecesPage({
         <Link href={makeStockHref(filters, { low: filters.low ? undefined : "1" })} className={`chip-solid ${filters.low ? "is-on" : ""}`}>
           Running low
         </Link>
-        <span aria-hidden className="mx-1.5" />
-        <span className="flex flex-wrap items-center gap-2.5" data-tour="stock-hues">
-          {HUES.map((h) => (
-            <Link
-              key={h.key}
-              href={makeStockHref(filters, { hue: filters.hue === h.key ? undefined : h.key })}
-              aria-label={`${h.label} only`}
-              title={h.label}
-              className={`grid h-9 w-9 place-items-center rounded-full transition-transform duration-300 hover:scale-110 active:scale-95 ${
-                filters.hue === h.key ? "ring-2 ring-gold ring-offset-2 ring-offset-sand" : ""
-              }`}
-            >
-              <span className="h-[18px] w-[18px] rounded-full" style={{ background: h.dot }} />
-            </Link>
-          ))}
-        </span>
-        <span aria-hidden className="mx-1.5" />
-        <span className="flex flex-wrap items-center gap-2" data-tour="stock-applications">
-          {APPLICATION_FILTERS.map((a) => (
-            <Link
-              key={a.key}
-              href={makeStockHref(filters, { app: filters.app === a.key ? undefined : a.key })}
-              className={`chip-solid ${filters.app === a.key ? "is-on" : ""}`}
-            >
-              {a.label}
-            </Link>
-          ))}
-        </span>
-        <span aria-hidden className="mx-1.5" />
-        <span className="flex flex-wrap items-center gap-2" data-tour="stock-sorts">
-          {SORTS.map((s) => (
-            <Link
-              key={s.label}
-              href={makeStockHref(filters, { sort: s.key })}
-              className={`chip-solid ${sort === s.key ? "is-on" : ""}`}
-            >
-              {s.label}
-            </Link>
-          ))}
-        </span>
+        <FilterSheet current={filters} />
       </div>
+      {activeLabels.length > 0 && (
+        <p className="mt-3 text-[13px] leading-relaxed text-dusk" data-tour="stock-active-filters">
+          Showing <span className="text-ink">{activeLabels.join(" · ")}</span>
+          <Link href="/admin/pieces" className="link-hair ml-4 text-dusk text-[12px]">
+            Clear
+          </Link>
+        </p>
+      )}
 
       {[
         { family: "mosaic", title: "The tiles" },
@@ -208,7 +183,7 @@ export default async function PiecesPage({
            when something survives the filter. */
         if (tierItems.length === 0) return null;
         return (
-          <section key={tier.family} className="mt-14">
+          <section key={tier.family} className="mt-10">
             <h2 className="font-serif text-[26px]" data-tour="families">{tier.title}</h2>
             {tierRanges.map((r) => {
               const items = arrange(
