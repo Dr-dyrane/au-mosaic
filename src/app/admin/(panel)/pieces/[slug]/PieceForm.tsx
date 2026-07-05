@@ -60,6 +60,9 @@ type Props = {
     story: string;
     priceNote: string;
     colors: string[];
+    seedSize: string;
+    shade: string;
+    finish: string;
     unit: string;
     published: boolean;
   };
@@ -116,6 +119,49 @@ export default function PieceForm({ piece, stock }: Props) {
         <div>
           <label htmlFor="priceNote" className={label}>Price note</label>
           <input id="priceNote" name="priceNote" defaultValue={piece.priceNote} placeholder="Quote per job" className={field} />
+        </div>
+      </div>
+
+      <div className="panel grid gap-6">
+        <div>
+          <p className="font-serif text-[20px]">The trade facts</p>
+          <Teach until="stockroom">
+            <span className="mt-1.5 block text-[13px] text-dusk">
+              Stock and price stay on this piece. These words help buyers compare.
+            </span>
+          </Teach>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-3">
+          <div>
+            <label htmlFor="seedSize" className={label}>Seed size</label>
+            <input
+              id="seedSize"
+              name="seedSize"
+              defaultValue={piece.seedSize}
+              placeholder="Small seed"
+              className={field}
+            />
+          </div>
+          <div>
+            <label htmlFor="shade" className={label}>Shade</label>
+            <input
+              id="shade"
+              name="shade"
+              defaultValue={piece.shade}
+              placeholder="Plain blue"
+              className={field}
+            />
+          </div>
+          <div>
+            <label htmlFor="finish" className={label}>Finish</label>
+            <input
+              id="finish"
+              name="finish"
+              defaultValue={piece.finish}
+              placeholder="Gloss glass"
+              className={field}
+            />
+          </div>
         </div>
       </div>
 

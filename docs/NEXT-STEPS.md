@@ -13,6 +13,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 | Stale brand tasks | `docs/BRAND.md` now records that the homepage category bridge and grouped contact channels already shipped. |
 | Stale image needs | `docs/client/PRODUCT-IMAGE-LEDGER.md` now marks shipped stock pieces and proof pairs as shipped, not future work. |
 | Returns | Orders now record returns beside the original sale, restore delivered stock, and settle as credit or refund without deleting a line. |
+| Product variants | Seed size, shade, and finish now live on the piece record as editable trade facts. Stock and price stay on the piece. |
 
 ## Needs owner truth
 
@@ -29,12 +30,11 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Product variants | Decide whether seed size, colour shade, and finish are separate pieces, variants, or tags. Start with Plain Blue, Mixed Blue, Deep Blue, Light Blue, White, Black, Green, Orange, Gold, Silver, and Rose Gold. |
-| 2 | Application tags | Add kitchen, sink, bathroom, sitting room, office, exterior, pool floor art, logo art, and wall art as searchable proof language without turning the site into a project archive. |
-| 3 | Service records | Add construct new pools, renovate leaking pools, water fountains, site inspection, and materials-list quotes only after Nonso confirms the boundaries. |
-| 4 | Sample flow | Track showroom visit, sample pictures, sample-to-site visit, pool-size quote, and materials list as first-class sales motions. |
-| 5 | Performance watch | Admin home is acceptable, but still runs five glance queries plus the owed badge. If production logs show slowness, consolidate the glance and badge into one raw query. |
-| 6 | Onyx eye pass | The contrast gate passed. The remaining work is a real visual pass on photo-slot hints and gold-on-shell pairings in the Onyx house. |
+| 1 | Application tags | Add kitchen, sink, bathroom, sitting room, office, exterior, pool floor art, logo art, and wall art as searchable proof language without turning the site into a project archive. |
+| 2 | Service records | Add construct new pools, renovate leaking pools, water fountains, site inspection, and materials-list quotes only after Nonso confirms the boundaries. |
+| 3 | Sample flow | Track showroom visit, sample pictures, sample-to-site visit, pool-size quote, and materials list as first-class sales motions. |
+| 4 | Performance watch | Admin home is acceptable, but still runs five glance queries plus the owed badge. If production logs show slowness, consolidate the glance and badge into one raw query. |
+| 5 | Onyx eye pass | The contrast gate passed. The remaining work is a real visual pass on photo-slot hints and gold-on-shell pairings in the Onyx house. |
 
 ## Standing decisions
 

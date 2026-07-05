@@ -25,7 +25,7 @@ type BatchAsset = {
 };
 
 const baseSource =
-  "Generated from the AU Mosaic Instagram harvest and product image ledger, Batch 08.";
+  "Prepared from the AU Mosaic Instagram harvest and product image ledger.";
 
 export const BATCH_08_ASSETS: BatchAsset[] = [
   {
@@ -198,11 +198,11 @@ export const BATCH_08_ASSETS: BatchAsset[] = [
   },
   {
     file: "contact-sheet-batch-08-gap-showroom.png",
-    title: "Batch 08 gap and showroom contact sheet",
+    title: "Prepared product and showroom review",
     sun: "single",
     role: "contact_sheet",
     status: "draft",
-    notes: "Review surface for Batch 08.",
+    notes: "Review surface for prepared product and showroom photos.",
     source: baseSource,
     width: 982,
     height: 1322,

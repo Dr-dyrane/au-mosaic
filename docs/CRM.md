@@ -447,23 +447,23 @@ keepValues, icons components exist).
     more face slots, card_image_night and card_image_day, for the clean
     Shop-style product object. The old image_night and image_day remain
     the applied promise and hero face. A new media_assets table holds
-    the bench: draft, approved, wired, and archived assets by batch,
+    the bench: draft, approved, live, and archived assets by set,
     sun, role, linked piece, dimensions, source, notes, and original
     local path. /admin/media opens as a secondary room from Home and
     Stock, not the phone tab bar yet, because it is powerful but not
-    daily for every hand. Batch 08 entered Blob and the bench: twelve
-    card assets are wired into the six gap pieces, two kitchen frames
-    are approved proof, and the contact sheet stays draft. catalog.ts
+    daily for every hand. The prepared showroom set entered Blob and
+    the bench: twelve card assets are live on the six gap pieces, two
+    kitchen frames are approved proof, and the contact sheet stays draft. catalog.ts
     now prefers the book's card slots and falls back to src/lib/images.ts
     CARD; PieceReveal reads the piece card fields too, so grid and detail
     share the same backend truth. The rollback is surgical: clear the
-    six card_image slots, move the media rows back from wired or approved
+    six card_image slots, move the media rows back from live or approved
     to draft, and the old scene photos return because image_night and
     image_day were never touched.
 
 16. SHIPPED 2026-07-04: THE APPLIED PROMISE BAND. The home page now has
     the bridge between the dream rooms and the product cards. catalog.ts
-    owns `getAppliedPromises`: first it looks for approved Batch 08 proof
+    owns `getAppliedPromises`: first it looks for approved showroom proof
     in `media_assets`, then it falls back to owned scenes in images.ts.
     The kitchen backsplash pair therefore enters the showroom as proof,
     not as a product card and not as a delivered-client archive. The
@@ -515,6 +515,14 @@ counted twice. Money settles two ways: credit leaves the customer in
 credit, and refund writes a negative payment beside the received
 payments. Every return signs the history, and the original sale stays
 visible.
+
+**DONE 2026-07-04: product trade facts.** Variants did not become a
+new stock system. A thing that needs its own count or price remains a
+piece. The comparison words customers ask for, seed size, shade, and
+finish, now live on the piece record. The stockroom edits them beside
+the words and look, the shelf cards show them at a glance, and the
+public catalogue reads them as the product's variant line before it
+falls back to the old repo garnish.
 
 **The mark landed (2026-07-04): the owner drew the logo.** Masters
 live in assets/brand (au-logo-master.png, au-logo-3d.png, never

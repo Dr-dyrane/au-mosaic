@@ -24,9 +24,8 @@ import { CARD, DAY, OWN } from "./images";
    per visitor. One honest nuance: when the book answers, the book
    is the whole truth. A piece he unpublishes stays gone, never
    resurrected by the fallback; the fallback speaks only when the
-   book is unreachable or has never been seeded. Variants remain
-   curated garnish from the repo until the book learns a variants
-   column. */
+   book is unreachable or has never been seeded. Trade facts now
+   come from the book too: seed size, shade, and finish. */
 
 function slugify(name: string) {
   return name
@@ -165,8 +164,15 @@ function toProduct(p: BookPiece): Product & { slug: string } {
     imageLight: p.imageDay ?? undefined,
     card: p.cardImageNight ?? undefined,
     cardLight: p.cardImageDay ?? undefined,
-    variants: VARIANTS.get(p.slug),
+    variants: bookVariants(p),
   };
+}
+
+function bookVariants(p: BookPiece): string[] | undefined {
+  const values = [p.seedSize, p.shade, p.finish]
+    .map((v) => (v ?? "").trim())
+    .filter(Boolean);
+  return values.length > 0 ? values : VARIANTS.get(p.slug);
 }
 
 function withCard<T extends Product>(i: T): T {

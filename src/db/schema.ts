@@ -71,6 +71,12 @@ export const pieces = pgTable(
     story: text("story").notNull().default(""),
     priceNote: text("price_note").notNull().default("Quote per job"),
     colors: jsonb("colors").$type<string[]>().notNull().default([]),
+    /* Trade facts customers compare before price: the cell scale,
+       colour shade, and surface finish. Stock and money still stay
+       on the piece itself. */
+    seedSize: text("seed_size").notNull().default(""),
+    shade: text("shade").notNull().default(""),
+    finish: text("finish").notNull().default(""),
     imageNight: text("image_night"),
     imageDay: text("image_day"),
     /* The shop-card face: clean product display for grids and the

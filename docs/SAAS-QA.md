@@ -13,6 +13,7 @@ means not built yet. Update the verdicts as passes land.
 | Pagination on unbounded lists | Pass (customers, settled orders, landed deliveries, fresh enquiries all paged; active work shows whole) |
 | Sort control | Pass (customers Newest or A to Z; stockroom shelf order, by name, low first, inside each range; debts stay oldest-first by law) |
 | Result counts shown | Pass (customers total, settled count, range book/window counts) |
+| Product trade facts | Pass (seed size, shade, and finish are editable on the piece and visible in the stockroom; stock and price do not split) |
 | Empty states teach | Pass (every room) |
 | Loading states | Pass (panel loading.tsx breath) |
 | Error states | Pass (panel error.tsx, calm sentence) |

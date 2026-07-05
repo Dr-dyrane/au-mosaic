@@ -97,6 +97,37 @@ const DDL: string[] = [
   `CREATE INDEX "media_assets_piece_idx" ON "media_assets" USING btree ("piece_slug")`,
   `CREATE INDEX "media_assets_role_idx" ON "media_assets" USING btree ("role")`,
   `CREATE INDEX "media_assets_status_idx" ON "media_assets" USING btree ("status")`,
+  /* 2026-07-04 · trade facts for product comparison */
+  `ALTER TABLE "pieces" ADD COLUMN "seed_size" text DEFAULT '' NOT NULL`,
+  `ALTER TABLE "pieces" ADD COLUMN "shade" text DEFAULT '' NOT NULL`,
+  `ALTER TABLE "pieces" ADD COLUMN "finish" text DEFAULT '' NOT NULL`,
+  `UPDATE pieces AS p
+     SET seed_size = CASE WHEN p.seed_size = '' THEN v.seed_size ELSE p.seed_size END,
+         shade = CASE WHEN p.shade = '' THEN v.shade ELSE p.shade END,
+         finish = CASE WHEN p.finish = '' THEN v.finish ELSE p.finish END
+    FROM (VALUES
+      ('classic-pool-blues', 'Small and big seed', 'Deep, light, and mixed blue', 'Pool glass'),
+      ('plain-blue-small-seed', 'Small seed', 'Plain blue', 'Gloss glass'),
+      ('mixed-blue-big-seed', 'Big seed', 'Mixed blue', 'Gloss glass'),
+      ('deep-midnight-blends', '', 'Deep blue', 'Gloss glass'),
+      ('aqua-turquoise-blends', '', 'Aqua and turquoise', 'Gloss glass'),
+      ('mixed-gradient-blends', '', 'Gradient blue', 'Gloss glass'),
+      ('solid-colour-glass', '', 'White, black, crystal, and colour', 'Glass'),
+      ('plain-white-mosaic', '', 'Plain white', 'Gloss glass'),
+      ('black-mosaic', '', 'Black', 'Matte or gloss glass'),
+      ('green-mosaic', '', 'Green', 'Gloss glass'),
+      ('orange-mosaic', '', 'Orange', 'Gloss glass'),
+      ('gold-metallic-accents', '', 'Gold, silver, and rose gold', 'Mirror glass'),
+      ('tiny-seed-gold', 'Tiny seed', 'Gold', 'Mirror glass'),
+      ('silver-crystal-mosaic', '', 'Silver', 'Crystal glass'),
+      ('stone-mosaic', '', 'Stone', 'Matte stone'),
+      ('hexagon-marble', '', 'Marble', 'Polished stone')
+    ) AS v(slug, seed_size, shade, finish)
+    WHERE p.slug = v.slug
+      AND (p.seed_size = '' OR p.shade = '' OR p.finish = '')`,
+  `INSERT INTO settings (key, value)
+   VALUES ('trade_facts_seeded', '2026-07-04')
+   ON CONFLICT (key) DO NOTHING`,
   /* 2026-07-04 · returns correct beside the original sale */
   `ALTER TABLE "order_items" ADD COLUMN "return_for_item_id" uuid`,
   `CREATE INDEX "order_items_return_for_idx" ON "order_items" USING btree ("return_for_item_id")`,
@@ -118,6 +149,9 @@ export async function healSchema(): Promise<void> {
              (select 1 from pieces where slug = 'hexagon-marble') as skus,
              (select 1 from information_schema.columns
                 where table_name = 'pieces' and column_name = 'card_image_night') as card_slot,
+             (select 1 from information_schema.columns
+                where table_name = 'pieces' and column_name = 'seed_size') as variant_facts,
+             (select 1 from settings where key = 'trade_facts_seeded') as variant_seed,
              to_regclass('public.media_assets') as media_assets,
              (select 1 from information_schema.columns
                 where table_name = 'order_items' and column_name = 'return_for_item_id') as returns`);
@@ -128,6 +162,8 @@ export async function healSchema(): Promise<void> {
       stale_ig: number | null;
       skus: number | null;
       card_slot: number | null;
+      variant_facts: number | null;
+      variant_seed: number | null;
       media_assets: string | null;
       returns: number | null;
     }>(probe)[0];
@@ -138,6 +174,8 @@ export async function healSchema(): Promise<void> {
       !row?.stale_ig &&
       row?.skus &&
       row?.card_slot &&
+      row?.variant_facts &&
+      row?.variant_seed &&
       row?.media_assets &&
       row?.returns
     ) {

@@ -203,6 +203,9 @@ export default async function PiecesPage({
                       const qty = stock?.quantitySheets ?? 0;
                       /* Warn-me-at 0 means he never asked to be warned. */
                       const low = stock ? stock.reorderAt > 0 && qty <= stock.reorderAt : false;
+                      const facts = [piece.seedSize, piece.shade, piece.finish]
+                        .map((v) => (v ?? "").trim())
+                        .filter(Boolean);
                       return (
                         <Link
                           key={piece.slug}
@@ -225,6 +228,11 @@ export default async function PiecesPage({
                               <span className="chip-solid shrink-0">Off the site</span>
                             )}
                           </div>
+                          {facts.length > 0 && (
+                            <p className="mt-3 truncate text-[12px] text-mist">
+                              {facts.join(" / ")}
+                            </p>
+                          )}
                           <div className="mt-4 flex items-center justify-between">
                             <p className="text-[13px] text-dusk">
                               {qty.toLocaleString()} {piece.unit} in stock
