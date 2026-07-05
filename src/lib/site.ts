@@ -41,3 +41,16 @@ export const NAV = [
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
+
+/* Beyond the five: the editorial rooms, one intentional reveal away behind
+   the island's Explore door (and listed plainly in the footer). The bar
+   stays five at rest; discovery is offered, never forced. */
+export const EXPLORE = [
+  { href: "/lagos", label: "Rooted in Lagos" },
+  { href: "/atelier", label: "The Atelier" },
+  { href: "/interiors", label: "Interiors" },
+  { href: "/how-we-work", label: "How we work" },
+  { href: "/projects", label: "Projects" },
+  { href: "/visualizer", label: "See it in your space" },
+  { href: "/journal", label: "The journal" },
+];
