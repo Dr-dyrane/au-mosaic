@@ -127,15 +127,15 @@
 
 [data-palette="onyx"] {
   --t-sand: #0b0b0c;
-  --t-shell: #1c1c20;
+  --t-shell: #151517;
   --t-ink: #f2f1ee;
   --t-dusk: #a5a29b;
   --t-mist: #8b8880;
-  --t-gold: #cdbfa0;
-  --t-gold-deep: #9a8f79;
+  --t-gold: #c9c4b8;
+  --t-gold-deep: #8f8a7d;
   --t-water: #9fb9bd;
-  --t-brass: #cdbfa0;
-  --t-scene-gold-night: #cdbfa0;
+  --t-brass: #c9c4b8;
+  --t-scene-gold-night: #c9c4b8;
   --t-scene-gold-day: #5c5850;
   --sand-night-rgb: 11 11 12;
   --sand-day-rgb: 244 243 241;
@@ -147,8 +147,8 @@
   --t-ink: #131312;
   --t-dusk: #56534d;
   --t-mist: #6e6a62;
-  --t-gold: #6b5d42;
-  --t-gold-deep: #9a8f79;
+  --t-gold: #5c5850;
+  --t-gold-deep: #8f8a7d;
   --t-water: #3d6d74;
   --t-lift: 0 18px 50px -28px rgb(19 19 18 / 0.25);
   color-scheme: light;
