@@ -189,8 +189,8 @@ STANDING YES (Dyrane, 2026-07-03): the CRM is a goal, not a list of
 requests. Work the queue CONTINUOUSLY, item after item, without
 pausing to ask permission between items. Stop only for three things:
 (a) a domain decision the boards do not cover, (b) steps that need
-Dyrane's machine or accounts (git push, db:push, Vercel env,
-recordings, Google profiles), listed for him in one batch at the end,
+Dyrane's machine or accounts (Vercel env, recordings, Google profiles),
+listed for him in one batch at the end,
 (c) context running out, in which case update this handoff and close
 cleanly so the next session continues without a word. Per item, the
 ritual is unchanged: build, lint (max-warnings=0), ledger row in
@@ -214,8 +214,8 @@ keepValues, icons components exist).
 2. DONE 2026-07-03: feel Next tier closed (c93d6ef), and the missing
    list closed after it (65901bf, 3ad468a): pagination at volume,
    sorts, CSV, insights windows, staff keys, audit trail, rate
-   limiting. One owner errand stands: npm run db:push for staff and
-   audit_log; everything fails open until then.
+   limiting. Later schema healing retired the db:push errand; these
+   tables now ride with deploys and still fail open while healing.
 3. DONE 2026-07-03: the WhatsApp bridge, both halves: share_target
    plus /admin/share (phone matched, offers prefilled, keep-as-
    enquiry, iPhone caveat in copy) and /admin/compose (quote and
@@ -230,8 +230,8 @@ keepValues, icons components exist).
    via waChat with lines, prices, billed, paid, balance; gold budget
    respected; wa_compose tracked.
 4. DONE 2026-07-03: full-flow tracking, first-party only. Beacon
-   carries the localStorage uuid; enquiries.session_id landed
-   (migration 0004, in the same db:push errand); attach mechanic on
+   carries the localStorage uuid; enquiries.session_id landed through
+   the same schema-healing channel; attach mechanic on
    the enquiry rows (Tie them); createOrder auto-converts that
    customer's open enquiries; Insights draws From tap to settled
    with the two honest rates. No fingerprinting, no third parties.
@@ -272,7 +272,7 @@ keepValues, icons components exist).
    digest plus immediate crossings, taps open the glance. OWNER
    ERRANDS: npx web-push generate-vapid-keys, then set
    NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, CRON_SECRET in
-   Vercel; npm run db:push covers migrations 0003 through 0005.
+   Vercel. Schema healing covers the old migrations.
 
 8. DONE 2026-07-03, built as specced. Tour.tsx is chapters now, zero
    dependencies. The basics keeps the seven cross-room steps. The

@@ -56,7 +56,7 @@ means not built yet. Update the verdicts as passes land.
 | Grouped queries, no N+1 | Pass (sum maps stitched in JS) |
 | Images optimised | Pass (AVIF/WebP, Blob host allowed) |
 | No client fetch waterfalls | Pass (server components read) |
-| Query count per page reasonable | Partial (glance runs 5; layout adds owed count; acceptable at scale, watch it) |
+| Query count per page reasonable | Partial (glance runs 5; layout adds owed count; acceptable at scale, tracked in NEXT-STEPS) |
 
 ## Accessibility
 
@@ -78,7 +78,7 @@ means not built yet. Update the verdicts as passes land.
 | Secrets out of git | Pass (.env ignored, template clean) |
 | robots/noindex on admin | Pass |
 | Public endpoint hardened | Pass (/api/enquiry: caps, validation, 204 always) |
-| Rate limiting | Pass (the door rests after 8 refusals in 10 minutes; the funnel sheds past 30 fresh rows in 10 minutes, still 204; both fail open before db:push) |
+| Rate limiting | Pass (the door rests after 8 refusals in 10 minutes; the funnel sheds past 30 fresh rows in 10 minutes, still 204; both fail open while schema healing settles) |
 | Audit trail | Pass (append-only audit_log; every action signs a sentence; read at Settings, The book's history) |
 | Staff accounts | Pass (named keys, HMAC-hashed, owner-only rack; master key stays in the environment; old cookies still verify) |
 
@@ -151,7 +151,7 @@ up as they land, never delete them.
 | Site 404 | Pass (maison 404: Back to the house, Ask us directly) |
 | Office 404 stays in the office | Pass (added this pass: That page is not in the book, gold Back to the glance; uuid guards land here instead of the shop window) |
 | Offline room | Pass (calm room, network-first pages, tab bar stays home) |
-| Root layout crash fallback (global-error) | Missing, accepted (the root layout is a static shell with no data; a maison-dressed global-error joins if it ever fires) |
+| Root layout crash fallback (global-error) | Pass (root global-error now carries its own html, body, global styles, calm copy, Try again, and WhatsApp close) |
 | Boundaries never swallow auth redirects | Pass (redirect and notFound throw on purpose and live outside every try; the panel layout re-checks the door on every render, so Try again walks back through it) |
 | Raw driver shapes normalised at every execute | Pass (one rowsOf, owned by src/db, imported at all four call sites: insights, panel layout, digest; no room maps the envelope itself) |
 | Actions answer in sentences, never throw at the UI | Pass (every action catches and returns ok/message; the boundary is the last resort, not the pattern) |
@@ -213,7 +213,7 @@ and the audit trail that arrived with staff accounts, per CRM law 8.
 The unsaved-changes guard shipped earlier with feel item 16. New
 gaps join a new list when they earn a name.
 
-One owner errand: run npm run db:push once, so the staff and
-audit_log tables land. Until then the key rack and the history
-teach the command, the door cannot count refusals, and every
-logAction is a quiet no-op. Nothing errors either way.
+Schema healing retired the db:push errand. staff, audit_log,
+push_subscriptions, media_assets, and card slots ride with the deploy
+through instrumentation. If healing cannot reach the book, the rooms
+fail open and teach rather than crashing.

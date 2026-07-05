@@ -162,8 +162,9 @@ Instagram visual layout is product-first:
 
 Website translation:
 
-- The homepage needs a quick category bridge near the top.
-- Contact needs WhatsApp, Instagram, and Telegram grouped together.
+- The homepage now carries the category bridge through Materials, By the
+  sheet, and In the room.
+- Contact now groups WhatsApp, Instagram, and Telegram together.
 - Product pages should keep real sample and quote CTAs visible.
 - Catalogue labels should match the words buyers already saw on
   Instagram.

@@ -49,13 +49,13 @@ model.
 | Over 200 samples and site samples | `DGoLzTDMk1a` says AU Mosaic has over 200 samples in stock and can bring samples to a building site. `C_de5dxspDe` says walk into the showroom to view samples. | Sampling is a core sales motion, not a side note. | Existing sample tray stands. Add a showroom sample-wall pair later. |
 | Plain Blue Mosaic | Several tiles show Plain Blue Mosaic and Plain Blue Mosaic Small Seed. | Plain Blue is a named pool SKU, likely distinct from mixed blue. | Existing pool blue pair covers the family. Add exact SKU cards only if wired to CRM stock. |
 | Mixed Blue Mosaic Big Seed | Several tiles show Mixed Blue Big Seed and Mixed Blue Mosaic. | Mixed Blue exists as both shade and seed-size language. | Existing pool colour family pair covers this. |
-| Plain White Mosaic | One tile shows Plain White Mosaic. | White is a separate stock colour, not just part of chess board mosaic. | Needs a future plain white stock pair if it becomes a public SKU. |
-| Orange Mosaic | One tile shows Orange Mosaic. | Orange is a separate colourway seen in the showroom grid. | Needs a future orange colourway pair if Nonso confirms active stock. |
+| Plain White Mosaic | One tile shows Plain White Mosaic. | White is a separate stock colour, not just part of chess board mosaic. | Shipped as a stock piece with day and night product cards. |
+| Orange Mosaic | One tile shows Orange Mosaic. | Orange is a separate colourway seen in the showroom grid. | Shipped as a stock piece with day and night product cards after Nonso's green light. |
 | Gold Mosaic range depth | Many tiles show Gold Mosaic, gold sample sheets, pillar use, sitting-room TV backdrop, and multiple gold options. | Gold has depth: stock sheets, pillar cladding, living-room feature walls, and luxury social content. | Existing tiny seed gold and metallic trio pairs stand. Add a gold pillar or TV-wall application pair later. |
 | Crystal Mosaic range depth | Several tiles show Crystal Mosaic sample sheets and luxury interior use. | Crystal has enough visibility to become its own stock family if pricing supports it. | Existing silver crystal pair stands. Add a warmer crystal variant later if needed. |
-| Kitchen and countertop mosaic | Screenshots show kitchen backsplash, kitchen countertops, green kitchen mosaic, and DIY sink design. | Kitchens are a real application lane alongside pools and bathrooms. | Needs a kitchen backsplash and sink pair. |
+| Kitchen and countertop mosaic | Screenshots show kitchen backsplash, kitchen countertops, green kitchen mosaic, and DIY sink design. | Kitchens are a real application lane alongside pools and bathrooms. | Shipped as a showroom proof pair in the In the room band, not as a product card. |
 | Bathroom mosaic range | Screenshots show black bathroom, blue bathroom, green bathroom, hex bath, and luxury bathroom applications. | Bathroom should be a major environment lane, not one black-mosaic example. | Existing black bath and hex bath stand. Add green or aqua bath only if needed for range balance. |
-| Custom mosaic art | Screenshots show Sacred Heart artwork, AU Mosaic logo art, pool-floor crescent, pool-floor sun motif, and captions about any artwork. | Custom artwork and logos are a real offer, including pool floors and wall art. | Needs a custom mosaic art and pool motif pair. |
+| Custom mosaic art | Screenshots show Sacred Heart artwork, AU Mosaic logo art, pool-floor crescent, pool-floor sun motif, and captions about any artwork. | Custom artwork and logos are a real offer, including pool floors and wall art. | Commerce custom art and window gallery pairs shipped; real project proof still waits for owner media. |
 | Pool materials and quote flow | Screenshots show everything mosaic and pool materials, pool-size quote prompts, send a list for instant prices, filter tank, and ongoing pool project captions. | The pool-materials offer is practical and list-driven. | Existing pool materials and pool consultation pairs stand. Add real-equipment stock photos when Nonso sends them. |
 | Pool construction and renovation | Screenshots show construction from scratch to finish, renovate leaking pools, water fountains, and site inspection by WhatsApp. | The service scope is broader than supply: construct, renovate, inspect, and possibly fountains. | Existing pool construction pair stands. CRM needs service records after owner confirmation. |
 | Exterior instead of paint | `CgPWiYDqmTD` says mosaic can be used for exterior instead of paint. | Exterior cladding is a category signal. | Hold image generation until there is a clearer stock or project example. |
@@ -71,11 +71,11 @@ full account access or an export.
 | Product or service signal | Instagram evidence | Product read | Image decision |
 |---|---|---|---|
 | Tiny Seed Gold Mosaic | `/reel/DHBjg27tSi1/` says Tiny Seed Gold Mosaic is available in large quantities. `/p/DGsW9THIe2x/` says Gold Mosaic Tiles scream luxury. `/p/DGz0b7DsQLV/` frames gold mosaic for pillars, walls, and floors. | Gold is not only an accent sample. It is a stocked tiny-seed format and an application material. | Add a dedicated tiny seed gold stock pair. |
-| Silver Crystal Mosaic | `/reel/DHPq2HW7vmBY/` says Silver Crystal Mosaic Tiles, and positions them for a premium finish. | Silver crystal should not be hidden inside generic glass. It needs its own display cue. | Add a silver crystal sample pair. |
+| Silver Crystal Mosaic | `/reel/DHPq2HW7vmBY/` says Silver Crystal Mosaic Tiles, and positions them for a premium finish. | Silver crystal should not be hidden inside generic glass. It needs its own display cue. | Shipped as its own stock piece with day and night product cards. |
 | Deep blue, light blue, mixed blue pool colours | `/p/DSFu7VSjM_X/` asks what pool colour the buyer likes, with deep blue pool framing. `/p/DQwywuVjGXg/` names blue mosaic tiles for builders, pool dealers, and homeowners. | The blue family is a colour-selection workflow, not just one tile. | Add installed colour-bay pair with dry seed samples. |
 | White and Black Mosaic Tiles | `/p/DTm5PyDDB5m/` says White and Black Mosaic Tiles are available in Big Seed and Small Seed. | Chess board is one pattern use. White and black seed stock is the broader material truth. | Existing chess pair stands. Add stock variant later if Nonso prices it separately. |
 | Stone Mosaic Tiles | `/p/DITOgqRsugy/` frames stone mosaic for sitting room, kitchen, and office spaces. `/reel/DHJe5XwMfrY/` asks which stone mosaic a buyer prefers. | Stone is an interior finish family, not only a worktable material. | Add a stone interior application pair. |
-| Hexagon marble mosaic | `/p/DGB6SlYN80F/` describes a bathtub with hexagon marble mosaic and asks buyers to stand out. | Treat as a bathroom application signal until stock photos confirm the exact product. | Add a hexagon marble bath pair. |
+| Hexagon marble mosaic | `/p/DGB6SlYN80F/` describes a bathtub with hexagon marble mosaic and asks buyers to stand out. | Treat as a bathroom application signal until stock photos confirm the exact product. | Shipped as a stock piece and bathroom-leaning card pair; exact stock status remains owner-confirmed by the piece record. |
 | Full pool service | `/p/DOti8tNDA0n/` welcomes buyers to AU Mosaic and names construct new pools, renovate leaking pools, and water fountains. The bio already names pool construction. | The website and CRM need a service lane alongside tile stock. | Add a pool construction consultation pair. |
 | General range promise | `/reel/DKXOjjoMo1O/` says two best-selling mosaics are fully restocked. `/p/CgPWiYDqmTD/` says AU Mosaic sells all kinds of mosaic tiles for every part of construction. | Keep a broad stockroom category, but do not invent unseen SKUs. | Covered by sample tray and future stockroom photography. |
 
@@ -87,25 +87,25 @@ full account access or an export.
 | Aqua colour mosaic | Aqua colour mosaic post | `aqua-turquoise-blends` | Interior and pool-use frame |
 | Metallic mirror mosaic | Gold, silver, rose gold reel | `gold-metallic-accents` | Premium metallic sample study |
 | Tiny Seed Gold Mosaic | Tiny Seed Gold Mosaic search result, gold luxury posts | `gold-metallic-accents`, possible separate stock variant | Dedicated tiny seed stock frame |
-| Silver Crystal Mosaic | Silver Crystal Mosaic search result | `solid-colour-glass`, possible future range | Reflective crystal sample frame |
-| Plain Blue Mosaic | Safari screenshots name Plain Blue and Small Seed | `classic-pool-blues` variant | Batch 03 stock pair, do not wire until CRM variant is confirmed |
-| Mixed Blue Mosaic | Safari screenshots name Mixed Blue and Big Seed | `classic-pool-blues` variant | Batch 03 stock pair, do not wire until CRM variant is confirmed |
-| Plain White Mosaic | Safari screenshots name Plain White | `solid-colour-glass` variant or future range | Batch 03 stock pair, confirm active stock before public SKU wiring |
-| Orange Mosaic | Safari screenshots name Orange | `solid-colour-glass` variant or future range | Batch 03 stock pair, confirm active stock before public SKU wiring |
+| Silver Crystal Mosaic | Silver Crystal Mosaic search result | `silver-crystal-mosaic` | Stock piece shipped with reflective crystal sample frame. |
+| Plain Blue Mosaic | Safari screenshots name Plain Blue and Small Seed | `plain-blue-small-seed` | Stock piece shipped; deeper seed variants still belong in the future variant model. |
+| Mixed Blue Mosaic | Safari screenshots name Mixed Blue and Big Seed | `mixed-blue-big-seed` | Stock piece shipped; deep, light, and mixed choices still need variant structure if priced separately. |
+| Plain White Mosaic | Safari screenshots name Plain White | `plain-white-mosaic` | Stock piece shipped with day and night cards. |
+| Orange Mosaic | Safari screenshots name Orange | `orange-mosaic` | Stock piece shipped with day and night cards. |
 | Chess board mosaic | Black and white chess board post | `solid-colour-glass` variant | Pattern sample study |
 | White and Black Mosaic Tiles | White and Black available in Big Seed and Small Seed | `solid-colour-glass` variant | Separate stock frame only if priced separately |
 | Black mosaic | Black mosaic bathroom post and stock colour screenshots | Dark Bath environment and glass mosaics | Batch 03 stock pair plus existing bathroom application frame |
-| Green Mosaic | Safari screenshots show green mosaic kitchen and bathroom use | `solid-colour-glass` variant or future range | Batch 03 stock pair, confirm active stock before public SKU wiring |
+| Green Mosaic | Safari screenshots show green mosaic kitchen and bathroom use | `green-mosaic` | Stock piece shipped with day and night cards. |
 | Crystal mosaic | Trade name in owner harvest | `solid-colour-glass` variant | Close material and custom blend frame |
-| Stone mosaic | Trade name in owner harvest and interior search result | `solid-colour-glass` variant today, possible future range | Matte stone interior frame |
-| Hexagon marble mosaic | Bathtub with hexagon marble mosaic search result | Open question | Bathroom application frame, stock status unconfirmed |
+| Stone mosaic | Trade name in owner harvest and interior search result | `stone-mosaic` | Stock piece shipped with matte stone product frame. |
+| Hexagon marble mosaic | Bathtub with hexagon marble mosaic search result | `hexagon-marble` | Stock piece shipped; owner can correct availability from the piece record. |
 | Pool materials | Complete swimming pool materials reel | Pool materials page and stockroom family | Counter with equipment and fittings |
 | Filter tanks | Filter tank carousel | Filtration and circulation group | Equipment-led product card |
 | Samples to you | Flyer promise and Telegram sample room | Contact, WhatsApp prompts, CRM photo workflow | Sample preparation or visit frame |
 | Pool construction | Bio service, pool posts, construct and renovate pool search result | Pools page and projects | Lagos residential pool environment |
 | Water fountains | Full pool service search result | Open question | Hold until confirmed with owner |
-| Custom mosaic art | Artwork, logos, pool-floor motifs in Safari screenshots | Art and feature mosaics | Needs a custom art display pair |
-| Kitchen mosaic | Kitchen backsplash, countertops, and DIY sink screenshots | Interior applications and possibly stockroom tags | Needs a kitchen application pair |
+| Custom mosaic art | Artwork, logos, pool-floor motifs in Safari screenshots | Art and feature mosaics | Commerce custom art and window gallery pairs shipped; real proof waits for owner media. |
+| Kitchen mosaic | Kitchen backsplash, countertops, and DIY sink screenshots | Interior applications and possibly stockroom tags | Showroom proof pair shipped through media_assets and the In the room band. |
 | Exterior cladding | Safari screenshot says exterior can use mosaic instead of paint | Open question | Hold until project proof |
 | Building tiles | Pinned timeless building tiles campaign | Open question | Do not invent a catalogue range yet |
 
@@ -136,7 +136,7 @@ for `DAY`, night images are candidates for `OWN`.
 | Plain Blue Mosaic Small Seed stock | `plain-blue-small-seed-stock-day.png` | `plain-blue-small-seed-stock-night.png` | Strong pair | Corrected direction: product board, sheet, and loose tesserae only. |
 | Mixed Blue Mosaic Big Seed stock | `mixed-blue-big-seed-stock-day.png` | `mixed-blue-big-seed-stock-night.png` | Strong pair | Big seed reads clearly, with fewer larger cells. |
 | Plain White Mosaic stock | `plain-white-mosaic-stock-day.png` | `plain-white-mosaic-stock-night.png` | Strong pair | White remains readable through grout, bevels, and shadow. |
-| Orange Mosaic stock | `orange-mosaic-stock-day.png` | `orange-mosaic-stock-night.png` | Strong pair | Named colourway, still needs owner confirmation before wiring. |
+| Orange Mosaic stock | `orange-mosaic-stock-day.png` | `orange-mosaic-stock-night.png` | Strong pair | Confirmed and wired later as `orange-mosaic`. |
 | Black Mosaic stock | `black-mosaic-stock-day.png` | `black-mosaic-stock-night.png` | Strong pair | Product display, not bathroom scene. |
 | Green Mosaic stock | `green-mosaic-stock-day.png` | `green-mosaic-stock-night.png` | Strong pair | Product display, not kitchen scene. |
 | Classic showroom sample library | `classic-sample-library-day.png` | `classic-sample-library-night.png` | Strong pair | Best bridge between Instagram stock breadth and the website's calm showroom tone. |
