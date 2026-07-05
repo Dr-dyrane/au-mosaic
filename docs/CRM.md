@@ -500,6 +500,23 @@ its secret and sending, and the owner's word that it all works. The
 engineering board is closed; what remains is his errand list and the
 facts for the proof band (founding year, honest count, named work).
 
+**2026-07-05, the Desk Shell and its eye-gate.** The back office grew an
+adaptive shell this day, two hands (Claude and CODEX): a shared room model
+(src/lib/admin-rooms.ts), a desktop room rail with drawn icons, a work
+canvas, a wide context rail at xl (src/components/AdminContext.tsx), the
+phone tab flow with a mobile context disclosure, house controls moved into
+the rail foot, and the stock filters folded into a disclosure; see the git
+log and the QA ledger. The doctrine is docs/DESK-SHELL.md; the two hands
+coordinate in docs/AGENT-HANDSHAKE.md. This session added no code: it
+eye-gated the live shell and found three gates clean (owner language stays
+shop floor, the gold singleton holds with no gold in the rail or the
+inspector, the chrome keeps the ramp and no lines) and flagged one seam (no
+context surface from 1024 to 1279). Open, in CODEX's lane: the record
+context adapters (per-record live facts, NEXT-STEPS build-next 1) and the
+iOS 26 tab bar restructure (the handshake claim, AdminTabBar,
+admin-rooms.ts, layout.tsx). The rendered visual QA across widths, houses,
+and suns waits for a machine with the book and the door.
+
 **The brand, harvested (2026-07-04, owner's Instagram screenshots).**
 The client built the identity himself while the site guessed: the
 tesserae au avatar on near-black, the lowercase serif mosaic wordmark

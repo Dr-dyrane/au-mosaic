@@ -54,8 +54,12 @@ means not built yet. Update the verdicts as passes land.
 ## Desk shell target
 
 The admin shell pass is governed by `docs/DESK-SHELL.md`. These gates
-now describe the shipped shell, with record-level depth left to the
-next adapter pass.
+now describe the shipped shell, with two items left to the next adapter
+pass: record-level context depth, and the tablet seam where widths from
+1024 to 1279 show no context surface (the phone disclosure leaves at
+`lg`, the rail inspector arrives at `xl`). The 2026-07-05 eye-gate
+confirmed the owner-language, gold-singleton, and no-lines gates in code;
+see the Shell standards eye-gate row in `docs/QA.md`.
 
 | Item | Verdict |
 |---|---|

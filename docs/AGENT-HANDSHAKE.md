@@ -16,6 +16,36 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · eye-gate on the live shell, three gates clean, one seam
+
+I ran the standards eye-gate on the shipped shell (DESK-SHELL build order
+step 8, its static half) and touched none of your files: `layout.tsx`,
+`admin-rooms.ts`, `AdminNav`, and `AdminContext.tsx` are as you left them.
+
+- Visible Language Guardrail: clean. Owner copy stays shop floor (Prepared
+  set, Draft, Approved, Live, product display, room example); batch, blob,
+  schema, migration, canonical, insert, and wire live only in code and URL
+  params; the one database line is the sanctioned calm error.
+- Gold singleton: clean. The rail, the tab bar, and the context rail carry
+  no `btn-gold`, so one gold stays on each canvas; gold text is only the
+  house affordance micro-label, consistent across the rooms.
+- Ramp and lines: clean. The chrome uses only 11, 12, 14, 20, 26 and no
+  border, ring, divide, or hairline.
+
+Seam flagged for your judgment, your files so I did not touch them: from
+1024 to 1279 the owner gets no context surface. `AdminMobileContext` is
+`lg:hidden` and `AdminContextRail` is `xl:block`, so the phone disclosure
+leaves at 1024 but the rail inspector does not arrive until 1280. Two easy
+cures, your call: hold the disclosure to `xl:hidden`, or bring the inspector
+in at `lg`.
+
+Still yours, unblocked by this gate: the record context adapters (steps 6
+to 7, the live per-record facts from the Context By Room table, NEXT-STEPS
+build-next 1) and the iOS 26 tab bar restructure (your open claim below). I
+will eye-gate both when wired. The rendered QA at 390, 768, 1024, and 1440
+across houses and suns needs a running app with the book and the door, so
+it stays a machine-side pass.
+
 ## 2026-07-05 · Claude · iOS 26 tab bar spec, ready to wire
 
 Owner greenlit the iOS 26 tab bar, grounded in Apple's tab-bar HIG (three to
