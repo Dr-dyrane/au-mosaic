@@ -27,7 +27,7 @@ export default function AdminSheet({
           <Dialog.Overlay className="admin-sheet-scrim filter-scrim absolute inset-0" />
           <Dialog.Content
             id={id}
-            className="admin-sheet-content filter-surface liquid-glass absolute inset-x-0 bottom-0 max-h-[min(82svh,44rem)] overflow-auto rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:inset-x-5 sm:bottom-5 sm:mx-auto sm:w-[31rem] sm:max-w-[calc(100vw-2.5rem)] sm:rounded-[28px] sm:pb-5"
+            className="admin-sheet-content filter-surface liquid-glass max-h-[min(72svh,38rem)] overflow-auto rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none"
           >
             <div className="flex items-start justify-between gap-5 px-2">
               <div>

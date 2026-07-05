@@ -837,6 +837,10 @@ body:has(.admin-sheet-root) .layer-admin-nav {
 }
 
 .admin-sheet-content {
+  position: absolute;
+  inset-block-start: auto;
+  inset-block-end: 0;
+  inset-inline: 0;
   z-index: 1;
   pointer-events: auto;
   transform: translateZ(0);
