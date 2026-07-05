@@ -16,6 +16,18 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · Image Atlas Phase 2 — raw drops get admin homes
+
+Owner picked Phase 2 (admin homes first). New file, my lane:
+`scripts/media-raw-import.ts`. The raw drops are gitignored — the whitelist
+ships only the ~97 canonical jpg — so they must go to Vercel Blob to appear in
+the production admin, same pattern as `media-batch-08.ts`. It uploads all 130
+and inserts **non-public** rows: 55 archived (11 review sheets + 44 masters) +
+75 draft candidates. Dedups by `originalPath` (skips batch-08's 15 source files
+and any re-run). Verified: `tsc` clean, dry run classifies 130. Owner runs it
+(needs `DATABASE_URL` + `BLOB_READ_WRITE_TOKEN`); I can't from the sandbox.
+Touches none of your files. `IMAGE-ATLAS.md` updated to match.
+
 ## 2026-07-05 · Claude · media-backfill script — the photo room, filled
 
 Owner asked why the Photos gallery shows so few photos. Root cause: the CRUD
