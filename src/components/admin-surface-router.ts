@@ -8,10 +8,12 @@ import {
 } from "@/components/admin-action-intents";
 import {
   clearAdminContextPanel,
+  type ContextPieceOption,
   getAdminContextPanel,
   showMediaBatchPanel,
   showMediaCreatePanel,
   showStockFilterPanel,
+  type StockFilterContext,
   subscribeAdminContextPanel,
   type AdminContextPanel,
 } from "@/components/admin-context-panel-store";
@@ -44,8 +46,38 @@ function showAdminSurface(request: AdminSurfaceRequest) {
   }
 }
 
+function sameStockFilterContext(a: StockFilterContext, b: StockFilterContext) {
+  return (
+    a.family === b.family &&
+    a.low === b.low &&
+    a.hue === b.hue &&
+    a.app === b.app &&
+    a.sort === b.sort
+  );
+}
+
+function samePieceOptions(a: ContextPieceOption[], b: ContextPieceOption[]) {
+  return (
+    a.length === b.length &&
+    a.every((piece, index) => (
+      piece.slug === b[index]?.slug &&
+      piece.name === b[index]?.name
+    ))
+  );
+}
+
 function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest) {
-  return panel?.kind === request.kind;
+  if (!panel || panel.kind !== request.kind) return false;
+  switch (request.kind) {
+    case "stock-filter":
+      if (panel.kind !== "stock-filter") return false;
+      return sameStockFilterContext(panel.current, request.current);
+    case "media-create":
+      if (panel.kind !== "media-create") return false;
+      return samePieceOptions(panel.pieces, request.pieces);
+    case "media-batch":
+      return true;
+  }
 }
 
 export function useAdminSurface(
@@ -55,8 +87,14 @@ export function useAdminSurface(
   const [sheetOpen, setSheetOpen] = useState(false);
   const desktop = useSyncExternalStore(subscribeDesktopSurface, getDesktopSurface, () => false);
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
+  const railKindOpen = panel?.kind === request.kind;
   const railOpen = sameAdminSurface(panel, request);
   const visible = railOpen || (sheetOpen && !desktop);
+
+  useEffect(() => {
+    if (!desktop || !railKindOpen || railOpen) return;
+    showAdminSurface(request);
+  }, [desktop, railKindOpen, railOpen, request]);
 
   const openSurface = useCallback(() => {
     buzz(3);
