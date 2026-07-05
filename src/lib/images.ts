@@ -286,3 +286,34 @@ export const HOW_STEPS: { night: string; day: string; step: string; title: strin
     alt: "A swimming pool under construction with the waterline mosaic going in at dusk",
   },
 ];
+
+/* Interiors, 2026-07-05: mosaic as the room's one great surface — feature
+   walls, baths, floors. Aspiration, the tradition applied. Single-sun.
+   Home: /interiors. */
+export const INTERIORS = {
+  aqua: "/media/interior-aqua.jpg",
+  blackBath: "/media/interior-black-bath.jpg",
+  chess: "/media/interior-chess.jpg",
+  blueStudy: "/media/interior-blue-study.jpg",
+};
+
+export const INTERIOR_SCENES: { src: string; place: string; line: string; alt: string }[] = [
+  {
+    src: INTERIORS.blackBath,
+    place: "The dark bath",
+    line: "Black glass on stone, lit low.",
+    alt: "A dark bathroom with a black glass-mosaic feature wall, a carved stone basin, and a brass tap",
+  },
+  {
+    src: INTERIORS.chess,
+    place: "The checkered walk",
+    line: "The oldest floor, in black and white.",
+    alt: "A columned corridor with a black-and-white checkerboard mosaic floor",
+  },
+  {
+    src: INTERIORS.blueStudy,
+    place: "The blue study",
+    line: "Every blue, weighed by hand.",
+    alt: "Blue glass-mosaic sample boards laid on a stone counter in a warm study",
+  },
+];

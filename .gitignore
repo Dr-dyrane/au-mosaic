@@ -155,6 +155,11 @@ public/media/*
 !public/media/how-materials-day.jpg
 !public/media/how-build-night.jpg
 !public/media/how-build-day.jpg
+# Interiors (2026-07-05): applied room scenes.
+!public/media/interior-aqua.jpg
+!public/media/interior-black-bath.jpg
+!public/media/interior-chess.jpg
+!public/media/interior-blue-study.jpg
 !.env.example
 
 # rendered paper (scripts/invoice.py)

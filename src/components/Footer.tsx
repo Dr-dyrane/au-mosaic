@@ -68,6 +68,11 @@ export default async function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/interiors" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                Interiors
+              </Link>
+            </li>
+            <li>
               <Link href="/visualizer" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
                 See it in your space
               </Link>
