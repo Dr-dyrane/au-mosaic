@@ -68,7 +68,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   return (
     <main className="min-h-svh px-4 py-10 print:p-0 sm:py-16">
       <div className="mx-auto mb-8 flex max-w-[210mm] items-center justify-between gap-6 print-hide">
-        <Link href={`/admin/orders/${order.id}`} className="link-hair text-dusk text-[13px]">
+        <Link href={`/admin/orders/${order.id}`} className="link-hair text-dusk text-[12px]">
           Back to the order
         </Link>
         <PrintButton />
@@ -136,14 +136,14 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                 <th className="pb-3 text-right font-semibold">Total</th>
               </tr>
             </thead>
-            <tbody className="text-[13px]">
+            <tbody className="text-[14px]">
               {lines.map(({ item, pieceName }) => {
                 const isReturn = item.quantity < 0;
                 const name = isReturn ? item.description || `Return: ${pieceName ?? "work"}` : pieceName ?? (item.description || "Work");
                 return (
                   <tr key={item.id}>
                     <td className="py-3 pr-4 align-top">
-                      <span className="font-serif text-[15px]">{name}</span>
+                      <span className="font-serif text-[16px]">{name}</span>
                       {!isReturn && pieceName && item.description && (
                         <span className="block text-[11px] text-[#746C57]">{item.description}</span>
                       )}
@@ -170,11 +170,11 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         </section>
 
         <section className="mt-8 ml-auto max-w-[16rem] text-right">
-          <div className="flex items-baseline justify-between gap-6 text-[13px]">
+          <div className="flex items-baseline justify-between gap-6 text-[14px]">
             <span className="text-[#5D564A]">Billed</span>
             <span className="tabular-nums">{naira(billed)}</span>
           </div>
-          <div className="mt-2 flex items-baseline justify-between gap-6 text-[13px]">
+          <div className="mt-2 flex items-baseline justify-between gap-6 text-[14px]">
             <span className="text-[#5D564A]">Paid to date</span>
             <span className="tabular-nums">{naira(paid)}</span>
           </div>
@@ -182,7 +182,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#856A30]">
             {balance > 0 ? "Balance due" : balance === 0 ? "Settled" : "In credit"}
           </p>
-          <p className="font-serif mt-1.5 text-[28px] leading-none tabular-nums">
+          <p className="font-serif mt-1.5 text-[26px] leading-none tabular-nums">
             {naira(Math.abs(balance))}
           </p>
         </section>
@@ -210,7 +210,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           <p className="mt-1 text-[12px] leading-relaxed text-[#5D564A]">
             Questions live on WhatsApp: {phone}
           </p>
-          <p className="mt-6 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#746C57]">
+          <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#746C57]">
             AU Mosaic and Pool Materials · Lagos · Foshan
           </p>
         </footer>
