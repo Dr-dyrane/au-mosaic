@@ -46,6 +46,7 @@ export const NAV = [
    the island's Explore door (and listed plainly in the footer). The bar
    stays five at rest; discovery is offered, never forced. */
 export const EXPLORE = [
+  { href: "/gallery", label: "The gallery" },
   { href: "/lagos", label: "Rooted in Lagos" },
   { href: "/atelier", label: "The Atelier" },
   { href: "/interiors", label: "Interiors" },
