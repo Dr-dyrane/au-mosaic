@@ -68,7 +68,7 @@ export default async function MediaAssetPage({ params }: { params: Promise<{ id:
           {connectedPiece && (
             <Link
               href={`/admin/pieces/${connectedPiece.slug}`}
-              className="link-hair mt-5 inline-block text-dusk text-[13px]"
+              className="link-hair mt-5 inline-block text-dusk text-[12px]"
             >
               {connectedPiece.name}
             </Link>

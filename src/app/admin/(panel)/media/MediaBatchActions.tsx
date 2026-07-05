@@ -26,12 +26,12 @@ export function MediaBatchPanel({ surface = "panel" }: { surface?: "panel" | "pl
       </p>
       <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-4">
         <form action={importAction}>
-          <button type="submit" disabled={importPending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
+          <button type="submit" disabled={importPending} className="link-hair text-dusk text-[12px] disabled:opacity-60">
             {importPending ? "Adding..." : "Add prepared photos"}
           </button>
         </form>
         <form action={promoteAction}>
-          <button type="submit" disabled={promotePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
+          <button type="submit" disabled={promotePending} className="link-hair text-dusk text-[12px] disabled:opacity-60">
             {promotePending ? "Making live..." : "Make product photos live"}
           </button>
         </form>

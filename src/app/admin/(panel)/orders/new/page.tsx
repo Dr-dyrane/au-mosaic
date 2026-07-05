@@ -44,7 +44,7 @@ export default async function NewOrderPage({
           </p>
           <Link
             href="/admin/customers/new"
-            className="link-hair mt-5 inline-block text-dusk text-[13px]"
+            className="link-hair mt-5 inline-block text-dusk text-[12px]"
           >
             Add a customer
           </Link>

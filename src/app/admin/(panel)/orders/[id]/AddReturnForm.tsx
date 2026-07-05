@@ -104,7 +104,7 @@ export default function AddReturnForm({
               className={field}
             />
           </div>
-          <p className="text-[13px] leading-relaxed text-dusk">
+          <p className="text-[14px] leading-relaxed text-dusk">
             The original line stays. The return writes beside it.
           </p>
         </>
@@ -114,7 +114,7 @@ export default function AddReturnForm({
           type="submit"
           disabled={pending || lines.length === 0}
           onClick={() => buzz(5)}
-          className="link-hair text-[13px] disabled:opacity-60"
+          className="link-hair text-[12px] disabled:opacity-60"
         >
           {pending ? "Recording..." : "Record the return"}
         </button>

@@ -34,20 +34,20 @@ export default function AdminError({
         <button onClick={reset} className="btn-gold">
           Try again
         </button>
-        <a href="/admin" className="link-hair text-dusk text-[13px]">
+        <a href="/admin" className="link-hair text-dusk text-[12px]">
           Back to the glance
         </a>
       </div>
       <div className="panel mt-10 w-full max-w-xl">
         <p className="eyebrow">For the engineer</p>
-        <p className="mt-3 break-all text-[13px] leading-relaxed text-dusk">
+        <p className="mt-3 break-all text-[14px] leading-relaxed text-dusk">
           Room: {pathname}
         </p>
-        <p className="mt-1.5 break-all text-[13px] leading-relaxed text-dusk">
+        <p className="mt-1.5 break-all text-[14px] leading-relaxed text-dusk">
           Says: {error.message || "(the server kept the message)"}
         </p>
         {error.digest && (
-          <p className="mt-1.5 break-all text-[13px] leading-relaxed text-dusk">
+          <p className="mt-1.5 break-all text-[14px] leading-relaxed text-dusk">
             Digest: {error.digest}
           </p>
         )}

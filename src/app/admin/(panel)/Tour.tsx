@@ -558,7 +558,7 @@ export default function Tour() {
             className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] rounded-[28px] p-6 outline-none sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[24rem] sm:-translate-x-1/2 sm:-translate-y-1/2"
           >
             <p className="font-serif text-[20px]">The tour</p>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">
+            <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
               Start with the basics, or walk one room deeply.
             </p>
             <div className="mt-4 grid gap-1">
@@ -571,7 +571,7 @@ export default function Tour() {
                   <span className="flex items-baseline justify-between gap-3">
                     <span className="font-serif text-[16px]">{c.name}</span>
                     {chapterSeen(c.key) && (
-                      <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-mist">
+                      <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-mist">
                         Seen
                       </span>
                     )}
@@ -584,7 +584,7 @@ export default function Tour() {
             </div>
             <button
               onClick={() => setMenu(false)}
-              className="link-hair text-dusk mt-4 text-[13px]"
+              className="link-hair text-dusk mt-4 text-[12px]"
             >
               Not now
             </button>
@@ -653,7 +653,7 @@ export default function Tour() {
             <p className={`font-serif text-[20px] ${step.kind === "do" ? "mt-1.5" : "mt-3"}`}>
               {step.title}
             </p>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">{step.line}</p>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">{step.line}</p>
             <div className="mt-5 flex items-center gap-6">
               {step.kind !== "do" && (
                 <button
@@ -666,7 +666,7 @@ export default function Tour() {
                   {i === chapter.steps.length - 1 ? "Done" : "Next"}
                 </button>
               )}
-              <button onClick={() => stop("skip")} className="link-hair text-dusk text-[13px]">
+              <button onClick={() => stop("skip")} className="link-hair text-dusk text-[12px]">
                 Leave the tour
               </button>
             </div>
@@ -713,7 +713,7 @@ export function TourOffer() {
         The tour walks the rooms in a minute, one step at a time.
       </p>
       <div className="mt-4 flex items-center gap-6">
-        <button data-tour-start="basics" className="link-hair text-dusk text-[13px]">
+        <button data-tour-start="basics" className="link-hair text-dusk text-[12px]">
           Take the tour
         </button>
         <button onClick={markToured} className="link-hair text-mist text-[12px]">

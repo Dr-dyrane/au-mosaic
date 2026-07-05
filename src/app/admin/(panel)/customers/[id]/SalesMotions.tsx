@@ -68,7 +68,7 @@ export default function SalesMotions({
                     <p className="font-serif text-[20px] leading-snug">
                       {salesMotionLabel(motion.kind)}
                     </p>
-                    <p className="mt-1 text-[13px] text-dusk">
+                    <p className="mt-1 text-[14px] text-dusk">
                       {motion.scheduledFor
                         ? `For ${fmtDate(motion.scheduledFor)}`
                         : done && motion.completedAt
@@ -88,7 +88,7 @@ export default function SalesMotions({
                     type="submit"
                     disabled={statusPending}
                     onClick={() => buzz(4)}
-                    className="link-hair text-dusk text-[13px] disabled:opacity-60"
+                    className="link-hair text-dusk text-[12px] disabled:opacity-60"
                   >
                     {statusPending ? "Saving..." : done ? "Reopen" : "Mark done"}
                   </button>
@@ -135,7 +135,7 @@ export default function SalesMotions({
             type="submit"
             disabled={addPending}
             onClick={() => buzz(4)}
-            className="link-hair text-dusk text-[13px] disabled:opacity-60"
+            className="link-hair text-dusk text-[12px] disabled:opacity-60"
           >
             {addPending ? "Adding..." : "Add motion"}
           </button>

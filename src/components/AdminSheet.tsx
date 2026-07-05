@@ -36,7 +36,7 @@ export default function AdminSheet({
               <div>
                 <Dialog.Title className="eyebrow">{title}</Dialog.Title>
                 {description && (
-                  <Dialog.Description className="mt-2 text-[13px] leading-relaxed text-dusk">
+                  <Dialog.Description className="mt-2 text-[14px] leading-relaxed text-dusk">
                     {description}
                   </Dialog.Description>
                 )}

@@ -81,7 +81,7 @@ function Consequence({
         <button onClick={onGo} className="btn-gold">
           {verb}
         </button>
-        <button onClick={onStay} className="link-hair text-dusk text-[13px]">
+        <button onClick={onStay} className="link-hair text-dusk text-[12px]">
           Not yet
         </button>
       </div>
@@ -160,7 +160,7 @@ export default function StatusForm({
             type="submit"
             disabled={pending}
             onClick={() => buzz(5)}
-            className="link-hair text-[13px] disabled:opacity-60"
+            className="link-hair text-[12px] disabled:opacity-60"
           >
             {pending ? "Saving..." : "Save the step"}
           </button>

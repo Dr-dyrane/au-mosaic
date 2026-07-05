@@ -60,14 +60,14 @@ export default async function SettingsPage() {
             </p>
           </Teach>
           {staffRows === null ? (
-            <p className="mt-4 text-[13px] leading-relaxed text-dusk">
+            <p className="mt-4 text-[14px] leading-relaxed text-dusk">
               The key rack is not ready yet. Turn on staff keys, and
               this panel wakes up.
             </p>
           ) : (
             <>
               {staffRows.length > 0 && (
-                <div className="mt-4 divide-y divide-transparent">
+                <div className="mt-4">
                   {staffRows.map((s) => (
                     <KeyRow key={s.id} id={s.id} name={s.name} active={s.active} />
                   ))}
@@ -76,7 +76,7 @@ export default async function SettingsPage() {
               <AddStaffForm />
             </>
           )}
-          <p className="mt-6 text-[13px] leading-relaxed text-dusk">
+          <p className="mt-6 text-[14px] leading-relaxed text-dusk">
             Your own master key stays outside this room. Keep it with
             the owner.
           </p>
@@ -103,7 +103,7 @@ export default async function SettingsPage() {
         </Teach>
         <Link
           href="/admin/settings/history"
-          className="link-hair mt-4 inline-block text-dusk text-[13px]"
+          className="link-hair mt-4 inline-block text-dusk text-[12px]"
         >
           Read the history
         </Link>

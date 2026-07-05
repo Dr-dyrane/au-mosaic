@@ -78,14 +78,14 @@ export default async function SharePage({
         <div className="panel">
           <p className="eyebrow">The book knows them</p>
           <p className="font-serif mt-3 text-[26px]">{match.name}</p>
-          <p className="mt-2 text-[13px] text-dusk">
+          <p className="mt-2 text-[14px] text-dusk">
             {[match.phone, match.area].filter(Boolean).join(" · ")}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-6">
             <Link href={`/admin/orders/new?customer=${match.id}`} className="btn-gold">
               New order for {match.name.split(" ")[0]}
             </Link>
-            <Link href={`/admin/customers/${match.id}`} className="link-hair text-dusk text-[13px]">
+            <Link href={`/admin/customers/${match.id}`} className="link-hair text-dusk text-[12px]">
               Their record
             </Link>
           </div>
@@ -111,7 +111,7 @@ export default async function SharePage({
             >
               New customer
             </Link>
-            <Link href="/admin/orders/new" className="link-hair text-dusk text-[13px]">
+            <Link href="/admin/orders/new" className="link-hair text-dusk text-[12px]">
               New order
             </Link>
           </div>
@@ -123,7 +123,7 @@ export default async function SharePage({
 
       </div>
 
-      <p className="mt-8 max-w-md text-[13px] leading-relaxed text-mist">
+      <p className="mt-8 max-w-md text-[14px] leading-relaxed text-mist">
         Sharing into the app works on Android with Chrome. On iPhone,
         copy the message and open the room you need; the book meets
         you there.

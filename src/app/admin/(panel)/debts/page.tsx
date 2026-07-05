@@ -107,10 +107,10 @@ export default async function DebtsPage() {
       {debtors.length > 0 && (
         <div className="mt-8">
           <p className="font-serif text-display-section leading-none">{naira(grand)}</p>
-          <p className="mt-2 text-[13px] text-dusk">owed across everyone</p>
+          <p className="mt-2 text-[14px] text-dusk">owed across everyone</p>
           <a
             href="/admin/export/debts.csv"
-            className="link-hair mt-4 inline-block text-dusk text-[13px]"
+            className="link-hair mt-4 inline-block text-dusk text-[12px]"
           >
             CSV for the accountant
           </a>
@@ -134,7 +134,7 @@ export default async function DebtsPage() {
                 )}
                 target="_blank"
                 rel="noopener"
-                className={i === 0 ? "btn-gold mt-4 inline-flex" : "link-hair mt-2 text-[13px] text-dusk"}
+                className={i === 0 ? "btn-gold mt-4 inline-flex" : "link-hair mt-2 text-[12px] text-dusk"}
               >
                 {i === 0 ? "Send the oldest reminder" : "WhatsApp them"}
               </a>
@@ -142,12 +142,12 @@ export default async function DebtsPage() {
             <div className="mt-5 grid gap-3">
               {d.orders.map((o) => (
                 <div key={o.id} className="flex flex-wrap items-center gap-3">
-                  <p className="text-[13px] text-dusk">{fmtDate(o.createdAt)}</p>
+                  <p className="text-[14px] text-dusk">{fmtDate(o.createdAt)}</p>
                   <span className="chip-solid shrink-0">
                     {STATUS_LABEL[o.status] ?? o.status}
                   </span>
                   <p className="ml-auto text-[14px]">{naira(o.balance)}</p>
-                  <Link href={`/admin/orders/${o.id}`} className="link-hair text-[13px]">
+                  <Link href={`/admin/orders/${o.id}`} className="link-hair text-[12px]">
                     See the order
                   </Link>
                 </div>

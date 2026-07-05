@@ -45,7 +45,7 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
         <span>
           <span className="block text-[14px] font-medium">Put it in the window now</span>
           <Teach until="stockroom">
-            <span className="mt-1 block text-[13px] text-dusk">
+            <span className="mt-1 block text-[14px] text-dusk">
               Off means it stays in the book until you are ready.
             </span>
           </Teach>

@@ -92,14 +92,14 @@ export default async function AdminHome() {
               <li><Link href="/admin/customers" className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">Customers</Link></li>
             </ul>
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3.5">
-              <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[13px]">Deliveries</Link></li>
-              <li><Link href="/admin/media" className="link-hair text-dusk text-[13px]">Photos</Link></li>
-              <li><Link href="/admin/debts" className="link-hair text-dusk text-[13px]">Who owes what</Link></li>
-              <li><Link href="/admin/insights" className="link-hair text-dusk text-[13px]">Insights</Link></li>
-              <li><Link href="/admin/settings" className="link-hair text-dusk text-[13px]">Settings</Link></li>
-              <li><Link href="/" className="link-hair text-dusk text-[13px]">The site</Link></li>
+              <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[12px]">Deliveries</Link></li>
+              <li><Link href="/admin/media" className="link-hair text-dusk text-[12px]">Photos</Link></li>
+              <li><Link href="/admin/debts" className="link-hair text-dusk text-[12px]">Who owes what</Link></li>
+              <li><Link href="/admin/insights" className="link-hair text-dusk text-[12px]">Insights</Link></li>
+              <li><Link href="/admin/settings" className="link-hair text-dusk text-[12px]">Settings</Link></li>
+              <li><Link href="/" className="link-hair text-dusk text-[12px]">The site</Link></li>
               <li>
-                <button data-tour-start="menu" className="link-hair text-dusk text-[13px]">
+                <button data-tour-start="menu" className="link-hair text-dusk text-[12px]">
                   Take the tour
                 </button>
               </li>

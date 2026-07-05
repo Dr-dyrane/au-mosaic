@@ -40,7 +40,7 @@ export default async function NewDeliveryPage({
 
   return (
     <main>
-      <Link href="/admin/deliveries" className="link-hair text-dusk text-[13px]">
+      <Link href="/admin/deliveries" className="link-hair text-dusk text-[12px]">
         All deliveries
       </Link>
       <h1 className="font-serif text-display-section mt-6">A new delivery.</h1>
@@ -56,7 +56,7 @@ export default async function NewDeliveryPage({
             There is no open order to send out right now. Open one
             first, then come back here.
           </p>
-          <Link href="/admin/orders" className="link-hair mt-4 text-[13px]">
+          <Link href="/admin/orders" className="link-hair mt-4 text-[12px]">
             Go to the orders
           </Link>
         </div>

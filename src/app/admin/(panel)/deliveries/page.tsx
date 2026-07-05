@@ -107,14 +107,14 @@ export default async function DeliveriesPage({
                     <p className="font-serif text-[20px]">{customerName}</p>
                     <Link
                       href={`/admin/orders/${d.orderId}`}
-                      className="link-hair text-[13px] text-dusk"
+                      className="link-hair text-[12px] text-dusk"
                     >
                       See the order
                     </Link>
                   </div>
                   <p className="mt-2 text-[14px] leading-relaxed text-dusk">{d.address}</p>
                   {(d.driver || (d.status !== "delivered" && d.scheduledFor)) && (
-                    <p className="mt-1 text-[13px] text-dusk">
+                    <p className="mt-1 text-[14px] text-dusk">
                       {[
                         d.driver ? `With ${d.driver}` : null,
                         d.status !== "delivered" && d.scheduledFor
@@ -133,7 +133,7 @@ export default async function DeliveriesPage({
                       <StatusStep id={d.id} to="delivered" label="Mark it delivered" />
                     )}
                     {d.status === "delivered" && d.deliveredAt && (
-                      <p className="text-[13px] text-dusk">Landed {fmtDate(d.deliveredAt)}</p>
+                      <p className="text-[14px] text-dusk">Landed {fmtDate(d.deliveredAt)}</p>
                     )}
                   </div>
                 </article>

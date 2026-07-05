@@ -120,7 +120,7 @@ export default function NotifyToggle() {
 
   if (!supported) {
     return (
-      <p className="mt-4 text-[13px] leading-relaxed text-dusk">
+      <p className="mt-4 text-[14px] leading-relaxed text-dusk">
         This browser cannot carry notifications. On iPhone, install the
         app to the Home Screen first (iOS 16.4 or later), then return
         here.
@@ -130,7 +130,7 @@ export default function NotifyToggle() {
 
   if (!pub) {
     return (
-      <p className="mt-4 text-[13px] leading-relaxed text-dusk">
+      <p className="mt-4 text-[14px] leading-relaxed text-dusk">
         The morning tap is not ready yet. Turn on notification keys, and
         this switch wakes with the next update.
       </p>
@@ -144,7 +144,7 @@ export default function NotifyToggle() {
           onClick={on ? turnOff : turnOn}
           disabled={busy}
           aria-pressed={on}
-          className="link-hair text-dusk text-[13px] disabled:opacity-60"
+          className="link-hair text-dusk text-[12px] disabled:opacity-60"
         >
           {busy ? "A moment..." : on ? "Quiet this phone" : "Notify this phone"}
         </button>

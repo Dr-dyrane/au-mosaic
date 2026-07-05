@@ -187,7 +187,7 @@ export function MediaAssetControls({
   const href = `/admin/media/${asset.id}`;
 
   return (
-    <Link href={href} className="link-hair mt-5 inline-block text-dusk text-[13px]">
+    <Link href={href} className="link-hair mt-5 inline-block text-dusk text-[12px]">
       Edit photo
     </Link>
   );
@@ -265,7 +265,7 @@ export function MediaAssetEditor({
           <textarea id={`notes-${asset.id}`} name="notes" rows={3} defaultValue={asset.notes} className={field} />
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <button type="submit" disabled={updatePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
+          <button type="submit" disabled={updatePending} className="link-hair text-dusk text-[12px] disabled:opacity-60">
             {updatePending ? "Saving..." : "Save details"}
           </button>
           <Sentence state={updateState} />
@@ -283,7 +283,7 @@ export function MediaAssetEditor({
           className="file-soft block w-full text-[14px]"
         />
         <div className="flex flex-wrap items-center gap-4">
-          <button type="submit" disabled={replacePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
+          <button type="submit" disabled={replacePending} className="link-hair text-dusk text-[12px] disabled:opacity-60">
             {replacePending ? "Replacing..." : "Replace photo"}
           </button>
           <Sentence state={replaceState} />

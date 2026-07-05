@@ -160,7 +160,7 @@ export default async function MediaPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-          <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
+          <Link href="/admin/pieces" className="link-hair text-dusk text-[12px]">
             The stockroom
           </Link>
         </div>
@@ -241,12 +241,12 @@ export default async function MediaPage({
                 </div>
                 <h2 className="font-serif mt-3 text-[20px] leading-snug">{photoTitle(asset)}</h2>
                 {piece && (
-                  <Link href={`/admin/pieces/${piece.slug}`} className="link-hair mt-2 inline-block text-dusk text-[13px]">
+                  <Link href={`/admin/pieces/${piece.slug}`} className="link-hair mt-2 inline-block text-dusk text-[12px]">
                     {piece.name}
                   </Link>
                 )}
                 {photoNote(asset) && (
-                  <p className="mt-3 text-[13px] leading-relaxed text-mist">{photoNote(asset)}</p>
+                  <p className="mt-3 text-[14px] leading-relaxed text-mist">{photoNote(asset)}</p>
                 )}
                 <MediaAssetControls
                   asset={{

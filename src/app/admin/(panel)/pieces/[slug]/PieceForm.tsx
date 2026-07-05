@@ -100,7 +100,7 @@ export default function PieceForm({ piece, stock }: Props) {
           <summary className="flex list-none items-baseline justify-between gap-4 [&::-webkit-details-marker]:hidden">
             <span className="min-w-0">
               <span className="eyebrow block">The longer story (piece page)</span>
-              <span className="mt-1.5 block truncate text-[13px] text-mist group-open:hidden">
+              <span className="mt-1.5 block truncate text-[14px] text-mist group-open:hidden">
                 {piece.story || "Nothing written yet."}
               </span>
             </span>
@@ -128,7 +128,7 @@ export default function PieceForm({ piece, stock }: Props) {
         <div>
           <p className="font-serif text-[20px]">The trade facts</p>
           <Teach until="stockroom">
-            <span className="mt-1.5 block text-[13px] text-dusk">
+            <span className="mt-1.5 block text-[14px] text-dusk">
               Stock and price stay on this piece. These words help buyers compare.
             </span>
           </Teach>
@@ -171,7 +171,7 @@ export default function PieceForm({ piece, stock }: Props) {
         <div>
           <p className="font-serif text-[20px]">Where it works</p>
           <Teach until="stockroom">
-            <span className="mt-1.5 block text-[13px] text-dusk">
+            <span className="mt-1.5 block text-[14px] text-dusk">
               Show useful places without making a project archive.
             </span>
           </Teach>
@@ -180,7 +180,7 @@ export default function PieceForm({ piece, stock }: Props) {
           {APPLICATION_TAGS.map((tag) => (
             <label
               key={tag}
-              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-[18px] bg-shell/60 px-4 text-[13px] text-dusk transition-colors duration-300 hover:bg-shell hover:text-ink"
+              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-[18px] bg-shell/60 px-4 text-[14px] text-dusk transition-colors duration-300 hover:bg-shell hover:text-ink"
             >
               <input
                 type="checkbox"
@@ -202,7 +202,7 @@ export default function PieceForm({ piece, stock }: Props) {
           <span>
             <span className="block text-[14px] font-medium">Show on the site</span>
             <Teach until="stockroom">
-              <span className="mt-1 block text-[13px] text-dusk">
+              <span className="mt-1 block text-[14px] text-dusk">
                 Off means customers cannot see this piece.
               </span>
             </Teach>

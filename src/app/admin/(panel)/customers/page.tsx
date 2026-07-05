@@ -112,7 +112,7 @@ export default async function CustomersPage({
             className={field}
           />
         </form>
-        <button data-tour-start="people" className="link-hair shrink-0 text-dusk text-[13px]">
+        <button data-tour-start="people" className="link-hair shrink-0 text-dusk text-[12px]">
           Learn this room
         </button>
       </div>
@@ -139,11 +139,11 @@ export default async function CustomersPage({
       {fresh.length > 0 && (
         <section className="panel mt-8 max-w-2xl" data-tour="fresh">
           <p className="font-serif text-[20px]">Fresh from the window</p>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-dusk">
+          <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
             <Teach until="people">Site taps. Check the chat, then clear.</Teach>
             {freshTotal > ENQ_PER_PAGE && ` ${freshTotal} waiting.`}
           </p>
-          <div className="mt-4 divide-y divide-transparent">
+          <div className="mt-4">
             {fresh.map(({ enquiry, pieceName, attachedName }) => (
               <EnquiryRow
                 key={enquiry.id}
@@ -183,7 +183,7 @@ export default async function CustomersPage({
               <p className="font-serif text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
                 {c.name}
               </p>
-              <p className="mt-2 text-[13px] text-dusk">
+              <p className="mt-2 text-[14px] text-dusk">
                 {[c.phone, c.area].filter(Boolean).join(" · ") || "No phone yet"}
               </p>
             </Link>

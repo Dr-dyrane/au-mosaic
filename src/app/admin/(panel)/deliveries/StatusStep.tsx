@@ -34,12 +34,12 @@ export default function StatusStep({ id, to, label }: Props) {
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="to" value={to} />
       {stepped ? (
-        <p className="text-[13px] text-dusk" role="status">
+        <p className="text-[14px] text-dusk" role="status">
           {TAKEN[to]}
         </p>
       ) : (
         <>
-          <button type="submit" onClick={() => buzz(5)} disabled={pending} className="link-hair text-[13px] disabled:opacity-60">
+          <button type="submit" onClick={() => buzz(5)} disabled={pending} className="link-hair text-[12px] disabled:opacity-60">
             {label}
           </button>
           <Sentence state={state} />

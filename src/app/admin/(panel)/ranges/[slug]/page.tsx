@@ -22,7 +22,7 @@ export default async function RangeEditPage({ params }: { params: Promise<{ slug
     <main>
       <Back href="/admin/ranges" label="The ranges" />
       <h1 className="font-serif text-display-section mt-6">{range.name}</h1>
-      <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">{range.slug}</p>
+      <p className="mt-2 text-[12px] uppercase tracking-[0.14em] text-mist">{range.slug}</p>
       <RangeForm range={{ slug: range.slug, name: range.name, line: range.line, family: range.family, sort: range.sort }} />
 
       <section className="mt-12 max-w-xl">

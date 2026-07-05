@@ -25,7 +25,7 @@ export default async function NewPiecePage() {
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
             Create a range, then the piece has somewhere to live.
           </p>
-          <Link href="/admin/ranges/new" className="link-hair mt-5 inline-block text-dusk text-[13px]">
+          <Link href="/admin/ranges/new" className="link-hair mt-5 inline-block text-dusk text-[12px]">
             New range
           </Link>
         </div>

@@ -48,7 +48,7 @@ export default function AddStaffForm() {
           type="submit"
           disabled={pending}
           onClick={() => buzz(5)}
-          className="link-hair text-[13px] disabled:opacity-60"
+          className="link-hair text-[12px] disabled:opacity-60"
         >
           {pending ? "Cutting..." : "Cut the key"}
         </button>

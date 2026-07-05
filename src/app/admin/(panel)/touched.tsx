@@ -75,7 +75,7 @@ export function LastTouched() {
       <ul className="mt-3 space-y-2.5">
         {items.map((t) => (
           <li key={t.href} className="flex items-baseline gap-3">
-            <Link href={t.href} className="link-hair text-dusk text-[13px]">
+            <Link href={t.href} className="link-hair text-dusk text-[12px]">
               {t.label}
             </Link>
             <span className="text-[11px] uppercase tracking-[0.14em] text-mist">{t.room}</span>

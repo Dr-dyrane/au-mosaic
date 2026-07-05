@@ -50,7 +50,7 @@ export default async function RangesPage() {
               <p className="font-serif text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
                 {r.name}
               </p>
-              {r.line && <p className="mt-2 text-[13px] leading-relaxed text-dusk">{r.line}</p>}
+              {r.line && <p className="mt-2 text-[14px] leading-relaxed text-dusk">{r.line}</p>}
               <p className="mt-4 text-[12px] uppercase tracking-[0.14em] text-mist">
                 {r.family === "pool" ? "Pool materials" : "Mosaic"} · {total} in the book · {inWindow} in the window
               </p>

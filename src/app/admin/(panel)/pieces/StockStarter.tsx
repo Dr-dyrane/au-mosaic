@@ -19,7 +19,7 @@ export default function StockStarter() {
         type="submit"
         onClick={() => buzz(5)}
         disabled={pending}
-        className="link-hair text-dusk text-[13px] disabled:opacity-60"
+        className="link-hair text-dusk text-[12px] disabled:opacity-60"
       >
         {pending ? "Loading the shelves..." : "Load starting counts"}
       </button>

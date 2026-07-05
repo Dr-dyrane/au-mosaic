@@ -13,7 +13,7 @@ import { buzz } from "@/lib/backoffice";
    conversation itself lives in WhatsApp; this only clears the desk. */
 
 const select =
-  "min-w-0 rounded-full bg-shell/60 px-4 py-2 text-[13px] text-ink outline-none focus:bg-shell transition-colors duration-300";
+  "min-w-0 rounded-full bg-shell/60 px-4 py-2 text-[14px] text-ink outline-none focus:bg-shell transition-colors duration-300";
 
 export default function EnquiryRow({
   id,
@@ -49,7 +49,7 @@ export default function EnquiryRow({
 
   if (cleared) {
     return (
-      <p className="py-3 text-[13px] text-dusk" role="status">
+      <p className="py-3 text-[14px] text-dusk" role="status">
         {cleared === "replied" ? "Marked replied." : "Closed."}
       </p>
     );

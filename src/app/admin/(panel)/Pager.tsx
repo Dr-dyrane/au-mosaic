@@ -17,21 +17,21 @@ export default function Pager({
   return (
     <nav aria-label="Pages" className="mt-10 flex items-center gap-6">
       {page > 1 ? (
-        <Link href={makeHref(page - 1)} className="link-hair text-dusk text-[13px]">
+        <Link href={makeHref(page - 1)} className="link-hair text-dusk text-[12px]">
           Newer
         </Link>
       ) : (
-        <span className="text-[13px] text-mist/60">Newer</span>
+        <span className="text-[14px] text-mist/60">Newer</span>
       )}
       <span className="text-[11px] uppercase tracking-[0.18em] text-mist">
         Page {page} of {pages}
       </span>
       {page < pages ? (
-        <Link href={makeHref(page + 1)} className="link-hair text-dusk text-[13px]">
+        <Link href={makeHref(page + 1)} className="link-hair text-dusk text-[12px]">
           Older
         </Link>
       ) : (
-        <span className="text-[13px] text-mist/60">Older</span>
+        <span className="text-[14px] text-mist/60">Older</span>
       )}
     </nav>
   );

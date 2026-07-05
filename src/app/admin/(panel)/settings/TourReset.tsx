@@ -26,13 +26,13 @@ export default function TourReset() {
 
   if (done) {
     return (
-      <p role="status" className="mt-4 text-[13px] leading-relaxed text-dusk">
+      <p role="status" className="mt-4 text-[14px] leading-relaxed text-dusk">
         Done. The welcome meets you at the glance.
       </p>
     );
   }
   return (
-    <button type="button" onClick={beginAgain} className="link-hair mt-4 text-dusk text-[13px]">
+    <button type="button" onClick={beginAgain} className="link-hair mt-4 text-dusk text-[12px]">
       Begin again
     </button>
   );

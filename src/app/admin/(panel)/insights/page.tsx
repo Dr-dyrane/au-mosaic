@@ -237,17 +237,17 @@ export default async function InsightsPage({
               <div key={m.label} className="grid grid-cols-[3.5rem_1fr_auto] items-center gap-3">
                 <span className="text-[12px] uppercase tracking-[0.14em] text-mist">{m.label}</span>
                 <Bar frac={Number(m.billed) / maxMonth} />
-                <span className="text-[13px] text-dusk">{naira(Number(m.billed))}</span>
+                <span className="text-[14px] text-dusk">{naira(Number(m.billed))}</span>
               </div>
             ))}
           </div>
           {delta !== null && lastFull && (
-            <p className="mt-4 text-[13px] leading-relaxed text-dusk">
+            <p className="mt-4 text-[14px] leading-relaxed text-dusk">
               {lastFull.label} came in {Math.abs(delta)}% {delta >= 0 ? "up on" : "below"} the month before.
             </p>
           )}
           {pace > 0 && (
-            <p className="mt-1.5 text-[13px] leading-relaxed text-gold">
+            <p className="mt-1.5 text-[14px] leading-relaxed text-gold">
               If the pace holds: {naira(pace)} this month.
             </p>
           )}
@@ -264,10 +264,10 @@ export default async function InsightsPage({
             {pieces.map((p) => (
               <div key={p.name} className="grid grid-cols-[1fr_auto] items-center gap-3">
                 <div>
-                  <p className="text-[13px] text-ink">{p.name}</p>
+                  <p className="text-[14px] text-ink">{p.name}</p>
                   <Bar frac={Number(p.revenue) / maxPiece} />
                 </div>
-                <span className="text-[13px] text-dusk">{naira(Number(p.revenue))}</span>
+                <span className="text-[14px] text-dusk">{naira(Number(p.revenue))}</span>
               </div>
             ))}
           </div>
@@ -279,7 +279,7 @@ export default async function InsightsPage({
             {billedAll > 0 && <State watch={leakWatch} />}
           </div>
           <p className="font-serif mt-4 text-[26px]">{naira(leakTotal)}</p>
-          <p className="mt-2 text-[13px] leading-relaxed text-dusk">
+          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
             Given below list, all time. If this number grows faster than
             billed, the price list is a suggestion, and suggestions cost
             money.
@@ -299,14 +299,14 @@ export default async function InsightsPage({
           <div className="mt-5 grid gap-3">
             {buckets.map((b) => (
               <div key={b.bucket} className="flex items-center justify-between gap-4">
-                <span className="text-[13px] text-ink">{b.bucket}</span>
-                <span className="text-[13px] text-dusk">
+                <span className="text-[14px] text-ink">{b.bucket}</span>
+                <span className="text-[14px] text-dusk">
                   {b.n} {b.n === 1 ? "order" : "orders"} · {naira(Number(b.owed))}
                 </span>
               </div>
             ))}
           </div>
-          <Link href="/admin/debts" className="link-hair mt-5 inline-block text-dusk text-[13px]">
+          <Link href="/admin/debts" className="link-hair mt-5 inline-block text-dusk text-[12px]">
             Who owes what
           </Link>
         </section>
@@ -323,7 +323,7 @@ export default async function InsightsPage({
               <div key={t.source} className="grid grid-cols-[6rem_1fr_auto] items-center gap-3">
                 <span className="truncate text-[12px] uppercase tracking-[0.14em] text-mist">{t.source}</span>
                 <Bar frac={t.n / maxTap} />
-                <span className="text-[13px] text-dusk">{t.n}</span>
+                <span className="text-[14px] text-dusk">{t.n}</span>
               </div>
             ))}
           </div>
@@ -343,19 +343,19 @@ export default async function InsightsPage({
                   <div key={f.label} className="grid grid-cols-[9.5rem_1fr_auto] items-center gap-3">
                     <span className="text-[12px] uppercase tracking-[0.14em] text-mist">{f.label}</span>
                     <Bar frac={f.n / maxFunnel} />
-                    <span className="text-[13px] text-dusk">{f.n.toLocaleString()}</span>
+                    <span className="text-[14px] text-dusk">{f.n.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
               {(convRate !== null || settleRate !== null) && (
-                <p className="mt-4 text-[13px] leading-relaxed text-dusk">
+                <p className="mt-4 text-[14px] leading-relaxed text-dusk">
                   {convRate !== null &&
                     `${convRate}% of enquiries became customers. `}
                   {settleRate !== null && `${settleRate}% of billed orders are settled.`}
                 </p>
               )}
               {sessions === null && (
-                <p className="mt-1.5 text-[13px] leading-relaxed text-mist">
+                <p className="mt-1.5 text-[14px] leading-relaxed text-mist">
                   People counting starts with the next house update.
                 </p>
               )}
@@ -376,7 +376,7 @@ export default async function InsightsPage({
           <div className="mt-5 grid gap-2.5">
             {lowStock.map((s) => (
               <div key={s.slug} className="flex items-center justify-between gap-4">
-                <Link href={`/admin/pieces/${s.slug}`} className="link-hair text-dusk text-[13px]">
+                <Link href={`/admin/pieces/${s.slug}`} className="link-hair text-dusk text-[12px]">
                   {s.name}
                 </Link>
                 <span className="text-[12px] uppercase tracking-[0.14em] text-gold">

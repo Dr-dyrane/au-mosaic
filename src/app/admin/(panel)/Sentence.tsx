@@ -31,7 +31,7 @@ export default function Sentence({ state }: { state: State }) {
       ref={ref}
       tabIndex={-1}
       role="status"
-      className={`text-[13px] outline-none transition-opacity duration-500 ${
+      className={`text-[14px] outline-none transition-opacity duration-500 ${
         state.ok ? "text-dusk" : "text-gold"
       } ${gone ? "opacity-0" : "opacity-100"}`}
     >

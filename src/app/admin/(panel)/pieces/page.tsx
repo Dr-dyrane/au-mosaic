@@ -121,13 +121,13 @@ export default async function PiecesPage({
         </Link>
       </div>
       <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
-        <Link href="/admin/ranges" className="link-hair text-dusk text-[13px]">
+        <Link href="/admin/ranges" className="link-hair text-dusk text-[12px]">
           The ranges
         </Link>
-        <Link href="/admin/media" className="link-hair text-dusk text-[13px]">
+        <Link href="/admin/media" className="link-hair text-dusk text-[12px]">
           Photos
         </Link>
-        <button data-tour-start="stockroom" className="link-hair text-dusk text-[13px]">
+        <button data-tour-start="stockroom" className="link-hair text-dusk text-[12px]">
           Learn this room
         </button>
       </div>
@@ -162,7 +162,7 @@ export default async function PiecesPage({
         <FilterSheet current={filters} />
       </div>
       {activeLabels.length > 0 && (
-        <p className="mt-3 text-[13px] leading-relaxed text-dusk" data-tour="stock-active-filters">
+        <p className="mt-3 text-[14px] leading-relaxed text-dusk" data-tour="stock-active-filters">
           Showing <span className="text-ink">{activeLabels.join(" · ")}</span>
           <Link href="/admin/pieces" className="link-hair ml-4 text-dusk text-[12px]">
             Clear
@@ -237,7 +237,7 @@ export default async function PiecesPage({
                             </p>
                           )}
                           <div className="mt-4 flex items-center justify-between">
-                            <p className="text-[13px] text-dusk">
+                            <p className="text-[14px] text-dusk">
                               {qty.toLocaleString()} {piece.unit} in stock
                             </p>
                             {low && (
@@ -260,7 +260,7 @@ export default async function PiecesPage({
       {rows.length > 0 && filtering && visible.length === 0 && (
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">Nothing wears that filter.</p>
-          <Link href="/admin/pieces" className="link-hair mt-4 inline-block text-dusk text-[13px]">
+          <Link href="/admin/pieces" className="link-hair mt-4 inline-block text-dusk text-[12px]">
             Show everything
           </Link>
         </div>

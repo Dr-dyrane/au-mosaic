@@ -89,10 +89,10 @@ export default async function OrdersPage({
           />
         </form>
         {/* A plain link, so the book prints itself with no script. */}
-        <a href="/admin/export/orders.csv" className="link-hair text-dusk text-[13px]">
+        <a href="/admin/export/orders.csv" className="link-hair text-dusk text-[12px]">
           CSV for the accountant
         </a>
-        <button data-tour-start="orders" className="link-hair text-dusk text-[13px]">
+        <button data-tour-start="orders" className="link-hair text-dusk text-[12px]">
           Learn this room
         </button>
       </div>
@@ -143,8 +143,8 @@ export default async function OrdersPage({
                       </p>
                     </div>
                     <div className="mt-4 flex items-center justify-between gap-4">
-                      <p className="text-[13px] text-dusk">Billed {naira(billed)}</p>
-                      <p className="text-[13px] font-medium text-ink">Balance {naira(balance)}</p>
+                      <p className="text-[14px] text-dusk">Billed {naira(billed)}</p>
+                      <p className="text-[14px] font-medium text-ink">Balance {naira(balance)}</p>
                     </div>
                     {st === "enquiry" && billed === 0 && (
                       <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">
@@ -176,7 +176,7 @@ export default async function OrdersPage({
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
             Check the spelling, or clear the search to see the whole book.
           </p>
-          <Link href="/admin/orders" className="link-hair mt-5 inline-block text-dusk text-[13px]">
+          <Link href="/admin/orders" className="link-hair mt-5 inline-block text-dusk text-[12px]">
             Clear the search
           </Link>
         </div>
@@ -194,7 +194,7 @@ export default async function OrdersPage({
 
       {settled.n > 0 && (
         <div className="mt-14">
-          <Link href="/admin/orders/settled" className="link-hair text-dusk text-[13px]">
+          <Link href="/admin/orders/settled" className="link-hair text-dusk text-[12px]">
             {settled.n === 1 ? "1 settled order" : `${settled.n} settled orders`}
           </Link>
         </div>

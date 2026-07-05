@@ -88,7 +88,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/customers/${id}`} label={customer.name} room="Customers" />
       {customer.area && (
-        <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
+        <p className="mt-2 text-[12px] uppercase tracking-[0.14em] text-mist">
           {customer.area}
         </p>
       )}
@@ -97,7 +97,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
           href={waChat(customer.phone)}
           target="_blank"
           rel="noreferrer"
-          className="link-hair mt-4 text-dusk text-[13px]"
+          className="link-hair mt-4 text-dusk text-[12px]"
         >
           <IconShare className="h-3.5 w-3.5" />
           WhatsApp them
@@ -128,18 +128,18 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                 >
                   <div className="flex items-center justify-between gap-4">
                     <span className="chip-solid capitalize">{o.status}</span>
-                    <p className="text-[13px] text-dusk">{fmtDate(o.createdAt)}</p>
+                    <p className="text-[14px] text-dusk">{fmtDate(o.createdAt)}</p>
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-4">
                     <p className="text-[14px]">{naira(billed)} billed</p>
                     {balance > 0 ? (
-                      <p className="text-[13px] font-semibold text-gold">
+                      <p className="text-[14px] font-semibold text-gold">
                         {naira(balance)} owing
                       </p>
                     ) : billed > 0 ? (
-                      <p className="text-[13px] text-dusk">Paid in full</p>
+                      <p className="text-[14px] text-dusk">Paid in full</p>
                     ) : (
-                      <p className="text-[13px] text-dusk">No lines yet</p>
+                      <p className="text-[14px] text-dusk">No lines yet</p>
                     )}
                   </div>
                 </Link>
@@ -171,7 +171,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
               <div key={e.id} className="panel">
                 <div className="flex items-center justify-between gap-4">
                   <span className="chip-solid capitalize">{e.status}</span>
-                  <p className="text-[13px] text-dusk">{fmtDate(e.createdAt)}</p>
+                  <p className="text-[14px] text-dusk">{fmtDate(e.createdAt)}</p>
                 </div>
                 {e.message && (
                   <p className="mt-3 text-[14px] leading-relaxed text-dusk">

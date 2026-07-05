@@ -150,7 +150,7 @@ export function StockFilterPanel({
       )}
       {active.length > 0 && (
         <div className={`${showHeader ? "mt-2" : ""} flex items-center justify-between gap-4 px-2`}>
-          <p className="text-[13px] leading-relaxed text-dusk">
+          <p className="text-[14px] leading-relaxed text-dusk">
             {active.join(" · ")}
           </p>
           <Link

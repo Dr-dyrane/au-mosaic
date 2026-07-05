@@ -130,17 +130,17 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <Back href="/admin/orders" label="All orders" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/orders/${id}`} label={`${customer.name}'s order`} room="Orders" />
-      <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
+      <p className="mt-2 text-[12px] uppercase tracking-[0.14em] text-mist">
         Opened {fmtDate(order.createdAt)} · {STATUS_LABEL[order.status]}
       </p>
       {order.note && (
         <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">{order.note}</p>
       )}
       <div className="mt-5 flex flex-wrap items-center gap-6">
-        <Link href={`/admin/customers/${customer.id}`} className="link-hair text-dusk text-[13px]">
+        <Link href={`/admin/customers/${customer.id}`} className="link-hair text-dusk text-[12px]">
           Their record
         </Link>
-        <Link href={`/admin/invoice/${order.id}`} className="link-hair text-dusk text-[13px]">
+        <Link href={`/admin/invoice/${order.id}`} className="link-hair text-dusk text-[12px]">
           The invoice
         </Link>
         {/* Compose from the book: the message reads the order fresh
@@ -151,7 +151,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               href={`/admin/compose?kind=quote&order=${order.id}`}
               target="_blank"
               rel="noreferrer"
-              className="link-hair text-dusk text-[13px]"
+              className="link-hair text-dusk text-[12px]"
             >
               Send the quote
             </a>
@@ -159,7 +159,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               href={`/admin/compose?kind=receipt&order=${order.id}`}
               target="_blank"
               rel="noreferrer"
-              className="link-hair text-dusk text-[13px]"
+              className="link-hair text-dusk text-[12px]"
             >
               Send the receipt
             </a>
@@ -200,15 +200,15 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                           {pieceName ?? (item.description || "Line")}
                         </p>
                         {pieceName && item.description && (
-                          <p className="mt-1 text-[13px] text-dusk">{item.description}</p>
+                          <p className="mt-1 text-[14px] text-dusk">{item.description}</p>
                         )}
                       </div>
-                      <p className="shrink-0 text-[13px] text-dusk">
+                      <p className="shrink-0 text-[14px] text-dusk">
                         {isReturn ? `Returned x${Math.abs(item.quantity)}` : `x${item.quantity}`}
                       </p>
                     </div>
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-[13px] text-dusk">
+                      <p className="text-[14px] text-dusk">
                         List {naira(item.listPriceKobo)} · Given {naira(item.givenPriceKobo)}
                       </p>
                       {isReturn && (
@@ -235,7 +235,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           )}
           {lines.length > 0 && (
             <Teach until="orders">
-              <p className="mt-4 text-[13px] text-dusk">
+              <p className="mt-4 text-[14px] text-dusk">
                 Wrong line? Add a corrected one; nothing is ever lost.
               </p>
             </Teach>
@@ -264,20 +264,20 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                       {p.amountKobo < 0 ? "refund" : p.method} · {fmtDate(p.paidAt)}
                     </p>
                   </div>
-                  {p.note && <p className="text-[13px] text-dusk">{p.note}</p>}
+                  {p.note && <p className="text-[14px] text-dusk">{p.note}</p>}
                 </div>
               ))}
             </div>
           )}
           {(billed > 0 || paid > 0) && (
             <div className="mt-5">
-              <p className="text-[13px] text-dusk">Paid {naira(paid)}</p>
+              <p className="text-[14px] text-dusk">Paid {naira(paid)}</p>
               {balance > 0 ? (
                 <p className="mt-2 font-serif text-[26px]">Balance {naira(balance)}</p>
               ) : balance < 0 ? (
                 <p className="mt-2 font-serif text-[26px]">Credit {naira(Math.abs(balance))}</p>
               ) : (
-                <p className="mt-2 text-[13px] text-dusk">Settled in full.</p>
+                <p className="mt-2 text-[14px] text-dusk">Settled in full.</p>
               )}
             </div>
           )}

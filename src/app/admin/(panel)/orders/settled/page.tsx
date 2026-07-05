@@ -89,8 +89,8 @@ export default async function SettledOrdersPage({
                   </p>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-4">
-                  <p className="text-[13px] text-dusk">Billed {naira(billed)}</p>
-                  <p className="text-[13px] font-medium text-ink">Balance {naira(balance)}</p>
+                  <p className="text-[14px] text-dusk">Billed {naira(billed)}</p>
+                  <p className="text-[14px] font-medium text-ink">Balance {naira(balance)}</p>
                 </div>
                 {gap > 0 && (
                   <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">

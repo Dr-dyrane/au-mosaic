@@ -23,7 +23,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
       <Back href="/admin/pieces" label="All pieces" />
       <h1 className="font-serif text-display-section mt-6">{piece.name}</h1>
       <Touch href={`/admin/pieces/${piece.slug}`} label={piece.name} room="Stockroom" />
-      <p className="mt-2 text-[13px] uppercase tracking-[0.14em] text-mist">
+      <p className="mt-2 text-[12px] uppercase tracking-[0.14em] text-mist">
         {piece.slug} · lives at /piece/{piece.slug}
       </p>
       {/* A record with a face: on the desk the face holds the left

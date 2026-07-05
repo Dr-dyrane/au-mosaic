@@ -25,7 +25,7 @@ export default function KeepEnquiry({
         type="submit"
         onClick={() => buzz(4)}
         disabled={pending}
-        className="link-hair text-dusk text-[13px] disabled:opacity-60"
+        className="link-hair text-dusk text-[12px] disabled:opacity-60"
       >
         {pending ? "Keeping..." : "Keep it as an enquiry"}
       </button>
