@@ -69,6 +69,7 @@ export default function MediaBatchAction({ showTrigger = false }: { showTrigger?
         title="Prepared photos"
         description="Add product photos, then make approved displays live."
         id="media-prepared-photos"
+        compactOnly
       >
         <MediaBatchPanel surface="plain" />
       </AdminSheet>

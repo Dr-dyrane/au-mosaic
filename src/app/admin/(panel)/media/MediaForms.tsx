@@ -172,6 +172,7 @@ export function MediaCreateAction({ pieces }: { pieces: PieceOption[] }) {
       title="Add photo"
       description="Upload once, then decide where it belongs."
       id="media-add-photo"
+      compactOnly
     >
       <MediaCreateForm pieces={pieces} surface="plain" showIntro={false} idPrefix="media-sheet" />
     </AdminSheet>

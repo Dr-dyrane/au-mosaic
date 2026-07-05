@@ -10,7 +10,7 @@ export default function AdminSheet({
   description,
   children,
   id,
-  compactOnly = true,
+  compactOnly = false,
   role,
 }: {
   open: boolean;

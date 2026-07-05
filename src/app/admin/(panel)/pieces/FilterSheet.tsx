@@ -188,7 +188,13 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
         <IconFilter className="h-3.5 w-3.5" />
         Filter{active > 0 ? ` · ${active}` : ""}
       </button>
-      <AdminSheet open={surface.sheetOpen} onOpenChange={surface.setSheetOpen} title="Filter" id="stock-filter-panel">
+      <AdminSheet
+        open={surface.sheetOpen}
+        onOpenChange={surface.setSheetOpen}
+        title="Filter"
+        id="stock-filter-panel"
+        compactOnly
+      >
         <StockFilterPanel current={current} onPick={surface.closeSheet} onClose={surface.closeSheet} showHeader={false} />
       </AdminSheet>
     </div>
