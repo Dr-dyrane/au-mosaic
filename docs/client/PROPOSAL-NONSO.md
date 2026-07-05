@@ -47,8 +47,7 @@ chat, the way you already sell.
 **aumosaic.com is live, connected, and the brand's home.** The .com was always
 the recommendation for long-term brand strength, and the flagship now runs on
 it. Dyrane secured the domain on the business's behalf, our commitment to making
-this work; its cost is part of the Phase 1 investment. The earlier au-mosaic.shop
-address is retired.
+this work; its cost is part of the Phase 1 investment.
 
 ## Investment
 
