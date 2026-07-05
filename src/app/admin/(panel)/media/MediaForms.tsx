@@ -89,33 +89,48 @@ function PieceSelect({ pieces, current }: { pieces: PieceOption[]; current?: str
   );
 }
 
-export function MediaCreateForm({ pieces }: { pieces: PieceOption[] }) {
+export function MediaCreateForm({
+  pieces,
+  surface = "panel",
+  showIntro = true,
+  idPrefix = "media",
+}: {
+  pieces: PieceOption[];
+  surface?: "panel" | "plain";
+  showIntro?: boolean;
+  idPrefix?: string;
+}) {
   const [state, action, pending] = useActionState<MediaState, FormData>(createMediaAssetAction, null);
   const formRef = useRef<HTMLFormElement>(null);
+  const plain = surface === "plain";
 
   useEffect(() => {
     if (state?.ok) formRef.current?.reset();
   }, [state]);
 
   return (
-    <section id="add-photo" className="panel mt-8 max-w-5xl scroll-mt-8">
-      <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5">
-        <div>
-          <p className="font-serif text-[20px]">Add a photo.</p>
-          <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-dusk">
-            Upload once, then decide whether it is a product display, room example, or showroom photo.
-          </p>
+    <section id={plain ? undefined : "add-photo"} className={plain ? "scroll-mt-8" : "panel mt-8 max-w-5xl scroll-mt-8"}>
+      {showIntro ? (
+        <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5">
+          <div>
+            <p className="font-serif text-[20px]">Add a photo.</p>
+            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-dusk">
+              Upload once, then decide whether it is a product display, room example, or showroom photo.
+            </p>
+          </div>
+          <Sentence state={state} />
         </div>
+      ) : (
         <Sentence state={state} />
-      </div>
-      <form ref={formRef} onSubmit={keepValues(action)} className="mt-6 grid gap-5 lg:grid-cols-[1.2fr_1fr_1fr]">
+      )}
+      <form ref={formRef} onSubmit={keepValues(action)} className={`${showIntro ? "mt-6" : ""} grid gap-5 lg:grid-cols-[1.2fr_1fr_1fr]`}>
         <div>
-          <label htmlFor="media-title" className={label}>Title</label>
-          <input id="media-title" name="title" required placeholder="Gold mosaic column" className={field} />
+          <label htmlFor={`${idPrefix}-title`} className={label}>Title</label>
+          <input id={`${idPrefix}-title`} name="title" required placeholder="Gold mosaic column" className={field} />
         </div>
         <div>
-          <label htmlFor="media-role" className={label}>Use</label>
-          <select id="media-role" name="role" defaultValue="card" className={field}>
+          <label htmlFor={`${idPrefix}-role`} className={label}>Use</label>
+          <select id={`${idPrefix}-role`} name="role" defaultValue="card" className={field}>
             {roles.map(([value, text]) => (
               <option key={value} value={value}>
                 {text}
@@ -124,8 +139,8 @@ export function MediaCreateForm({ pieces }: { pieces: PieceOption[] }) {
           </select>
         </div>
         <div>
-          <label htmlFor="media-sun" className={label}>Light</label>
-          <select id="media-sun" name="sun" defaultValue="single" className={field}>
+          <label htmlFor={`${idPrefix}-sun`} className={label}>Light</label>
+          <select id={`${idPrefix}-sun`} name="sun" defaultValue="single" className={field}>
             {suns.map(([value, text]) => (
               <option key={value} value={value}>
                 {text}
@@ -138,9 +153,9 @@ export function MediaCreateForm({ pieces }: { pieces: PieceOption[] }) {
           <PieceSelect pieces={pieces} />
         </div>
         <div className="lg:col-span-2">
-          <label htmlFor="media-file" className={label}>Photograph</label>
+          <label htmlFor={`${idPrefix}-file`} className={label}>Photograph</label>
           <input
-            id="media-file"
+            id={`${idPrefix}-file`}
             type="file"
             name="photo"
             accept="image/*"
@@ -149,8 +164,8 @@ export function MediaCreateForm({ pieces }: { pieces: PieceOption[] }) {
           />
         </div>
         <div className="lg:col-span-3">
-          <label htmlFor="media-notes" className={label}>Note</label>
-          <textarea id="media-notes" name="notes" rows={2} placeholder="Where this photo belongs." className={field} />
+          <label htmlFor={`${idPrefix}-notes`} className={label}>Note</label>
+          <textarea id={`${idPrefix}-notes`} name="notes" rows={2} placeholder="Where this photo belongs." className={field} />
         </div>
         <div className="flex flex-wrap items-center gap-5 lg:col-span-3">
           <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
@@ -159,6 +174,31 @@ export function MediaCreateForm({ pieces }: { pieces: PieceOption[] }) {
         </div>
       </form>
     </section>
+  );
+}
+
+export function MediaCreateSheet({ pieces }: { pieces: PieceOption[] }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const openSheet = () => {
+      buzz(3);
+      setOpen(true);
+    };
+    window.addEventListener("admin:media-add-photo", openSheet);
+    return () => window.removeEventListener("admin:media-add-photo", openSheet);
+  }, []);
+
+  return (
+    <AdminSheet
+      open={open}
+      onOpenChange={setOpen}
+      title="Add photo"
+      description="Upload once, then decide where it belongs."
+      id="media-add-photo"
+    >
+      <MediaCreateForm pieces={pieces} surface="plain" showIntro={false} idPrefix="media-sheet" />
+    </AdminSheet>
   );
 }
 

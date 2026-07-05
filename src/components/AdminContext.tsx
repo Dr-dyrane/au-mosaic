@@ -111,7 +111,7 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
         line: "Photos can stay draft, become approved, or go live where they belong.",
         metrics: [],
         actions: [
-          { label: "Add a photo", href: "/admin/media" },
+          { label: "Add a photo", href: "/admin/media#add-photo" },
           { label: "Stockroom", href: "/admin/pieces" },
         ],
       };

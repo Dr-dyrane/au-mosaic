@@ -62,6 +62,7 @@ type RoomAction = {
   room: AdminRoom;
   external?: boolean;
   tour?: string;
+  event?: string;
 };
 
 function roomActionFor(pathname: string, owed: number): RoomAction {
@@ -143,6 +144,7 @@ function pageActionFromDom(): RoomAction | null {
     room: roomById(roomId),
     external: el.dataset.external === "true",
     tour: el.dataset.tour,
+    event: el.dataset.event,
   };
 }
 
@@ -157,7 +159,7 @@ function usePageAction(pathname: string) {
       subtree: true,
       childList: true,
       attributes: true,
-      attributeFilter: ["data-admin-action", "data-href", "data-label", "data-room", "data-external", "data-tour"],
+      attributeFilter: ["data-admin-action", "data-href", "data-label", "data-room", "data-external", "data-tour", "data-event"],
     });
     return () => observer.disconnect();
   }, [pathname]);
@@ -271,6 +273,12 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
           href={action.href}
           target={action.external ? "_blank" : undefined}
           rel={action.external ? "noreferrer" : undefined}
+          onClick={(event) => {
+            if (!action.event) return;
+            if (event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return;
+            event.preventDefault();
+            window.dispatchEvent(new CustomEvent(action.event, { detail: action }));
+          }}
           aria-label={action.label}
           title={action.label}
           data-tour={action.tour}

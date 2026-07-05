@@ -23,29 +23,31 @@ export default function AdminSheet({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className={`admin-sheet-scrim filter-scrim layer-admin-scrim fixed inset-0 ${compactOnly ? "xl:hidden" : ""}`} />
-        <Dialog.Content
-          id={id}
-          className={`admin-sheet-content filter-surface liquid-glass layer-admin-panel fixed inset-x-0 bottom-0 max-h-[min(82svh,44rem)] overflow-auto rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:inset-x-5 sm:bottom-5 sm:mx-auto sm:w-[31rem] sm:max-w-[calc(100vw-2.5rem)] sm:rounded-[28px] sm:pb-5 ${compactOnly ? "xl:hidden" : ""}`}
-        >
-          <div className="flex items-start justify-between gap-5 px-2">
-            <div>
-              <Dialog.Title className="eyebrow">{title}</Dialog.Title>
-              {description && (
-                <Dialog.Description className="mt-2 text-[13px] leading-relaxed text-dusk">
-                  {description}
-                </Dialog.Description>
-              )}
+        <div className={`admin-sheet-root fixed inset-0 ${compactOnly ? "xl:hidden" : ""}`}>
+          <Dialog.Overlay className="admin-sheet-scrim filter-scrim absolute inset-0" />
+          <Dialog.Content
+            id={id}
+            className="admin-sheet-content filter-surface liquid-glass absolute inset-x-0 bottom-0 max-h-[min(82svh,44rem)] overflow-auto rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:inset-x-5 sm:bottom-5 sm:mx-auto sm:w-[31rem] sm:max-w-[calc(100vw-2.5rem)] sm:rounded-[28px] sm:pb-5"
+          >
+            <div className="flex items-start justify-between gap-5 px-2">
+              <div>
+                <Dialog.Title className="eyebrow">{title}</Dialog.Title>
+                {description && (
+                  <Dialog.Description className="mt-2 text-[13px] leading-relaxed text-dusk">
+                    {description}
+                  </Dialog.Description>
+                )}
+              </div>
+              <Dialog.Close
+                aria-label={`Close ${title.toLowerCase()}`}
+                className="-mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
+              >
+                <IconClose className="h-4 w-4" />
+              </Dialog.Close>
             </div>
-            <Dialog.Close
-              aria-label={`Close ${title.toLowerCase()}`}
-              className="-mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
-            >
-              <IconClose className="h-4 w-4" />
-            </Dialog.Close>
-          </div>
-          <div className="mt-4">{children}</div>
-        </Dialog.Content>
+            <div className="mt-4">{children}</div>
+          </Dialog.Content>
+        </div>
       </Dialog.Portal>
     </Dialog.Root>
   );

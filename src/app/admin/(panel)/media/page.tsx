@@ -3,7 +3,7 @@ import Link from "next/link";
 import { and, asc, desc, eq, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import MediaBatchActions from "./MediaBatchActions";
-import { MediaAssetControls, MediaCreateForm } from "./MediaForms";
+import { MediaAssetControls, MediaCreateForm, MediaCreateSheet } from "./MediaForms";
 
 export const dynamic = "force-dynamic";
 
@@ -134,6 +134,20 @@ export default async function MediaPage({
 
   return (
     <main>
+      {!quiet && (
+        <>
+          <span
+            hidden
+            data-admin-action
+            data-href="#media-add-photo"
+            data-label="Add photo"
+            data-room="photos"
+            data-event="admin:media-add-photo"
+          />
+          <MediaCreateSheet pieces={pieces} />
+        </>
+      )}
+
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
           <p className="eyebrow">Photos</p>
@@ -148,7 +162,11 @@ export default async function MediaPage({
         </Link>
       </div>
 
-      {!quiet && <MediaCreateForm pieces={pieces} />}
+      {!quiet && (
+        <div className="hidden xl:block">
+          <MediaCreateForm pieces={pieces} />
+        </div>
+      )}
 
       {!quiet && <MediaBatchActions />}
 
