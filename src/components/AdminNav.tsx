@@ -139,6 +139,7 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
                 key={r.href}
                 href={r.href}
                 aria-current={on ? "page" : undefined}
+                aria-label={r.label}
                 className={`admin-glass-control flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-[12px] font-semibold tracking-[0] active:scale-[0.98] ${
                   on ? "is-on text-ink" : "text-mist"
                 }`}

@@ -343,7 +343,7 @@ p { text-wrap: pretty; }
     radial-gradient(circle at 18% 0%, rgb(255 255 255 / 0.1), transparent 30%),
     radial-gradient(circle at 86% 110%, color-mix(in srgb, var(--color-water) 18%, transparent), transparent 40%),
     linear-gradient(160deg, rgb(255 255 255 / 0.045), transparent 48%);
-  opacity: 0.62;
+  opacity: 0.48;
 }
 
 .liquid-glass::after {
@@ -362,7 +362,7 @@ p { text-wrap: pretty; }
 [data-theme="light"] .liquid-glass {
   background:
     linear-gradient(135deg, rgb(255 255 255 / 0.74), rgb(255 255 255 / 0.28) 42%, rgb(0 0 0 / 0.028)),
-    color-mix(in srgb, var(--color-shell) 60%, transparent);
+    color-mix(in srgb, var(--color-shell) 54%, transparent);
   box-shadow:
     0 14px 34px rgb(30 38 52 / 0.07),
     inset 0 1px 0 rgb(255 255 255 / 0.68),
@@ -490,7 +490,7 @@ p { text-wrap: pretty; }
 .filter-surface {
   background:
     linear-gradient(135deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.028) 38%, rgb(0 0 0 / 0.1)),
-    color-mix(in srgb, var(--color-shell) 52%, transparent);
+    color-mix(in srgb, var(--color-shell) 46%, transparent);
   backdrop-filter: blur(30px) saturate(1.62) contrast(1.04);
   -webkit-backdrop-filter: blur(30px) saturate(1.62) contrast(1.04);
   box-shadow:
@@ -503,7 +503,7 @@ p { text-wrap: pretty; }
 [data-theme="light"] .filter-surface {
   background:
     linear-gradient(135deg, rgb(255 255 255 / 0.78), rgb(255 255 255 / 0.3) 42%, rgb(0 0 0 / 0.025)),
-    color-mix(in srgb, var(--color-shell) 74%, transparent);
+    color-mix(in srgb, var(--color-shell) 68%, transparent);
 }
 
 [data-theme="light"] .filter-scrim {
@@ -1092,7 +1092,7 @@ body:has(.admin-photo-root) .layer-admin-nav {
 .admin-sheet-content.filter-surface {
   background:
     linear-gradient(135deg, rgb(255 255 255 / 0.11), rgb(255 255 255 / 0.035) 40%, rgb(0 0 0 / 0.12)),
-    color-mix(in srgb, var(--color-shell) 90%, transparent);
+    color-mix(in srgb, var(--color-shell) 58%, transparent);
   backdrop-filter: blur(22px) saturate(1.42) contrast(1.02);
   -webkit-backdrop-filter: blur(22px) saturate(1.42) contrast(1.02);
 }
@@ -1100,7 +1100,7 @@ body:has(.admin-photo-root) .layer-admin-nav {
 [data-theme="light"] .admin-sheet-content.filter-surface {
   background:
     linear-gradient(135deg, rgb(255 255 255 / 0.82), rgb(255 255 255 / 0.38) 44%, rgb(0 0 0 / 0.026)),
-    color-mix(in srgb, var(--color-shell) 92%, transparent);
+    color-mix(in srgb, var(--color-shell) 80%, transparent);
 }
 
 @keyframes sheet-scrim-in {
