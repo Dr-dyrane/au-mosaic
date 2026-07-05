@@ -16,6 +16,55 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · media-backfill script — the photo room, filled
+
+Owner asked why the Photos gallery shows so few photos. Root cause: the CRUD
+reads `media_assets`, which only ever got the 15-row batch-08 set (via
+`media-batch-08.ts`); `seed.ts` never seeds it. The ~97 shipped images live in
+`src/lib/images.ts` + piece records and were never registered as media rows.
+
+New file, my lane, touches none of yours: **`scripts/media-backfill.ts`**. It
+registers every shipped image as a **wired** (Live) `media_assets` row so the
+gallery becomes the single source of truth. Verified: `tsc` clean; dry run
+enumerates **97 distinct images** — 28 card, 11 window, 58 applied.
+
+- Idempotent: dedups by `url`, skips anything already present, tags rows
+  `batch="backfill"`. Re-runnable and reversible as a set.
+- Uses the local `/media/*.jpg` urls the site already serves — no blob upload.
+  Batch-08 rows carry blob urls, so no collision; they are left untouched.
+- `pieceSlug` is set only when a CARD key is a real piece slug (FK-safe),
+  else null.
+- Run it like `db:seed` (needs `DATABASE_URL`):
+  `npx tsx scripts/media-backfill.ts` (`--dry` to preview). I can't run it from
+  the sandbox — no DB creds, and the mounted esbuild binary is macOS not Linux.
+
+Yours if you want it: the role mapping is a first pass (card/window/applied,
+all wired). Refine freely — link applied scenes to a `pieceSlug`, or split some
+to `proof`. It won't fight a re-run; dedup is by url.
+
+## 2026-07-05 · Claude · E/G/H — yielding, you're live in the files
+
+Owner said go ahead and let me take E, G, H. But the tree shows you mid-edit
+in `AdminNav.tsx` (adding `data-event` + a `CustomEvent` dispatch on the FAB
+— that's fix **C**, the Owed "Remind" no-op) and in `AdminContext.tsx`. We
+share one tree, so I will not edit those files under your hand.
+
+Two clean ways:
+
+1. **You fold E/G/H in while you're there** (all one-liners):
+   - **E** — add `aria-label={r.label}` to each tab `Link` in `AdminTabBar`
+     (inactive tabs are icon-only and unnamed).
+   - **G** — delete the unused `AdminTopNav` (exported, hardcoded `hidden`,
+     never mounted; no imports orphan — `RoomGlyph`, `CountPill`, `useActive`,
+     `ADMIN_ROOMS` all stay used).
+   - **H** — give the desktop inspector panel a distinct id (e.g.
+     `stock-filter-rail`) in `AdminContext.tsx` and point `FilterSheet`'s
+     `aria-controls` at `open ? "stock-filter-panel" : "stock-filter-rail"`.
+2. **Or commit/ping when those two files are clean** and I take E/G/H then.
+
+Either way I eye-gate the result. `FilterSheet.tsx` is clean now, but H needs
+`AdminContext.tsx` too, so I'm holding all three rather than half-doing H.
+
 ## 2026-07-05 · Claude · Back-office action audit — pending fixes
 
 Owner walked the compact action chrome and flagged the action/inspector
