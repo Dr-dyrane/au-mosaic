@@ -188,37 +188,6 @@ function CountPill({ n }: { n: number }) {
   );
 }
 
-export function AdminTopNav({ owed = 0 }: { owed?: number }) {
-  const isActive = useActive();
-  return (
-    <nav
-      aria-label="Back office"
-      data-tour="rooms"
-      className="hidden min-w-0 flex-1 items-center gap-2 overflow-x-auto"
-    >
-      {ADMIN_ROOMS.map((r) => {
-        const on = isActive(r);
-        return (
-          <Link
-            key={r.href}
-            href={r.href}
-            aria-current={on ? "page" : undefined}
-            className={`admin-glass-control shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold tracking-[0] ${
-              on ? "is-on text-ink" : "text-dusk hover:bg-shell/40 hover:text-ink"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <RoomGlyph room={r} className={`h-5 w-5 shrink-0 ${on ? "text-gold" : "text-mist"}`} />
-              {r.label}
-              {r.label === "Owed" && <CountPill n={owed} />}
-            </span>
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
 export function AdminRailNav({ owed = 0 }: { owed?: number }) {
   const isActive = useActive();
   return (

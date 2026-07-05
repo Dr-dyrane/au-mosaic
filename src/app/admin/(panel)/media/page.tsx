@@ -146,6 +146,7 @@ export default async function MediaPage({
             data-intent={ADMIN_ACTION_INTENTS.mediaCreate}
           />
           <MediaCreateAction pieces={pieces} />
+          <MediaBatchAction />
         </>
       )}
 
@@ -159,7 +160,6 @@ export default async function MediaPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-          {!quiet && <MediaBatchAction />}
           <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
             The stockroom
           </Link>

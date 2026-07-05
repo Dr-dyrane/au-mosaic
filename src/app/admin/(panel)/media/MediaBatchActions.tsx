@@ -44,7 +44,7 @@ export function MediaBatchPanel({ surface = "panel" }: { surface?: "panel" | "pl
   );
 }
 
-export default function MediaBatchAction() {
+export default function MediaBatchAction({ showTrigger = false }: { showTrigger?: boolean }) {
   const surface = useAdminSurface(
     { kind: "media-batch" },
     { id: "media-prepared-photos", intent: ADMIN_ACTION_INTENTS.mediaBatch }
@@ -52,15 +52,17 @@ export default function MediaBatchAction() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={surface.openSurface}
-        aria-controls={surface.triggerProps["aria-controls"]}
-        aria-expanded={surface.triggerProps["aria-expanded"]}
-        className="link-hair text-dusk text-[13px]"
-      >
-        Prepared photos
-      </button>
+      {showTrigger && (
+        <button
+          type="button"
+          onClick={surface.openSurface}
+          aria-controls={surface.triggerProps["aria-controls"]}
+          aria-expanded={surface.triggerProps["aria-expanded"]}
+          className="link-hair text-dusk text-[12px]"
+        >
+          Prepared photos
+        </button>
+      )}
       <AdminSheet
         open={surface.sheetOpen}
         onOpenChange={surface.setSheetOpen}
