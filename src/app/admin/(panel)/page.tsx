@@ -62,11 +62,11 @@ export default async function AdminHome() {
 
       {!p.ok && (
         <div className="panel mt-10 max-w-md">
-          <p className="font-serif text-[20px]">The database is not answering.</p>
+          <p className="font-serif text-[20px]">The book is quiet.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Check DATABASE_URL, then refresh. The shop window stands on
-            its built-in catalogue whenever the book is quiet, so
-            customers see nothing of this.
+            Refresh once. If it stays quiet, ask for help. The shop
+            window stands on its own catalogue, so customers see nothing
+            of this.
           </p>
         </div>
       )}
