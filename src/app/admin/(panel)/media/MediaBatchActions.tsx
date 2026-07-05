@@ -1,28 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useState, useSyncExternalStore } from "react";
+import { useActionState } from "react";
 import AdminSheet from "@/components/AdminSheet";
-import {
-  clearAdminContextPanel,
-  getAdminContextPanel,
-  showMediaBatchPanel,
-  subscribeAdminContextPanel,
-} from "@/components/admin-context-panel-store";
-import { buzz } from "@/lib/backoffice";
+import { useAdminSurface } from "@/components/admin-surface-router";
 import Sentence from "../Sentence";
 import { importBatch08Action, promoteBatch08Action, type MediaState } from "./actions";
-
-const railQuery = "(min-width: 1280px)";
-
-function subscribeRailWidth(listener: () => void) {
-  const query = window.matchMedia(railQuery);
-  query.addEventListener("change", listener);
-  return () => query.removeEventListener("change", listener);
-}
-
-function getRailWidth() {
-  return window.matchMedia(railQuery).matches;
-}
 
 export function MediaBatchPanel({ surface = "panel" }: { surface?: "panel" | "plain" }) {
   const [importState, importAction, importPending] = useActionState<MediaState, FormData>(
@@ -62,51 +44,25 @@ export function MediaBatchPanel({ surface = "panel" }: { surface?: "panel" | "pl
 }
 
 export default function MediaBatchAction() {
-  const [open, setOpen] = useState(false);
-  const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
-  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
-  const railOpen = panel?.kind === "media-batch";
-
-  useEffect(() => {
-    const openPrepared = () => {
-      buzz(3);
-      if (wide) {
-        setOpen(false);
-        if (railOpen) clearAdminContextPanel();
-        else showMediaBatchPanel();
-      } else {
-        if (railOpen) clearAdminContextPanel();
-        setOpen(true);
-      }
-    };
-    window.addEventListener("admin:media-prepared", openPrepared);
-    return () => window.removeEventListener("admin:media-prepared", openPrepared);
-  }, [railOpen, wide]);
+  const surface = useAdminSurface(
+    { kind: "media-batch" },
+    { id: "media-prepared-photos", eventName: "admin:media-prepared" }
+  );
 
   return (
     <>
       <button
         type="button"
-        onClick={() => {
-          buzz(3);
-          if (wide) {
-            setOpen(false);
-            if (railOpen) clearAdminContextPanel();
-            else showMediaBatchPanel();
-          } else {
-            if (railOpen) clearAdminContextPanel();
-            setOpen(true);
-          }
-        }}
-        aria-controls={open || railOpen ? "media-prepared-photos" : undefined}
-        aria-expanded={open || railOpen}
+        onClick={surface.openSurface}
+        aria-controls={surface.triggerProps["aria-controls"]}
+        aria-expanded={surface.triggerProps["aria-expanded"]}
         className="link-hair text-dusk text-[13px]"
       >
         Prepared photos
       </button>
       <AdminSheet
-        open={open && !wide}
-        onOpenChange={setOpen}
+        open={surface.sheetOpen}
+        onOpenChange={surface.setSheetOpen}
         title="Prepared photos"
         description="Add product photos, then make approved displays live."
         id="media-prepared-photos"

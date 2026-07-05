@@ -543,7 +543,7 @@ export default function Tour() {
   return (
     <>
       {menu && (
-        <div className="fixed inset-0 z-[86]">
+        <div className="fixed inset-0 layer-admin-tour">
           <button
             aria-label="Close the tour menu"
             onClick={() => setMenu(false)}
@@ -598,17 +598,17 @@ export default function Tour() {
               real window over the element so the tap lands. */}
           {step.kind === "do" ? (
             <>
-              <div aria-hidden className="fixed inset-x-0 top-0 z-[88]" style={{ height: Math.max(0, box.top) }} />
-              <div aria-hidden className="fixed inset-x-0 bottom-0 z-[88]" style={{ top: Math.max(0, box.top + box.height) }} />
-              <div aria-hidden className="fixed left-0 z-[88]" style={{ top: Math.max(0, box.top), height: box.height, width: Math.max(0, box.left) }} />
-              <div aria-hidden className="fixed right-0 z-[88]" style={{ top: Math.max(0, box.top), height: box.height, left: Math.max(0, box.left + box.width) }} />
+              <div aria-hidden className="fixed inset-x-0 top-0 layer-admin-scrim" style={{ height: Math.max(0, box.top) }} />
+              <div aria-hidden className="fixed inset-x-0 bottom-0 layer-admin-scrim" style={{ top: Math.max(0, box.top + box.height) }} />
+              <div aria-hidden className="fixed left-0 layer-admin-scrim" style={{ top: Math.max(0, box.top), height: box.height, width: Math.max(0, box.left) }} />
+              <div aria-hidden className="fixed right-0 layer-admin-scrim" style={{ top: Math.max(0, box.top), height: box.height, left: Math.max(0, box.left + box.width) }} />
             </>
           ) : (
-            <div className="fixed inset-0 z-[88]" aria-hidden />
+            <div className="fixed inset-0 layer-admin-scrim" aria-hidden />
           )}
           <div
             aria-hidden
-            className="pointer-events-none fixed z-[89] rounded-[22px] transition-all duration-500"
+            className="pointer-events-none fixed layer-admin-highlight rounded-[22px] transition-all duration-500"
             style={{
               top: box.top,
               left: box.left,
@@ -623,7 +623,7 @@ export default function Tour() {
             role="dialog"
             aria-modal="true"
             aria-label={step.title}
-            className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[90] rounded-[28px] p-5 outline-none sm:inset-x-auto sm:bottom-10 sm:left-1/2 sm:w-[22rem] sm:-translate-x-1/2"
+            className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] layer-admin-tour-card rounded-[28px] p-5 outline-none sm:inset-x-auto sm:bottom-10 sm:left-1/2 sm:w-[22rem] sm:-translate-x-1/2"
           >
             {chapter.steps.length <= 8 ? (
               <div

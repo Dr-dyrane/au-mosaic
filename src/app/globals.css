@@ -45,6 +45,13 @@
   --t-scene-gold-day: #7a6128;
   --sand-night-rgb: 12 11 9;
   --sand-day-rgb: 246 243 236;
+  --z-admin-nav: 60;
+  --z-admin-tour: 86;
+  --z-admin-scrim: 88;
+  --z-admin-highlight: 89;
+  --z-admin-tour-card: 90;
+  --z-admin-sheet: 96;
+  --z-skip-link: 110;
   color-scheme: dark;
 }
 
@@ -358,18 +365,28 @@ p { text-wrap: pretty; }
     linear-gradient(160deg, rgb(255 255 255 / 0.1), transparent 48%);
 }
 
-/* Layer map: admin chrome 60, tours 86 to 90, scrims 88, sheets 96,
-   consequence dialogs 99 to 100. */
 .layer-admin-nav {
-  z-index: 60;
+  z-index: var(--z-admin-nav);
+}
+
+.layer-admin-tour {
+  z-index: var(--z-admin-tour);
 }
 
 .layer-admin-scrim {
-  z-index: 88;
+  z-index: var(--z-admin-scrim);
+}
+
+.layer-admin-highlight {
+  z-index: var(--z-admin-highlight);
+}
+
+.layer-admin-tour-card {
+  z-index: var(--z-admin-tour-card);
 }
 
 .layer-admin-panel {
-  z-index: 96;
+  z-index: var(--z-admin-sheet);
 }
 
 /* Filter surfaces need more milk than ambient chrome; the owner must
@@ -672,7 +689,7 @@ p { text-wrap: pretty; }
   position: fixed;
   top: 14px;
   left: -100vw;
-  z-index: 100;
+  z-index: var(--z-skip-link);
   background: var(--t-brass);
   color: #14110b;
   font-size: 12px;
@@ -819,7 +836,7 @@ p { text-wrap: pretty; }
 }
 
 .admin-sheet-root {
-  z-index: 96;
+  z-index: var(--z-admin-sheet);
   pointer-events: none;
   isolation: isolate;
 }
@@ -847,7 +864,7 @@ body:has(.admin-sheet-root) .layer-admin-nav {
   animation: sheet-rise-in 0.26s var(--ease-glide) both;
 }
 
-@media (min-width: 640px) and (max-width: 1279px) {
+@media (min-width: 640px) {
   .admin-sheet-content {
     inset-block-start: 50%;
     inset-block-end: auto;

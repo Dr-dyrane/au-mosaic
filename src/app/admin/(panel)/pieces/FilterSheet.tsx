@@ -1,15 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
 import AdminSheet from "@/components/AdminSheet";
 import { buzz } from "@/lib/backoffice";
-import {
-  clearAdminContextPanel,
-  getAdminContextPanel,
-  showStockFilterPanel,
-  subscribeAdminContextPanel,
-} from "@/components/admin-context-panel-store";
+import { useAdminSurface } from "@/components/admin-surface-router";
 
 import { IconClose, IconFilter } from "../icons";
 import {
@@ -22,21 +16,9 @@ import {
   type StockFilters,
 } from "./stock-filters";
 
-/* One smart filter. Wide screens borrow the context rail; compact
-   screens use a bottom sheet. Every row is still a link, so the URL
-   carries the view. */
-
-const railQuery = "(min-width: 1280px)";
-
-function subscribeRailWidth(listener: () => void) {
-  const query = window.matchMedia(railQuery);
-  query.addEventListener("change", listener);
-  return () => query.removeEventListener("change", listener);
-}
-
-function getRailWidth() {
-  return window.matchMedia(railQuery).matches;
-}
+/* One smart filter. Desktop borrows the context rail; everything below
+   desktop asks the shared surface router for the right sheet. Every row
+   is still a link, so the URL carries the view. */
 
 function Row({
   href,
@@ -188,38 +170,26 @@ export function StockFilterPanel({
 }
 
 export default function FilterSheet({ current }: { current: StockFilters }) {
-  const [open, setOpen] = useState(false);
   const active = activeStockFilterLabels(current).length;
-  const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
-  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
-  const railOpen = panel?.kind === "stock-filter";
-  const sheetOpen = open && !wide;
-  const close = () => setOpen(false);
+  const surface = useAdminSurface(
+    { kind: "stock-filter", current },
+    { id: "stock-filter-panel" }
+  );
 
   return (
     <div className="relative inline-flex">
       <button
-        onClick={() => {
-          buzz(3);
-          if (wide) {
-            if (open) setOpen(false);
-            if (railOpen) clearAdminContextPanel();
-            else showStockFilterPanel(current);
-          } else {
-            if (railOpen) clearAdminContextPanel();
-            setOpen(true);
-          }
-        }}
+        onClick={surface.openSurface}
         className={`chip-solid ${active > 0 ? "is-on" : ""}`}
-        aria-controls={sheetOpen || railOpen ? "stock-filter-panel" : undefined}
-        aria-expanded={sheetOpen || railOpen}
+        aria-controls={surface.triggerProps["aria-controls"]}
+        aria-expanded={surface.triggerProps["aria-expanded"]}
         data-tour="stock-filter-open"
       >
         <IconFilter className="h-3.5 w-3.5" />
         Filter{active > 0 ? ` · ${active}` : ""}
       </button>
-      <AdminSheet open={sheetOpen} onOpenChange={setOpen} title="Filter" id="stock-filter-panel">
-        <StockFilterPanel current={current} onPick={close} onClose={close} showHeader={false} />
+      <AdminSheet open={surface.sheetOpen} onOpenChange={surface.setSheetOpen} title="Filter" id="stock-filter-panel">
+        <StockFilterPanel current={current} onPick={surface.closeSheet} onClose={surface.closeSheet} showHeader={false} />
       </AdminSheet>
     </div>
   );

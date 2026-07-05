@@ -1,6 +1,7 @@
 "use client";
 
-import { startTransition, useActionState, useEffect, useOptimistic, useRef, useState } from "react";
+import { startTransition, useActionState, useOptimistic, useState } from "react";
+import AdminSheet from "@/components/AdminSheet";
 import { setStatus, type SaveState } from "../actions";
 import { PIPELINE, STATUS_LABEL, type OrderStatus as Step } from "../pipeline";
 import Sentence from "../../Sentence";
@@ -39,21 +40,6 @@ function Consequence({
   onGo: () => void;
   onStay: () => void;
 }) {
-  const card = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    card.current?.focus({ preventScroll: true });
-  }, []);
-
-  /* Escape stays, the same politeness as everywhere else. */
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onStay();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onStay]);
-
   const question =
     next === "settled" ? "Settle it?" : next === "delivered" ? "Deliver it?" : "Move it back?";
   const verb =
@@ -68,44 +54,38 @@ function Consequence({
       : "This returns to the shelf:";
 
   return (
-    <div className="fixed inset-0 z-[99]">
-      <button
-        aria-label="Stay"
-        onClick={onStay}
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-      />
-      <div
-        ref={card}
-        tabIndex={-1}
-        role="alertdialog"
-        aria-modal="true"
-        aria-label="Before it moves"
-        className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[100] rounded-[28px] p-6 outline-none sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[24rem] sm:-translate-x-1/2 sm:-translate-y-1/2"
-      >
-        <p className="font-serif text-[20px]">Before it moves.</p>
-        <p className="mt-2 text-[14px] leading-relaxed text-dusk">{sentence}</p>
-        {!one && (
-          <>
-            <ul className="mt-3 grid gap-1.5">
-              {movements.map((m, d) => (
-                <li key={d} className="text-[14px] text-ink">
-                  {m.qty} {m.unit} of {m.name}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-[14px] text-dusk">{question}</p>
-          </>
-        )}
-        <div className="mt-5 flex items-center gap-6">
-          <button onClick={onGo} className="btn-gold">
-            {verb}
-          </button>
-          <button onClick={onStay} className="link-hair text-dusk text-[13px]">
-            Not yet
-          </button>
-        </div>
+    <AdminSheet
+      open
+      onOpenChange={(open) => {
+        if (!open) onStay();
+      }}
+      title="Before it moves"
+      description={sentence}
+      id="order-status-consequence"
+      compactOnly={false}
+      role="alertdialog"
+    >
+      {!one && (
+        <>
+          <ul className="mt-3 grid gap-1.5">
+            {movements.map((m, d) => (
+              <li key={d} className="text-[14px] text-ink">
+                {m.qty} {m.unit} of {m.name}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-[14px] text-dusk">{question}</p>
+        </>
+      )}
+      <div className="mt-5 flex items-center gap-6">
+        <button onClick={onGo} className="btn-gold">
+          {verb}
+        </button>
+        <button onClick={onStay} className="link-hair text-dusk text-[13px]">
+          Not yet
+        </button>
       </div>
-    </div>
+    </AdminSheet>
   );
 }
 

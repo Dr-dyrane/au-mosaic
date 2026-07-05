@@ -38,9 +38,9 @@ function toInt(v: FormDataEntryValue | null, fallback = 0) {
   return Number.isFinite(n) && n >= 0 ? n : fallback;
 }
 
-/* Photographs go to Vercel Blob and their URL into the piece record.
-   Night and day are separate slots, same as the flagship renders
-   them. Replacing leaves the old file orphaned in the store on
+/* Photographs go to the house store and their URL into the piece
+   record. Night and day are separate slots, same as the flagship
+   renders them. Replacing leaves the old file resting in storage on
    purpose: nothing is ever lost. */
 export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<SaveState> {
   if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };

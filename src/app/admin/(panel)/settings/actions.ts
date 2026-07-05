@@ -76,7 +76,7 @@ export async function addStaff(_prev: SaveState, form: FormData): Promise<SaveSt
   } catch {
     return {
       ok: false,
-      message: "The staff table is not in the book yet. Run npm run db:push, then try again.",
+      message: "The key rack is not ready yet. Turn on staff keys, then try again.",
     };
   }
   await logAction("gave a key to", name);
@@ -105,7 +105,7 @@ export async function savePushSubscription(_prev: SaveState, form: FormData): Pr
   } catch {
     return {
       ok: false,
-      message: "The subscriptions table is not in the book yet. Run npm run db:push, then try again.",
+      message: "The morning tap is not ready yet. Turn on notification keys, then try again.",
     };
   }
   await logAction("asked this phone to be told");

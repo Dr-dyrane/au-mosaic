@@ -13,7 +13,7 @@ import {
 } from "@/components/admin-context-panel-store";
 import { StockFilterPanel } from "@/app/admin/(panel)/pieces/FilterSheet";
 import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
-import { MediaAssetEditor, MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
+import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 
 type Metric = { label: string; value: string; href?: string };
 type Action = { label: string; href: string; event?: string };
@@ -258,16 +258,14 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const ctx = contextFor(pathname, pulse);
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
   const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
-  const mediaEdit = panel?.kind === "media-edit" ? panel : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
   const mediaBatch = panel?.kind === "media-batch";
 
   useEffect(() => {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
-    if (mediaEdit && !pathname.startsWith("/admin/media")) clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
     if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
-  }, [pathname, stockFilter, mediaEdit, mediaCreate, mediaBatch]);
+  }, [pathname, stockFilter, mediaCreate, mediaBatch]);
 
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
@@ -280,30 +278,6 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
               onPick={clearAdminContextPanel}
               onClose={clearAdminContextPanel}
             />
-          ) : mediaEdit ? (
-            <div id={`media-edit-${mediaEdit.asset.id}`}>
-              <div className="flex items-start justify-between gap-5 px-2">
-                <div>
-                  <p className="eyebrow">Edit photo</p>
-                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
-                    {mediaEdit.asset.title}
-                  </h2>
-                </div>
-                <button
-                  onClick={clearAdminContextPanel}
-                  className="link-hair shrink-0 text-dusk text-[12px]"
-                >
-                  Close
-                </button>
-              </div>
-              <div className="mt-5">
-                <MediaAssetEditor
-                  asset={mediaEdit.asset}
-                  pieces={mediaEdit.pieces}
-                  fullHref={mediaEdit.href}
-                />
-              </div>
-            </div>
           ) : mediaCreate ? (
             <div id="media-add-photo">
               <div className="flex items-start justify-between gap-5 px-2">

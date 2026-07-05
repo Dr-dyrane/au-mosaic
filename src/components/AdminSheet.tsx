@@ -11,6 +11,7 @@ export default function AdminSheet({
   children,
   id,
   compactOnly = true,
+  role,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -19,6 +20,7 @@ export default function AdminSheet({
   children: React.ReactNode;
   id?: string;
   compactOnly?: boolean;
+  role?: "dialog" | "alertdialog";
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -27,6 +29,7 @@ export default function AdminSheet({
           <Dialog.Overlay className="admin-sheet-scrim filter-scrim absolute inset-0" />
           <Dialog.Content
             id={id}
+            role={role}
             className="admin-sheet-content filter-surface liquid-glass max-h-[min(72svh,38rem)] overflow-auto rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none"
           >
             <div className="flex items-start justify-between gap-5 px-2">

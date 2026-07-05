@@ -1,16 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import AdminSheet from "@/components/AdminSheet";
-import {
-  clearAdminContextPanel,
-  getAdminContextPanel,
-  showMediaCreatePanel,
-  showMediaEditPanel,
-  subscribeAdminContextPanel,
-} from "@/components/admin-context-panel-store";
-import { buzz } from "@/lib/backoffice";
+import { useAdminSurface } from "@/components/admin-surface-router";
 import Sentence from "../Sentence";
 import { keepValues } from "../keep";
 import {
@@ -60,22 +53,6 @@ const suns = [
   ["day", "Day"],
   ["single", "Single"],
 ] as const;
-
-const railQuery = "(min-width: 1280px)";
-
-function subscribeRailWidth(listener: () => void) {
-  const query = window.matchMedia(railQuery);
-  query.addEventListener("change", listener);
-  return () => query.removeEventListener("change", listener);
-}
-
-function getRailWidth() {
-  return window.matchMedia(railQuery).matches;
-}
-
-function isPlainClick(event: React.MouseEvent<HTMLAnchorElement>) {
-  return event.button === 0 && !event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey;
-}
 
 function PieceSelect({ pieces, current }: { pieces: PieceOption[]; current?: string | null }) {
   return (
@@ -182,31 +159,15 @@ export function MediaCreateForm({
 }
 
 export function MediaCreateAction({ pieces }: { pieces: PieceOption[] }) {
-  const [open, setOpen] = useState(false);
-  const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
-  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
-  const railOpen = panel?.kind === "media-create";
-
-  useEffect(() => {
-    const openSheet = () => {
-      buzz(3);
-      if (wide) {
-        setOpen(false);
-        if (railOpen) clearAdminContextPanel();
-        else showMediaCreatePanel(pieces);
-      } else {
-        if (railOpen) clearAdminContextPanel();
-        setOpen(true);
-      }
-    };
-    window.addEventListener("admin:media-add-photo", openSheet);
-    return () => window.removeEventListener("admin:media-add-photo", openSheet);
-  }, [pieces, railOpen, wide]);
+  const surface = useAdminSurface(
+    { kind: "media-create", pieces },
+    { id: "media-add-photo", eventName: "admin:media-add-photo" }
+  );
 
   return (
     <AdminSheet
-      open={open}
-      onOpenChange={setOpen}
+      open={surface.sheetOpen}
+      onOpenChange={surface.setSheetOpen}
       title="Add photo"
       description="Upload once, then decide where it belongs."
       id="media-add-photo"
@@ -218,51 +179,16 @@ export function MediaCreateAction({ pieces }: { pieces: PieceOption[] }) {
 
 export function MediaAssetControls({
   asset,
-  pieces,
 }: {
   asset: MediaAssetForm;
   pieces: PieceOption[];
 }) {
-  const [open, setOpen] = useState(false);
-  const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
-  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
-  const railOpen = panel?.kind === "media-edit" && panel.asset.id === asset.id;
-  const sheetOpen = open && !wide;
   const href = `/admin/media/${asset.id}`;
 
   return (
-    <>
-      <Link
-        href={href}
-        onClick={(event) => {
-          if (!isPlainClick(event)) return;
-          buzz(3);
-          event.preventDefault();
-          if (wide) {
-            if (open) setOpen(false);
-            if (railOpen) clearAdminContextPanel();
-            else showMediaEditPanel(asset, pieces, href);
-          } else {
-            if (railOpen) clearAdminContextPanel();
-            setOpen(true);
-          }
-        }}
-        aria-controls={sheetOpen || railOpen ? `media-edit-${asset.id}` : undefined}
-        aria-expanded={sheetOpen || railOpen}
-        className="link-hair mt-5 inline-block text-dusk text-[13px]"
-      >
-        Edit photo
-      </Link>
-      <AdminSheet
-        open={sheetOpen}
-        onOpenChange={setOpen}
-        title="Edit photo"
-        description={asset.title}
-        id={`media-edit-${asset.id}`}
-      >
-        <MediaAssetEditor asset={asset} pieces={pieces} fullHref={href} />
-      </AdminSheet>
-    </>
+    <Link href={href} className="link-hair mt-5 inline-block text-dusk text-[13px]">
+      Edit photo
+    </Link>
   );
 }
 

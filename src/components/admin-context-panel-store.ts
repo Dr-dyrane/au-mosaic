@@ -11,26 +11,10 @@ export type ContextPieceOption = {
   name: string;
 };
 
-export type ContextMediaAsset = {
-  id: string;
-  title: string;
-  status: string;
-  role: string;
-  sun: string;
-  pieceSlug: string | null;
-  notes: string;
-};
-
 export type AdminContextPanel =
   | {
       kind: "stock-filter";
       current: StockFilterContext;
-    }
-  | {
-      kind: "media-edit";
-      asset: ContextMediaAsset;
-      pieces: ContextPieceOption[];
-      href: string;
     }
   | {
       kind: "media-create";
@@ -59,11 +43,6 @@ export function getAdminContextPanel() {
 
 export function showStockFilterPanel(current: StockFilterContext) {
   panel = { kind: "stock-filter", current };
-  emit();
-}
-
-export function showMediaEditPanel(asset: ContextMediaAsset, pieces: ContextPieceOption[], href: string) {
-  panel = { kind: "media-edit", asset, pieces, href };
   emit();
 }
 
