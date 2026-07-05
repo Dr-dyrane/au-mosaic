@@ -265,6 +265,10 @@ keepValues, icons components exist).
    Service records stay parked until Nonso confirms the real pool
    construction, renovation, water-fountain, and site-inspection
    boundaries.
+8. DONE 2026-07-04: the glance pulse consolidated. The home numbers
+   and Owed badge now read one cached raw query in src/lib/admin-pulse.ts,
+   so the home page keeps its six signals without six database
+   errands.
 
 7. DONE 2026-07-03, built as decided. (a) Crossing into delivered
    (or settled) takes each line's quantity off its piece, clamped at

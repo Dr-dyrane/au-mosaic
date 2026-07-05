@@ -59,7 +59,7 @@ means not built yet. Update the verdicts as passes land.
 | Grouped queries, no N+1 | Pass (sum maps stitched in JS) |
 | Images optimised | Pass (AVIF/WebP, Blob host allowed) |
 | No client fetch waterfalls | Pass (server components read) |
-| Query count per page reasonable | Partial (glance runs 5; layout adds owed count; acceptable at scale, tracked in NEXT-STEPS) |
+| Query count per page reasonable | Pass (the admin glance and owed badge share one cached raw pulse query; list rooms still group their own work) |
 
 ## Accessibility
 

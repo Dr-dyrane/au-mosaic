@@ -1,45 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { sql } from "drizzle-orm";
-import { getDb, rowsOf } from "@/db";
 import { AuSign } from "@/components/Mosaic";
 import { AdminTabBar, AdminTopNav } from "@/components/AdminNav";
 import PalettePicker from "@/components/PalettePicker";
 import ThemeToggle from "@/components/ThemeToggle";
+import { readAdminPulse } from "@/lib/admin-pulse";
 import Tour from "./Tour";
 import { hasSession } from "@/lib/admin-auth";
 import { logout } from "../login/actions";
-
-/* How many customers owe the house: the one number worth carrying on
-   the nav itself. Counted per request; if the database is quiet the
-   badge simply stays home. */
-async function owedCount(): Promise<number> {
-  try {
-    const rows = await getDb().execute(sql`
-      select count(*)::int as n from (
-        select o.customer_id
-        from orders o
-        where o.status not in ('enquiry','settled')
-        group by o.customer_id
-        having
-          coalesce((select sum(i.given_price_kobo * i.quantity)
-            from order_items i join orders oi on oi.id = i.order_id
-            where oi.customer_id = o.customer_id
-              and oi.status not in ('enquiry','settled')), 0)
-          -
-          coalesce((select sum(p.amount_kobo)
-            from payments p join orders op on op.id = p.order_id
-            where op.customer_id = o.customer_id
-              and op.status not in ('enquiry','settled')), 0)
-          > 0
-      ) t`);
-    const list = rowsOf<{ n?: number }>(rows);
-    return Number(list[0]?.n ?? 0);
-  } catch {
-    return 0;
-  }
-}
 
 /* Every page in this group stands behind the door. The login page
    lives outside the group, so the guard cannot loop. The back office
@@ -54,7 +23,7 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   if (!(await hasSession())) redirect("/admin/login");
-  const owed = await owedCount();
+  const owed = (await readAdminPulse()).owingCustomers;
   return (
     /* A flex column so short rooms still hold the footer at the
        floor: the children stretch, the footer never drifts up. */

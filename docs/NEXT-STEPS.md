@@ -16,6 +16,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 | Product variants | Seed size, shade, and finish now live on the piece record as editable trade facts. Stock and price stay on the piece. |
 | Application tags | Kitchen, sink, bathroom, sitting room, office, exterior, swimming pool, pool floor art, logo art, and wall art now live as controlled tags on pieces. |
 | Sample flow | Customer records now track showroom visits, sample pictures, site sample visits, pool-size quotes, and materials lists as sales motions. |
+| Performance watch | The admin glance and owed badge now share one cached raw pulse query, so the home page no longer runs five glance queries plus the badge. |
 
 ## Needs owner truth
 
@@ -33,8 +34,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Performance watch | Admin home is acceptable, but still runs five glance queries plus the owed badge. If production logs show slowness, consolidate the glance and badge into one raw query. |
-| 2 | Onyx eye pass | The contrast gate passed. The remaining work is a real visual pass on photo-slot hints and gold-on-shell pairings in the Onyx house. |
+| 1 | Onyx eye pass | The contrast gate passed. The remaining work is a real visual pass on photo-slot hints and gold-on-shell pairings in the Onyx house. |
 
 ## Standing decisions
 

@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { count, eq, ne, sql } from "drizzle-orm";
-import { getDb, schema } from "@/db";
+import { readAdminPulse } from "@/lib/admin-pulse";
 import RefreshLine from "./RefreshLine";
 import { TourOffer } from "./Tour";
 import { LastTouched } from "./touched";
@@ -16,42 +15,20 @@ function naira(kobo: number) {
 }
 
 async function pulse() {
-  try {
-    const db = getDb();
-    const [pieces] = await db.select({ n: count() }).from(schema.pieces);
-    const [low] = await db
-      .select({ n: count() })
-      .from(schema.stockLevels)
-      /* Warn-me-at 0 means he never asked to be warned. */
-      .where(sql`${schema.stockLevels.reorderAt} > 0 and ${schema.stockLevels.quantitySheets} <= ${schema.stockLevels.reorderAt}`);
-    const [open] = await db
-      .select({ n: count() })
-      .from(schema.orders)
-      .where(ne(schema.orders.status, "settled"));
-    const [fresh] = await db
-      .select({ n: count() })
-      .from(schema.enquiries)
-      .where(eq(schema.enquiries.status, "new"));
-    const [owed] = await db
-      .select({
-        kobo: sql<number>`coalesce((select sum(${schema.orderItems.givenPriceKobo} * ${schema.orderItems.quantity}) from ${schema.orderItems} join ${schema.orders} o on o.id = ${schema.orderItems.orderId} where o.status not in ('enquiry','settled')),0) - coalesce((select sum(${schema.payments.amountKobo}) from ${schema.payments} join ${schema.orders} o2 on o2.id = ${schema.payments.orderId} where o2.status not in ('enquiry','settled')),0)`,
-      })
-      .from(sql`(select 1) as one`);
-    return {
-      ok: true as const,
-      cards: [
-        { label: "Pieces in the catalogue", value: String(pieces.n), note: "published and drafts", href: "/admin/pieces" },
-        { label: "Stock warnings", value: String(low.n), note: "at or below reorder level", href: "/admin/pieces" },
-        { label: "Open orders", value: String(open.n), note: "quoted through delivered", href: "/admin/orders" },
-        /* Never a negative on the glance: net overpayment reads as
-           nothing owed, and the credit story lives on the order. */
-        { label: "Outstanding", value: naira(Math.max(0, Number(owed.kobo))), note: "billed minus paid, open orders", href: "/admin/debts" },
-        { label: "New enquiries", value: String(fresh.n), note: "unanswered", href: "/admin/customers" },
-      ],
-    };
-  } catch {
-    return { ok: false as const, cards: [] };
-  }
+  const data = await readAdminPulse();
+  if (!data.ok) return { ok: false as const, cards: [] };
+  return {
+    ok: true as const,
+    cards: [
+      { label: "Pieces in the catalogue", value: String(data.pieces), note: "published and drafts", href: "/admin/pieces" },
+      { label: "Stock warnings", value: String(data.lowStock), note: "at or below reorder level", href: "/admin/pieces" },
+      { label: "Open orders", value: String(data.openOrders), note: "quoted through delivered", href: "/admin/orders" },
+      /* Never a negative on the glance: net overpayment reads as
+         nothing owed, and the credit story lives on the order. */
+      { label: "Outstanding", value: naira(data.outstandingKobo), note: "billed minus paid, open orders", href: "/admin/debts" },
+      { label: "New enquiries", value: String(data.freshEnquiries), note: "unanswered", href: "/admin/customers" },
+    ],
+  };
 }
 
 export default async function AdminHome() {
