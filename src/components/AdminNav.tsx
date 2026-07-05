@@ -38,6 +38,11 @@ const ROOM_ICONS = {
   settings: IconSettings,
 } satisfies Record<AdminRoom["id"], ComponentType<{ className?: string }>>;
 
+function RoomGlyph({ room, className }: { room: AdminRoom; className?: string }) {
+  const Glyph = ROOM_ICONS[room.id];
+  return <Glyph className={className} />;
+}
+
 /* A quiet gold count beside a room's name: how many people owe. */
 function CountPill({ n }: { n: number }) {
   if (n <= 0) return null;
@@ -58,7 +63,6 @@ export function AdminTopNav({ owed = 0 }: { owed?: number }) {
     >
       {ADMIN_ROOMS.map((r) => {
         const on = isActive(r);
-        const RoomIcon = ROOM_ICONS[r.id];
         return (
           <Link
             key={r.href}
@@ -69,7 +73,7 @@ export function AdminTopNav({ owed = 0 }: { owed?: number }) {
             }`}
           >
             <span className="flex items-center gap-2">
-              <RoomIcon className={`h-5 w-5 shrink-0 ${on ? "text-gold" : "text-mist"}`} />
+              <RoomGlyph room={r} className={`h-5 w-5 shrink-0 ${on ? "text-gold" : "text-mist"}`} />
               {r.label}
               {r.label === "Owed" && <CountPill n={owed} />}
             </span>
@@ -86,7 +90,6 @@ export function AdminRailNav({ owed = 0 }: { owed?: number }) {
     <nav aria-label="Back office rooms" data-tour="rooms" className="mt-10 space-y-1.5">
       {ADMIN_ROOMS.map((r) => {
         const on = isActive(r);
-        const RoomIcon = ROOM_ICONS[r.id];
         return (
           <Link
             key={r.href}
@@ -97,7 +100,7 @@ export function AdminRailNav({ owed = 0 }: { owed?: number }) {
             }`}
           >
             <span className="flex min-w-0 items-center gap-3">
-              <RoomIcon className={`h-5 w-5 shrink-0 ${on ? "text-gold" : "text-mist group-hover:text-dusk"}`} />
+              <RoomGlyph room={r} className={`h-5 w-5 shrink-0 ${on ? "text-gold" : "text-mist group-hover:text-dusk"}`} />
               <span className="truncate">{r.label}</span>
             </span>
             {r.label === "Owed" && <CountPill n={owed} />}
@@ -118,7 +121,6 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
     >
       {ADMIN_TABS.map((r) => {
         const on = isActive(r);
-        const RoomIcon = ROOM_ICONS[r.id];
         return (
           <Link
             key={r.href}
@@ -126,7 +128,7 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
             aria-current={on ? "page" : undefined}
             className="flex flex-1 flex-col items-center gap-1.5 pb-3 pt-3.5"
           >
-            <RoomIcon className={`h-5 w-5 ${on ? "text-gold" : "text-mist"}`} />
+            <RoomGlyph room={r} className={`h-5 w-5 ${on ? "text-gold" : "text-mist"}`} />
             <span
               className={`text-[11px] font-semibold leading-none tracking-[0] ${
                 on ? "text-ink" : "text-mist"
