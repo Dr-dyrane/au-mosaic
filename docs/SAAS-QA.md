@@ -51,6 +51,21 @@ means not built yet. Update the verdicts as passes land.
 | 404s handled kindly | Pass (uuid guards, maison 404) |
 | Badge for attention items | Pass (Owed count) |
 
+## Desk shell target
+
+The next admin UI pass is governed by `docs/DESK-SHELL.md`. These are
+planned gates, not shipped claims.
+
+| Item | Verdict |
+|---|---|
+| Desktop room rail | Planned |
+| Desktop work canvas plus context rail | Planned |
+| Phone keeps one-column tab flow | Planned |
+| Context rail never duplicates the page | Planned |
+| Owner UI hides technical setup words | Planned |
+| House controls live in shell chrome | Planned |
+| Visual QA at 390, 768, 1024, and 1440 | Planned |
+
 ## Performance
 
 | Item | Verdict |

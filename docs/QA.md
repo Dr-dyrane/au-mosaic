@@ -1,7 +1,7 @@
 # QA ledger · The Mosaic Maison
 
 Every checkpoint verified with evidence, not opinion. Updated each pass.
-Last pass: 2026-07-04.
+Last pass: 2026-07-05.
 
 ## The owner's checklist
 
@@ -31,6 +31,7 @@ Last pass: 2026-07-04.
 | SEO | PASS | Per-page metadata, OG and Twitter cards, JSON-LD LocalBusiness, `sitemap.xml` (all pages and pieces), `robots.txt`, canonical host via `metadataBase`. |
 | Analytics | PASS | `@vercel/analytics` wired in the root layout. Fulfils the proposal's traffic analytics deliverable. |
 | Copy protocol | PASS | Swept: no em dashes, no arrows, few words, human prose. |
+| Desk shell goal | PASS | `docs/DESK-SHELL.md` defines the adaptive admin target before code: room rail, work canvas, context rail, phone sheet behavior, owner-language guardrails, use-case coverage, and Apple HIG source anchors. |
 
 ## Step-up pass (SICIS benchmark)
 
