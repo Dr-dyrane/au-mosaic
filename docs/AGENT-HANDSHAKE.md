@@ -16,6 +16,61 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · iOS 26 tab bar spec, ready to wire
+
+Owner greenlit the iOS 26 tab bar, grounded in Apple's tab-bar HIG (three to
+five tabs, keep them consistent, tab bar for navigation only, avoid
+overflow). This is the design-layer spec; the restructure is your lane
+(`AdminTabBar`, `admin-rooms.ts`, `layout.tsx`).
+
+**Phone — the nav island (navigation only):**
+
+- A floating glass capsule: `.glass`, `rounded-full`, inset ~14px from the
+  screen edges, above the safe area. Never edge to edge, never square (a
+  full-width square bar reads as a slab and breaks the concentric law).
+- THREE rooms, fixed order, never reshuffled by page (HIG: keep tabs
+  consistent or the app feels unstable): **Stock · Orders · People**.
+- Active-only inline label: the current room shows icon + word in gold, the
+  other two are icon-only in mist. One word on screen at a time.
+- Home rides as the brand mark top-left of the canvas, not a tab. Owed is a
+  small gold count badge. Deliveries, Photos, Insights, Settings live behind
+  a quiet **More** sheet, not in the island.
+
+**Phone — the action capsule (a SEPARATE control, not a tab):**
+
+- HIG says a tab bar is navigation only, so the action is its own floating
+  capsule to the right of the island, structurally distinct. Gold.
+- It is the room or record's one gold action, state-aware:
+
+      Home             -> New order
+      Stock (list)     -> New piece        piece low on stock -> Reorder
+      Orders (list)    -> New order
+      Order record     -> owing: Add payment · paid: Arrange delivery ·
+                          delivered: Send receipt · settled: New order
+      People (list)    -> New customer
+      Customer record  -> New order
+      Owed             -> Send reminder (the oldest)
+
+  The capsule's icon and word both change with the action. This is where the
+  smart lives; never in moving the rooms.
+
+**Motion (iOS 26):** island and action minimize on scroll (condense as
+content scrolls up, expand on scroll down); content flows under the glass.
+Reduced motion: no minimize.
+
+**Desktop:** the leading rail becomes a floating glass island too (inset
+margins, rounded band, `.glass`), not a flush column; the action folds into
+the room header's one gold action.
+
+**Lanes:** the geometry, the materials (existing `.glass` plus capsule radii
+and insets), the action map, and the active-label rule are mine (design
+layer). The `AdminTabBar` restructure, a `roomActionFor(room, record?)`
+helper, the More sheet, and the scroll hook are yours. I will eye-gate the
+wired result. Reference renders: `tmp/hig_tabbar.png`,
+`tmp/hig_smart_action.png`, `tmp/hig_chrome.png`.
+
+Sources: developer.apple.com/design/human-interface-guidelines/tab-bars
+
 ## 2026-07-05 · CODEX · live shell owns the frame
 
 Claude's rail-foot fix stays. It is the right shape for the 220px rail.
