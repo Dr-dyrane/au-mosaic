@@ -26,7 +26,7 @@ export default function Header() {
   const open = openPath === pathname;
   const explore = explorePath === pathname;
 
-  /* Explore dismisses on an outside tap — touch has no hover to leave.
+  /* Explore dismisses on an outside tap; touch has no hover to leave.
      (Menu links close themselves on click; no route-change effect needed.) */
   useEffect(() => {
     if (!explore) return;
@@ -36,6 +36,17 @@ export default function Header() {
     document.addEventListener("pointerdown", onDown);
     return () => document.removeEventListener("pointerdown", onDown);
   }, [explore]);
+
+  /* While the mobile menu is open, lock the page so the panel scrolls, not
+     the page behind it. */
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
   /* Pieces belong to the collection: /piece/* lights the Mosaic tiles tab. */
   const isActive = (href: string) =>
     pathname === href ||
@@ -145,7 +156,7 @@ export default function Header() {
 
         {open && (
           <nav
-            className="island-panel glass absolute left-1/2 top-full mt-2 w-[min(92vw,340px)] rounded-[28px] p-7 lg:hidden"
+            className="island-panel glass absolute left-1/2 top-full mt-2 max-h-[calc(100dvh-6rem)] w-[min(92vw,340px)] overflow-y-auto overscroll-contain rounded-[28px] p-7 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
             aria-label="Menu"
           >
             {NAV.map((n) => (
