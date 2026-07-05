@@ -47,13 +47,32 @@ const DREAM_BY_GROUP: Record<string, Dream> = {
   "bulk-orders": { night: OWN.showroomWall, day: DAY.showroomWall, line: "Every colour, by the container.", alt: "The showroom wall, the full range sampled" },
 };
 
+/* The dream caption, per piece, spoken over its own applied scene. A piece
+   with no line of its own yet falls to the quiet default. */
+const APPLIED_LINE: Record<string, string> = {
+  "classic-pool-blues": "The deep end, tiled in blue.",
+  "solid-colour-glass": "A wall that keeps to one colour.",
+  "gold-metallic-accents": "Metal gathers the evening in.",
+  "custom-murals": "Made to be looked at twice.",
+  "plain-blue-small-seed": "The blue that reads as clean water.",
+  "mixed-blue-big-seed": "Water, never one flat blue.",
+  "plain-white-mosaic": "Light, with the volume up.",
+  "black-mosaic": "Water gone dark and still.",
+  "green-mosaic": "The colour a courtyard wears.",
+  "orange-mosaic": "One warm wall, and the room wakes.",
+  "tiny-seed-gold": "The gold takes the room, and holds the evening in it.",
+  "silver-crystal-mosaic": "Light, broken into a thousand facets.",
+  "stone-mosaic": "A quiet room, kept quiet.",
+  "hexagon-marble": "The bath, floored in marble.",
+};
+
 function dreamFor(p: RevealPiece): Dream {
   /* Render both types. When a product card is the stage object, the dream is
      the piece's own applied mosaic, its legacy cinematic scene, so the product
      and the application both show. When there is no card, the applied image is
      already the object, so the dream is a family window frame instead. */
   if (p.card && p.image) {
-    return { night: p.image, day: p.imageLight, line: "Made real, tessera by tessera.", alt: `${p.name}, applied` };
+    return { night: p.image, day: p.imageLight, line: APPLIED_LINE[p.slug] ?? "Made real, tessera by tessera.", alt: `${p.name}, applied` };
   }
   return DREAM_BY_SLUG[p.slug] ?? DREAM_BY_GROUP[p.groupId] ?? DREAM_BY_GROUP["glass-mosaics"];
 }
@@ -65,6 +84,58 @@ const COPY: Record<string, Copy> = {
     stageSub: "Gold, cut small, set close.",
     materialTitle: "A thousand points of gold.",
     materialBody: "Tiny seed, cut small and set close. Each tessera catches the light on its own, so the surface breathes instead of lying flat.",
+  },
+  "classic-pool-blues": {
+    materialTitle: "Every blue the water knows.",
+    materialBody: "Small seed and big, deep to light, mixed in one sheet — the whole range a pool moves through from the deep end to the steps.",
+  },
+  "solid-colour-glass": {
+    materialTitle: "One clean colour, edge to edge.",
+    materialBody: "Solid glass, cut square — crystal, stone, chess board, or a shade matched to order. No pattern to hide in, just the colour itself.",
+  },
+  "gold-metallic-accents": {
+    materialTitle: "Three metals, all mirror.",
+    materialBody: "Gold, silver, and rose-gold mirror. Each piece catches the room and hands it back a little warmer than it left.",
+  },
+  "custom-murals": {
+    materialTitle: "Your drawing, in glass.",
+    materialBody: "Cut and set by hand to your own design — a crest, a koi, a name. Whatever the picture, it arrives one piece at a time.",
+  },
+  "plain-blue-small-seed": {
+    materialTitle: "The pool classic, small seed.",
+    materialBody: "Fine blue seed, even across the sheet — the tile that has lined more Lagos pools than any other, for the plain reason that it works.",
+  },
+  "mixed-blue-big-seed": {
+    materialTitle: "Deep to light, one sheet.",
+    materialBody: "Big seed, blues blended dark to pale in a single sheet, so the water shifts shade the way real water does under moving light.",
+  },
+  "plain-white-mosaic": {
+    materialTitle: "Clean light, nothing added.",
+    materialBody: "Plain white glass set close — the surface that makes a small room feel larger and a pool read bright to the floor.",
+  },
+  "black-mosaic": {
+    materialTitle: "Shadow, matte or gloss.",
+    materialBody: "Black glass in two moods: matte drinks the light, gloss throws it back. Either one turns a wall or a pool deep and quiet.",
+  },
+  "green-mosaic": {
+    materialTitle: "Green, for rooms that breathe.",
+    materialBody: "A living green across the sheet — at home behind a kitchen counter, along a bath, or in a courtyard where the leaves already agree.",
+  },
+  "orange-mosaic": {
+    materialTitle: "A warm accent, on purpose.",
+    materialBody: "Orange glass with real heat in it. A single band or a whole wall, for a room that wants a pulse, not another neutral.",
+  },
+  "silver-crystal-mosaic": {
+    materialTitle: "Cut like crystal, set like tile.",
+    materialBody: "Faceted glass that behaves like cut crystal — every piece a small prism, so the whole sheet flickers as you move past it.",
+  },
+  "stone-mosaic": {
+    materialTitle: "Matte stone, no shine at all.",
+    materialBody: "Natural stone cut to mosaic and left matte — warm on a wall, quiet in a room that would rather be calm than loud.",
+  },
+  "hexagon-marble": {
+    materialTitle: "Marble, cut to the honeycomb.",
+    materialBody: "Real marble in small hexagons, veined no two alike, tessellating across a bath wall the way honeycomb always meant to.",
   },
 };
 
