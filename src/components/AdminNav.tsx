@@ -227,7 +227,7 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
     <>
       <div
         data-tour="rooms"
-        className={`layer-admin-nav pointer-events-none fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] flex items-center justify-center gap-2 transition-transform duration-300 lg:hidden ${
+        className={`layer-admin-nav pointer-events-none fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] flex items-center justify-center gap-2 transition-transform duration-300 xl:hidden ${
           compact ? "translate-y-1 scale-[0.98]" : ""
         }`}
       >

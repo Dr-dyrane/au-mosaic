@@ -27,8 +27,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const pulse = await readAdminPulse();
   const owed = pulse.owingCustomers;
   return (
-    <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-36 tabular-nums sm:px-8 sm:pb-36 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:px-6 lg:pb-8 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:px-8">
-      <aside className="layer-admin-nav hidden lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto lg:py-6">
+    <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-36 tabular-nums sm:px-8 sm:pb-36 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:gap-8 xl:px-8 xl:pb-8">
+      <aside className="layer-admin-nav hidden xl:sticky xl:top-0 xl:flex xl:h-svh xl:flex-col xl:overflow-y-auto xl:py-6">
         <div className="glass liquid-glass flex min-h-[calc(100svh-48px)] flex-col rounded-[32px] p-5">
           <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
             <AuSign markClassName="h-[15px]" />
@@ -58,8 +58,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </div>
       </aside>
-      <section className="min-w-0 py-8 lg:py-10">
-        <header className="pb-9 lg:hidden">
+      <section className="min-w-0 py-8 xl:py-10">
+        <header className="pb-9 xl:hidden">
           <div className="flex items-center justify-between gap-6">
             <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
               <AuSign markClassName="h-[15px]" />
@@ -82,7 +82,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </header>
         <AdminMobileContext pulse={pulse} />
         <div>{children}</div>
-        <footer className="mt-24 flex flex-wrap items-center justify-between gap-5 pt-8 lg:hidden">
+        <footer className="mt-24 flex flex-wrap items-center justify-between gap-5 pt-8 xl:hidden">
           <p className="text-[11px] uppercase tracking-[0.18em] text-mist">
             The back office · AU Mosaic
           </p>
