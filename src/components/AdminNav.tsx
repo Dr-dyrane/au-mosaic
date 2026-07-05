@@ -101,7 +101,7 @@ function roomActionFor(pathname: string, owed: number): RoomAction {
     case "deliveries":
       return { href: "/admin/deliveries/new", label: "New delivery", room: roomById("deliveries") };
     case "photos":
-      return { href: "/admin/media#add-photo", label: "Add photo", room: roomById("photos") };
+      return { href: "/admin/media#media-add-photo", label: "Add photo", room: roomById("photos") };
     case "insights":
       return { href: "/admin", label: "Today", room: roomById("home") };
     case "settings":

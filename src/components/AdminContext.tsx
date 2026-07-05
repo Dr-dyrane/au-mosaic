@@ -12,10 +12,10 @@ import {
   subscribeAdminContextPanel,
 } from "@/components/admin-context-panel-store";
 import { StockFilterPanel } from "@/app/admin/(panel)/pieces/FilterSheet";
-import { MediaAssetEditor } from "@/app/admin/(panel)/media/MediaForms";
+import { MediaAssetEditor, MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 
 type Metric = { label: string; value: string; href?: string };
-type Action = { label: string; href: string };
+type Action = { label: string; href: string; event?: string };
 type ContextModel = {
   eyebrow: string;
   title: string;
@@ -111,7 +111,7 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
         line: "Photos can stay draft, become approved, or go live where they belong.",
         metrics: [],
         actions: [
-          { label: "Add a photo", href: "/admin/media#add-photo" },
+          { label: "Add a photo", href: "/admin/media#media-add-photo", event: "admin:media-add-photo" },
           { label: "Stockroom", href: "/admin/pieces" },
         ],
       };
@@ -211,7 +211,17 @@ function ContextBody({ ctx, compact = false }: { ctx: ContextModel; compact?: bo
       {ctx.actions.length > 0 && (
         <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3">
           {ctx.actions.map((action) => (
-            <Link key={action.href} href={action.href} className="link-hair text-dusk text-[12px]">
+            <Link
+              key={`${action.href}-${action.label}`}
+              href={action.href}
+              onClick={(event) => {
+                if (!action.event) return;
+                if (event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return;
+                event.preventDefault();
+                window.dispatchEvent(new CustomEvent(action.event, { detail: action }));
+              }}
+              className="link-hair text-dusk text-[12px]"
+            >
               {action.label}
             </Link>
           ))}
@@ -247,11 +257,13 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
   const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
   const mediaEdit = panel?.kind === "media-edit" ? panel : null;
+  const mediaCreate = panel?.kind === "media-create" ? panel : null;
 
   useEffect(() => {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
     if (mediaEdit && !pathname.startsWith("/admin/media")) clearAdminContextPanel();
-  }, [pathname, stockFilter, mediaEdit]);
+    if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
+  }, [pathname, stockFilter, mediaEdit, mediaCreate]);
 
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
@@ -285,6 +297,34 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
                   asset={mediaEdit.asset}
                   pieces={mediaEdit.pieces}
                   fullHref={mediaEdit.href}
+                />
+              </div>
+            </div>
+          ) : mediaCreate ? (
+            <div id="media-add-photo">
+              <div className="flex items-start justify-between gap-5 px-2">
+                <div>
+                  <p className="eyebrow">Add photo</p>
+                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
+                    Product display, room example, proof.
+                  </h2>
+                  <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                    Upload once, then decide where it belongs.
+                  </p>
+                </div>
+                <button
+                  onClick={clearAdminContextPanel}
+                  className="link-hair shrink-0 text-dusk text-[12px]"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-6">
+                <MediaCreateForm
+                  pieces={mediaCreate.pieces}
+                  surface="plain"
+                  showIntro={false}
+                  idPrefix="media-rail"
                 />
               </div>
             </div>

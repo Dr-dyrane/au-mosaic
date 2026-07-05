@@ -32,6 +32,10 @@ export type AdminContextPanel =
       pieces: ContextPieceOption[];
       href: string;
     }
+  | {
+      kind: "media-create";
+      pieces: ContextPieceOption[];
+    }
   | null;
 
 let panel: AdminContextPanel = null;
@@ -57,6 +61,11 @@ export function showStockFilterPanel(current: StockFilterContext) {
 
 export function showMediaEditPanel(asset: ContextMediaAsset, pieces: ContextPieceOption[], href: string) {
   panel = { kind: "media-edit", asset, pieces, href };
+  emit();
+}
+
+export function showMediaCreatePanel(pieces: ContextPieceOption[]) {
+  panel = { kind: "media-create", pieces };
   emit();
 }
 

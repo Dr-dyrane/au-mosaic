@@ -6,6 +6,7 @@ import AdminSheet from "@/components/AdminSheet";
 import {
   clearAdminContextPanel,
   getAdminContextPanel,
+  showMediaCreatePanel,
   showMediaEditPanel,
   subscribeAdminContextPanel,
 } from "@/components/admin-context-panel-store";
@@ -103,6 +104,9 @@ export function MediaCreateForm({
   const [state, action, pending] = useActionState<MediaState, FormData>(createMediaAssetAction, null);
   const formRef = useRef<HTMLFormElement>(null);
   const plain = surface === "plain";
+  const formGrid = `${showIntro ? "mt-6" : ""} grid gap-5 ${plain ? "" : "lg:grid-cols-[1.2fr_1fr_1fr]"}`;
+  const twoWide = plain ? "" : "lg:col-span-2";
+  const fullWide = plain ? "" : "lg:col-span-3";
 
   useEffect(() => {
     if (state?.ok) formRef.current?.reset();
@@ -123,7 +127,7 @@ export function MediaCreateForm({
       ) : (
         <Sentence state={state} />
       )}
-      <form ref={formRef} onSubmit={keepValues(action)} className={`${showIntro ? "mt-6" : ""} grid gap-5 lg:grid-cols-[1.2fr_1fr_1fr]`}>
+      <form ref={formRef} onSubmit={keepValues(action)} className={formGrid}>
         <div>
           <label htmlFor={`${idPrefix}-title`} className={label}>Title</label>
           <input id={`${idPrefix}-title`} name="title" required placeholder="Gold mosaic column" className={field} />
@@ -152,7 +156,7 @@ export function MediaCreateForm({
           <label className={label}>Piece</label>
           <PieceSelect pieces={pieces} />
         </div>
-        <div className="lg:col-span-2">
+        <div className={twoWide}>
           <label htmlFor={`${idPrefix}-file`} className={label}>Photograph</label>
           <input
             id={`${idPrefix}-file`}
@@ -163,11 +167,11 @@ export function MediaCreateForm({
             className="file-soft block w-full text-[14px]"
           />
         </div>
-        <div className="lg:col-span-3">
+        <div className={fullWide}>
           <label htmlFor={`${idPrefix}-notes`} className={label}>Note</label>
           <textarea id={`${idPrefix}-notes`} name="notes" rows={2} placeholder="Where this photo belongs." className={field} />
         </div>
-        <div className="flex flex-wrap items-center gap-5 lg:col-span-3">
+        <div className={`flex flex-wrap items-center gap-5 ${fullWide}`}>
           <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
             {pending ? "Adding..." : "Add photo"}
           </button>
@@ -177,17 +181,27 @@ export function MediaCreateForm({
   );
 }
 
-export function MediaCreateSheet({ pieces }: { pieces: PieceOption[] }) {
+export function MediaCreateAction({ pieces }: { pieces: PieceOption[] }) {
   const [open, setOpen] = useState(false);
+  const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
+  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
+  const railOpen = panel?.kind === "media-create";
 
   useEffect(() => {
     const openSheet = () => {
       buzz(3);
-      setOpen(true);
+      if (wide) {
+        setOpen(false);
+        if (railOpen) clearAdminContextPanel();
+        else showMediaCreatePanel(pieces);
+      } else {
+        if (railOpen) clearAdminContextPanel();
+        setOpen(true);
+      }
     };
     window.addEventListener("admin:media-add-photo", openSheet);
     return () => window.removeEventListener("admin:media-add-photo", openSheet);
-  }, []);
+  }, [pieces, railOpen, wide]);
 
   return (
     <AdminSheet
