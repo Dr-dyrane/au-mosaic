@@ -59,7 +59,7 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
     return { ok: false, message: "Too heavy. Keep it under 8MB." };
   }
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return { ok: false, message: "The photo store is not connected yet. Add BLOB_READ_WRITE_TOKEN." };
+    return { ok: false, message: "Photo uploads are not ready yet. Try again after setup." };
   }
   /* Two doors, two sentences: the store and the book fail in their
      own words, and each failure names itself in the runtime logs, so
@@ -74,7 +74,7 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
     url = blob.url;
   } catch (e) {
     console.error("[photograph] the store refused the upload", e);
-    return { ok: false, message: "The photo store refused the file. Try once more; if it holds, the store key needs a look." };
+    return { ok: false, message: "The file did not upload. Try once more." };
   }
   try {
     await getDb()

@@ -15,20 +15,20 @@ export default function MediaBatchActions() {
   );
   return (
     <div className="panel mt-8 max-w-3xl" data-tour="media-batch">
-      <p className="font-serif text-[20px]">Batch 08.</p>
+      <p className="font-serif text-[20px]">Prepared photos.</p>
       <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-dusk">
-        Bring the draft files into the media room, then wire only the
-        approved product-card pairs. The kitchen pair stays proof.
+        Add the prepared product photos, then make the approved product
+        displays live. The kitchen pair stays as a room example.
       </p>
       <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-4">
         <form action={importAction}>
           <button type="submit" disabled={importPending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
-            {importPending ? "Importing..." : "Import Batch 08"}
+            {importPending ? "Adding..." : "Add prepared photos"}
           </button>
         </form>
         <form action={promoteAction}>
           <button type="submit" disabled={promotePending} className="btn-gold">
-            {promotePending ? "Wiring..." : "Promote winners"}
+            {promotePending ? "Making live..." : "Make product photos live"}
           </button>
         </form>
       </div>

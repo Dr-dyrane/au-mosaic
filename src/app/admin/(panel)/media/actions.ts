@@ -21,21 +21,21 @@ export async function importBatch08Action(_prev: MediaState, _form: FormData): P
   try {
     const result = await importBatch08Assets();
     await logAction(
-      "imported media",
-      "Batch 08",
-      `${result.uploaded} uploaded, ${result.skipped} already on the bench`
+      "added prepared photos",
+      "Prepared photos",
+      `${result.uploaded} added, ${result.skipped} already in the photo room`
     );
     revalidatePath("/admin/media");
     return {
       ok: true,
       message:
         result.uploaded > 0
-          ? `${result.uploaded} files entered the media room.`
-          : "Batch 08 was already in the media room.",
+          ? `${result.uploaded} photos entered the photo room.`
+          : "The prepared photos are already in the photo room.",
     };
   } catch (e) {
-    console.error("[media] Batch 08 import failed", e);
-    return { ok: false, message: "Batch 08 could not enter the media room. Check the photo store and try again." };
+    console.error("[media] prepared photos import failed", e);
+    return { ok: false, message: "The prepared photos could not be added. Try again." };
   }
 }
 
@@ -46,17 +46,17 @@ export async function promoteBatch08Action(_prev: MediaState, _form: FormData): 
   try {
     const result = await promoteBatch08Assets();
     await logAction(
-      "promoted media",
-      "Batch 08",
-      `${result.wired} product cards wired, ${result.proofApproved} proof frames approved`
+      "made product photos live",
+      "Prepared photos",
+      `${result.wired} product displays live, ${result.proofApproved} room examples approved`
     );
     refreshMediaAndWindow();
     return {
       ok: true,
-      message: `${result.wired} product cards wired. The kitchen pair stays proof.`,
+      message: `${result.wired} product displays are live. The kitchen pair stays as a room example.`,
     };
   } catch (e) {
-    console.error("[media] Batch 08 promotion failed", e);
-    return { ok: false, message: "Promote after Batch 08 has entered the room." };
+    console.error("[media] prepared photos publish failed", e);
+    return { ok: false, message: "Add the prepared photos before making them live." };
   }
 }
