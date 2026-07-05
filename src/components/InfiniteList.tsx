@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 /* Instagram-style infinite scroll: render a first set on the server, then load
-   the next batch automatically when the reader nears the end — no page buttons.
+   the next batch automatically when the reader nears the end. No page buttons.
    While a batch is in flight, skeletons stand in the grid; when it lands, the
    real cards replace them. One engine, reused by every long list (photos,
    stock, orders, people, owed, deliveries).
@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
    The parent owns the data. It passes the first page (server-rendered) and a
    `loadMore(offset)` server action that returns the next slice and whether the
    list is exhausted. This component owns only the scroll, the state, and the
-   loaders — it knows nothing about what it lists. */
+   loaders. It knows nothing about what it lists. */
 
 export type Batch<T> = { items: T[]; done: boolean };
 

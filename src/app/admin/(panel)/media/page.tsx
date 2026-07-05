@@ -1,11 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
-import { and, asc, desc, eq, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
-import AdminPhotoViewer from "@/components/AdminPhotoViewer";
+import MediaGrid from "./MediaGrid";
 import MediaBatchAction from "./MediaBatchActions";
-import { MediaAssetControls, MediaCreateAction } from "./MediaForms";
+import { MediaCreateAction } from "./MediaForms";
+import { loadMoreMediaRows, type MediaListFilters, type MediaListRow } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +17,7 @@ type MediaFilters = {
 
 const STATUSES = ["draft", "approved", "wired", "archived"] as const;
 const ROLES = ["card", "applied", "window", "proof", "contact_sheet"] as const;
-
-type MediaAsset = typeof schema.mediaAssets.$inferSelect;
+const MEDIA_PAGE_SIZE = 24;
 
 const STATUS_LABELS: Record<(typeof STATUSES)[number], string> = {
   draft: "Draft",
@@ -35,40 +34,12 @@ const ROLE_LABELS: Record<(typeof ROLES)[number], string> = {
   contact_sheet: "Review sheet",
 };
 
-const SUN_LABELS: Record<string, string> = {
-  day: "Day",
-  night: "Night",
-  single: "Single",
-};
-
 function labelStatus(v: string) {
   return STATUS_LABELS[v as (typeof STATUSES)[number]] ?? v.replace(/_/g, " ");
 }
 
 function labelRole(v: string) {
   return ROLE_LABELS[v as (typeof ROLES)[number]] ?? v.replace(/_/g, " ");
-}
-
-function labelSun(v: string) {
-  return SUN_LABELS[v] ?? v.replace(/_/g, " ");
-}
-
-function photoTitle(asset: MediaAsset) {
-  if (asset.role === "contact_sheet") return "Prepared photo review";
-  if (asset.role === "proof") return "Kitchen backsplash room example";
-  return asset.title
-    .replace(/ card, light$/i, "")
-    .replace(/ card, dark$/i, "")
-    .replace(/, light$/i, "")
-    .replace(/, dark$/i, "");
-}
-
-function photoNote(asset: MediaAsset) {
-  if (asset.role === "card") return "Product display for the website.";
-  if (asset.role === "proof" || asset.role === "applied") return "Room example for the showroom.";
-  if (asset.role === "window") return "Window scene for the website.";
-  if (asset.role === "contact_sheet") return "Review sheet for the prepared photos.";
-  return asset.notes;
 }
 
 function href(current: MediaFilters, patch: Partial<MediaFilters>) {
@@ -81,6 +52,25 @@ function href(current: MediaFilters, patch: Partial<MediaFilters>) {
   return qs ? `/admin/media?${qs}` : "/admin/media";
 }
 
+function asMediaListRow(row: {
+  asset: typeof schema.mediaAssets.$inferSelect;
+  piece: { name: string; slug: string } | null;
+}): MediaListRow {
+  return {
+    asset: {
+      id: row.asset.id,
+      url: row.asset.url,
+      title: row.asset.title,
+      sun: row.asset.sun,
+      role: row.asset.role,
+      status: row.asset.status,
+      pieceSlug: row.asset.pieceSlug,
+      notes: row.asset.notes,
+    },
+    piece: row.piece,
+  };
+}
+
 export default async function MediaPage({
   searchParams,
 }: {
@@ -90,18 +80,23 @@ export default async function MediaPage({
   const status = STATUSES.find((s) => s === filters.status);
   const role = ROLES.find((r) => r === filters.role);
   const batch = filters.batch === "batch-08" ? "batch-08" : undefined;
+  const activeFilters: MediaListFilters = { status, role, batch };
 
   const where: SQL[] = [];
   if (status) where.push(eq(schema.mediaAssets.status, status));
   if (role) where.push(eq(schema.mediaAssets.role, role));
   if (batch) where.push(eq(schema.mediaAssets.batch, batch));
 
-  let rows: {
-    asset: typeof schema.mediaAssets.$inferSelect;
-    piece: { name: string; slug: string } | null;
-  }[] = [];
+  let rows: MediaListRow[] = [];
+  let initialDone = true;
   let pieces: { slug: string; name: string }[] = [];
   let quiet = false;
+  let totals = {
+    all: 0,
+    draft: 0,
+    approved: 0,
+    wired: 0,
+  };
   try {
     const base = getDb()
       .select({
@@ -113,10 +108,29 @@ export default async function MediaPage({
       })
       .from(schema.mediaAssets)
       .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.mediaAssets.pieceSlug));
-    rows =
-      where.length > 0
-        ? await base.where(and(...where)).orderBy(desc(schema.mediaAssets.createdAt))
-        : await base.orderBy(desc(schema.mediaAssets.createdAt));
+    const query = where.length > 0 ? base.where(and(...where)) : base;
+    const firstPage = await query
+      .orderBy(desc(schema.mediaAssets.createdAt), desc(schema.mediaAssets.id))
+      .limit(MEDIA_PAGE_SIZE + 1);
+    rows = firstPage.slice(0, MEDIA_PAGE_SIZE).map(asMediaListRow);
+    initialDone = firstPage.length <= MEDIA_PAGE_SIZE;
+
+    const tallyBase = getDb()
+      .select({
+        all: sql<number>`count(*)::int`,
+        draft: sql<number>`sum(case when ${schema.mediaAssets.status} = 'draft' then 1 else 0 end)::int`,
+        approved: sql<number>`sum(case when ${schema.mediaAssets.status} = 'approved' then 1 else 0 end)::int`,
+        wired: sql<number>`sum(case when ${schema.mediaAssets.status} = 'wired' then 1 else 0 end)::int`,
+      })
+      .from(schema.mediaAssets);
+    const tallyQuery = where.length > 0 ? tallyBase.where(and(...where)) : tallyBase;
+    const [tally] = await tallyQuery;
+    totals = {
+      all: Number(tally?.all ?? 0),
+      draft: Number(tally?.draft ?? 0),
+      approved: Number(tally?.approved ?? 0),
+      wired: Number(tally?.wired ?? 0),
+    };
   } catch {
     quiet = true;
   }
@@ -126,13 +140,6 @@ export default async function MediaPage({
       .from(schema.pieces)
       .orderBy(asc(schema.pieces.name));
   } catch {}
-
-  const totals = {
-    all: rows.length,
-    draft: rows.filter((r) => r.asset.status === "draft").length,
-    approved: rows.filter((r) => r.asset.status === "approved").length,
-    wired: rows.filter((r) => r.asset.status === "wired").length,
-  };
 
   return (
     <main>
@@ -222,60 +229,13 @@ export default async function MediaPage({
       )}
 
       {!quiet && rows.length > 0 && (
-        <div className="-mx-5 mt-10 grid gap-x-5 gap-y-10 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map(({ asset, piece }) => (
-            <article key={asset.id} className="group">
-              <AdminPhotoViewer
-                src={asset.url}
-                alt={photoTitle(asset)}
-                title={photoTitle(asset)}
-                eyebrow={labelRole(asset.role)}
-                description={photoNote(asset) || undefined}
-                triggerClassName="photo-slot relative block aspect-[4/5] w-full overflow-hidden rounded-none sm:rounded-[22px]"
-                actions={[
-                  { label: "Edit photo", href: `/admin/media/${asset.id}` },
-                  ...(piece ? [{ label: piece.name, href: `/admin/pieces/${piece.slug}` }] : []),
-                ]}
-              >
-                <Image
-                  src={asset.url}
-                  alt={photoTitle(asset)}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  className="media-lux object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                />
-              </AdminPhotoViewer>
-              <div className="px-5 sm:px-0">
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="chip-solid">{labelStatus(asset.status)}</span>
-                  <span className="chip-solid">{labelRole(asset.role)}</span>
-                  <span className="chip-solid">{labelSun(asset.sun)}</span>
-                </div>
-                <h2 className="font-serif mt-3 text-[20px] leading-snug">{photoTitle(asset)}</h2>
-                {piece && (
-                  <Link href={`/admin/pieces/${piece.slug}`} className="link-hair mt-2 inline-block text-dusk text-[12px]">
-                    {piece.name}
-                  </Link>
-                )}
-                {photoNote(asset) && (
-                  <p className="mt-3 text-[14px] leading-relaxed text-mist">{photoNote(asset)}</p>
-                )}
-                <MediaAssetControls
-                  asset={{
-                    id: asset.id,
-                    title: asset.title,
-                    status: asset.status,
-                    role: asset.role,
-                    sun: asset.sun,
-                    pieceSlug: asset.pieceSlug,
-                    notes: asset.notes,
-                  }}
-                  pieces={pieces}
-                />
-              </div>
-            </article>
-          ))}
-        </div>
+        <MediaGrid
+          key={`${status ?? ""}-${role ?? ""}-${batch ?? ""}`}
+          initial={rows}
+          initialDone={initialDone}
+          loadMore={loadMoreMediaRows.bind(null, activeFilters)}
+          pieces={pieces}
+        />
       )}
     </main>
   );

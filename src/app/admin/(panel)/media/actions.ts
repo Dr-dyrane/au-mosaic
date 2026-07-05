@@ -2,7 +2,7 @@
 
 import { revalidatePath, updateTag } from "next/cache";
 import { put } from "@vercel/blob";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
@@ -19,6 +19,26 @@ type MediaAsset = typeof schema.mediaAssets.$inferSelect;
 type MediaRole = (typeof ROLES)[number];
 type MediaStatus = (typeof STATUSES)[number];
 type MediaSun = (typeof SUNS)[number];
+export type MediaListFilters = {
+  status?: string;
+  role?: string;
+  batch?: string;
+};
+export type MediaListRow = {
+  asset: {
+    id: string;
+    url: string;
+    title: string;
+    sun: string;
+    role: string;
+    status: string;
+    pieceSlug: string | null;
+    notes: string;
+  };
+  piece: { name: string; slug: string } | null;
+};
+
+const MEDIA_LIST_PAGE = 24;
 
 function refreshMediaAndWindow(id?: string) {
   revalidatePath("/admin");
@@ -35,6 +55,56 @@ function text(form: FormData, key: string) {
 
 function enumValue<T extends readonly string[]>(value: string, values: T, fallback: T[number]) {
   return values.includes(value) ? value as T[number] : fallback;
+}
+
+function mediaListWhere(filters: MediaListFilters) {
+  const where: SQL[] = [];
+  const status = STATUSES.find((s) => s === filters.status);
+  const role = ROLES.find((r) => r === filters.role);
+  const batch = filters.batch === "batch-08" ? "batch-08" : undefined;
+  if (status) where.push(eq(schema.mediaAssets.status, status));
+  if (role) where.push(eq(schema.mediaAssets.role, role));
+  if (batch) where.push(eq(schema.mediaAssets.batch, batch));
+  return where;
+}
+
+function asMediaListRow(row: {
+  asset: MediaAsset;
+  piece: { name: string; slug: string } | null;
+}): MediaListRow {
+  return {
+    asset: {
+      id: row.asset.id,
+      url: row.asset.url,
+      title: row.asset.title,
+      sun: row.asset.sun,
+      role: row.asset.role,
+      status: row.asset.status,
+      pieceSlug: row.asset.pieceSlug,
+      notes: row.asset.notes,
+    },
+    piece: row.piece,
+  };
+}
+
+async function selectMediaListRows(filters: MediaListFilters, offset: number, limit: number) {
+  const where = mediaListWhere(filters);
+  const base = getDb()
+    .select({
+      asset: schema.mediaAssets,
+      piece: {
+        name: schema.pieces.name,
+        slug: schema.pieces.slug,
+      },
+    })
+    .from(schema.mediaAssets)
+    .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.mediaAssets.pieceSlug));
+  const query = where.length > 0 ? base.where(and(...where)) : base;
+  const rows = await query
+    .orderBy(desc(schema.mediaAssets.createdAt), desc(schema.mediaAssets.id))
+    .limit(limit)
+    .offset(offset);
+  return rows.map(asMediaListRow);
 }
 
 function cleanFilePart(value: string) {
@@ -110,6 +180,15 @@ async function putLiveSlot(asset: MediaAsset) {
 async function mediaById(id: string) {
   const [asset] = await getDb().select().from(schema.mediaAssets).where(eq(schema.mediaAssets.id, id)).limit(1);
   return asset;
+}
+
+export async function loadMoreMediaRows(
+  filters: MediaListFilters,
+  offset: number
+): Promise<{ items: MediaListRow[]; done: boolean }> {
+  if (!(await hasSession())) return { items: [], done: true };
+  const rows = await selectMediaListRows(filters, offset, MEDIA_LIST_PAGE + 1);
+  return { items: rows.slice(0, MEDIA_LIST_PAGE), done: rows.length <= MEDIA_LIST_PAGE };
 }
 
 export async function createMediaAssetAction(_prev: MediaState, form: FormData): Promise<MediaState> {
