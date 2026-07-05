@@ -20,11 +20,16 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const piece = await getPiece((await params).slug);
   if (!piece) return {};
+  const description = piece.note
+    ? `${piece.name}. ${piece.note}.`
+    : `${piece.name}, from the ${piece.collection.toLowerCase()} collection.`;
+  const ogTitle = `${piece.name} · ${SITE.shortName}`;
   return {
     title: `${piece.name} · ${piece.collection}, Lagos`,
-    description: piece.note ? `${piece.name}. ${piece.note}.` : `${piece.name}, from the ${piece.collection.toLowerCase()} collection.`,
+    description,
     keywords: ["mosaic tiles", "Lagos", piece.collection, ...(piece.applicationTags ?? [])],
-    openGraph: piece.image ? { images: [{ url: piece.image }] } : undefined,
+    openGraph: { title: ogTitle, description, ...(piece.image ? { images: [{ url: piece.image }] } : {}) },
+    twitter: { title: ogTitle, description, ...(piece.image ? { images: [piece.image] } : {}) },
   };
 }
 

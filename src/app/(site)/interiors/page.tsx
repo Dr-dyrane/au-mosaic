@@ -5,10 +5,13 @@ import { wa } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 import Reveal from "@/components/Reveal";
 
+const description =
+  "Mosaic as the room's one great surface — feature walls, baths, and floors in glass, stone, and metal.";
 export const metadata: Metadata = {
   title: "Interiors",
-  description:
-    "Mosaic as the room's one great surface — feature walls, baths, and floors in glass, stone, and metal.",
+  description,
+  openGraph: { title: "Interiors · AU Mosaic", description },
+  twitter: { title: "Interiors · AU Mosaic", description },
 };
 
 const waWall = () =>

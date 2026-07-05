@@ -5,10 +5,13 @@ import { wa } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 import Reveal from "@/components/Reveal";
 
+const description =
+  "AU Mosaic is a Lagos house: mosaic tiles, pool materials, and pool construction, at Agric Market, Orile since 2016.";
 export const metadata: Metadata = {
   title: "Rooted in Lagos",
-  description:
-    "AU Mosaic is a Lagos house: mosaic tiles, pool materials, and pool construction, at Agric Market, Orile since 2016.",
+  description,
+  openGraph: { title: "Rooted in Lagos · AU Mosaic", description },
+  twitter: { title: "Rooted in Lagos · AU Mosaic", description },
 };
 
 const waVisit = () =>

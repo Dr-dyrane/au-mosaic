@@ -5,10 +5,13 @@ import { CtaRow, PageHero, Section } from "@/components/ui";
 import ThemeImage from "@/components/ThemeImage";
 import Reveal from "@/components/Reveal";
 
+const description =
+  "From the sample wall to the running pool: choose the colour, take samples home, gather the materials, and we build or supply.";
 export const metadata: Metadata = {
   title: "How we work",
-  description:
-    "From the sample wall to the running pool: choose the colour, take samples home, gather the materials, and we build or supply.",
+  description,
+  openGraph: { title: "How we work · AU Mosaic", description },
+  twitter: { title: "How we work · AU Mosaic", description },
 };
 
 const waStart = () =>

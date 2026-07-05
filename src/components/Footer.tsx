@@ -39,7 +39,7 @@ export default async function Footer() {
 
         <nav>
           <p className="eyebrow">Explore</p>
-          <ul className="mt-5 grid grid-cols-2 gap-x-8 gap-y-2.5">
+          <ul className="mt-5 columns-2 gap-x-8 [&>li]:mb-2.5 [&>li]:break-inside-avoid">
             {NAV.map((n) => (
               <li key={n.href}>
                 <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">

@@ -5,10 +5,13 @@ import { wa } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
 import Reveal from "@/components/Reveal";
 
+const description =
+  "Mosaic at the height of the craft: glass, stone, and metal set the old way, for pools, baths, and walls that mean to last.";
 export const metadata: Metadata = {
   title: "The Atelier",
-  description:
-    "Mosaic at the height of the craft: glass, stone, and metal set the old way, for pools, baths, and walls that mean to last.",
+  description,
+  openGraph: { title: "The Atelier · AU Mosaic", description },
+  twitter: { title: "The Atelier · AU Mosaic", description },
 };
 
 const waDesign = () =>
