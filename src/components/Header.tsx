@@ -18,23 +18,20 @@ const subscribe = (fn: () => void) => {
 const getScrolled = () => window.scrollY > 24;
 
 export default function Header() {
-  const [open, setOpen] = useState(false);
-  const [explore, setExplore] = useState(false);
+  const [openPath, setOpenPath] = useState<string | null>(null);
+  const [explorePath, setExplorePath] = useState<string | null>(null);
   const exploreRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const scrolled = useSyncExternalStore(subscribe, getScrolled, () => false);
+  const open = openPath === pathname;
+  const explore = explorePath === pathname;
 
-  /* Both menus close on navigation. */
-  useEffect(() => {
-    setOpen(false);
-    setExplore(false);
-  }, [pathname]);
-
-  /* Explore dismisses on an outside tap — touch has no hover to leave. */
+  /* Explore dismisses on an outside tap — touch has no hover to leave.
+     (Menu links close themselves on click; no route-change effect needed.) */
   useEffect(() => {
     if (!explore) return;
     const onDown = (e: PointerEvent) => {
-      if (exploreRef.current && !exploreRef.current.contains(e.target as Node)) setExplore(false);
+      if (exploreRef.current && !exploreRef.current.contains(e.target as Node)) setExplorePath(null);
     };
     document.addEventListener("pointerdown", onDown);
     return () => document.removeEventListener("pointerdown", onDown);
@@ -53,7 +50,7 @@ export default function Header() {
             scrolled ? "gap-4 px-4 py-2" : "gap-5 px-5 py-2.5"
           }`}
         >
-          <Link href="/" className="flex items-center" onClick={() => setOpen(false)} aria-label="AU Mosaic, home">
+          <Link href="/" className="flex items-center" onClick={() => setOpenPath(null)} aria-label="AU Mosaic, home">
             {/* The sign as the client's flyers set it: tesserae au,
                 serif mosaic in the brand blue. */}
             <AuLockup className={`transition-all duration-500 ${scrolled ? "text-[12px]" : "text-[14px]"}`} />
@@ -78,12 +75,12 @@ export default function Header() {
             <div
               ref={exploreRef}
               className="relative"
-              onMouseEnter={() => setExplore(true)}
-              onMouseLeave={() => setExplore(false)}
+              onMouseEnter={() => setExplorePath(pathname)}
+              onMouseLeave={() => setExplorePath(null)}
             >
               <button
                 type="button"
-                onClick={() => setExplore((v) => !v)}
+                onClick={() => setExplorePath(explore ? null : pathname)}
                 aria-expanded={explore}
                 aria-haspopup="menu"
                 className={`flex items-center gap-1.5 whitespace-nowrap py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
@@ -106,7 +103,7 @@ export default function Header() {
                       href={e.href}
                       role="menuitem"
                       aria-current={isActive(e.href) ? "page" : undefined}
-                      onClick={() => setExplore(false)}
+                      onClick={() => setExplorePath(null)}
                       className={`block rounded-[16px] px-4 py-2.5 text-[13px] transition-colors duration-200 hover:bg-shell/60 ${
                         isActive(e.href) ? "text-gold" : "text-dusk hover:text-ink"
                       }`}
@@ -132,7 +129,7 @@ export default function Header() {
 
           <button
             className="flex h-9 w-9 items-center justify-center text-ink transition-transform active:scale-90 lg:hidden"
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpenPath(open ? null : pathname)}
             aria-label="Menu"
             aria-expanded={open}
           >
@@ -155,7 +152,7 @@ export default function Header() {
               <Link
                 key={n.href}
                 href={n.href}
-                onClick={() => setOpen(false)}
+                onClick={() => setOpenPath(null)}
                 className={`font-serif block py-3 text-[20px] transition-colors duration-300 ${
                   isActive(n.href) ? "text-gold" : "text-ink"
                 }`}
@@ -169,7 +166,7 @@ export default function Header() {
                 <Link
                   key={e.href}
                   href={e.href}
-                  onClick={() => setOpen(false)}
+                  onClick={() => setOpenPath(null)}
                   className={`block py-2 text-[15px] transition-colors duration-300 ${
                     isActive(e.href) ? "text-gold" : "text-dusk hover:text-ink"
                   }`}
