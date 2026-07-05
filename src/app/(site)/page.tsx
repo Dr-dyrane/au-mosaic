@@ -123,12 +123,12 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Applied promise: the stock becomes a surface */}
+      {/* Room bridge: the stock becomes a surface */}
       <section className="px-4 pb-28 sm:px-6 sm:pb-36">
         <div className="mx-auto max-w-[1400px] rounded-[40px] bg-shell/70">
           <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
             <Reveal>
-              <p className="eyebrow">Applied promise</p>
+              <p className="eyebrow">In the room</p>
               <h2 className="font-serif text-display-section mt-4 max-w-xl">
                 The sheet becomes the room.
               </h2>

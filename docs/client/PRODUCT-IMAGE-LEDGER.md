@@ -659,14 +659,14 @@ scene photographs are untouched and remain the applied promise.
 ## Showroom proof placement
 
 The kitchen backsplash pair now has one public job: the first frame in
-the home page applied-promise band. The page asks `catalog.ts` for
+the home page In the room band. The page asks `catalog.ts` for
 `getAppliedPromises`, which reads approved Batch 08 proof rows first and
 falls back to owned scene media if the database is quiet.
 
 This keeps three lanes separate:
 
 - Product cards show the stock object.
-- Applied promise shows what the stock can become.
+- In the room shows what the stock can become.
 - Real project proof stays in WhatsApp and Instagram unless Nonso sends
   a controlled proof surface for the showroom.
 
@@ -723,7 +723,7 @@ custom-colours-sizes
 
 Then move the related `media_assets` rows for `batch-08` back to
 `draft`. The kitchen proof rows can stay approved or return to draft.
-Drafting the proof rows also removes them from the home applied-promise
+Drafting the proof rows also removes them from the home In the room
 first slot.
 
 To roll back only Batch 08, delete:
