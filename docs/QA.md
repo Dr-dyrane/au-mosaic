@@ -34,6 +34,7 @@ Last pass: 2026-07-05.
 | Desk shell goal | PASS | `docs/DESK-SHELL.md` defines the adaptive admin target before code: room rail, work canvas, context rail, phone sheet behavior, owner-language guardrails, use-case coverage, and Apple HIG source anchors. |
 | Desk shell build | PASS | Shared room model, desktop rail, tablet room row, phone tab bar, wide context rail, and mobile context disclosure shipped. Production visual QA at 390, 768, 1024, and 1440 found no horizontal overflow or tab overlap. `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 49 routes. |
 | Two-hand cleanup | PASS | Cleared stale staged inverse changes, kept Claude's rail-foot fix, wired Claude's room icons into the live nav, and retired unused `.desk-*` shell primitives. Playwright visual pass at 1440 and 390 found no nav overflow; icons render at 20px; `rg "desk-" src` is empty; `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 49 routes. |
+| Rail icon binding hotfix | PASS | `AdminNav` now resolves room icons through `RoomGlyph`, removing the stale `RoomIcon` rail reference. `rg "RoomIcon" src/components/AdminNav.tsx` is empty; `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 49 routes. |
 
 ## Step-up pass (SICIS benchmark)
 
