@@ -15,9 +15,10 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: SITE.name,
+  legalName: SITE.legalName,
   description: SITE.description,
   url: SITE.url,
-  telephone: SITE.phoneDisplay,
+  telephone: [SITE.phoneDisplay, SITE.phoneDisplay2],
   image: `${SITE.url.replace(/\/$/, "")}/og.png`,
   logo: `${SITE.url.replace(/\/$/, "")}/media/logo/mark.png`,
   priceRange: "₦₦",
@@ -29,6 +30,7 @@ const jsonLd = {
   },
   areaServed: "Nigeria",
   openingHours: "Mo-Sa 08:30-17:00",
+  foundingDate: SITE.founded,
   ...(SITE.instagram.includes("instagram.com/") && SITE.instagram !== "https://instagram.com"
     ? { sameAs: [SITE.instagram, SITE.telegram] }
     : {}),

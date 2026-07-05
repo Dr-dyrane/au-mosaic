@@ -25,6 +25,11 @@ export const SITE = {
   // WhatsApp Business number, international format, digits only.
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "2347077550283",
   phoneDisplay: process.env.NEXT_PUBLIC_PHONE_DISPLAY || "+234 707 755 0283",
+  // A second line the flyers list; the WhatsApp number above is primary.
+  phoneDisplay2: "+234 816 725 4287",
+  // Owner-confirmed, Business Discovery 2026-07-04.
+  legalName: "AU Mosaic Enterprises",
+  founded: "2016",
 };
 
 /* One word each, the Apple way. Inside a mosaic house, Tiles needs
