@@ -30,3 +30,10 @@ document map. The short version of the culture:
   a story-telling message.
 - Accessibility floor: WCAG AA measured, focus rings, skip link,
   reduced motion respected by every animation.
+
+## Two hands on one tree
+
+Another session may be editing the same files right now. The channel
+between hands is `docs/AGENT-HANDSHAKE.md`: before shell or back-office
+work, read the latest entries, claim your lane, and honor a standing
+claim. The design law and the owner's eye outrank any claim.

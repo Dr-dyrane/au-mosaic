@@ -7,6 +7,20 @@ archetype until a stranger cannot tell this from an Apple-owned app.
 Read `docs/DESIGN.md` for the maison laws this inherits. This document
 does not repeat them; it applies them to a working dashboard.
 
+> **This aligns with `docs/DESK-SHELL.md`.** CODEX wrote that doctrine the
+> same day, independently, and the two agree: three surfaces (rooms rail /
+> work canvas / context rail = sidebar / content / inspector), the phone
+> keeps its tab bar, the desktop gains the rail, the widest gains the
+> inspector, no borders, one gold action, whisper copy, six houses, no
+> hard deletes, one product not three. Read them as one contract.
+> `DESK-SHELL.md` leads on the doctrine, the nine-room rail model, the
+> Visible Language Guardrail (batch / blob / schema / wire become owner
+> words), and the nine-step build order. This file leads on the
+> route x size-class x state coverage matrix (section 4b), the state laws
+> (section 5), the premiumness checklist, and the working prototype
+> (`tmp/back-office-shell.html`). The live channel between the two hands
+> is `docs/AGENT-HANDSHAKE.md`.
+
 ---
 
 ## 0 · Scope
