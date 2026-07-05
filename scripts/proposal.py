@@ -1,7 +1,7 @@
 """Render the client proposal (docs/client/PROPOSAL-NONSO.md) as paper.
 
 The proposal used to live only as a hand-made PDF whose words drifted from
-the markdown and still named the retired au-mosaic.shop. This makes the
+the markdown and still named a domain since retired. This makes the
 markdown the single source: edit the .md, run this, and the PDF is reborn
 in the maison's own print manners — serif display, gold letterspaced
 eyebrows, a five-tesserae ornament, a quiet house strip, and not one ruled
