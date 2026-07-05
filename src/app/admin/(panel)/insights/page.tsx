@@ -113,8 +113,8 @@ export default async function InsightsPage({
     group by source order by n desc limit 6`);
 
   /* The funnel, tap to settled. Sessions read the beacon's anonymous
-     id; before that column lands (db:push) the top row waits gently
-     instead of erroring the room. */
+     id; before that house update, the top row waits gently instead
+     of erroring the room. */
   let sessions: number | null = null;
   try {
     const s = await db.execute(sql`
@@ -356,7 +356,7 @@ export default async function InsightsPage({
               )}
               {sessions === null && (
                 <p className="mt-1.5 text-[13px] leading-relaxed text-mist">
-                  People counting starts once npm run db:push lands the new column.
+                  People counting starts with the next house update.
                 </p>
               )}
             </>

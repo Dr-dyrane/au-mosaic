@@ -12,6 +12,7 @@ import {
   subscribeAdminContextPanel,
 } from "@/components/admin-context-panel-store";
 import { StockFilterPanel } from "@/app/admin/(panel)/pieces/FilterSheet";
+import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaAssetEditor, MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 
 type Metric = { label: string; value: string; href?: string };
@@ -112,6 +113,7 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
         metrics: [],
         actions: [
           { label: "Add a photo", href: "/admin/media#media-add-photo", event: "admin:media-add-photo" },
+          { label: "Prepared photos", href: "/admin/media#media-prepared-photos", event: "admin:media-prepared" },
           { label: "Stockroom", href: "/admin/pieces" },
         ],
       };
@@ -258,12 +260,14 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
   const mediaEdit = panel?.kind === "media-edit" ? panel : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
+  const mediaBatch = panel?.kind === "media-batch";
 
   useEffect(() => {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
     if (mediaEdit && !pathname.startsWith("/admin/media")) clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
-  }, [pathname, stockFilter, mediaEdit, mediaCreate]);
+    if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
+  }, [pathname, stockFilter, mediaEdit, mediaCreate, mediaBatch]);
 
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
@@ -326,6 +330,29 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
                   showIntro={false}
                   idPrefix="media-rail"
                 />
+              </div>
+            </div>
+          ) : mediaBatch ? (
+            <div id="media-prepared-photos">
+              <div className="flex items-start justify-between gap-5 px-2">
+                <div>
+                  <p className="eyebrow">Prepared photos</p>
+                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
+                    Make the set useful.
+                  </h2>
+                  <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                    Add product photos, then make approved displays live.
+                  </p>
+                </div>
+                <button
+                  onClick={clearAdminContextPanel}
+                  className="link-hair shrink-0 text-dusk text-[12px]"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-6">
+                <MediaBatchPanel surface="plain" />
               </div>
             </div>
           ) : (

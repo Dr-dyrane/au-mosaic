@@ -11,8 +11,7 @@ import Teach from "../Teach";
 
 /* The facts of the house, and the keys to its door. Today the site
    still reads its built-in facts; when the seam flips, it reads
-   these. The key rack shows only to the owner; before the staff
-   table lands it teaches the two commands instead of erroring. */
+   these. The key rack shows only to the owner. */
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +20,7 @@ export default async function SettingsPage() {
   const values = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   const who = await whoAmI();
 
-  /* The key rack reads gently: a missing table means the migration
-     has not run yet, not a broken room. */
+  /* The key rack reads gently when staff keys are not ready yet. */
   let staffRows: { id: string; name: string; role: string; active: boolean }[] | null = null;
   try {
     staffRows = await getDb()
@@ -63,8 +61,8 @@ export default async function SettingsPage() {
           </Teach>
           {staffRows === null ? (
             <p className="mt-4 text-[13px] leading-relaxed text-dusk">
-              The key rack arrives with the next update: run npm run
-              db:push once, and this panel wakes up.
+              The key rack is not ready yet. Turn on staff keys, and
+              this panel wakes up.
             </p>
           ) : (
             <>
@@ -79,8 +77,8 @@ export default async function SettingsPage() {
             </>
           )}
           <p className="mt-6 text-[13px] leading-relaxed text-dusk">
-            Your own master key stays in the Vercel dashboard, under
-            Environment Variables, and the next deploy carries it.
+            Your own master key stays outside this room. Keep it with
+            the owner.
           </p>
         </div>
       )}

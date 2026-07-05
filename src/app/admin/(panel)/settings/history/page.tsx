@@ -68,8 +68,7 @@ export default async function HistoryPage({
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">The history has not started.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Run npm run db:push once, and from then on every save signs
-            its name here.
+            Once the record is turned on, every save signs its name here.
           </p>
         </div>
       )}

@@ -270,8 +270,7 @@ export default async function PiecesPage({
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">The stockroom is empty.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Run npm run db:seed once, and every piece on the site appears
-            here ready to manage.
+            Add the first piece, or bring in the starting catalogue.
           </p>
         </div>
       )}

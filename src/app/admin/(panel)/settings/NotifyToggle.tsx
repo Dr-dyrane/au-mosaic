@@ -131,9 +131,8 @@ export default function NotifyToggle() {
   if (!pub) {
     return (
       <p className="mt-4 text-[13px] leading-relaxed text-dusk">
-        The keys are not cut yet. Generate them once with npx web-push
-        generate-vapid-keys, set the two VAPID variables in Vercel, and
-        this switch wakes with the next deploy.
+        The morning tap is not ready yet. Turn on notification keys, and
+        this switch wakes with the next update.
       </p>
     );
   }

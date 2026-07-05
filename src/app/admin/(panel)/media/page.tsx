@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { and, asc, desc, eq, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import MediaBatchActions from "./MediaBatchActions";
+import MediaBatchAction from "./MediaBatchActions";
 import { MediaAssetControls, MediaCreateAction } from "./MediaForms";
 
 export const dynamic = "force-dynamic";
@@ -157,12 +157,13 @@ export default async function MediaPage({
             photos appear on the website.
           </p>
         </div>
-        <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
-          The stockroom
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+          {!quiet && <MediaBatchAction />}
+          <Link href="/admin/pieces" className="link-hair text-dusk text-[13px]">
+            The stockroom
+          </Link>
+        </div>
       </div>
-
-      {!quiet && <MediaBatchActions />}
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
         <Link href={href(filters, { status: undefined, role: undefined, batch: undefined })} className={`chip-solid ${!status && !role && !batch ? "is-on" : ""}`}>

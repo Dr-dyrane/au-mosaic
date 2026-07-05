@@ -36,6 +36,9 @@ export type AdminContextPanel =
       kind: "media-create";
       pieces: ContextPieceOption[];
     }
+  | {
+      kind: "media-batch";
+    }
   | null;
 
 let panel: AdminContextPanel = null;
@@ -66,6 +69,11 @@ export function showMediaEditPanel(asset: ContextMediaAsset, pieces: ContextPiec
 
 export function showMediaCreatePanel(pieces: ContextPieceOption[]) {
   panel = { kind: "media-create", pieces };
+  emit();
+}
+
+export function showMediaBatchPanel() {
+  panel = { kind: "media-batch" };
   emit();
 }
 
