@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
+import AdminSheet from "@/components/AdminSheet";
 import { buzz } from "@/lib/backoffice";
 import {
   clearAdminContextPanel,
@@ -141,28 +142,32 @@ export function StockFilterPanel({
   onPick,
   onClose,
   id,
+  showHeader = true,
 }: {
   current: StockFilters;
   onPick: () => void;
   onClose: () => void;
   id?: string;
+  showHeader?: boolean;
 }) {
   const active = activeStockFilterLabels(current);
   return (
     <div id={id} data-tour="stock-sheet">
-      <div className="flex items-center justify-between px-2">
-        <p className="eyebrow">Filter</p>
-        <button
-          onClick={onClose}
-          aria-label="Close filters"
-          data-tour="stock-sheet-close"
-          className="-mr-2 flex h-9 w-9 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
-        >
-          <IconClose className="h-4 w-4" />
-        </button>
-      </div>
+      {showHeader && (
+        <div className="flex items-center justify-between px-2">
+          <p className="eyebrow">Filter</p>
+          <button
+            onClick={onClose}
+            aria-label="Close filters"
+            data-tour="stock-sheet-close"
+            className="-mr-2 flex h-9 w-9 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
+          >
+            <IconClose className="h-4 w-4" />
+          </button>
+        </div>
+      )}
       {active.length > 0 && (
-        <div className="mt-2 flex items-center justify-between gap-4 px-2">
+        <div className={`${showHeader ? "mt-2" : ""} flex items-center justify-between gap-4 px-2`}>
           <p className="text-[13px] leading-relaxed text-dusk">
             {active.join(" · ")}
           </p>
@@ -175,7 +180,7 @@ export function StockFilterPanel({
           </Link>
         </div>
       )}
-      <div className="mt-4">
+      <div className={showHeader || active.length > 0 ? "mt-4" : ""}>
         <FilterBody current={current} onPick={onPick} />
       </div>
     </div>
@@ -188,6 +193,7 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
   const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
   const railOpen = panel?.kind === "stock-filter";
+  const sheetOpen = open && !wide;
   const close = () => setOpen(false);
 
   return (
@@ -205,35 +211,16 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
           }
         }}
         className={`chip-solid ${active > 0 ? "is-on" : ""}`}
-        aria-controls={open || railOpen ? "stock-filter-panel" : undefined}
-        aria-expanded={open || railOpen}
+        aria-controls={sheetOpen || railOpen ? "stock-filter-panel" : undefined}
+        aria-expanded={sheetOpen || railOpen}
         data-tour="stock-filter-open"
       >
         <IconFilter className="h-3.5 w-3.5" />
         Filter{active > 0 ? ` · ${active}` : ""}
       </button>
-      {open && (
-        <>
-          <button
-            aria-label="Close filters"
-            onClick={close}
-            className="filter-scrim layer-admin-scrim fixed inset-0 cursor-default"
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Filters"
-            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-0 bottom-0 max-h-[min(82svh,44rem)] overflow-auto rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:inset-x-5 sm:bottom-5 sm:mx-auto sm:w-[31rem] sm:max-w-[calc(100vw-2.5rem)] sm:rounded-[28px] sm:pb-5 xl:hidden"
-          >
-            <StockFilterPanel
-              id="stock-filter-panel"
-              current={current}
-              onPick={close}
-              onClose={close}
-            />
-          </div>
-        </>
-      )}
+      <AdminSheet open={sheetOpen} onOpenChange={setOpen} title="Filter" id="stock-filter-panel">
+        <StockFilterPanel current={current} onPick={close} onClose={close} showHeader={false} />
+      </AdminSheet>
     </div>
   );
 }

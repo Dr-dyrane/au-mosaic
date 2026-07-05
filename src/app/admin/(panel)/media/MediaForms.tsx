@@ -1,6 +1,15 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import AdminSheet from "@/components/AdminSheet";
+import {
+  clearAdminContextPanel,
+  getAdminContextPanel,
+  showMediaEditPanel,
+  subscribeAdminContextPanel,
+} from "@/components/admin-context-panel-store";
+import { buzz } from "@/lib/backoffice";
 import Sentence from "../Sentence";
 import { keepValues } from "../keep";
 import {
@@ -11,12 +20,12 @@ import {
   type MediaState,
 } from "./actions";
 
-type PieceOption = {
+export type PieceOption = {
   slug: string;
   name: string;
 };
 
-type MediaAssetForm = {
+export type MediaAssetForm = {
   id: string;
   title: string;
   status: string;
@@ -50,6 +59,22 @@ const suns = [
   ["day", "Day"],
   ["single", "Single"],
 ] as const;
+
+const railQuery = "(min-width: 1280px)";
+
+function subscribeRailWidth(listener: () => void) {
+  const query = window.matchMedia(railQuery);
+  query.addEventListener("change", listener);
+  return () => query.removeEventListener("change", listener);
+}
+
+function getRailWidth() {
+  return window.matchMedia(railQuery).matches;
+}
+
+function isPlainClick(event: React.MouseEvent<HTMLAnchorElement>) {
+  return event.button === 0 && !event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey;
+}
 
 function PieceSelect({ pieces, current }: { pieces: PieceOption[]; current?: string | null }) {
   return (
@@ -144,6 +169,58 @@ export function MediaAssetControls({
   asset: MediaAssetForm;
   pieces: PieceOption[];
 }) {
+  const [open, setOpen] = useState(false);
+  const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
+  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
+  const railOpen = panel?.kind === "media-edit" && panel.asset.id === asset.id;
+  const sheetOpen = open && !wide;
+  const href = `/admin/media/${asset.id}`;
+
+  return (
+    <>
+      <Link
+        href={href}
+        onClick={(event) => {
+          if (!isPlainClick(event)) return;
+          buzz(3);
+          event.preventDefault();
+          if (wide) {
+            if (open) setOpen(false);
+            if (railOpen) clearAdminContextPanel();
+            else showMediaEditPanel(asset, pieces, href);
+          } else {
+            if (railOpen) clearAdminContextPanel();
+            setOpen(true);
+          }
+        }}
+        aria-controls={sheetOpen || railOpen ? `media-edit-${asset.id}` : undefined}
+        aria-expanded={sheetOpen || railOpen}
+        className="link-hair mt-5 inline-block text-dusk text-[13px]"
+      >
+        Edit photo
+      </Link>
+      <AdminSheet
+        open={sheetOpen}
+        onOpenChange={setOpen}
+        title="Edit photo"
+        description={asset.title}
+        id={`media-edit-${asset.id}`}
+      >
+        <MediaAssetEditor asset={asset} pieces={pieces} fullHref={href} />
+      </AdminSheet>
+    </>
+  );
+}
+
+export function MediaAssetEditor({
+  asset,
+  pieces,
+  fullHref,
+}: {
+  asset: MediaAssetForm;
+  pieces: PieceOption[];
+  fullHref?: string;
+}) {
   const [updateState, updateAction, updatePending] = useActionState<MediaState, FormData>(updateMediaAssetAction, null);
   const [replaceState, replaceAction, replacePending] = useActionState<MediaState, FormData>(replaceMediaAssetAction, null);
   const [archiveState, archiveAction, archivePending] = useActionState<MediaState, FormData>(archiveMediaAssetAction, null);
@@ -154,95 +231,93 @@ export function MediaAssetControls({
   }, [replaceState]);
 
   return (
-    <details className="mt-5 group">
-      <summary className="flex list-none items-center justify-between gap-4 [&::-webkit-details-marker]:hidden">
-        <span className="link-hair text-dusk text-[13px]">Edit photo</span>
-        <span className="text-[12px] text-mist group-open:hidden">Open</span>
-        <span className="hidden text-[12px] text-mist group-open:inline">Close</span>
-      </summary>
-      <div className="mt-5 grid gap-5">
-        <form onSubmit={keepValues(updateAction)} className="grid gap-5">
-          <input type="hidden" name="id" value={asset.id} />
+    <div className="grid gap-5">
+      {fullHref && (
+        <Link href={fullHref} className="link-hair justify-self-start text-dusk text-[12px]">
+          Open page
+        </Link>
+      )}
+      <form onSubmit={keepValues(updateAction)} className="grid gap-5">
+        <input type="hidden" name="id" value={asset.id} />
+        <div>
+          <label htmlFor={`title-${asset.id}`} className={label}>Title</label>
+          <input id={`title-${asset.id}`} name="title" defaultValue={asset.title} required className={field} />
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label htmlFor={`title-${asset.id}`} className={label}>Title</label>
-            <input id={`title-${asset.id}`} name="title" defaultValue={asset.title} required className={field} />
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label htmlFor={`status-${asset.id}`} className={label}>Status</label>
-              <select id={`status-${asset.id}`} name="status" defaultValue={asset.status} className={field}>
-                {statuses.map(([value, text]) => (
-                  <option key={value} value={value}>
-                    {text}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor={`role-${asset.id}`} className={label}>Use</label>
-              <select id={`role-${asset.id}`} name="role" defaultValue={asset.role} className={field}>
-                {roles.map(([value, text]) => (
-                  <option key={value} value={value}>
-                    {text}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor={`sun-${asset.id}`} className={label}>Light</label>
-              <select id={`sun-${asset.id}`} name="sun" defaultValue={asset.sun} className={field}>
-                {suns.map(([value, text]) => (
-                  <option key={value} value={value}>
-                    {text}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={label}>Piece</label>
-              <PieceSelect pieces={pieces} current={asset.pieceSlug} />
-            </div>
+            <label htmlFor={`status-${asset.id}`} className={label}>Status</label>
+            <select id={`status-${asset.id}`} name="status" defaultValue={asset.status} className={field}>
+              {statuses.map(([value, text]) => (
+                <option key={value} value={value}>
+                  {text}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
-            <label htmlFor={`notes-${asset.id}`} className={label}>Note</label>
-            <textarea id={`notes-${asset.id}`} name="notes" rows={3} defaultValue={asset.notes} className={field} />
+            <label htmlFor={`role-${asset.id}`} className={label}>Use</label>
+            <select id={`role-${asset.id}`} name="role" defaultValue={asset.role} className={field}>
+              {roles.map(([value, text]) => (
+                <option key={value} value={value}>
+                  {text}
+                </option>
+              ))}
+            </select>
           </div>
-          <div className="flex flex-wrap items-center gap-4">
-            <button type="submit" disabled={updatePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
-              {updatePending ? "Saving..." : "Save details"}
-            </button>
-            <Sentence state={updateState} />
+          <div>
+            <label htmlFor={`sun-${asset.id}`} className={label}>Light</label>
+            <select id={`sun-${asset.id}`} name="sun" defaultValue={asset.sun} className={field}>
+              {suns.map(([value, text]) => (
+                <option key={value} value={value}>
+                  {text}
+                </option>
+              ))}
+            </select>
           </div>
-        </form>
+          <div>
+            <label className={label}>Piece</label>
+            <PieceSelect pieces={pieces} current={asset.pieceSlug} />
+          </div>
+        </div>
+        <div>
+          <label htmlFor={`notes-${asset.id}`} className={label}>Note</label>
+          <textarea id={`notes-${asset.id}`} name="notes" rows={3} defaultValue={asset.notes} className={field} />
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <button type="submit" disabled={updatePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
+            {updatePending ? "Saving..." : "Save details"}
+          </button>
+          <Sentence state={updateState} />
+        </div>
+      </form>
 
-        <form ref={replaceRef} onSubmit={keepValues(replaceAction)} className="grid gap-3">
+      <form ref={replaceRef} onSubmit={keepValues(replaceAction)} className="grid gap-3">
+        <input type="hidden" name="id" value={asset.id} />
+        <label htmlFor={`replace-${asset.id}`} className={label}>Replace file</label>
+        <input
+          id={`replace-${asset.id}`}
+          type="file"
+          name="photo"
+          accept="image/*"
+          className="file-soft block w-full text-[14px]"
+        />
+        <div className="flex flex-wrap items-center gap-4">
+          <button type="submit" disabled={replacePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
+            {replacePending ? "Replacing..." : "Replace photo"}
+          </button>
+          <Sentence state={replaceState} />
+        </div>
+      </form>
+
+      {asset.status !== "archived" && (
+        <form action={archiveAction} className="flex flex-wrap items-center gap-4">
           <input type="hidden" name="id" value={asset.id} />
-          <label htmlFor={`replace-${asset.id}`} className={label}>Replace file</label>
-          <input
-            id={`replace-${asset.id}`}
-            type="file"
-            name="photo"
-            accept="image/*"
-            className="file-soft block w-full text-[14px]"
-          />
-          <div className="flex flex-wrap items-center gap-4">
-            <button type="submit" disabled={replacePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
-              {replacePending ? "Replacing..." : "Replace photo"}
-            </button>
-            <Sentence state={replaceState} />
-          </div>
+          <button type="submit" disabled={archivePending} className="link-hair text-mist text-[12px] disabled:opacity-60">
+            {archivePending ? "Archiving..." : "Archive photo"}
+          </button>
+          <Sentence state={archiveState} />
         </form>
-
-        {asset.status !== "archived" && (
-          <form action={archiveAction} className="flex flex-wrap items-center gap-4">
-            <input type="hidden" name="id" value={asset.id} />
-            <button type="submit" disabled={archivePending} className="link-hair text-mist text-[12px] disabled:opacity-60">
-              {archivePending ? "Archiving..." : "Archive photo"}
-            </button>
-            <Sentence state={archiveState} />
-          </form>
-        )}
-      </div>
-    </details>
+      )}
+    </div>
   );
 }

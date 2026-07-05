@@ -20,9 +20,10 @@ type MediaRole = (typeof ROLES)[number];
 type MediaStatus = (typeof STATUSES)[number];
 type MediaSun = (typeof SUNS)[number];
 
-function refreshMediaAndWindow() {
+function refreshMediaAndWindow(id?: string) {
   revalidatePath("/admin");
   revalidatePath("/admin/media");
+  if (id) revalidatePath(`/admin/media/${id}`);
   revalidatePath("/admin/pieces");
   revalidatePath("/", "layout");
   updateTag("catalog");
@@ -187,7 +188,7 @@ export async function updateMediaAssetAction(_prev: MediaState, form: FormData):
     console.error("[media] photo update failed", e);
     return { ok: false, message: e instanceof Error && e.message ? e.message : "The database did not answer. Try again." };
   }
-  refreshMediaAndWindow();
+  refreshMediaAndWindow(id);
   return { ok: true, message: next.status === "wired" ? "The product display is live." : "The photo is updated." };
 }
 
@@ -224,7 +225,7 @@ export async function replaceMediaAssetAction(_prev: MediaState, form: FormData)
     console.error("[media] photo replace failed", e);
     return { ok: false, message: e instanceof Error && e.message ? e.message : "The file did not upload. Try once more." };
   }
-  refreshMediaAndWindow();
+  refreshMediaAndWindow(id);
   return { ok: true, message: "The photo was replaced. The old file stays." };
 }
 
@@ -247,7 +248,7 @@ export async function archiveMediaAssetAction(_prev: MediaState, form: FormData)
     console.error("[media] photo archive failed", e);
     return { ok: false, message: "The database did not answer. Try again." };
   }
-  refreshMediaAndWindow();
+  refreshMediaAndWindow(id);
   return { ok: true, message: "Archived. The file stays in the room." };
 }
 

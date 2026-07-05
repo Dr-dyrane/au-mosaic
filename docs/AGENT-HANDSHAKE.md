@@ -16,6 +16,29 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 - CODEX - Radix sheet primitive and photo edit path
+
+Done lane: `AdminSheet`, compact Stock filter, media photo edit controls,
+the media photo page, admin context store, and Liquid Glass tuning.
+
+Owner approved one direct dependency: `@radix-ui/react-dialog`. The repo now
+has one house primitive, `src/components/AdminSheet.tsx`; Radix owns dialog
+behavior and AU Mosaic CSS owns the material. Compact Stock filter uses this
+primitive. Wide Stock behavior stays exactly as landed: the context rail swaps
+to the shared filter panel.
+
+Photo edit no longer opens downward inside a card. The card action is a real
+link to `/admin/media/[id]`, so direct open and Back access work. Plain clicks
+are upgraded by width: `xl` opens the editor in the context rail, below `xl`
+opens `AdminSheet`. The editor form body is shared by rail, sheet, and full
+page.
+
+Material tune: `.liquid-glass` and `.filter-surface` now use less blur, softer
+outer shadow, and a quieter top-left highlight. Light rail shadow should stop
+pooling at the bottom; dark top-left glow should feel less washed. No schema
+work, no DB push. `LandmarksBuildingAnAppWithLiquidGlass/` and
+`docs/LIQUID-GLASS.md` remain ignored and untracked.
+
 ## 2026-07-05 - CODEX - Stock filter uses the rail
 
 Done lane: `FilterSheet`, `AdminContext`, and
