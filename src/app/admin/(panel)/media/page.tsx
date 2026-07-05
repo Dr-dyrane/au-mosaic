@@ -210,7 +210,7 @@ export default async function MediaPage({
         <div className="-mx-5 mt-10 grid gap-x-5 gap-y-10 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map(({ asset, piece }) => (
             <article key={asset.id} className="group">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-none bg-shell sm:rounded-[22px]">
+              <div className="photo-slot relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[22px]">
                 <Image
                   src={asset.url}
                   alt={photoTitle(asset)}

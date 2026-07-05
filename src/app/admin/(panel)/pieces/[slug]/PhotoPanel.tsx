@@ -68,7 +68,7 @@ function Slot({
   return (
     <div>
       <p className="eyebrow">{title}</p>
-      <div className="relative mt-3 aspect-[4/3] overflow-hidden rounded-[18px] bg-shell/40">
+      <div className="photo-slot relative mt-3 aspect-[4/3] overflow-hidden rounded-[18px]">
         {current ? (
           isBlob ? (
             /* The night frame is the record's face, first thing the
@@ -80,7 +80,7 @@ function Slot({
             <Image src={current} alt={`${title} photograph`} fill sizes="(max-width: 640px) 100vw, 24rem" className="object-cover" unoptimized priority={which === "night"} />
           )
         ) : (
-          <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-[13px] leading-relaxed text-mist">
+          <p className="photo-slot-hint absolute inset-0 flex items-center justify-center px-6 text-center text-[14px] leading-relaxed">
             {hint}
           </p>
         )}
@@ -93,12 +93,12 @@ function Slot({
           name="photo"
           accept="image/*"
           aria-label={`${title} photograph file`}
-          className="block w-full max-w-[15rem] text-[13px] text-dusk file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-shell file:px-4 file:py-2 file:text-[12px] file:font-semibold file:text-ink"
+          className="file-soft block w-full max-w-[15rem] text-[14px]"
         />
         <button
           type="submit"
           disabled={upPending || refining}
-          className="link-hair text-dusk text-[13px] disabled:opacity-60"
+          className="link-hair text-dusk text-[12px] disabled:opacity-60"
         >
           {refining ? "Refining..." : upPending ? "Uploading..." : current ? "Replace it" : "Put it up"}
         </button>
@@ -135,7 +135,7 @@ function WindowPreview({
 }) {
   const night = sun === "night";
   return (
-    <figure className="relative aspect-[3/4] overflow-hidden rounded-[22px]">
+    <figure className={`scene-vars ${night ? "" : "scene-day"} relative aspect-[3/4] overflow-hidden rounded-[22px]`}>
       <Image
         src={src}
         alt={`${name}, as the window wears it by ${sun}`}
@@ -144,31 +144,20 @@ function WindowPreview({
         className="object-cover"
         unoptimized={!src.includes("blob.vercel-storage.com")}
       />
-      <div
-        aria-hidden
-        className={`absolute inset-0 ${
-          night
-            ? "bg-gradient-to-t from-black/75 via-black/15 to-transparent"
-            : "bg-gradient-to-t from-white/85 via-white/10 to-transparent"
-        }`}
-      />
+      <div aria-hidden className="scrim-card absolute inset-0" />
       <figcaption className="absolute inset-x-0 bottom-0 p-5">
-        <p
-          className={`text-[9px] font-semibold uppercase tracking-[0.25em] ${
-            night ? "text-[#C2A15C]" : "text-[#7A6128]"
-          }`}
-        >
+        <p className="scene-eyebrow text-[11px] font-semibold uppercase tracking-[0.25em]">
           {sun === "night" ? "By night" : "By day"}
         </p>
-        <p className={`font-serif mt-1.5 text-[20px] leading-tight ${night ? "text-white" : "text-[#17150F]"}`}>
+        <p className="scene-title font-serif mt-1.5 text-[20px] leading-tight">
           {name}
         </p>
         {line && (
-          <p className={`mt-1 text-[11px] leading-relaxed ${night ? "text-white/75" : "text-[#5D564A]"}`}>
+          <p className="scene-sub mt-1 text-[11px] leading-relaxed">
             {line}
           </p>
         )}
-        <span className="mt-3 inline-flex rounded-full bg-[#C2A15C] px-3.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#17150F]">
+        <span className="mt-3 inline-flex rounded-full bg-[var(--t-brass)] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#14110b]">
           Enquire
         </span>
       </figcaption>

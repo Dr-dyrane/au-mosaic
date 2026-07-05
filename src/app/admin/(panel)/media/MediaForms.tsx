@@ -120,7 +120,7 @@ export function MediaCreateForm({ pieces }: { pieces: PieceOption[] }) {
             name="photo"
             accept="image/*"
             required
-            className="block w-full text-[13px] text-dusk file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-shell file:px-4 file:py-2 file:text-[12px] file:font-semibold file:text-ink"
+            className="file-soft block w-full text-[14px]"
           />
         </div>
         <div className="lg:col-span-3">
@@ -223,7 +223,7 @@ export function MediaAssetControls({
             type="file"
             name="photo"
             accept="image/*"
-            className="block w-full text-[13px] text-dusk file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-shell file:px-4 file:py-2 file:text-[12px] file:font-semibold file:text-ink"
+            className="file-soft block w-full text-[14px]"
           />
           <div className="flex flex-wrap items-center gap-4">
             <button type="submit" disabled={replacePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">

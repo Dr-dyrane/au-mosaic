@@ -297,6 +297,49 @@ p { text-wrap: pretty; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
+/* Photo wells. Empty media still needs light, especially in Onyx where
+   shell sits close to the canvas. The well glows inward, not with a line. */
+@utility photo-slot {
+  background:
+    radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--color-ink) 8%, transparent) 0, transparent 54%),
+    color-mix(in srgb, var(--color-shell) 64%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    inset 0 -28px 50px rgb(0 0 0 / 0.12);
+
+  [data-palette="onyx"] & {
+    background:
+      radial-gradient(circle at 50% 14%, rgb(255 255 255 / 0.06) 0, transparent 52%),
+      color-mix(in srgb, var(--color-shell) 82%, transparent);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.075),
+      inset 0 -30px 52px rgb(0 0 0 / 0.2);
+  }
+}
+@utility photo-slot-hint {
+  color: color-mix(in srgb, var(--color-mist) 84%, var(--color-ink));
+}
+
+@utility file-soft {
+  color: var(--color-dusk);
+
+  &::file-selector-button {
+    margin-right: 16px;
+    cursor: pointer;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-shell) 82%, var(--color-ink) 6%);
+    color: var(--color-ink);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 16px;
+  }
+
+  &::file-selector-button:hover {
+    background: color-mix(in srgb, var(--color-shell) 74%, var(--color-ink) 10%);
+  }
+}
+
 /* The sign needs no capsule: the logo's own navy outline is its
    safe-area device, the reason his print sits straight on white
    and the avatar straight on black. The word wears solid brand

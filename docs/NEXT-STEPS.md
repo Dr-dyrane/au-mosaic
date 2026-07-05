@@ -17,6 +17,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 | Application tags | Kitchen, sink, bathroom, sitting room, office, exterior, swimming pool, pool floor art, logo art, and wall art now live as controlled tags on pieces. |
 | Sample flow | Customer records now track showroom visits, sample pictures, site sample visits, pool-size quotes, and materials lists as sales motions. |
 | Performance watch | The admin glance and owed badge now share one cached raw pulse query, so the home page no longer runs five glance queries plus the badge. |
+| Onyx eye pass | Photo slots now have a lit well in the darkest house, file buttons keep their capsule, and window previews use palette hardware instead of hardcoded Maison gold. |
 
 ## Needs owner truth
 
@@ -34,7 +35,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Onyx eye pass | The contrast gate passed. The remaining work is a real visual pass on photo-slot hints and gold-on-shell pairings in the Onyx house. |
+| 1 | None | No buildable gap is named right now. The next move needs owner truth or a new brief. |
 
 ## Standing decisions
 

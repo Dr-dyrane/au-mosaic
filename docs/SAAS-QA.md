@@ -141,7 +141,7 @@ up as they land, never delete them.
 | # | Item | Size |
 |---|---|---|
 | 17 | SHIPPED. Sort controls where the fixed sort stopped being enough: customers Newest or A to Z, stockroom shelf order, by name, low first | M |
-| 18 | Onyx-night eye pass: photo-slot hints and gold-on-shell pairings in the darkest house | S |
+| 18 | SHIPPED. Onyx-night eye pass: photo wells, file capsules, and window preview accents now use palette-aware light and hardware | S |
 | 19 | Von Restorff guard, standing rule: the gold singleton's isolation is absolute; every new screen is audited against it | ongoing |
 | 20 | Peak-end, standing rule: every flow ends on a small satisfying note (tick plus sentence), never on silence | ongoing |
 

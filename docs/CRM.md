@@ -485,6 +485,13 @@ keepValues, icons components exist).
     or move the kitchen proof rows from approved to draft so the band
     returns to the fallback aqua scene.
 
+17. SHIPPED 2026-07-04: ONYX OFFICE EYE PASS. The darkest house now
+    treats back-office media with the same care as the window. Photo
+    slots have an inward-lit well, so empty and loading states do not
+    vanish into Onyx shell. File inputs use one capsule utility. The
+    record preview stopped carrying fixed Maison gold and now reads
+    scene gold plus brass hardware from the active house tokens.
+
 **2026-07-04, the night everything held.** Every outside seam proven
 live, not assumed: the book under every room, the public blob store
 under the photographs (first real upload landed), the window serving
