@@ -90,7 +90,7 @@ const CHAPTERS: Chapter[] = [
   {
     key: "stockroom",
     name: "The stockroom, deeply",
-    blurb: "Filters, the sheet, a new piece, and the whole record, hands on.",
+    blurb: "Filters, a new piece, and the full shelf, hands on.",
     steps: [
       {
         sel: "[data-tour='stockroom']",
@@ -118,7 +118,7 @@ const CHAPTERS: Chapter[] = [
       {
         sel: "[data-tour='stock-sheet']",
         title: "The filter panel",
-        line: "The long choices stay here. Each row is still a full, remembered view.",
+        line: "The long choices stay here. Each choice opens a full, remembered view.",
       },
       {
         sel: "[data-tour='stock-sheet-close']",
@@ -183,8 +183,8 @@ const CHAPTERS: Chapter[] = [
         sel: "[data-tour='piece-card']",
         kind: "do",
         optional: true,
-        title: "Open a record",
-        line: "Tap the first card: a piece is a record with a face, not a row.",
+        title: "Open a piece",
+        line: "Tap the first card. A piece carries its face, stock, price note, and window switch.",
       },
       {
         sel: "[data-tour='photos']",
@@ -259,7 +259,7 @@ const CHAPTERS: Chapter[] = [
         kind: "do",
         optional: true,
         title: "Open one",
-        line: "Tap an order: the record holds the whole sale.",
+        line: "Tap an order. The whole sale lives in one place.",
       },
       {
         sel: "[data-tour='order-lines']",
