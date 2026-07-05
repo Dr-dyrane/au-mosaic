@@ -51,6 +51,7 @@
   --z-admin-highlight: 89;
   --z-admin-tour-card: 90;
   --z-admin-sheet: 96;
+  --z-admin-save: 30;
   --z-skip-link: 110;
   color-scheme: dark;
 }
@@ -461,6 +462,10 @@ p { text-wrap: pretty; }
 
 .layer-admin-panel {
   z-index: var(--z-admin-sheet);
+}
+
+.layer-admin-save {
+  z-index: var(--z-admin-save);
 }
 
 /* Filter surfaces need more milk than ambient chrome; the owner must

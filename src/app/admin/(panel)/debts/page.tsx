@@ -106,7 +106,7 @@ export default async function DebtsPage() {
 
       {debtors.length > 0 && (
         <div className="mt-8">
-          <p className="font-serif text-[40px] leading-none">{naira(grand)}</p>
+          <p className="font-serif text-display-section leading-none">{naira(grand)}</p>
           <p className="mt-2 text-[13px] text-dusk">owed across everyone</p>
           <a
             href="/admin/export/debts.csv"
@@ -122,7 +122,7 @@ export default async function DebtsPage() {
           <section key={d.id} className="panel">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <p className="font-serif text-[20px]">{d.name}</p>
-              <p className="font-serif text-[22px]">{naira(d.total)}</p>
+              <p className="font-serif text-[20px]">{naira(d.total)}</p>
             </div>
             {/* The oldest debt wears the room's one gold: the decision
                 is made before the eye finishes the page. */}

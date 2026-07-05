@@ -16,7 +16,7 @@ const ENQ_PER_PAGE = 12;
 export const dynamic = "force-dynamic";
 
 const field =
-  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
+  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
 type Params = { q?: string; page?: string; enq?: string; sort?: string };
 
@@ -180,7 +180,7 @@ export default async function CustomersPage({
               href={`/admin/customers/${c.id}`}
               className="panel group block transition-transform duration-300 active:scale-[0.99]"
             >
-              <p className="font-serif text-[18px] leading-snug transition-colors duration-300 group-hover:text-gold">
+              <p className="font-serif text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
                 {c.name}
               </p>
               <p className="mt-2 text-[13px] text-dusk">

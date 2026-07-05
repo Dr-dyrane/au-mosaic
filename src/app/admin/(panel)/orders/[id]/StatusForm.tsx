@@ -21,7 +21,7 @@ import { buzz } from "@/lib/backoffice";
    steps that move nothing still move in one tap. */
 
 const field =
-  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
+  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
 type Movement = { name: string; qty: number; unit: string };
 

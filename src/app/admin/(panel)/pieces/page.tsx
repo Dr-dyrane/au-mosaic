@@ -218,7 +218,7 @@ export default async function PiecesPage({
                                   <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
                                 ))}
                               </span>
-                              <p className="truncate font-serif text-[18px] leading-snug transition-colors duration-300 group-hover:text-gold">
+                              <p className="truncate font-serif text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
                                 {piece.name}
                               </p>
                             </div>

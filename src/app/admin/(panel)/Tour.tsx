@@ -569,7 +569,7 @@ export default function Tour() {
                   className="rounded-[18px] px-4 py-3 text-left transition-colors duration-200 hover:bg-shell/60"
                 >
                   <span className="flex items-baseline justify-between gap-3">
-                    <span className="font-serif text-[17px]">{c.name}</span>
+                    <span className="font-serif text-[16px]">{c.name}</span>
                     {chapterSeen(c.key) && (
                       <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-mist">
                         Seen

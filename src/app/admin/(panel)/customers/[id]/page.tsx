@@ -131,7 +131,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                     <p className="text-[13px] text-dusk">{fmtDate(o.createdAt)}</p>
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-4">
-                    <p className="text-[15px]">{naira(billed)} billed</p>
+                    <p className="text-[14px]">{naira(billed)} billed</p>
                     {balance > 0 ? (
                       <p className="text-[13px] font-semibold text-gold">
                         {naira(balance)} owing

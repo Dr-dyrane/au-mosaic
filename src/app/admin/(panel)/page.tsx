@@ -87,9 +87,9 @@ export default async function AdminHome() {
           <div className="panel flex flex-col justify-center">
             <p className="eyebrow">The rooms</p>
             <ul className="mt-5 space-y-3">
-              <li><Link href="/admin/pieces" className="font-serif block text-[21px] leading-snug transition-colors duration-300 hover:text-gold">The stockroom</Link></li>
-              <li><Link href="/admin/orders" className="font-serif block text-[21px] leading-snug transition-colors duration-300 hover:text-gold">Orders</Link></li>
-              <li><Link href="/admin/customers" className="font-serif block text-[21px] leading-snug transition-colors duration-300 hover:text-gold">Customers</Link></li>
+              <li><Link href="/admin/pieces" className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">The stockroom</Link></li>
+              <li><Link href="/admin/orders" className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">Orders</Link></li>
+              <li><Link href="/admin/customers" className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">Customers</Link></li>
             </ul>
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3.5">
               <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[13px]">Deliveries</Link></li>

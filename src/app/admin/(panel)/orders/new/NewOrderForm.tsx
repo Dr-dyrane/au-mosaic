@@ -11,7 +11,7 @@ import { keepValues } from "../../keep";
 type Props = { customers: { id: string; name: string }[]; preselect?: string };
 
 const field =
-  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
+  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 const label = "eyebrow mb-2.5 block";
 
 export default function NewOrderForm({ customers, preselect }: Props) {

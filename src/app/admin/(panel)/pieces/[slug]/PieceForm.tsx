@@ -72,7 +72,7 @@ type Props = {
 };
 
 const field =
-  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
+  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 const label = "eyebrow mb-2.5 block";
 
 export default function PieceForm({ piece, stock }: Props) {
@@ -200,7 +200,7 @@ export default function PieceForm({ piece, stock }: Props) {
         <ColorsField initial={piece.colors ?? []} />
         <label className="flex cursor-pointer items-center justify-between" data-tour="window">
           <span>
-            <span className="block text-[15px] font-medium">Show on the site</span>
+            <span className="block text-[14px] font-medium">Show on the site</span>
             <Teach until="stockroom">
               <span className="mt-1 block text-[13px] text-dusk">
                 Off means customers cannot see this piece.
@@ -235,7 +235,7 @@ export default function PieceForm({ piece, stock }: Props) {
 
       {/* The Save lives under the thumb on a long page: a glass bar
           that rides above the tab bar until the desk takes over. */}
-      <div className="glass sticky bottom-[calc(72px+env(safe-area-inset-bottom))] z-30 -mx-2 flex items-center gap-6 rounded-full px-4 py-3 sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-filter-none" data-tour="save">
+      <div className="glass layer-admin-save sticky bottom-[calc(72px+env(safe-area-inset-bottom))] -mx-2 flex items-center gap-6 rounded-full px-4 py-3 sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-filter-none" data-tour="save">
         <button type="submit" disabled={pending} onClick={() => buzz(5)} className="btn-gold disabled:opacity-60">
           {pending ? "Saving..." : "Save the piece"}
         </button>

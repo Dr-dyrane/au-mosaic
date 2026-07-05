@@ -104,7 +104,7 @@ export default async function DeliveriesPage({
               {g.items.map(({ d, customerName }) => (
                 <article key={d.id} className="panel">
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
-                    <p className="font-serif text-[18px]">{customerName}</p>
+                    <p className="font-serif text-[20px]">{customerName}</p>
                     <Link
                       href={`/admin/orders/${d.orderId}`}
                       className="link-hair text-[13px] text-dusk"

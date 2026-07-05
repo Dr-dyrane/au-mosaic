@@ -12,7 +12,7 @@ import { keepValues } from "../../keep";
    choice, not an accident. */
 
 const field =
-  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
+  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 const label = "eyebrow mb-2.5 block";
 
 export default function NewPieceForm({ ranges }: { ranges: { slug: string; name: string }[] }) {
@@ -43,7 +43,7 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
       <ColorsField initial={[]} />
       <label className="flex cursor-pointer items-center justify-between" data-tour="np-window">
         <span>
-          <span className="block text-[15px] font-medium">Put it in the window now</span>
+          <span className="block text-[14px] font-medium">Put it in the window now</span>
           <Teach until="stockroom">
             <span className="mt-1 block text-[13px] text-dusk">
               Off means it stays in the book until you are ready.

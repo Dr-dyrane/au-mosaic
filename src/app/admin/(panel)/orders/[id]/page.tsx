@@ -196,7 +196,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   <div key={item.id} className="panel">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-serif text-[18px] leading-snug">
+                        <p className="font-serif text-[20px] leading-snug">
                           {pieceName ?? (item.description || "Line")}
                         </p>
                         {pieceName && item.description && (
@@ -230,7 +230,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           {lines.length > 0 && (
             <div className="mt-5 flex items-baseline justify-between">
               <p className="eyebrow">Billed</p>
-              <p className="font-serif text-[22px]">{naira(billed)}</p>
+              <p className="font-serif text-[20px]">{naira(billed)}</p>
             </div>
           )}
           {lines.length > 0 && (
@@ -259,7 +259,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   className="panel flex flex-wrap items-center justify-between gap-4"
                 >
                   <div>
-                    <p className="font-serif text-[18px] leading-snug">{naira(p.amountKobo)}</p>
+                    <p className="font-serif text-[20px] leading-snug">{naira(p.amountKobo)}</p>
                     <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-mist">
                       {p.amountKobo < 0 ? "refund" : p.method} · {fmtDate(p.paidAt)}
                     </p>

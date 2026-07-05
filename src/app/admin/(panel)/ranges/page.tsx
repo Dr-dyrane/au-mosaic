@@ -47,7 +47,7 @@ export default async function RangesPage() {
               href={`/admin/ranges/${r.slug}`}
               className="panel group block transition-transform duration-300 active:scale-[0.99]"
             >
-              <p className="font-serif text-[18px] leading-snug transition-colors duration-300 group-hover:text-gold">
+              <p className="font-serif text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
                 {r.name}
               </p>
               {r.line && <p className="mt-2 text-[13px] leading-relaxed text-dusk">{r.line}</p>}

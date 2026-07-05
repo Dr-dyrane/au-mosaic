@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { IconAdd } from "../icons";
 
 /* The colours of a piece, chosen by eye, not by code. Each tile opens
    the phone's own colour wheel; Add lays another tile; the little x
@@ -43,10 +44,10 @@ export default function ColorsField({ initial }: { initial: string[] }) {
         <button
           type="button"
           onClick={add}
-          className="flex h-11 w-12 items-center justify-center rounded-[10px] bg-shell/60 text-[18px] leading-none text-dusk transition-colors duration-300 hover:bg-shell hover:text-ink"
+          className="flex h-11 w-12 items-center justify-center rounded-[10px] bg-shell/60 text-dusk transition-colors duration-300 hover:bg-shell hover:text-ink"
           aria-label="Add a colour"
         >
-          +
+          <IconAdd className="h-5 w-5" />
         </button>
       </div>
       <p className="mt-2.5 text-[12px] leading-relaxed text-mist">

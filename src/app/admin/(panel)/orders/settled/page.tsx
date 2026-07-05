@@ -81,7 +81,7 @@ export default async function SettledOrdersPage({
                 className="panel group block transition-transform duration-300 active:scale-[0.99]"
               >
                 <div className="flex items-center justify-between gap-4">
-                  <p className="font-serif text-[18px] leading-snug transition-colors duration-300 group-hover:text-gold">
+                  <p className="font-serif text-[20px] leading-snug transition-colors duration-300 group-hover:text-gold">
                     {customerName}
                   </p>
                   <p className="shrink-0 text-[12px] uppercase tracking-[0.14em] text-mist">

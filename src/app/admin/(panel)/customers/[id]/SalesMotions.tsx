@@ -65,7 +65,7 @@ export default function SalesMotions({
               <article key={motion.id} className="panel">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-serif text-[18px] leading-snug">
+                    <p className="font-serif text-[20px] leading-snug">
                       {salesMotionLabel(motion.kind)}
                     </p>
                     <p className="mt-1 text-[13px] text-dusk">
