@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ne } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import type { AdminRoomId } from "@/lib/admin-rooms";
 import { phone234 } from "@/lib/backoffice";
 import Back from "../Back";
 import KeepEnquiry from "./KeepEnquiry";
@@ -19,6 +20,13 @@ function phonesIn(text: string): string[] {
   const found = text.match(/(?:\+?234|0)[\s\-()]*\d(?:[\s\-()]*\d){8,9}/g) ?? [];
   return [...new Set(found.map(phone234).filter((d) => d.length === 13))];
 }
+
+type ShareAction = {
+  href: string;
+  label: string;
+  room: AdminRoomId;
+  tour?: string;
+};
 
 export default async function SharePage({
   searchParams,
@@ -44,9 +52,34 @@ export default async function SharePage({
   }
 
   const firstPhone = candidates[0];
+  const shareAction: ShareAction | null = match
+    ? {
+        href: `/admin/orders/new?customer=${match.id}`,
+        label: `New order for ${match.name.split(" ")[0]}`,
+        room: "orders",
+        tour: "order-new",
+      }
+    : shared
+      ? {
+          href: firstPhone ? `/admin/customers/new?phone=${firstPhone}` : "/admin/customers/new",
+          label: "New customer",
+          room: "people",
+          tour: "people-new",
+        }
+      : null;
 
   return (
     <main>
+      {shareAction && (
+        <span
+          hidden
+          data-admin-action
+          data-href={shareAction.href}
+          data-label={shareAction.label}
+          data-room={shareAction.room}
+          data-tour={shareAction.tour}
+        />
+      )}
       <Back href="/admin" label="The glance" />
       <p className="eyebrow mt-6">The bridge</p>
       <h1 className="font-serif text-display-section mt-3">From WhatsApp.</h1>
@@ -82,7 +115,7 @@ export default async function SharePage({
             {[match.phone, match.area].filter(Boolean).join(" · ")}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-6">
-            <Link href={`/admin/orders/new?customer=${match.id}`} className="btn-gold">
+            <Link href={`/admin/orders/new?customer=${match.id}`} className="btn-gold admin-page-action">
               New order for {match.name.split(" ")[0]}
             </Link>
             <Link href={`/admin/customers/${match.id}`} className="link-hair text-dusk text-[12px]">
@@ -107,7 +140,7 @@ export default async function SharePage({
           <div className="mt-6 flex flex-wrap items-center gap-6">
             <Link
               href={firstPhone ? `/admin/customers/new?phone=${firstPhone}` : "/admin/customers/new"}
-              className="btn-gold"
+              className="btn-gold admin-page-action"
             >
               New customer
             </Link>
