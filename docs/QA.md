@@ -60,6 +60,7 @@ Last pass: 2026-07-05.
 | Tour language guardrail | PASS | The guided tour now keeps owner-facing copy in shop-floor language: filter choices open remembered views, and piece cards carry face, stock, price note, and window switch. Focused source audit found no forbidden setup or storage terms in Tour owner strings; the only cross-component match was a non-visible panel key. |
 | AdminSheet desktop contract | PASS | `AdminSheet` now defaults to a usable modal at every width. The only sheets that opt into `compactOnly` are Stock filter, Photos add, and Prepared photos, because each has a desktop context-rail twin through `useAdminSurface`; the order stock-movement question stays visible as a true modal on desktop. |
 | Share bridge shell action | PASS | `/admin/share` now publishes the real next action to compact chrome: matched shares open a new order for that person, unmatched shares open the new-customer flow, and the in-panel gold action hides below the desktop rail breakpoint. The page no longer falls back to the generic People action on phone and tablet. |
+| Admin layer token map | PASS | Admin and glass layering now uses named tokens for material effects, content, controls, sun toggle, sheet root, sheet scrim, and sheet content. The sheet root remains isolated, the scrim stays beneath the content, and focused audit found no raw z-index values in `globals.css` or admin shell sources. |
 
 ## Step-up pass (SICIS benchmark)
 
