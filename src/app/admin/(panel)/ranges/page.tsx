@@ -25,6 +25,13 @@ export default async function RangesPage() {
 
   return (
     <main>
+      <span
+        hidden
+        data-admin-action
+        data-href="/admin/ranges/new"
+        data-label="New range"
+        data-room="stock"
+      />
       <Back href="/admin/pieces" label="The stockroom" />
       <p className="eyebrow mt-6">Inventory</p>
       <h1 className="font-serif text-display-section mt-3">The ranges.</h1>
@@ -32,7 +39,7 @@ export default async function RangesPage() {
         The shelves. A range shows when a published piece sits on it.
       </p>
       <div className="mt-8">
-        <Link href="/admin/ranges/new" className="btn-gold">
+        <Link href="/admin/ranges/new" className="btn-gold admin-page-action">
           New range
         </Link>
       </div>
