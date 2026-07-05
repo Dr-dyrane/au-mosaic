@@ -124,7 +124,7 @@ export default function PieceForm({ piece, stock }: Props) {
         </div>
       </div>
 
-      <div className="panel grid gap-6">
+      <div id="stock" className="panel grid gap-6">
         <div>
           <p className="font-serif text-[20px]">The trade facts</p>
           <Teach until="stockroom">

@@ -9,14 +9,15 @@ import { keepValues } from "../../keep";
    to, where it is going, who carries it, the day it goes. On success
    the action walks back to the deliveries room by itself. */
 
-type Props = { orders: { id: string; label: string }[] };
+type Props = { orders: { id: string; label: string }[]; selectedOrder?: string };
 
 const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[15px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 const label = "eyebrow mb-2.5 block";
 
-export default function NewDeliveryForm({ orders }: Props) {
+export default function NewDeliveryForm({ orders, selectedOrder }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(createDelivery, null);
+  const defaultOrder = orders.some((order) => order.id === selectedOrder) ? selectedOrder : "";
 
   return (
     <form onSubmit={keepValues(action)} className="mt-10 grid max-w-3xl gap-8">
@@ -28,7 +29,7 @@ export default function NewDeliveryForm({ orders }: Props) {
             id="orderId"
             name="orderId"
             required
-            defaultValue=""
+            defaultValue={defaultOrder}
             aria-label="The order this delivery belongs to"
             className={field}
           >

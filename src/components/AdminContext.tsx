@@ -218,7 +218,7 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
   const ctx = contextFor(pathname, pulse);
   if (pathname === "/admin") return null;
   return (
-    <details className="admin-context panel mb-8 lg:hidden">
+    <details className="admin-context panel mb-8 xl:hidden">
       <summary className="admin-context-summary flex items-center justify-between gap-5">
         <span>
           <span className="eyebrow block">This room</span>

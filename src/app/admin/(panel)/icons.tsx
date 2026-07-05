@@ -78,6 +78,16 @@ export function IconRefresh({ className }: IconProps) {
   );
 }
 
+export function IconMore({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="6.5" cy="12" r="1.15" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none" />
+      <circle cx="17.5" cy="12" r="1.15" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
 /* The nine rooms, drawn for wayfinding. Unlike the verbs above, these
    never stand alone: the label rides beside them, so typography keeps the
    identity and the icon only gives the eye a shape to find. Same weight,

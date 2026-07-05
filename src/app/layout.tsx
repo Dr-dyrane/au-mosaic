@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SITE } from "@/lib/site";
@@ -53,12 +54,7 @@ export default function RootLayout({
             the front door. Saved night and palette choices apply
             before paint; Maison is the bare root, so choosing it
             removes the attribute. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(localStorage.getItem('aumosaic.theme')==='dark')delete document.documentElement.dataset.theme;var p=localStorage.getItem('aumosaic.palette');if(p==='maison'){delete document.documentElement.dataset.palette}else if(p){document.documentElement.dataset.palette=p}}catch(e){}",
-          }}
-        />
+        <Script src="/theme-before-paint.js" strategy="beforeInteractive" />
         {children}
         <Analytics />
         <WaTracker />

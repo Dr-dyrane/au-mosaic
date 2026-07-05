@@ -15,22 +15,29 @@ export type AdminRoom = {
   label: string;
   exact?: boolean;
   also?: readonly string[];
-  tab?: boolean;
 };
 
 export const ADMIN_ROOMS: readonly AdminRoom[] = [
-  { id: "home", href: "/admin", label: "Home", exact: true, tab: true },
-  { id: "stock", href: "/admin/pieces", label: "Stock", also: ["/admin/ranges"], tab: true },
-  { id: "orders", href: "/admin/orders", label: "Orders", also: ["/admin/compose", "/admin/invoice"], tab: true },
-  { id: "people", href: "/admin/customers", label: "People", also: ["/admin/share"], tab: true },
-  { id: "owed", href: "/admin/debts", label: "Owed", tab: true },
+  { id: "home", href: "/admin", label: "Home", exact: true },
+  { id: "stock", href: "/admin/pieces", label: "Stock", also: ["/admin/ranges"] },
+  { id: "orders", href: "/admin/orders", label: "Orders", also: ["/admin/compose", "/admin/invoice"] },
+  { id: "people", href: "/admin/customers", label: "People", also: ["/admin/share"] },
+  { id: "owed", href: "/admin/debts", label: "Owed" },
   { id: "deliveries", href: "/admin/deliveries", label: "Deliveries" },
   { id: "photos", href: "/admin/media", label: "Photos" },
   { id: "insights", href: "/admin/insights", label: "Insights" },
   { id: "settings", href: "/admin/settings", label: "Settings", also: ["/admin/settings/history"] },
 ] as const;
 
-export const ADMIN_TABS = ADMIN_ROOMS.filter((room) => room.tab);
+const PHONE_ROOM_IDS: readonly AdminRoomId[] = ["stock", "orders", "people"];
+
+export const ADMIN_PHONE_ROOMS = ADMIN_ROOMS.filter((room) =>
+  PHONE_ROOM_IDS.includes(room.id)
+);
+
+export const ADMIN_MORE_ROOMS = ADMIN_ROOMS.filter(
+  (room) => room.id !== "home" && !PHONE_ROOM_IDS.includes(room.id)
+);
 
 export function isActiveRoom(room: AdminRoom, pathname: string) {
   return room.exact

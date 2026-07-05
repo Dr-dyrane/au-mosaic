@@ -287,6 +287,30 @@ p { text-wrap: pretty; }
   background: color-mix(in srgb, var(--color-sand) 75%, transparent);
 }
 
+/* Layer map: admin chrome 60, scrims 70, sheets 80, tours 86 to 90,
+   consequence dialogs 99 to 100. */
+.layer-admin-nav {
+  z-index: 60;
+}
+
+.layer-admin-scrim {
+  z-index: 70;
+}
+
+.layer-admin-panel {
+  z-index: 80;
+}
+
+.admin-action-icon {
+  display: none;
+}
+
+@media (min-width: 410px) {
+  .admin-action-icon {
+    display: block;
+  }
+}
+
 /* Filter surfaces need more milk than ambient chrome; the owner must
    read dense choices over busy stock pages. */
 .filter-scrim {

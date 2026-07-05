@@ -19,6 +19,12 @@ import { Touch } from "../../touched";
 export const dynamic = "force-dynamic";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+type ShellAction = {
+  href: string;
+  label: string;
+  room: "owed" | "deliveries" | "orders";
+  external?: boolean;
+};
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -97,9 +103,30 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const billed = lines.reduce((s, l) => s + l.item.givenPriceKobo * l.item.quantity, 0);
   const paid = pays.reduce((s, p) => s + p.amountKobo, 0);
   const balance = billed - paid;
+  const navAction: ShellAction =
+    balance > 0
+      ? { href: `/admin/orders/${order.id}#payment`, label: "Add payment", room: "owed" }
+      : order.status !== "delivered" && order.status !== "settled"
+        ? { href: `/admin/deliveries/new?order=${order.id}`, label: "Arrange delivery", room: "deliveries" }
+        : customer.phone
+          ? {
+              href: `/admin/compose?kind=receipt&order=${order.id}`,
+              label: "Send receipt",
+              room: "orders",
+              external: true,
+            }
+          : { href: `/admin/invoice/${order.id}`, label: "The invoice", room: "orders" };
 
   return (
     <main>
+      <span
+        hidden
+        data-admin-action
+        data-href={navAction.href}
+        data-label={navAction.label}
+        data-room={navAction.room}
+        data-external={navAction.external ? "true" : undefined}
+      />
       <Back href="/admin/orders" label="All orders" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/orders/${id}`} label={`${customer.name}'s order`} room="Orders" />

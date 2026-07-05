@@ -28,32 +28,34 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const owed = pulse.owingCustomers;
   return (
     <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-32 tabular-nums sm:px-8 sm:pb-24 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:px-6 lg:pb-8 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:px-8">
-      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto lg:py-6">
-        <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
-          <AuSign markClassName="h-[15px]" />
-          <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
-            Back office
-          </span>
-        </Link>
-        <AdminRailNav owed={owed} />
-        <div className="mt-auto flex flex-col items-start gap-6">
-          <div className="flex flex-col items-start gap-3">
-            <Link href="/" className="link-hair text-dusk text-[12px]">
-              The site
-            </Link>
-            <button data-tour-start="menu" className="link-hair text-dusk text-[12px]">
-              Take the tour
-            </button>
+      <aside className="layer-admin-nav hidden lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto lg:py-6">
+        <div className="glass flex min-h-[calc(100svh-48px)] flex-col rounded-[32px] p-5">
+          <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
+            <AuSign markClassName="h-[15px]" />
+            <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
+              Back office
+            </span>
+          </Link>
+          <AdminRailNav owed={owed} />
+          <div className="mt-auto flex flex-col items-start gap-6">
+            <div className="flex flex-col items-start gap-3">
+              <Link href="/" className="link-hair text-dusk text-[12px]">
+                The site
+              </Link>
+              <button data-tour-start="menu" className="link-hair text-dusk text-[12px]">
+                Take the tour
+              </button>
+            </div>
+            <div className="flex flex-col items-start gap-4">
+              <PalettePicker />
+              <ThemeToggle />
+            </div>
+            <form action={logout}>
+              <button type="submit" className="link-hair text-dusk text-[12px]">
+                Sign out
+              </button>
+            </form>
           </div>
-          <div className="flex flex-col items-start gap-4">
-            <PalettePicker />
-            <ThemeToggle />
-          </div>
-          <form action={logout}>
-            <button type="submit" className="link-hair text-dusk text-[12px]">
-              Sign out
-            </button>
-          </form>
         </div>
       </aside>
       <section className="min-w-0 py-8 lg:py-10">

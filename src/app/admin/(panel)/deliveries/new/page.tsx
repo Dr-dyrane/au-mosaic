@@ -17,7 +17,15 @@ function fmtDate(d: Date | string) {
   });
 }
 
-export default async function NewDeliveryPage() {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export default async function NewDeliveryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ order?: string }>;
+}) {
+  const { order: orderRaw } = await searchParams;
+  const selectedOrder = orderRaw && UUID.test(orderRaw) ? orderRaw : undefined;
   const db = getDb();
   const openOrders = await db
     .select({
@@ -58,6 +66,7 @@ export default async function NewDeliveryPage() {
             id: o.id,
             label: `${o.customerName}, ${fmtDate(o.createdAt)}`,
           }))}
+          selectedOrder={selectedOrder}
         />
       )}
     </main>
