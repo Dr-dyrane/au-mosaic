@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { and, desc, eq, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import MediaBatchActions from "./MediaBatchActions";
+import { MediaAssetControls, MediaCreateForm } from "./MediaForms";
 
 export const dynamic = "force-dynamic";
 
@@ -97,6 +98,7 @@ export default async function MediaPage({
     asset: typeof schema.mediaAssets.$inferSelect;
     piece: { name: string; slug: string } | null;
   }[] = [];
+  let pieces: { slug: string; name: string }[] = [];
   let quiet = false;
   try {
     const base = getDb()
@@ -116,6 +118,12 @@ export default async function MediaPage({
   } catch {
     quiet = true;
   }
+  try {
+    pieces = await getDb()
+      .select({ slug: schema.pieces.slug, name: schema.pieces.name })
+      .from(schema.pieces)
+      .orderBy(asc(schema.pieces.name));
+  } catch {}
 
   const totals = {
     all: rows.length,
@@ -140,7 +148,9 @@ export default async function MediaPage({
         </Link>
       </div>
 
-      <MediaBatchActions />
+      {!quiet && <MediaCreateForm pieces={pieces} />}
+
+      {!quiet && <MediaBatchActions />}
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
         <Link href={href(filters, { status: undefined, role: undefined, batch: undefined })} className={`chip-solid ${!status && !role && !batch ? "is-on" : ""}`}>
@@ -224,6 +234,18 @@ export default async function MediaPage({
                 {photoNote(asset) && (
                   <p className="mt-3 text-[13px] leading-relaxed text-mist">{photoNote(asset)}</p>
                 )}
+                <MediaAssetControls
+                  asset={{
+                    id: asset.id,
+                    title: asset.title,
+                    status: asset.status,
+                    role: asset.role,
+                    sun: asset.sun,
+                    pieceSlug: asset.pieceSlug,
+                    notes: asset.notes,
+                  }}
+                  pieces={pieces}
+                />
               </div>
             </article>
           ))}

@@ -27,7 +27,7 @@ export default function MediaBatchActions() {
           </button>
         </form>
         <form action={promoteAction}>
-          <button type="submit" disabled={promotePending} className="btn-gold">
+          <button type="submit" disabled={promotePending} className="link-hair text-dusk text-[13px] disabled:opacity-60">
             {promotePending ? "Making live..." : "Make product photos live"}
           </button>
         </form>

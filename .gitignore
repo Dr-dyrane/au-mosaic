@@ -17,6 +17,7 @@ next-env.d.ts
 .vercel
 
 # testing and debug
+/tmp/
 /coverage
 npm-debug.log*
 yarn-debug.log*
