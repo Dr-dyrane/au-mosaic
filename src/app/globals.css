@@ -365,6 +365,80 @@ p { text-wrap: pretty; }
     linear-gradient(160deg, rgb(255 255 255 / 0.1), transparent 48%);
 }
 
+.admin-glass-control {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color 0.3s var(--ease-glide),
+    background 0.3s var(--ease-glide),
+    box-shadow 0.3s var(--ease-glide),
+    transform 0.3s var(--ease-glide);
+}
+
+.admin-glass-control::before,
+.admin-glass-control::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-glide);
+}
+
+.admin-glass-control::before {
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 24% 20%, color-mix(in srgb, var(--color-gold) 28%, transparent), transparent 42%),
+    linear-gradient(135deg, rgb(255 255 255 / 0.1), transparent 48%);
+}
+
+.admin-glass-control::after {
+  inset: 1px;
+  z-index: 0;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.13),
+    inset 0 -10px 24px rgb(0 0 0 / 0.08);
+}
+
+.admin-glass-control > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-glass-control:hover::before,
+.admin-glass-control:focus-visible::before {
+  opacity: 0.48;
+}
+
+.admin-glass-control.is-on {
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.11), transparent 48%),
+    color-mix(in srgb, var(--color-gold) 14%, var(--color-shell) 66%);
+  color: var(--color-ink);
+  box-shadow:
+    0 12px 32px color-mix(in srgb, var(--color-gold) 10%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+.admin-glass-control.is-on::before {
+  opacity: 0.74;
+}
+
+.admin-glass-control.is-on::after {
+  opacity: 1;
+}
+
+[data-theme="light"] .admin-glass-control.is-on {
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.72), transparent 48%),
+    color-mix(in srgb, var(--color-gold) 10%, var(--color-shell) 82%);
+  box-shadow:
+    0 12px 30px color-mix(in srgb, var(--color-gold) 8%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.58);
+}
+
 .layer-admin-nav {
   z-index: var(--z-admin-nav);
 }

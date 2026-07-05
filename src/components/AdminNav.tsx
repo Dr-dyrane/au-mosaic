@@ -203,8 +203,8 @@ export function AdminTopNav({ owed = 0 }: { owed?: number }) {
             key={r.href}
             href={r.href}
             aria-current={on ? "page" : undefined}
-            className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold tracking-[0] transition-colors duration-300 ${
-              on ? "bg-shell text-ink shadow-lift" : "text-dusk hover:bg-shell/40 hover:text-ink"
+            className={`admin-glass-control shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold tracking-[0] ${
+              on ? "is-on text-ink" : "text-dusk hover:bg-shell/40 hover:text-ink"
             }`}
           >
             <span className="flex items-center gap-2">
@@ -230,8 +230,8 @@ export function AdminRailNav({ owed = 0 }: { owed?: number }) {
             key={r.href}
             href={r.href}
             aria-current={on ? "page" : undefined}
-            className={`group flex items-center justify-between rounded-full px-4 py-3 text-[14px] font-medium tracking-[0] transition-[background,color,transform] duration-300 active:scale-[0.98] ${
-              on ? "bg-shell text-ink shadow-lift" : "text-dusk hover:bg-shell/35 hover:text-ink"
+            className={`admin-glass-control group flex items-center justify-between rounded-full px-4 py-3 text-[14px] font-medium tracking-[0] active:scale-[0.98] ${
+              on ? "is-on text-ink" : "text-dusk hover:bg-shell/35 hover:text-ink"
             }`}
           >
             <span className="flex min-w-0 items-center gap-3">
@@ -270,8 +270,8 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
                 key={r.href}
                 href={r.href}
                 aria-current={on ? "page" : undefined}
-                className={`flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-[12px] font-semibold tracking-[0] transition-[background,color,width] duration-300 active:scale-[0.98] ${
-                  on ? "bg-shell text-ink shadow-lift" : "text-mist"
+                className={`admin-glass-control flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-[12px] font-semibold tracking-[0] active:scale-[0.98] ${
+                  on ? "is-on text-ink" : "text-mist"
                 }`}
               >
                 <RoomGlyph room={r} className={`h-5 w-5 shrink-0 ${on ? "text-gold" : "text-mist"}`} />

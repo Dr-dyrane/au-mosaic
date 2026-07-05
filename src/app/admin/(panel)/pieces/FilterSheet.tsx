@@ -41,8 +41,8 @@ function Row({
         buzz(3);
         onPick();
       }}
-      className={`flex min-h-12 items-center justify-between rounded-[18px] px-5 text-[15px] transition-colors duration-200 hover:bg-shell/60 ${
-        on ? "bg-shell text-ink shadow-lift" : "text-dusk"
+      className={`admin-glass-control flex min-h-12 items-center justify-between rounded-[18px] px-5 text-[14px] active:scale-[0.98] ${
+        on ? "is-on text-ink" : "text-dusk hover:bg-shell/50"
       }`}
     >
       {children}
