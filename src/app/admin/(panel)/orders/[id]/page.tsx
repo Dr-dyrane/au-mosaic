@@ -3,11 +3,12 @@ import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
+import { ADMIN_ACTION_INTENTS, type AdminActionIntent } from "@/components/admin-action-intents";
 import { STATUS_LABEL, fmtDate } from "../pipeline";
 import StatusForm from "./StatusForm";
 import AddLineForm from "./AddLineForm";
-import AddPaymentForm from "./AddPaymentForm";
-import AddReturnForm from "./AddReturnForm";
+import { OrderPaymentAction } from "./AddPaymentForm";
+import { OrderReturnAction } from "./AddReturnForm";
 import Back from "../../Back";
 import Teach from "../../Teach";
 import { Touch } from "../../touched";
@@ -24,6 +25,7 @@ type ShellAction = {
   label: string;
   room: "owed" | "deliveries" | "orders";
   external?: boolean;
+  intent?: AdminActionIntent;
 };
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -105,7 +107,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const balance = billed - paid;
   const navAction: ShellAction =
     balance > 0
-      ? { href: `/admin/orders/${order.id}#payment`, label: "Add payment", room: "owed" }
+      ? {
+          href: `/admin/orders/${order.id}#order-payment`,
+          label: "Add payment",
+          room: "owed",
+          intent: ADMIN_ACTION_INTENTS.orderPayment,
+        }
       : order.status !== "delivered" && order.status !== "settled"
         ? { href: `/admin/deliveries/new?order=${order.id}`, label: "Arrange delivery", room: "deliveries" }
         : customer.phone
@@ -126,6 +133,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         data-label={navAction.label}
         data-room={navAction.room}
         data-external={navAction.external ? "true" : undefined}
+        data-intent={navAction.intent}
       />
       <Back href="/admin/orders" label="All orders" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
@@ -281,8 +289,16 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               )}
             </div>
           )}
-          <AddPaymentForm orderId={order.id} />
-          <AddReturnForm orderId={order.id} lines={returnOptions} />
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <OrderPaymentAction
+              orderId={order.id}
+              showTrigger
+              className="link-hair hidden text-dusk text-[12px] xl:inline-flex"
+            />
+            {returnOptions.length > 0 && (
+              <OrderReturnAction orderId={order.id} lines={returnOptions} showTrigger />
+            )}
+          </div>
         </section>
       </div>
     </main>

@@ -20,6 +20,8 @@ import {
 import { StockFilterPanel } from "@/app/admin/(panel)/pieces/FilterSheet";
 import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
+import AddPaymentForm from "@/app/admin/(panel)/orders/[id]/AddPaymentForm";
+import AddReturnForm from "@/app/admin/(panel)/orders/[id]/AddReturnForm";
 
 type Metric = { label: string; value: string; href?: string };
 type Action = { label: string; href: string; intent?: AdminActionIntent };
@@ -266,12 +268,16 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
   const mediaBatch = panel?.kind === "media-batch";
+  const orderPayment = panel?.kind === "order-payment" ? panel : null;
+  const orderReturn = panel?.kind === "order-return" ? panel : null;
+  const orderRecord = /^\/admin\/orders\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pathname);
 
   useEffect(() => {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
     if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
-  }, [pathname, stockFilter, mediaCreate, mediaBatch]);
+    if ((orderPayment || orderReturn) && !orderRecord) clearAdminContextPanel();
+  }, [pathname, stockFilter, mediaCreate, mediaBatch, orderPayment, orderReturn, orderRecord]);
 
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
@@ -333,6 +339,61 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
               </div>
               <div className="mt-6">
                 <MediaBatchPanel surface="plain" />
+              </div>
+            </div>
+          ) : orderPayment ? (
+            <div id="order-payment">
+              <div className="flex items-start justify-between gap-5 px-2">
+                <div>
+                  <p className="eyebrow">Payment</p>
+                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
+                    Record what arrived.
+                  </h2>
+                  <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                    Add the amount and the balance keeps itself.
+                  </p>
+                </div>
+                <button
+                  onClick={clearAdminContextPanel}
+                  className="link-hair shrink-0 text-dusk text-[12px]"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-6">
+                <AddPaymentForm
+                  orderId={orderPayment.orderId}
+                  surface="plain"
+                  idPrefix="order-payment-rail"
+                />
+              </div>
+            </div>
+          ) : orderReturn ? (
+            <div id="order-return">
+              <div className="flex items-start justify-between gap-5 px-2">
+                <div>
+                  <p className="eyebrow">Return</p>
+                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
+                    Write it beside the sale.
+                  </h2>
+                  <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                    The original line stays. The return adjusts the balance.
+                  </p>
+                </div>
+                <button
+                  onClick={clearAdminContextPanel}
+                  className="link-hair shrink-0 text-dusk text-[12px]"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-6">
+                <AddReturnForm
+                  orderId={orderReturn.orderId}
+                  lines={orderReturn.lines}
+                  surface="plain"
+                  idPrefix="order-return-rail"
+                />
               </div>
             </div>
           ) : (

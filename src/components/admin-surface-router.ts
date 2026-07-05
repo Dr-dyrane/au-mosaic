@@ -10,9 +10,12 @@ import {
   clearAdminContextPanel,
   type ContextPieceOption,
   getAdminContextPanel,
+  showOrderPaymentPanel,
+  showOrderReturnPanel,
   showMediaBatchPanel,
   showMediaCreatePanel,
   showStockFilterPanel,
+  type ContextReturnLine,
   type StockFilterContext,
   subscribeAdminContextPanel,
   type AdminContextPanel,
@@ -43,6 +46,12 @@ function showAdminSurface(request: AdminSurfaceRequest) {
     case "media-batch":
       showMediaBatchPanel();
       break;
+    case "order-payment":
+      showOrderPaymentPanel(request.orderId);
+      break;
+    case "order-return":
+      showOrderReturnPanel(request.orderId, request.lines);
+      break;
   }
 }
 
@@ -66,6 +75,19 @@ function samePieceOptions(a: ContextPieceOption[], b: ContextPieceOption[]) {
   );
 }
 
+function sameReturnLines(a: ContextReturnLine[], b: ContextReturnLine[]) {
+  return (
+    a.length === b.length &&
+    a.every((line, index) => (
+      line.id === b[index]?.id &&
+      line.name === b[index]?.name &&
+      line.unit === b[index]?.unit &&
+      line.available === b[index]?.available &&
+      line.valueKobo === b[index]?.valueKobo
+    ))
+  );
+}
+
 function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest) {
   if (!panel || panel.kind !== request.kind) return false;
   switch (request.kind) {
@@ -77,6 +99,12 @@ function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest
       return samePieceOptions(panel.pieces, request.pieces);
     case "media-batch":
       return true;
+    case "order-payment":
+      if (panel.kind !== "order-payment") return false;
+      return panel.orderId === request.orderId;
+    case "order-return":
+      if (panel.kind !== "order-return") return false;
+      return panel.orderId === request.orderId && sameReturnLines(panel.lines, request.lines);
   }
 }
 

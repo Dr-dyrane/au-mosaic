@@ -1,6 +1,8 @@
 export const ADMIN_ACTION_INTENTS = {
   mediaCreate: "media-create",
   mediaBatch: "media-batch",
+  orderPayment: "order-payment",
+  orderReturn: "order-return",
 } as const;
 
 export type AdminActionIntent =

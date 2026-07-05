@@ -11,6 +11,14 @@ export type ContextPieceOption = {
   name: string;
 };
 
+export type ContextReturnLine = {
+  id: string;
+  name: string;
+  unit: string;
+  available: number;
+  valueKobo: number;
+};
+
 export type AdminContextPanel =
   | {
       kind: "stock-filter";
@@ -22,6 +30,15 @@ export type AdminContextPanel =
     }
   | {
       kind: "media-batch";
+    }
+  | {
+      kind: "order-payment";
+      orderId: string;
+    }
+  | {
+      kind: "order-return";
+      orderId: string;
+      lines: ContextReturnLine[];
     }
   | null;
 
@@ -53,6 +70,16 @@ export function showMediaCreatePanel(pieces: ContextPieceOption[]) {
 
 export function showMediaBatchPanel() {
   panel = { kind: "media-batch" };
+  emit();
+}
+
+export function showOrderPaymentPanel(orderId: string) {
+  panel = { kind: "order-payment", orderId };
+  emit();
+}
+
+export function showOrderReturnPanel(orderId: string, lines: ContextReturnLine[]) {
+  panel = { kind: "order-return", orderId, lines };
   emit();
 }
 
