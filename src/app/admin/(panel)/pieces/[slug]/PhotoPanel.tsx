@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
+import AdminPhotoViewer from "@/components/AdminPhotoViewer";
 import { removePhoto, uploadPhoto, type SaveState } from "../actions";
 import { refineForTheWindow } from "../refine";
 import Sentence from "../../Sentence";
@@ -68,9 +69,17 @@ function Slot({
   return (
     <div>
       <p className="eyebrow">{title}</p>
-      <div className="photo-slot relative mt-3 aspect-[4/3] overflow-hidden rounded-[18px]">
-        {current ? (
-          isBlob ? (
+      {current ? (
+        <AdminPhotoViewer
+          src={current}
+          alt={`${title} photograph`}
+          title={title}
+          eyebrow="Piece photo"
+          description={which === "night" ? "The dark-mode window photograph." : "The daylight window photograph."}
+          triggerClassName="photo-slot relative mt-3 block aspect-[4/3] w-full overflow-hidden rounded-[18px]"
+          unoptimized={!isBlob}
+        >
+          {isBlob ? (
             /* The night frame is the record's face, first thing the
                eye meets: it paints eagerly, never lazily. */
             <Image src={current} alt={`${title} photograph`} fill sizes="(max-width: 640px) 100vw, 24rem" className="object-cover" priority={which === "night"} />
@@ -78,13 +87,15 @@ function Slot({
             /* Site-era files under public/media render unoptimised;
                they are already the right size. */
             <Image src={current} alt={`${title} photograph`} fill sizes="(max-width: 640px) 100vw, 24rem" className="object-cover" unoptimized priority={which === "night"} />
-          )
-        ) : (
+          )}
+        </AdminPhotoViewer>
+      ) : (
+        <div className="photo-slot relative mt-3 aspect-[4/3] overflow-hidden rounded-[18px]">
           <p className="photo-slot-hint absolute inset-0 flex items-center justify-center px-6 text-center text-[14px] leading-relaxed">
             {hint}
           </p>
-        )}
-      </div>
+        </div>
+      )}
       <form ref={upRef} onSubmit={submitUpload} className="mt-4 flex flex-wrap items-center gap-5">
         <input type="hidden" name="slug" value={slug} />
         <input type="hidden" name="which" value={which} />
@@ -135,7 +146,15 @@ function WindowPreview({
 }) {
   const night = sun === "night";
   return (
-    <figure className={`scene-vars ${night ? "" : "scene-day"} relative aspect-[3/4] overflow-hidden rounded-[22px]`}>
+    <AdminPhotoViewer
+      src={src}
+      alt={`${name}, as the window wears it by ${sun}`}
+      title={name}
+      eyebrow={sun === "night" ? "By night" : "By day"}
+      description={line || undefined}
+      triggerClassName={`scene-vars ${night ? "" : "scene-day"} relative block aspect-[3/4] w-full overflow-hidden rounded-[22px]`}
+      unoptimized={!src.includes("blob.vercel-storage.com")}
+    >
       <Image
         src={src}
         alt={`${name}, as the window wears it by ${sun}`}
@@ -144,24 +163,24 @@ function WindowPreview({
         className="object-cover"
         unoptimized={!src.includes("blob.vercel-storage.com")}
       />
-      <div aria-hidden className="scrim-card absolute inset-0" />
-      <figcaption className="absolute inset-x-0 bottom-0 p-5">
-        <p className="scene-eyebrow text-[11px] font-semibold uppercase tracking-[0.25em]">
+      <span aria-hidden className="scrim-card absolute inset-0" />
+      <span className="absolute inset-x-0 bottom-0 block p-5">
+        <span className="scene-eyebrow block text-[11px] font-semibold uppercase tracking-[0.25em]">
           {sun === "night" ? "By night" : "By day"}
-        </p>
-        <p className="scene-title font-serif mt-1.5 text-[20px] leading-tight">
+        </span>
+        <span className="scene-title font-serif mt-1.5 block text-[20px] leading-tight">
           {name}
-        </p>
+        </span>
         {line && (
-          <p className="scene-sub mt-1 text-[11px] leading-relaxed">
+          <span className="scene-sub mt-1 block text-[11px] leading-relaxed">
             {line}
-          </p>
+          </span>
         )}
         <span className="mt-3 inline-flex rounded-full bg-[var(--t-brass)] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#14110b]">
           Enquire
         </span>
-      </figcaption>
-    </figure>
+      </span>
+    </AdminPhotoViewer>
   );
 }
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { and, asc, desc, eq, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
+import AdminPhotoViewer from "@/components/AdminPhotoViewer";
 import MediaBatchAction from "./MediaBatchActions";
 import { MediaAssetControls, MediaCreateAction } from "./MediaForms";
 
@@ -224,7 +225,18 @@ export default async function MediaPage({
         <div className="-mx-5 mt-10 grid gap-x-5 gap-y-10 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map(({ asset, piece }) => (
             <article key={asset.id} className="group">
-              <div className="photo-slot relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[22px]">
+              <AdminPhotoViewer
+                src={asset.url}
+                alt={photoTitle(asset)}
+                title={photoTitle(asset)}
+                eyebrow={labelRole(asset.role)}
+                description={photoNote(asset) || undefined}
+                triggerClassName="photo-slot relative block aspect-[4/5] w-full overflow-hidden rounded-none sm:rounded-[22px]"
+                actions={[
+                  { label: "Edit photo", href: `/admin/media/${asset.id}` },
+                  ...(piece ? [{ label: piece.name, href: `/admin/pieces/${piece.slug}` }] : []),
+                ]}
+              >
                 <Image
                   src={asset.url}
                   alt={photoTitle(asset)}
@@ -232,7 +244,7 @@ export default async function MediaPage({
                   sizes="(max-width: 640px) 100vw, 33vw"
                   className="media-lux object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 />
-              </div>
+              </AdminPhotoViewer>
               <div className="px-5 sm:px-0">
                 <div className="mt-5 flex flex-wrap gap-2">
                   <span className="chip-solid">{labelStatus(asset.status)}</span>

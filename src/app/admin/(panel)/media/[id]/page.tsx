@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import AdminPhotoViewer from "@/components/AdminPhotoViewer";
 import Back from "../../Back";
 import { MediaAssetEditor } from "../MediaForms";
 
@@ -73,7 +74,18 @@ export default async function MediaAssetPage({ params }: { params: Promise<{ id:
               {connectedPiece.name}
             </Link>
           )}
-          <div className="photo-slot relative mt-8 aspect-[4/5] overflow-hidden rounded-[26px]">
+          <AdminPhotoViewer
+            src={asset.url}
+            alt={asset.title}
+            title={asset.title}
+            eyebrow={label(ROLE_LABELS, asset.role)}
+            description={asset.notes || undefined}
+            triggerClassName="photo-slot relative mt-8 block aspect-[4/5] w-full overflow-hidden rounded-[26px]"
+            actions={[
+              { label: "All photos", href: "/admin/media" },
+              ...(connectedPiece ? [{ label: connectedPiece.name, href: `/admin/pieces/${connectedPiece.slug}` }] : []),
+            ]}
+          >
             <Image
               src={asset.url}
               alt={asset.title}
@@ -82,7 +94,7 @@ export default async function MediaAssetPage({ params }: { params: Promise<{ id:
               className="media-lux object-cover"
               priority
             />
-          </div>
+          </AdminPhotoViewer>
         </section>
         <section className="panel self-start">
           <p className="font-serif text-[20px]">Edit photo.</p>
