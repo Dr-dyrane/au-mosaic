@@ -242,3 +242,47 @@ export const ATELIER_SCENES: { src: string; place: string; line: string; alt: st
     alt: "A swimming pool pump, filter, and fittings on a stone counter in an ornate mosaic room",
   },
 ];
+
+/* How we work, 2026-07-05: the buying journey, sample wall to running pool.
+   Day/night pairs, so the scenes keep two suns. Home: /how-we-work. */
+export const HOW = {
+  library: { night: "/media/how-library-night.jpg", day: "/media/how-library-day.jpg" },
+  tray: { night: "/media/how-tray-night.jpg", day: "/media/how-tray-day.jpg" },
+  materials: { night: "/media/how-materials-night.jpg", day: "/media/how-materials-day.jpg" },
+  build: { night: "/media/how-build-night.jpg", day: "/media/how-build-day.jpg" },
+};
+
+export const HOW_STEPS: { night: string; day: string; step: string; title: string; line: string; alt: string }[] = [
+  {
+    night: HOW.library.night,
+    day: HOW.library.day,
+    step: "One",
+    title: "Choose the colour",
+    line: "It starts at the sample wall. Bring your space and your light; we bring the range in glass, stone, and metal.",
+    alt: "A wall of glass-mosaic sample boards and two open sample trays on a stone counter",
+  },
+  {
+    night: HOW.tray.night,
+    day: HOW.tray.day,
+    step: "Two",
+    title: "Take it home",
+    line: "Live with a tray of samples for a few days. Colour changes with the room and the hour, so it is better to be sure.",
+    alt: "A tray of eight glass-mosaic samples with a baggie of loose tesserae and a brass ruler",
+  },
+  {
+    night: HOW.materials.night,
+    day: HOW.materials.day,
+    step: "Three",
+    title: "Everything the water needs",
+    line: "Beyond the tile: pumps, filters, fittings, and the chemistry. We carry the whole kit and quote it per job.",
+    alt: "A pool pump, filter, chemicals, basket, and fittings laid out with blue mosaic samples by a pool",
+  },
+  {
+    night: HOW.build.night,
+    day: HOW.build.day,
+    step: "Four",
+    title: "We build, or we supply",
+    line: "Our hands from structure to waterline, or the materials for your own tiler. One house stands behind it either way.",
+    alt: "A swimming pool under construction with the waterline mosaic going in at dusk",
+  },
+];

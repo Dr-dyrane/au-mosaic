@@ -39,7 +39,7 @@ export default async function Footer() {
 
         <nav>
           <p className="eyebrow">Explore</p>
-          <ul className="mt-5 space-y-2.5">
+          <ul className="mt-5 grid grid-cols-2 gap-x-8 gap-y-2.5">
             {NAV.map((n) => (
               <li key={n.href}>
                 <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
@@ -60,6 +60,11 @@ export default async function Footer() {
             <li>
               <Link href="/atelier" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
                 The Atelier
+              </Link>
+            </li>
+            <li>
+              <Link href="/how-we-work" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                How we work
               </Link>
             </li>
             <li>

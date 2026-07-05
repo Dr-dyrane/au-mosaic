@@ -146,6 +146,15 @@ public/media/*
 !public/media/atelier-loggia.jpg
 !public/media/atelier-metallics.jpg
 !public/media/atelier-instruments.jpg
+# How we work (2026-07-05): the buying-journey scenes, day + night.
+!public/media/how-library-night.jpg
+!public/media/how-library-day.jpg
+!public/media/how-tray-night.jpg
+!public/media/how-tray-day.jpg
+!public/media/how-materials-night.jpg
+!public/media/how-materials-day.jpg
+!public/media/how-build-night.jpg
+!public/media/how-build-day.jpg
 !.env.example
 
 # rendered paper (scripts/invoice.py)
