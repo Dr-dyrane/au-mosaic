@@ -18,7 +18,13 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en" data-theme="light" data-palette="royal" className="h-full antialiased">
+    <html
+      lang="en"
+      data-theme="light"
+      data-palette="royal"
+      data-scroll-behavior="smooth"
+      className="h-full antialiased"
+    >
       <body className="min-h-full bg-sand font-sans text-ink">
         <title>Something slipped · AU Mosaic</title>
         <main className="mx-auto flex min-h-svh max-w-6xl flex-col items-start justify-center px-5 sm:px-8">

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuSign } from "@/components/Mosaic";
-import { AdminTabBar, AdminTopNav } from "@/components/AdminNav";
+import { AdminRailNav, AdminTabBar, AdminTopNav } from "@/components/AdminNav";
+import { AdminContextRail, AdminMobileContext } from "@/components/AdminContext";
 import PalettePicker from "@/components/PalettePicker";
 import ThemeToggle from "@/components/ThemeToggle";
 import { readAdminPulse } from "@/lib/admin-pulse";
@@ -23,42 +24,78 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   if (!(await hasSession())) redirect("/admin/login");
-  const owed = (await readAdminPulse()).owingCustomers;
+  const pulse = await readAdminPulse();
+  const owed = pulse.owingCustomers;
   return (
-    /* A flex column so short rooms still hold the footer at the
-       floor: the children stretch, the footer never drifts up. */
-    <div className="admin-rooms tabular-nums mx-auto flex min-h-svh max-w-6xl flex-col px-5 pb-32 sm:px-8 sm:pb-24">
-      <header className="flex items-center justify-between gap-6 pb-10 pt-8">
+    <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-32 tabular-nums sm:px-8 sm:pb-24 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:px-6 lg:pb-8 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:px-8">
+      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:overflow-y-auto lg:py-6">
         <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
           <AuSign markClassName="h-[15px]" />
           <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
             Back office
           </span>
         </Link>
-        <div className="flex items-center gap-6">
-          <AdminTopNav owed={owed} />
+        <AdminRailNav owed={owed} />
+        <div className="mt-auto flex flex-col items-start gap-6">
+          <div className="flex flex-col items-start gap-3">
+            <Link href="/" className="link-hair text-dusk text-[12px]">
+              The site
+            </Link>
+            <button data-tour-start="menu" className="link-hair text-dusk text-[12px]">
+              Take the tour
+            </button>
+          </div>
+          <div className="flex items-center gap-5">
+            <PalettePicker />
+            <ThemeToggle />
+          </div>
           <form action={logout}>
-            <button type="submit" className="link-hair text-dusk text-[13px]">
+            <button type="submit" className="link-hair text-dusk text-[12px]">
               Sign out
             </button>
           </form>
         </div>
-      </header>
-      <div className="flex-1">{children}</div>
-      {/* The office footer: the same suns and houses as the shop
-          window, so his dashboard wears the clothes he chose. */}
-      <footer className="mt-24 flex flex-wrap items-center justify-between gap-5 pt-8">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-mist">
-          The back office · AU Mosaic
-        </p>
-        <div className="flex items-center gap-5">
-          <Link href="/admin/settings" className="link-hair text-dusk text-[12px]">
-            Settings
-          </Link>
-          <PalettePicker />
-          <ThemeToggle />
-        </div>
-      </footer>
+      </aside>
+      <section className="min-w-0 py-8 lg:py-10">
+        <header className="pb-9 lg:hidden">
+          <div className="flex items-center justify-between gap-6">
+            <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
+              <AuSign markClassName="h-[15px]" />
+              <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
+                Back office
+              </span>
+            </Link>
+            <form action={logout}>
+              <button type="submit" className="link-hair text-dusk text-[12px]">
+                Sign out
+              </button>
+            </form>
+          </div>
+          <div className="mt-6 flex items-center justify-between gap-5">
+            <AdminTopNav owed={owed} />
+            <div className="flex shrink-0 items-center gap-3">
+              <PalettePicker />
+              <ThemeToggle />
+            </div>
+          </div>
+        </header>
+        <AdminMobileContext pulse={pulse} />
+        <div>{children}</div>
+        <footer className="mt-24 flex flex-wrap items-center justify-between gap-5 pt-8 lg:hidden">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-mist">
+            The back office · AU Mosaic
+          </p>
+          <div className="flex items-center gap-5">
+            <Link href="/admin/settings" className="link-hair text-dusk text-[12px]">
+              Settings
+            </Link>
+            <Link href="/" className="link-hair text-dusk text-[12px]">
+              The site
+            </Link>
+          </div>
+        </footer>
+      </section>
+      <AdminContextRail pulse={pulse} />
       <AdminTabBar owed={owed} />
       <Tour />
     </div>

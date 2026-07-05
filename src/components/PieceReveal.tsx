@@ -88,11 +88,11 @@ const COPY: Record<string, Copy> = {
   },
   "classic-pool-blues": {
     materialTitle: "Every blue the water knows.",
-    materialBody: "Small seed and big, deep to light, mixed in one sheet — the whole range a pool moves through from the deep end to the steps.",
+    materialBody: "Small seed and big, deep to light, mixed in one sheet. The whole range a pool moves through from the deep end to the steps.",
   },
   "solid-colour-glass": {
     materialTitle: "One clean colour, edge to edge.",
-    materialBody: "Solid glass, cut square — crystal, stone, chess board, or a shade matched to order. No pattern to hide in, just the colour itself.",
+    materialBody: "Solid glass, cut square. Crystal, stone, chess board, or a shade matched to order. No pattern to hide in, just the colour itself.",
   },
   "gold-metallic-accents": {
     materialTitle: "Three metals, all mirror.",
@@ -100,11 +100,11 @@ const COPY: Record<string, Copy> = {
   },
   "custom-murals": {
     materialTitle: "Your drawing, in glass.",
-    materialBody: "Cut and set by hand to your own design — a crest, a koi, a name. Whatever the picture, it arrives one piece at a time.",
+    materialBody: "Cut and set by hand to your own design. A crest, a koi, a name. Whatever the picture, it arrives one piece at a time.",
   },
   "plain-blue-small-seed": {
     materialTitle: "The pool classic, small seed.",
-    materialBody: "Fine blue seed, even across the sheet — the tile that has lined more Lagos pools than any other, for the plain reason that it works.",
+    materialBody: "Fine blue seed, even across the sheet. The tile that has lined more Lagos pools than any other, for the plain reason that it works.",
   },
   "mixed-blue-big-seed": {
     materialTitle: "Deep to light, one sheet.",
@@ -112,7 +112,7 @@ const COPY: Record<string, Copy> = {
   },
   "plain-white-mosaic": {
     materialTitle: "Clean light, nothing added.",
-    materialBody: "Plain white glass set close — the surface that makes a small room feel larger and a pool read bright to the floor.",
+    materialBody: "Plain white glass set close. The surface that makes a small room feel larger and a pool read bright to the floor.",
   },
   "black-mosaic": {
     materialTitle: "Shadow, matte or gloss.",
@@ -120,7 +120,7 @@ const COPY: Record<string, Copy> = {
   },
   "green-mosaic": {
     materialTitle: "Green, for rooms that breathe.",
-    materialBody: "A living green across the sheet — at home behind a kitchen counter, along a bath, or in a courtyard where the leaves already agree.",
+    materialBody: "A living green across the sheet. At home behind a kitchen counter, along a bath, or in a courtyard where the leaves already agree.",
   },
   "orange-mosaic": {
     materialTitle: "A warm accent, on purpose.",
@@ -128,11 +128,11 @@ const COPY: Record<string, Copy> = {
   },
   "silver-crystal-mosaic": {
     materialTitle: "Cut like crystal, set like tile.",
-    materialBody: "Faceted glass that behaves like cut crystal — every piece a small prism, so the whole sheet flickers as you move past it.",
+    materialBody: "Faceted glass that behaves like cut crystal. Every piece a small prism, so the whole sheet flickers as you move past it.",
   },
   "stone-mosaic": {
     materialTitle: "Matte stone, no shine at all.",
-    materialBody: "Natural stone cut to mosaic and left matte — warm on a wall, quiet in a room that would rather be calm than loud.",
+    materialBody: "Natural stone cut to mosaic and left matte. Warm on a wall, quiet in a room that would rather be calm than loud.",
   },
   "hexagon-marble": {
     materialTitle: "Marble, cut to the honeycomb.",
@@ -161,7 +161,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
   const stageSub = copy.stageSub ?? piece.note;
 
   /* The stage holds dark in both suns. A dark studio card sinks into it and
-     the sheet dies — worst of all for dark tiles, which vanish outright. So a
+     the sheet dies. Worst of all for dark tiles, which vanish outright. So a
      carded piece is lit here by its light-ground card: the vignette feathers
      its edges into the black and it reads as a sample under the spotlight. An
      un-carded piece keeps its own hero photo, which already carries the light. */
@@ -169,7 +169,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
 
   return (
     <>
-      {/* ACT ONE — THE STAGE. A dark opening, the sheet lit alone. */}
+      {/* ACT ONE. THE STAGE. A dark opening, the sheet lit alone. */}
       <section className="reveal-stage relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-5 py-24 text-center">
         <div className="vignette pointer-events-none absolute inset-0 z-[1]" />
         <Reveal>
@@ -209,7 +209,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
       {/* The floating enquiry bar rises once the stage scrolls away. */}
       <PieceBar name={piece.name} href={wa} />
 
-      {/* ACT TWO — THE MATERIAL. Close enough to touch; light walks the tesserae. */}
+      {/* ACT TWO. THE MATERIAL. Close enough to touch; light walks the tesserae. */}
       <section className="reveal-stage relative flex min-h-svh items-end overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
           <ThemeImage
@@ -240,7 +240,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
         </SceneVars>
       </section>
 
-      {/* ACT THREE — THE DREAM. The pull-back into the room; the sun returns. */}
+      {/* ACT THREE. THE DREAM. The pull-back into the room; the sun returns. */}
       <section className="relative flex min-h-[72svh] items-end overflow-hidden">
         <SceneFrame
           dark={dream.night}
@@ -264,7 +264,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
         </SceneFrame>
       </section>
 
-      {/* ACT FOUR — THE COUNTER. Shop-crisp: the facts and the one gold action. */}
+      {/* ACT FOUR. THE COUNTER. Shop-crisp: the facts and the one gold action. */}
       <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
         <div className="grid items-center gap-10 md:grid-cols-[0.9fr_1.1fr]">
           <Reveal>
@@ -290,8 +290,8 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
             {piece.colors && (
               <Reveal delay={140}>
                 <div className="mt-6 flex flex-wrap gap-2.5" aria-label="Colourways">
-                  {piece.colors.map((c) => (
-                    <span key={c} className="h-7 w-7 rounded-full" style={{ background: c }} aria-hidden />
+                  {piece.colors.map((c, i) => (
+                    <span key={`${c}-${i}`} className="h-7 w-7 rounded-full" style={{ background: c }} aria-hidden />
                   ))}
                 </div>
               </Reveal>

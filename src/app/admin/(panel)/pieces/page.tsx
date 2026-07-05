@@ -236,8 +236,8 @@ export default async function PiecesPage({
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex min-w-0 items-center gap-3">
                               <span className="flex shrink-0 gap-0.5">
-                                {(piece.colors ?? []).slice(0, 4).map((c) => (
-                                  <span key={c} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
+                                {(piece.colors ?? []).slice(0, 4).map((c, i) => (
+                                  <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
                                 ))}
                               </span>
                               <p className="truncate font-serif text-[18px] leading-snug transition-colors duration-300 group-hover:text-gold">

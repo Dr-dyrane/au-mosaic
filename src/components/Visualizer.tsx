@@ -464,8 +464,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 }`}
               >
                 <span className="flex gap-0.5">
-                  {(p.colors || []).slice(0, 4).map((c) => (
-                    <span key={c} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
+                  {(p.colors || []).slice(0, 4).map((c, i) => (
+                    <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
                   ))}
                 </span>
                 <span className="whitespace-nowrap text-[12px] font-semibold">{p.name}</span>

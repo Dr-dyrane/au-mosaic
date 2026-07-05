@@ -32,6 +32,7 @@ Last pass: 2026-07-05.
 | Analytics | PASS | `@vercel/analytics` wired in the root layout. Fulfils the proposal's traffic analytics deliverable. |
 | Copy protocol | PASS | Swept: no em dashes, no arrows, few words, human prose. |
 | Desk shell goal | PASS | `docs/DESK-SHELL.md` defines the adaptive admin target before code: room rail, work canvas, context rail, phone sheet behavior, owner-language guardrails, use-case coverage, and Apple HIG source anchors. |
+| Desk shell build | PASS | Shared room model, desktop rail, tablet room row, phone tab bar, wide context rail, and mobile context disclosure shipped. Production visual QA at 390, 768, 1024, and 1440 found no horizontal overflow or tab overlap. `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 49 routes. |
 
 ## Step-up pass (SICIS benchmark)
 

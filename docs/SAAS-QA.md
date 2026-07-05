@@ -53,18 +53,19 @@ means not built yet. Update the verdicts as passes land.
 
 ## Desk shell target
 
-The next admin UI pass is governed by `docs/DESK-SHELL.md`. These are
-planned gates, not shipped claims.
+The admin shell pass is governed by `docs/DESK-SHELL.md`. These gates
+now describe the shipped shell, with record-level depth left to the
+next adapter pass.
 
 | Item | Verdict |
 |---|---|
-| Desktop room rail | Planned |
-| Desktop work canvas plus context rail | Planned |
-| Phone keeps one-column tab flow | Planned |
-| Context rail never duplicates the page | Planned |
-| Owner UI hides technical setup words | Planned |
-| House controls live in shell chrome | Planned |
-| Visual QA at 390, 768, 1024, and 1440 | Planned |
+| Desktop room rail | Pass |
+| Desktop work canvas plus context rail | Pass |
+| Phone keeps one-column tab flow | Pass |
+| Context rail never duplicates the page | Pass |
+| Owner UI hides technical setup words | Pass |
+| House controls live in shell chrome | Pass |
+| Visual QA at 390, 768, 1024, and 1440 | Pass |
 
 ## Performance
 

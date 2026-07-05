@@ -101,8 +101,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           <div className="flex flex-col items-end text-right">
             {/* Five tesserae: the house in miniature, the one ornament. */}
             <span aria-hidden className="flex gap-1">
-              {["#C2A15C", "#8F7434", "#5D564A", "#B8B2A6", "#17150F"].map((c) => (
-                <span key={c} className="h-2 w-2" style={{ background: c }} />
+              {["#C2A15C", "#8F7434", "#5D564A", "#B8B2A6", "#17150F"].map((c, i) => (
+                <span key={`${c}-${i}`} className="h-2 w-2" style={{ background: c }} />
               ))}
             </span>
             <p className="font-serif mt-3 text-[26px]">Invoice</p>

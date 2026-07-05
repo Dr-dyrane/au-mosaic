@@ -19,6 +19,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 | Performance watch | The admin glance and owed badge now share one cached raw pulse query, so the home page no longer runs five glance queries plus the badge. |
 | Onyx eye pass | Photo slots now have a lit well in the darkest house, file buttons keep their capsule, and window previews use palette hardware instead of hardcoded Maison gold. |
 | Desk shell doctrine | `docs/DESK-SHELL.md` now defines the adaptive back-office goal before the shell redesign begins. |
+| Adaptive Desk Shell | The admin now uses a shared room model, desktop room rail, work canvas, wide context rail, tablet room row, and phone tab flow with contextual disclosure. |
 
 ## Needs owner truth
 
@@ -36,8 +37,8 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Adaptive Desk Shell | Replace the growing top-row admin shell with a platform-sensitive room rail, work canvas, and context rail. Phone stays one-column with the tab bar and contextual sheets. |
-| 2 | Shell context adapters | Add room-specific context for home, stock, pieces, orders, people, owed, deliveries, and photos without changing the piece record as the heart. |
+| 1 | Record context adapters | Let order, customer, piece, media, and delivery records feed their own live facts into the context rail without duplicating the page. |
+| 2 | Room density sweep | Tune each room inside the new shell for its archetype: glance, ledger, record, form, read-only, config, and bridge. |
 
 ## Standing decisions
 
