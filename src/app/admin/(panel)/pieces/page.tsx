@@ -3,7 +3,7 @@ import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import FilterSheet from "./FilterSheet";
 import StockStarter from "./StockStarter";
-import { HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
+import { APPLICATION_FILTERS, HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
 
 /* First colour decides the hue shelf: low saturation is neutral,
    then blue, green, or earth by the wheel. */
@@ -36,7 +36,9 @@ export default async function PiecesPage({
 }: {
   searchParams: Promise<StockFilters>;
 }) {
-  const filters = await searchParams;
+  const rawFilters = await searchParams;
+  const app = APPLICATION_FILTERS.find((a) => a.key === rawFilters.app)?.key;
+  const filters = { ...rawFilters, app };
   const db = getDb();
   const ranges = await db.select().from(schema.ranges).orderBy(asc(schema.ranges.sort));
   const rows = await db
@@ -59,9 +61,12 @@ export default async function PiecesPage({
         (row.stock
           ? row.stock.reorderAt > 0 && row.stock.quantitySheets <= row.stock.reorderAt
           : false)) &&
-      (!filters.hue || hueOf(row.piece.colors) === filters.hue)
+      (!filters.hue || hueOf(row.piece.colors) === filters.hue) &&
+      (!filters.app ||
+        (Array.isArray(row.piece.applicationTags) &&
+          row.piece.applicationTags.includes(filters.app)))
   );
-  const filtering = Boolean(filters.family || filters.low || filters.hue);
+  const filtering = Boolean(filters.family || filters.low || filters.hue || filters.app);
   const sort = filters.sort === "name" || filters.sort === "low" ? filters.sort : undefined;
 
   /* A shop is not handed over empty: while most shelves have never
@@ -162,6 +167,18 @@ export default async function PiecesPage({
           ))}
         </span>
         <span aria-hidden className="mx-1.5" />
+        <span className="flex flex-wrap items-center gap-2" data-tour="stock-applications">
+          {APPLICATION_FILTERS.map((a) => (
+            <Link
+              key={a.key}
+              href={makeStockHref(filters, { app: filters.app === a.key ? undefined : a.key })}
+              className={`chip-solid ${filters.app === a.key ? "is-on" : ""}`}
+            >
+              {a.label}
+            </Link>
+          ))}
+        </span>
+        <span aria-hidden className="mx-1.5" />
         <span className="flex flex-wrap items-center gap-2" data-tour="stock-sorts">
           {SORTS.map((s) => (
             <Link
@@ -206,6 +223,9 @@ export default async function PiecesPage({
                       const facts = [piece.seedSize, piece.shade, piece.finish]
                         .map((v) => (v ?? "").trim())
                         .filter(Boolean);
+                      const applications = Array.isArray(piece.applicationTags)
+                        ? piece.applicationTags.slice(0, 3)
+                        : [];
                       return (
                         <Link
                           key={piece.slug}
@@ -231,6 +251,11 @@ export default async function PiecesPage({
                           {facts.length > 0 && (
                             <p className="mt-3 truncate text-[12px] text-mist">
                               {facts.join(" / ")}
+                            </p>
+                          )}
+                          {applications.length > 0 && (
+                            <p className="mt-1 truncate text-[12px] text-mist">
+                              {applications.join(" / ")}
                             </p>
                           )}
                           <div className="mt-4 flex items-center justify-between">

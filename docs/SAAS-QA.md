@@ -14,6 +14,7 @@ means not built yet. Update the verdicts as passes land.
 | Sort control | Pass (customers Newest or A to Z; stockroom shelf order, by name, low first, inside each range; debts stay oldest-first by law) |
 | Result counts shown | Pass (customers total, settled count, range book/window counts) |
 | Product trade facts | Pass (seed size, shade, and finish are editable on the piece and visible in the stockroom; stock and price do not split) |
+| Application filters | Pass (controlled place tags filter the stockroom and show on product pages without creating a project archive) |
 | Empty states teach | Pass (every room) |
 | Loading states | Pass (panel loading.tsx breath) |
 | Error states | Pass (panel error.tsx, calm sentence) |

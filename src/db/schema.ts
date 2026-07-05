@@ -77,6 +77,7 @@ export const pieces = pgTable(
     seedSize: text("seed_size").notNull().default(""),
     shade: text("shade").notNull().default(""),
     finish: text("finish").notNull().default(""),
+    applicationTags: jsonb("application_tags").$type<string[]>().notNull().default([]),
     imageNight: text("image_night"),
     imageDay: text("image_day"),
     /* The shop-card face: clean product display for grids and the

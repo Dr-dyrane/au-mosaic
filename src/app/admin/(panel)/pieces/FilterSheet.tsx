@@ -5,7 +5,7 @@ import { useState } from "react";
 import { buzz } from "@/lib/backoffice";
 
 import { IconClose, IconFilter } from "../icons";
-import { HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
+import { APPLICATION_FILTERS, HUES, SORTS, makeStockHref, type StockFilters } from "./stock-filters";
 
 /* The phone's filter: one chip opens a glass sheet from the bottom
    edge, big rows, each a link so the URL carries the view. Tapping a
@@ -42,7 +42,10 @@ function Row({
 export default function FilterSheet({ current }: { current: StockFilters }) {
   const [open, setOpen] = useState(false);
   const active =
-    (current.family ? 1 : 0) + (current.low ? 1 : 0) + (current.hue ? 1 : 0);
+    (current.family ? 1 : 0) +
+    (current.low ? 1 : 0) +
+    (current.hue ? 1 : 0) +
+    (current.app ? 1 : 0);
   const close = () => setOpen(false);
 
   return (
@@ -115,6 +118,19 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
                     <span className="h-4 w-4 rounded-full" style={{ background: h.dot }} />
                     {h.label}
                   </span>
+                </Row>
+              ))}
+            </div>
+            <p className="eyebrow mt-5 px-2">Place</p>
+            <div className="mt-3 grid gap-1">
+              {APPLICATION_FILTERS.map((a) => (
+                <Row
+                  key={a.key}
+                  onPick={close}
+                  href={makeStockHref(current, { app: current.app === a.key ? undefined : a.key })}
+                  on={current.app === a.key}
+                >
+                  {a.label}
                 </Row>
               ))}
             </div>

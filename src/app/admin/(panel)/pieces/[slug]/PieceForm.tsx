@@ -5,6 +5,7 @@ import ColorsField from "../ColorsField";
 import Sentence from "../../Sentence";
 import Teach from "../../Teach";
 import { keepValues } from "../../keep";
+import { APPLICATION_TAGS } from "@/lib/application-tags";
 import { buzz } from "@/lib/backoffice";
 import { savePiece, type SaveState } from "../actions";
 
@@ -63,6 +64,7 @@ type Props = {
     seedSize: string;
     shade: string;
     finish: string;
+    applicationTags: string[];
     unit: string;
     published: boolean;
   };
@@ -162,6 +164,34 @@ export default function PieceForm({ piece, stock }: Props) {
               className={field}
             />
           </div>
+        </div>
+      </div>
+
+      <div className="panel grid gap-6">
+        <div>
+          <p className="font-serif text-[20px]">Where it works</p>
+          <Teach until="stockroom">
+            <span className="mt-1.5 block text-[13px] text-dusk">
+              Show useful places without making a project archive.
+            </span>
+          </Teach>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {APPLICATION_TAGS.map((tag) => (
+            <label
+              key={tag}
+              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-[18px] bg-shell/60 px-4 text-[13px] text-dusk transition-colors duration-300 hover:bg-shell hover:text-ink"
+            >
+              <input
+                type="checkbox"
+                name="applicationTags"
+                value={tag}
+                defaultChecked={piece.applicationTags.includes(tag)}
+                className="h-4 w-4 accent-[#c2a15c]"
+              />
+              <span>{tag}</span>
+            </label>
+          ))}
         </div>
       </div>
 

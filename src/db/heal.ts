@@ -128,6 +128,38 @@ const DDL: string[] = [
   `INSERT INTO settings (key, value)
    VALUES ('trade_facts_seeded', '2026-07-04')
    ON CONFLICT (key) DO NOTHING`,
+  /* 2026-07-04 · controlled application language */
+  `ALTER TABLE "pieces" ADD COLUMN "application_tags" jsonb DEFAULT '[]'::jsonb NOT NULL`,
+  `UPDATE pieces AS p
+     SET application_tags = v.tags
+    FROM (VALUES
+      ('classic-pool-blues', '["Swimming pool","Pool floor art"]'::jsonb),
+      ('aqua-turquoise-blends', '["Kitchen","Sink","Bathroom","Sitting room","Office","Swimming pool"]'::jsonb),
+      ('deep-midnight-blends', '["Bathroom","Swimming pool"]'::jsonb),
+      ('patterned-pool-borders', '["Swimming pool","Pool floor art"]'::jsonb),
+      ('plain-blue-small-seed', '["Swimming pool"]'::jsonb),
+      ('mixed-blue-big-seed', '["Swimming pool"]'::jsonb),
+      ('solid-colour-glass', '["Kitchen","Bathroom","Sitting room","Office","Exterior"]'::jsonb),
+      ('mixed-gradient-blends', '["Kitchen","Bathroom","Swimming pool"]'::jsonb),
+      ('gold-metallic-accents', '["Sitting room","Office","Wall art"]'::jsonb),
+      ('tiny-seed-gold', '["Sitting room","Office","Wall art"]'::jsonb),
+      ('silver-crystal-mosaic', '["Sitting room","Office","Wall art"]'::jsonb),
+      ('plain-white-mosaic', '["Kitchen","Bathroom","Swimming pool"]'::jsonb),
+      ('black-mosaic', '["Bathroom","Swimming pool"]'::jsonb),
+      ('green-mosaic', '["Kitchen","Bathroom","Sitting room"]'::jsonb),
+      ('orange-mosaic', '["Sitting room","Wall art"]'::jsonb),
+      ('pattern-picture-mosaics', '["Pool floor art","Logo art","Wall art"]'::jsonb),
+      ('custom-murals', '["Pool floor art","Logo art","Wall art"]'::jsonb),
+      ('stone-mosaic', '["Kitchen","Sitting room","Office"]'::jsonb),
+      ('hexagon-marble', '["Bathroom"]'::jsonb),
+      ('container-project-orders', '["Exterior","Swimming pool"]'::jsonb),
+      ('custom-colours-sizes', '["Kitchen","Sink","Bathroom","Wall art"]'::jsonb)
+    ) AS v(slug, tags)
+    WHERE p.slug = v.slug
+      AND p.application_tags = '[]'::jsonb`,
+  `INSERT INTO settings (key, value)
+   VALUES ('application_tags_seeded', '2026-07-04')
+   ON CONFLICT (key) DO NOTHING`,
   /* 2026-07-04 · returns correct beside the original sale */
   `ALTER TABLE "order_items" ADD COLUMN "return_for_item_id" uuid`,
   `CREATE INDEX "order_items_return_for_idx" ON "order_items" USING btree ("return_for_item_id")`,
@@ -152,6 +184,9 @@ export async function healSchema(): Promise<void> {
              (select 1 from information_schema.columns
                 where table_name = 'pieces' and column_name = 'seed_size') as variant_facts,
              (select 1 from settings where key = 'trade_facts_seeded') as variant_seed,
+             (select 1 from information_schema.columns
+                where table_name = 'pieces' and column_name = 'application_tags') as application_tags,
+             (select 1 from settings where key = 'application_tags_seeded') as application_seed,
              to_regclass('public.media_assets') as media_assets,
              (select 1 from information_schema.columns
                 where table_name = 'order_items' and column_name = 'return_for_item_id') as returns`);
@@ -164,6 +199,8 @@ export async function healSchema(): Promise<void> {
       card_slot: number | null;
       variant_facts: number | null;
       variant_seed: number | null;
+      application_tags: number | null;
+      application_seed: number | null;
       media_assets: string | null;
       returns: number | null;
     }>(probe)[0];
@@ -176,6 +213,8 @@ export async function healSchema(): Promise<void> {
       row?.card_slot &&
       row?.variant_facts &&
       row?.variant_seed &&
+      row?.application_tags &&
+      row?.application_seed &&
       row?.media_assets &&
       row?.returns
     ) {

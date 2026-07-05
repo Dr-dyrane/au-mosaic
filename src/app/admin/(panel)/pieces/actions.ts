@@ -6,6 +6,7 @@ import { put } from "@vercel/blob";
 import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
+import { cleanApplicationTags } from "@/lib/application-tags";
 import { logAction } from "@/lib/audit";
 
 /* Server actions are public HTTP endpoints whatever the UI hides, so
@@ -261,6 +262,7 @@ export async function savePiece(_prev: SaveState, form: FormData): Promise<SaveS
         seedSize: String(form.get("seedSize") ?? "").trim(),
         shade: String(form.get("shade") ?? "").trim(),
         finish: String(form.get("finish") ?? "").trim(),
+        applicationTags: cleanApplicationTags(form.getAll("applicationTags")),
         unit: String(form.get("unit") ?? "").trim() || "sheets",
         published: form.get("published") === "on",
         updatedAt: sql`now()`,

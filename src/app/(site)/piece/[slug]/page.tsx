@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title: `${piece.name} · ${piece.collection}, Lagos`,
     description: piece.note ? `${piece.name}. ${piece.note}.` : `${piece.name}, from the ${piece.collection.toLowerCase()} collection.`,
+    keywords: ["mosaic tiles", "Lagos", piece.collection, ...(piece.applicationTags ?? [])],
     openGraph: piece.image ? { images: [{ url: piece.image }] } : undefined,
   };
 }
@@ -44,6 +45,17 @@ export default async function PiecePage({ params }: { params: Params }) {
       ? { image: piece.image.startsWith("http") ? piece.image : `${base}${piece.image}` }
       : {}),
     category: piece.collection,
+    ...(piece.applicationTags?.length
+      ? {
+          additionalProperty: [
+            {
+              "@type": "PropertyValue",
+              name: "Applications",
+              value: piece.applicationTags.join(", "),
+            },
+          ],
+        }
+      : {}),
     brand: { "@type": "Brand", name: SITE.shortName },
     url: `${base}/piece/${piece.slug}`,
   };

@@ -48,6 +48,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
           seedSize: piece.seedSize ?? "",
           shade: piece.shade ?? "",
           finish: piece.finish ?? "",
+          applicationTags: Array.isArray(piece.applicationTags) ? piece.applicationTags : [],
           unit: piece.unit,
           published: piece.published,
         }}

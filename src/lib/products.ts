@@ -17,6 +17,8 @@ export type Product = {
   /** Shop-style product card for the grid; the piece page keeps its own hero. */
   card?: string;
   cardLight?: string;
+  /** Controlled proof language for where the piece works. */
+  applicationTags?: string[];
   /** Stable id: the piece page URL today, the CRM product key tomorrow. */
   slug?: string;
 };
@@ -36,12 +38,12 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Pool mosaics",
     blurb: "Our best sellers. The classic choice for swimming pools, in blues and beyond.",
     items: [
-      { slug: "classic-pool-blues", name: "Classic pool blues", note: "Small seed, big seed, deep, light, and mixed blues", variants: ["Small seed", "Big seed", "Deep blue", "Light blue", "Mixed blue"], image: OWN.poolBlues, imageLight: DAY.poolBlues, colors: ["#1179a8", "#1e8fc0", "#3aa9d6", "#6cc4e6", "#a8def2"] },
-      { slug: "aqua-turquoise-blends", name: "Aqua colour mosaic", note: "For sitting rooms, kitchens, offices, and pools", image: OWN.aquaBlends, imageLight: DAY.aquaBlends, colors: ["#0fb5c9", "#2ecddd", "#63e0ea", "#98ecf2", "#c8f6f9"] },
-      { slug: "deep-midnight-blends", name: "Deep and midnight blends", note: "Darker pools, dramatic water", image: OWN.midnightBlends, imageLight: DAY.midnightBlends, colors: ["#0b2e4f", "#123f66", "#1a527f", "#25689a", "#3b81b3"] },
-      { slug: "patterned-pool-borders", name: "Patterned pool borders", note: "Waterlines and feature bands", image: OWN.borders, imageLight: DAY.borders, colors: ["#1e8fc0", "#f5f1e8", "#134e5e", "#f5f1e8", "#3aa9d6", "#c05f2b"] },
-      { slug: "plain-blue-small-seed", name: "Plain blue mosaic", note: "Small seed, the pool classic", image: OWN.plainBlueSmallSeed, imageLight: DAY.plainBlueSmallSeed, colors: ["#1553b8", "#1e63c8", "#2f79dc", "#4a8fe8"] },
-      { slug: "mixed-blue-big-seed", name: "Mixed blue mosaic", note: "Big seed, deep to light in one sheet", image: OWN.mixedBlueBigSeed, imageLight: DAY.mixedBlueBigSeed, colors: ["#0d3a8a", "#1e63c8", "#3aa9d6", "#7fc4ec", "#b7e0f6"] },
+      { slug: "classic-pool-blues", name: "Classic pool blues", note: "Small seed, big seed, deep, light, and mixed blues", variants: ["Small seed", "Big seed", "Deep blue", "Light blue", "Mixed blue"], applicationTags: ["Swimming pool", "Pool floor art"], image: OWN.poolBlues, imageLight: DAY.poolBlues, colors: ["#1179a8", "#1e8fc0", "#3aa9d6", "#6cc4e6", "#a8def2"] },
+      { slug: "aqua-turquoise-blends", name: "Aqua colour mosaic", note: "For sitting rooms, kitchens, offices, and pools", applicationTags: ["Kitchen", "Sink", "Bathroom", "Sitting room", "Office", "Swimming pool"], image: OWN.aquaBlends, imageLight: DAY.aquaBlends, colors: ["#0fb5c9", "#2ecddd", "#63e0ea", "#98ecf2", "#c8f6f9"] },
+      { slug: "deep-midnight-blends", name: "Deep and midnight blends", note: "Darker pools, dramatic water", applicationTags: ["Bathroom", "Swimming pool"], image: OWN.midnightBlends, imageLight: DAY.midnightBlends, colors: ["#0b2e4f", "#123f66", "#1a527f", "#25689a", "#3b81b3"] },
+      { slug: "patterned-pool-borders", name: "Patterned pool borders", note: "Waterlines and feature bands", applicationTags: ["Swimming pool", "Pool floor art"], image: OWN.borders, imageLight: DAY.borders, colors: ["#1e8fc0", "#f5f1e8", "#134e5e", "#f5f1e8", "#3aa9d6", "#c05f2b"] },
+      { slug: "plain-blue-small-seed", name: "Plain blue mosaic", note: "Small seed, the pool classic", applicationTags: ["Swimming pool"], image: OWN.plainBlueSmallSeed, imageLight: DAY.plainBlueSmallSeed, colors: ["#1553b8", "#1e63c8", "#2f79dc", "#4a8fe8"] },
+      { slug: "mixed-blue-big-seed", name: "Mixed blue mosaic", note: "Big seed, deep to light in one sheet", applicationTags: ["Swimming pool"], image: OWN.mixedBlueBigSeed, imageLight: DAY.mixedBlueBigSeed, colors: ["#0d3a8a", "#1e63c8", "#3aa9d6", "#7fc4ec", "#b7e0f6"] },
     ],
   },
   {
@@ -49,15 +51,15 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Glass mosaics",
     blurb: "Colour and shine for walls, bathrooms, and features.",
     items: [
-      { slug: "solid-colour-glass", name: "Solid colour glass", note: "Crystal, stone, chess board, and custom colours", variants: ["Crystal", "Stone", "Chess board"], image: OWN.glassJewels, imageLight: DAY.glassJewels, colors: ["#c0392b", "#e67e22", "#f1c40f", "#27ae60", "#2980b9", "#8e44ad"] },
-      { slug: "mixed-gradient-blends", name: "Mixed and gradient blends", image: OWN.gradientBlends, imageLight: DAY.gradientBlends, colors: ["#134e5e", "#0e7490", "#2fb9cf", "#67d6e5", "#a5e8f0", "#e8f8fa"] },
-      { slug: "gold-metallic-accents", name: "Gold and metallic accents", note: "Gold, silver, and rose gold mirror", variants: ["Gold", "Silver", "Rose gold"], image: OWN.goldAccents, imageLight: DAY.goldAccents, colors: ["#8a6d1a", "#b8942d", "#d9b64a", "#edd27a", "#f7e7ae"] },
-      { slug: "tiny-seed-gold", name: "Tiny seed gold mosaic", note: "Tiny seed, stocked in quantity", image: OWN.tinySeedGold, imageLight: DAY.tinySeedGold, colors: ["#8a6d1a", "#b8942d", "#d9b64a", "#edd27a"] },
-      { slug: "silver-crystal-mosaic", name: "Silver crystal mosaic", note: "A premium reflective finish", image: OWN.silverCrystal, imageLight: DAY.silverCrystal, colors: ["#c9cdd4", "#dde1e7", "#eef1f5", "#b7bcc4"] },
-      { slug: "plain-white-mosaic", name: "Plain white mosaic", note: "Clean light for walls and pools", image: OWN.plainWhite, imageLight: DAY.plainWhite, colors: ["#f6f7f8", "#eceff1", "#e2e6ea", "#d7dde2"] },
-      { slug: "black-mosaic", name: "Black mosaic", note: "Shadow-deep, matte or gloss", image: OWN.blackMosaic, imageLight: DAY.blackMosaic, colors: ["#0d0f12", "#16191d", "#212529", "#2c3136"] },
-      { slug: "green-mosaic", name: "Green mosaic", note: "Kitchens, baths, and courtyards", image: OWN.greenMosaic, imageLight: DAY.greenMosaic, colors: ["#1c8a4a", "#27a35a", "#3cba6e", "#66d08e"] },
-      { slug: "orange-mosaic", name: "Orange mosaic", note: "A warm accent colourway", image: OWN.orangeMosaic, imageLight: DAY.orangeMosaic, colors: ["#e07020", "#f08430", "#f89a4a", "#ffb066"] },
+      { slug: "solid-colour-glass", name: "Solid colour glass", note: "Crystal, stone, chess board, and custom colours", variants: ["Crystal", "Stone", "Chess board"], applicationTags: ["Kitchen", "Bathroom", "Sitting room", "Office", "Exterior"], image: OWN.glassJewels, imageLight: DAY.glassJewels, colors: ["#c0392b", "#e67e22", "#f1c40f", "#27ae60", "#2980b9", "#8e44ad"] },
+      { slug: "mixed-gradient-blends", name: "Mixed and gradient blends", applicationTags: ["Kitchen", "Bathroom", "Swimming pool"], image: OWN.gradientBlends, imageLight: DAY.gradientBlends, colors: ["#134e5e", "#0e7490", "#2fb9cf", "#67d6e5", "#a5e8f0", "#e8f8fa"] },
+      { slug: "gold-metallic-accents", name: "Gold and metallic accents", note: "Gold, silver, and rose gold mirror", variants: ["Gold", "Silver", "Rose gold"], applicationTags: ["Sitting room", "Office", "Wall art"], image: OWN.goldAccents, imageLight: DAY.goldAccents, colors: ["#8a6d1a", "#b8942d", "#d9b64a", "#edd27a", "#f7e7ae"] },
+      { slug: "tiny-seed-gold", name: "Tiny seed gold mosaic", note: "Tiny seed, stocked in quantity", applicationTags: ["Sitting room", "Office", "Wall art"], image: OWN.tinySeedGold, imageLight: DAY.tinySeedGold, colors: ["#8a6d1a", "#b8942d", "#d9b64a", "#edd27a"] },
+      { slug: "silver-crystal-mosaic", name: "Silver crystal mosaic", note: "A premium reflective finish", applicationTags: ["Sitting room", "Office", "Wall art"], image: OWN.silverCrystal, imageLight: DAY.silverCrystal, colors: ["#c9cdd4", "#dde1e7", "#eef1f5", "#b7bcc4"] },
+      { slug: "plain-white-mosaic", name: "Plain white mosaic", note: "Clean light for walls and pools", applicationTags: ["Kitchen", "Bathroom", "Swimming pool"], image: OWN.plainWhite, imageLight: DAY.plainWhite, colors: ["#f6f7f8", "#eceff1", "#e2e6ea", "#d7dde2"] },
+      { slug: "black-mosaic", name: "Black mosaic", note: "Shadow-deep, matte or gloss", applicationTags: ["Bathroom", "Swimming pool"], image: OWN.blackMosaic, imageLight: DAY.blackMosaic, colors: ["#0d0f12", "#16191d", "#212529", "#2c3136"] },
+      { slug: "green-mosaic", name: "Green mosaic", note: "Kitchens, baths, and courtyards", applicationTags: ["Kitchen", "Bathroom", "Sitting room"], image: OWN.greenMosaic, imageLight: DAY.greenMosaic, colors: ["#1c8a4a", "#27a35a", "#3cba6e", "#66d08e"] },
+      { slug: "orange-mosaic", name: "Orange mosaic", note: "A warm accent colourway", applicationTags: ["Sitting room", "Wall art"], image: OWN.orangeMosaic, imageLight: DAY.orangeMosaic, colors: ["#e07020", "#f08430", "#f89a4a", "#ffb066"] },
     ],
   },
   {
@@ -65,10 +67,10 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Art and feature mosaics",
     blurb: "Murals, patterns, and statement walls. Creativity is why this business exists.",
     items: [
-      { slug: "pattern-picture-mosaics", name: "Pattern and picture mosaics", image: OWN.koiMural, imageLight: DAY.koiMural, colors: ["#0e7490", "#c05f2b", "#f5f1e8", "#134e5e", "#e8b48e", "#38cfe0"] },
-      { slug: "custom-murals", name: "Custom murals", note: "Made to your design", image: OWN.beetleMural, imageLight: DAY.beetleMural, colors: ["#c05f2b", "#e8b48e", "#f5f1e8", "#4c6270", "#0d2430", "#38cfe0"] },
-      { slug: "stone-mosaic", name: "Stone mosaic", note: "Matte stone for quiet rooms", image: OWN.stoneMosaic, imageLight: DAY.stoneMosaic, colors: ["#8d857a", "#a49b8e", "#bcb3a5", "#6f685e"] },
-      { slug: "hexagon-marble", name: "Hexagon marble mosaic", note: "Marble hexagons for the bath", image: OWN.hexagonMarble, imageLight: DAY.hexagonMarble, colors: ["#e8e4dd", "#d9d3c9", "#c6bfb2", "#f2efe9"] },
+      { slug: "pattern-picture-mosaics", name: "Pattern and picture mosaics", applicationTags: ["Pool floor art", "Logo art", "Wall art"], image: OWN.koiMural, imageLight: DAY.koiMural, colors: ["#0e7490", "#c05f2b", "#f5f1e8", "#134e5e", "#e8b48e", "#38cfe0"] },
+      { slug: "custom-murals", name: "Custom murals", note: "Made to your design", applicationTags: ["Pool floor art", "Logo art", "Wall art"], image: OWN.beetleMural, imageLight: DAY.beetleMural, colors: ["#c05f2b", "#e8b48e", "#f5f1e8", "#4c6270", "#0d2430", "#38cfe0"] },
+      { slug: "stone-mosaic", name: "Stone mosaic", note: "Matte stone for quiet rooms", applicationTags: ["Kitchen", "Sitting room", "Office"], image: OWN.stoneMosaic, imageLight: DAY.stoneMosaic, colors: ["#8d857a", "#a49b8e", "#bcb3a5", "#6f685e"] },
+      { slug: "hexagon-marble", name: "Hexagon marble mosaic", note: "Marble hexagons for the bath", applicationTags: ["Bathroom"], image: OWN.hexagonMarble, imageLight: DAY.hexagonMarble, colors: ["#e8e4dd", "#d9d3c9", "#c6bfb2", "#f2efe9"] },
     ],
   },
   {
@@ -76,8 +78,8 @@ export const MOSAIC_RANGES: ProductGroup[] = [
     title: "Bulk and factory orders",
     blurb: "Large quantity? We order directly from our factory in Foshan, China, at factory prices.",
     items: [
-      { slug: "container-project-orders", name: "Container and project orders", note: "For contractors, resellers, estates", image: OWN.containerOrders, imageLight: DAY.containerOrders, colors: ["#155e75", "#0e7490", "#1a94ad", "#4c6270", "#8aa0ab"] },
-      { slug: "custom-colours-sizes", name: "Custom colours and sizes", note: "Made to order", image: OWN.customColours, imageLight: DAY.customColours, colors: ["#38cfe0", "#c05f2b", "#f1c40f", "#27ae60", "#8e44ad", "#f5f1e8"] },
+      { slug: "container-project-orders", name: "Container and project orders", note: "For contractors, resellers, estates", applicationTags: ["Exterior", "Swimming pool"], image: OWN.containerOrders, imageLight: DAY.containerOrders, colors: ["#155e75", "#0e7490", "#1a94ad", "#4c6270", "#8aa0ab"] },
+      { slug: "custom-colours-sizes", name: "Custom colours and sizes", note: "Made to order", applicationTags: ["Kitchen", "Sink", "Bathroom", "Wall art"], image: OWN.customColours, imageLight: DAY.customColours, colors: ["#38cfe0", "#c05f2b", "#f1c40f", "#27ae60", "#8e44ad", "#f5f1e8"] },
     ],
   },
 ];

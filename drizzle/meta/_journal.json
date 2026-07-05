@@ -64,6 +64,13 @@
       "when": 1783224293116,
       "tag": "0008_elite_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783225374199,
+      "tag": "0009_clear_golden_guardian",
+      "breakpoints": true
     }
   ]
 }

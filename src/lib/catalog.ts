@@ -160,6 +160,7 @@ function toProduct(p: BookPiece): Product & { slug: string } {
     name: p.name,
     note: p.line || undefined,
     colors: p.colors && p.colors.length > 0 ? p.colors : undefined,
+    applicationTags: cleanList(p.applicationTags),
     image: p.imageNight ?? undefined,
     imageLight: p.imageDay ?? undefined,
     card: p.cardImageNight ?? undefined,
@@ -173,6 +174,12 @@ function bookVariants(p: BookPiece): string[] | undefined {
     .map((v) => (v ?? "").trim())
     .filter(Boolean);
   return values.length > 0 ? values : VARIANTS.get(p.slug);
+}
+
+function cleanList(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const list = value.map((v) => String(v ?? "").trim()).filter(Boolean);
+  return list.length > 0 ? list : undefined;
 }
 
 function withCard<T extends Product>(i: T): T {

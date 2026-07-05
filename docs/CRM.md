@@ -524,6 +524,15 @@ the words and look, the shelf cards show them at a glance, and the
 public catalogue reads them as the product's variant line before it
 falls back to the old repo garnish.
 
+**DONE 2026-07-04: application tags.** Application language now has a
+controlled home on the piece record: kitchen, sink, bathroom, sitting
+room, office, exterior, swimming pool, pool floor art, logo art, and
+wall art. The stockroom filters by those places, piece cards show a
+short version at a glance, and product pages expose the same tags in
+the counter and structured data. These are proof words, not project
+records; real client proof still stays in WhatsApp and Instagram unless
+the owner sends a controlled showroom surface.
+
 **The mark landed (2026-07-04): the owner drew the logo.** Masters
 live in assets/brand (au-logo-master.png, au-logo-3d.png, never
 served); the chrome derivative is public/media/logo/mark.png, 41KB

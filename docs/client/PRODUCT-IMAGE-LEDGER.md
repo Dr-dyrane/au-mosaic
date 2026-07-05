@@ -698,8 +698,8 @@ work, not just site work.
 - Add a service record for construct new pools, renovate leaking pools,
   and water fountains only after Nonso confirms the service boundaries.
 - Keep colour-by-colour inventory as pieces, not as hidden variants.
-- Add application tags for kitchen, sink, bathroom, sitting room, office,
-  exterior, pool floor artwork, logo art, and wall art.
+- DONE: application tags now cover kitchen, sink, bathroom, sitting room,
+  office, exterior, swimming pool, pool floor art, logo art, and wall art.
 - Track the sampling flow separately: showroom visit, sample pictures,
   site sample visit, materials list, pool-size quote, and site inspection.
 

@@ -28,6 +28,7 @@ type RevealPiece = {
   imageLight?: string;
   colors?: string[];
   variants?: string[];
+  applicationTags?: string[];
   card?: string;
   cardLight?: string;
   groupId: string;
@@ -300,6 +301,15 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
                 {piece.note ? `${piece.note} · ` : ""}Agric Market, Lagos
               </p>
             </Reveal>
+            {piece.applicationTags && piece.applicationTags.length > 0 && (
+              <Reveal delay={180}>
+                <div className="mt-6 flex flex-wrap gap-2" aria-label="Applications">
+                  {piece.applicationTags.map((tag) => (
+                    <span key={tag} className="chip-solid">{tag}</span>
+                  ))}
+                </div>
+              </Reveal>
+            )}
             <Reveal delay={220}>
               <div className="mt-8 flex flex-wrap items-center gap-7">
                 <a href={wa} target="_blank" rel="noopener" data-wa="piece-counter" className="btn-gold">
