@@ -141,6 +141,11 @@ public/media/*
 !public/media/lagos-pool-materials.jpg
 !public/media/lagos-aqua-interior.jpg
 !public/media/lagos-black-bath.jpg
+# The Atelier (2026-07-05): craft/lookbook scenes.
+!public/media/atelier-atrium.jpg
+!public/media/atelier-loggia.jpg
+!public/media/atelier-metallics.jpg
+!public/media/atelier-instruments.jpg
 !.env.example
 
 # rendered paper (scripts/invoice.py)

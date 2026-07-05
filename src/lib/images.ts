@@ -211,3 +211,34 @@ export const LAGOS_SCENES: { src: string; place: string; line: string; alt: stri
     alt: "A swimming pool pump, filter, and fittings beside blue pool-mosaic samples",
   },
 ];
+
+/* The Atelier, 2026-07-05: the craft at its height — glass, stone, and metal
+   set the old way. Aspiration, not portfolio; the tradition we work in.
+   Portrait, single-sun. Home: /atelier. */
+export const ATELIER = {
+  atrium: "/media/atelier-atrium.jpg",
+  loggia: "/media/atelier-loggia.jpg",
+  metallics: "/media/atelier-metallics.jpg",
+  instruments: "/media/atelier-instruments.jpg",
+};
+
+export const ATELIER_SCENES: { src: string; place: string; line: string; alt: string }[] = [
+  {
+    src: ATELIER.loggia,
+    place: "The loggia",
+    line: "A colonnade, and water that answers the sea.",
+    alt: "A palazzo loggia of stone columns beside a blue glass-mosaic pool overlooking the sea",
+  },
+  {
+    src: ATELIER.metallics,
+    place: "The metallics",
+    line: "Gold, silver, and copper glass, side by side.",
+    alt: "Gold, silver, and copper metallic glass-mosaic sample boards in a vaulted stone hall",
+  },
+  {
+    src: ATELIER.instruments,
+    place: "The instruments",
+    line: "The pool's hardware, in good company.",
+    alt: "A swimming pool pump, filter, and fittings on a stone counter in an ornate mosaic room",
+  },
+];

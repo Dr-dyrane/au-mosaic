@@ -46,7 +46,7 @@ export default function LagosPage() {
         </div>
       </Section>
 
-      <Section eyebrow="The work" title="Rooms we have made, in our own light." tint>
+      <Section eyebrow="The work" title="In the Lagos light." tint>
         <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2">
           {LAGOS_SCENES.map((scene) => (
             <Reveal key={scene.src}>

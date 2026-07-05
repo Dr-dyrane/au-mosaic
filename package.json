@@ -10,7 +10,10 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "media:backfill": "tsx scripts/media-backfill.ts",
+    "media:raw": "tsx scripts/media-raw-import.ts",
+    "media:import": "npm run media:backfill && npm run media:raw"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
