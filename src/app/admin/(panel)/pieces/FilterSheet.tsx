@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { buzz } from "@/lib/backoffice";
+import {
+  clearAdminContextPanel,
+  getAdminContextPanel,
+  showStockFilterPanel,
+  subscribeAdminContextPanel,
+} from "@/components/admin-context-panel-store";
 
 import { IconClose, IconFilter } from "../icons";
 import {
@@ -15,8 +21,21 @@ import {
   type StockFilters,
 } from "./stock-filters";
 
-/* One smart filter sheet. Every row is still a link, so the URL
+/* One smart filter. Wide screens borrow the context rail; compact
+   screens use a bottom sheet. Every row is still a link, so the URL
    carries the view. */
+
+const railQuery = "(min-width: 1280px)";
+
+function subscribeRailWidth(listener: () => void) {
+  const query = window.matchMedia(railQuery);
+  query.addEventListener("change", listener);
+  return () => query.removeEventListener("change", listener);
+}
+
+function getRailWidth() {
+  return window.matchMedia(railQuery).matches;
+}
 
 function Row({
   href,
@@ -117,9 +136,58 @@ function FilterBody({ current, onPick }: { current: StockFilters; onPick: () => 
   );
 }
 
+export function StockFilterPanel({
+  current,
+  onPick,
+  onClose,
+  id,
+}: {
+  current: StockFilters;
+  onPick: () => void;
+  onClose: () => void;
+  id?: string;
+}) {
+  const active = activeStockFilterLabels(current);
+  return (
+    <div id={id} data-tour="stock-sheet">
+      <div className="flex items-center justify-between px-2">
+        <p className="eyebrow">Filter</p>
+        <button
+          onClick={onClose}
+          aria-label="Close filters"
+          data-tour="stock-sheet-close"
+          className="-mr-2 flex h-9 w-9 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
+        >
+          <IconClose className="h-4 w-4" />
+        </button>
+      </div>
+      {active.length > 0 && (
+        <div className="mt-2 flex items-center justify-between gap-4 px-2">
+          <p className="text-[13px] leading-relaxed text-dusk">
+            {active.join(" · ")}
+          </p>
+          <Link
+            href="/admin/pieces"
+            onClick={onPick}
+            className="link-hair shrink-0 text-[12px] text-dusk"
+          >
+            Clear
+          </Link>
+        </div>
+      )}
+      <div className="mt-4">
+        <FilterBody current={current} onPick={onPick} />
+      </div>
+    </div>
+  );
+}
+
 export default function FilterSheet({ current }: { current: StockFilters }) {
   const [open, setOpen] = useState(false);
   const active = activeStockFilterLabels(current).length;
+  const wide = useSyncExternalStore(subscribeRailWidth, getRailWidth, () => false);
+  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
+  const railOpen = panel?.kind === "stock-filter";
   const close = () => setOpen(false);
 
   return (
@@ -127,10 +195,18 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
       <button
         onClick={() => {
           buzz(3);
-          setOpen(true);
+          if (wide) {
+            if (open) setOpen(false);
+            if (railOpen) clearAdminContextPanel();
+            else showStockFilterPanel(current);
+          } else {
+            if (railOpen) clearAdminContextPanel();
+            setOpen(true);
+          }
         }}
         className={`chip-solid ${active > 0 ? "is-on" : ""}`}
-        aria-expanded={open}
+        aria-controls={open || railOpen ? "stock-filter-panel" : undefined}
+        aria-expanded={open || railOpen}
         data-tour="stock-filter-open"
       >
         <IconFilter className="h-3.5 w-3.5" />
@@ -147,37 +223,14 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
             role="dialog"
             aria-modal="true"
             aria-label="Filters"
-            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-3 bottom-3 mx-auto max-h-[min(82svh,44rem)] w-[31rem] max-w-[calc(100vw-1.5rem)] overflow-auto rounded-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:bottom-6 sm:pb-5"
-            data-tour="stock-sheet"
+            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-0 bottom-0 max-h-[min(82svh,44rem)] overflow-auto rounded-t-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:inset-x-5 sm:bottom-5 sm:mx-auto sm:w-[31rem] sm:max-w-[calc(100vw-2.5rem)] sm:rounded-[28px] sm:pb-5 xl:hidden"
           >
-            <div className="flex items-center justify-between px-2">
-              <p className="eyebrow">Filter</p>
-              <button
-                onClick={close}
-                aria-label="Close filters"
-                data-tour="stock-sheet-close"
-                className="-mr-2 flex h-9 w-9 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
-              >
-                <IconClose className="h-4 w-4" />
-              </button>
-            </div>
-            {active > 0 && (
-              <div className="mt-2 flex items-center justify-between gap-4 px-2">
-                <p className="text-[13px] leading-relaxed text-dusk">
-                  {activeStockFilterLabels(current).join(" · ")}
-                </p>
-                <Link
-                  href="/admin/pieces"
-                  onClick={close}
-                  className="link-hair shrink-0 text-[12px] text-dusk"
-                >
-                  Clear
-                </Link>
-              </div>
-            )}
-            <div className="mt-4">
-              <FilterBody current={current} onPick={close} />
-            </div>
+            <StockFilterPanel
+              id="stock-filter-panel"
+              current={current}
+              onPick={close}
+              onClose={close}
+            />
           </div>
         </>
       )}

@@ -1,10 +1,17 @@
 "use client";
 
+import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AdminPulse } from "@/lib/admin-pulse";
 import { naira } from "@/lib/backoffice";
 import { type AdminRoomId, roomForPath } from "@/lib/admin-rooms";
+import {
+  clearAdminContextPanel,
+  getAdminContextPanel,
+  subscribeAdminContextPanel,
+} from "@/components/admin-context-panel-store";
+import { StockFilterPanel } from "@/app/admin/(panel)/pieces/FilterSheet";
 
 type Metric = { label: string; value: string; href?: string };
 type Action = { label: string; href: string };
@@ -236,11 +243,27 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
 export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const pathname = usePathname();
   const ctx = contextFor(pathname, pulse);
+  const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
+  const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
+
+  useEffect(() => {
+    if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
+  }, [pathname, stockFilter]);
+
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
       <div className="panel liquid-glass flex min-h-[calc(100svh-48px)] flex-col justify-between">
         <div>
-          <ContextBody ctx={ctx} />
+          {stockFilter ? (
+            <StockFilterPanel
+              id="stock-filter-panel"
+              current={stockFilter}
+              onPick={clearAdminContextPanel}
+              onClose={clearAdminContextPanel}
+            />
+          ) : (
+            <ContextBody ctx={ctx} />
+          )}
         </div>
         <p className="mt-12 text-[11px] uppercase tracking-[0.18em] text-mist">
           AU Mosaic back room

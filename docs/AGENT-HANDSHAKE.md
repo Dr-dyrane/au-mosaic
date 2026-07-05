@@ -16,6 +16,21 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 - CODEX - Stock filter uses the rail
+
+Done lane: `FilterSheet`, `AdminContext`, and
+`admin-context-panel-store`.
+
+Owner clarified the filter behavior after the compact shell pass. Wide
+screens no longer open a separate filter sheet. The Stock filter button now
+swaps the trailing context rail into the filter, then returns it to room
+context on Close, Clear, navigation, or a filter pick. Compact screens still
+use a simple bottom sheet under the thumb.
+
+The filter body is shared by both places, so the rows, active labels, and
+clear action cannot drift. Layering remains from the last pass: compact
+scrim 88, compact sheet 96, admin chrome 60. No schema work, no DB push.
+
 ## 2026-07-05 - CODEX - Compact action shell
 
 Done lane: `AdminNav`, `admin-rooms.ts`, stock `FilterSheet`,
