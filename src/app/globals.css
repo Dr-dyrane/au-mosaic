@@ -358,28 +358,18 @@ p { text-wrap: pretty; }
     linear-gradient(160deg, rgb(255 255 255 / 0.16), transparent 48%);
 }
 
-/* Layer map: admin chrome 60, scrims 70, sheets 80, tours 86 to 90,
+/* Layer map: admin chrome 60, tours 86 to 90, scrims 88, sheets 96,
    consequence dialogs 99 to 100. */
 .layer-admin-nav {
   z-index: 60;
 }
 
 .layer-admin-scrim {
-  z-index: 70;
+  z-index: 88;
 }
 
 .layer-admin-panel {
-  z-index: 80;
-}
-
-.admin-action-icon {
-  display: none;
-}
-
-@media (min-width: 410px) {
-  .admin-action-icon {
-    display: block;
-  }
+  z-index: 96;
 }
 
 /* Filter surfaces need more milk than ambient chrome; the owner must
@@ -577,6 +567,97 @@ p { text-wrap: pretty; }
 }
 .btn-gold:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--t-brass) 86%, white); }
 .btn-gold:active { transform: translateY(0) scale(0.97); }
+
+.admin-fab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+@media (max-width: 1023px) {
+  .admin-page-action {
+    display: none !important;
+  }
+}
+
+.sun-beam {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 116px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.075), rgb(255 255 255 / 0.025)),
+    color-mix(in srgb, var(--color-shell) 54%, transparent);
+  color: var(--color-dusk);
+  box-shadow:
+    0 14px 34px rgb(0 0 0 / 0.14),
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 -1px 0 rgb(0 0 0 / 0.12);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  isolation: isolate;
+  transition: color 0.3s var(--ease-glide), transform 0.3s var(--ease-glide);
+}
+
+.sun-beam:hover {
+  color: var(--color-ink);
+}
+
+.sun-beam:active {
+  transform: scale(0.97);
+}
+
+.sun-beam span,
+.sun-beam i {
+  pointer-events: none;
+}
+
+.sun-beam span {
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s var(--ease-glide);
+}
+
+.sun-beam .is-on {
+  color: var(--color-ink);
+}
+
+.sun-beam i {
+  position: absolute;
+  left: 6px;
+  z-index: 0;
+  width: 54px;
+  height: 28px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 24% 50%, color-mix(in srgb, var(--color-water) 40%, white), transparent 42%),
+    color-mix(in srgb, var(--color-shell) 76%, transparent);
+  box-shadow:
+    0 8px 24px color-mix(in srgb, var(--color-water) 18%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+  transition: transform 0.35s var(--ease-glide);
+}
+
+[data-theme="light"] .sun-beam i {
+  transform: translateX(50px);
+}
+
+[data-theme="light"] .sun-beam {
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.76), rgb(255 255 255 / 0.28)),
+    color-mix(in srgb, var(--color-shell) 72%, transparent);
+}
 
 /* ---- keyboard focus ---------------------------------------------------------- */
 

@@ -71,7 +71,7 @@ export default async function OrdersPage({
             List sits beside given. A discount is a number, not a feeling.
           </p>
         </div>
-        <Link href="/admin/orders/new" className="btn-gold" data-tour="order-new">
+        <Link href="/admin/orders/new" className="btn-gold admin-page-action" data-tour="order-new">
           New order
         </Link>
       </div>

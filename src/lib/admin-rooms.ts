@@ -29,14 +29,10 @@ export const ADMIN_ROOMS: readonly AdminRoom[] = [
   { id: "settings", href: "/admin/settings", label: "Settings", also: ["/admin/settings/history"] },
 ] as const;
 
-const PHONE_ROOM_IDS: readonly AdminRoomId[] = ["stock", "orders", "people"];
+const PHONE_ROOM_IDS: readonly AdminRoomId[] = ["stock", "orders", "people", "photos"];
 
 export const ADMIN_PHONE_ROOMS = ADMIN_ROOMS.filter((room) =>
   PHONE_ROOM_IDS.includes(room.id)
-);
-
-export const ADMIN_MORE_ROOMS = ADMIN_ROOMS.filter(
-  (room) => room.id !== "home" && !PHONE_ROOM_IDS.includes(room.id)
 );
 
 export function isActiveRoom(room: AdminRoom, pathname: string) {

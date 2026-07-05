@@ -50,7 +50,7 @@ export default async function AdminHome() {
           <RefreshLine />
         </div>
         <div data-tour="new-order">
-          <Link href="/admin/orders/new" className="btn-gold">
+          <Link href="/admin/orders/new" className="btn-gold admin-page-action">
             New order
           </Link>
         </div>

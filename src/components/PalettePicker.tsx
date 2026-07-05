@@ -5,7 +5,7 @@ import { subscribeTheme, getPalette, setPalette, PALETTES, type Palette } from "
 
 /* Six houses, one quiet row of stones in the footer. Royal leads, the
    owner's own brand; Oba answers it in Yoruba. Each swatch shows its
-   palette's night sand and accent; the active one wears a ring. */
+   palette's night sand and accent; the active one glows. */
 
 const SWATCH: Record<Palette, { sand: string; accent: string; label: string }> = {
   royal: { sand: "#071022", accent: "#7fb3e8", label: "Royal" },
@@ -33,9 +33,14 @@ export default function PalettePicker() {
             title={s.label}
             onClick={() => setPalette(p)}
             className={`relative h-5 w-5 rounded-full transition-transform duration-300 hover:scale-110 active:scale-95 ${
-              isActive ? "ring-2 ring-gold ring-offset-2 ring-offset-sand" : ""
+              isActive ? "scale-110" : ""
             }`}
-            style={{ background: s.sand }}
+            style={{
+              background: s.sand,
+              boxShadow: isActive
+                ? `0 0 0 6px color-mix(in srgb, ${s.accent} 18%, transparent), 0 0 24px ${s.accent}88`
+                : undefined,
+            }}
           >
             <span
               className="absolute inset-[5px] rounded-full"

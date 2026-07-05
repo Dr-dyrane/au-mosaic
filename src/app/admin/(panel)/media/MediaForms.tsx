@@ -73,7 +73,7 @@ export function MediaCreateForm({ pieces }: { pieces: PieceOption[] }) {
   }, [state]);
 
   return (
-    <section className="panel mt-8 max-w-5xl">
+    <section id="add-photo" className="panel mt-8 max-w-5xl scroll-mt-8">
       <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5">
         <div>
           <p className="font-serif text-[20px]">Add a photo.</p>

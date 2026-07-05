@@ -15,8 +15,8 @@ import {
   type StockFilters,
 } from "./stock-filters";
 
-/* One smart filter: a popover on the desk, a sheet under the thumb on
-   the phone. Every row is still a link, so the URL carries the view. */
+/* One smart filter sheet. Every row is still a link, so the URL
+   carries the view. */
 
 function Row({
   href,
@@ -123,7 +123,7 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
   const close = () => setOpen(false);
 
   return (
-    <div className={open ? "layer-admin-panel relative inline-flex" : "relative inline-flex"}>
+    <div className="relative inline-flex">
       <button
         onClick={() => {
           buzz(3);
@@ -141,18 +141,13 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
           <button
             aria-label="Close filters"
             onClick={close}
-            className="filter-scrim layer-admin-scrim fixed inset-0 sm:hidden"
-          />
-          <button
-            aria-label="Close filters"
-            onClick={close}
-            className="layer-admin-scrim fixed inset-0 hidden cursor-default sm:block"
+            className="filter-scrim layer-admin-scrim fixed inset-0 cursor-default"
           />
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Filters"
-            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-3 bottom-3 max-h-[min(82svh,44rem)] overflow-auto rounded-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:absolute sm:bottom-auto sm:left-0 sm:top-[calc(100%+12px)] sm:w-[28rem] sm:max-w-[calc(100vw-2rem)] sm:pb-5"
+            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-3 bottom-3 mx-auto max-h-[min(82svh,44rem)] w-[31rem] max-w-[calc(100vw-1.5rem)] overflow-auto rounded-[28px] p-5 pb-[calc(20px+env(safe-area-inset-bottom))] outline-none sm:bottom-6 sm:pb-5"
             data-tour="stock-sheet"
           >
             <div className="flex items-center justify-between px-2">

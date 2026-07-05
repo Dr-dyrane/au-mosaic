@@ -5,10 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  IconAdd,
   IconDeliveries,
   IconHome,
   IconInsights,
-  IconMore,
   IconOrders,
   IconOwed,
   IconPeople,
@@ -17,7 +17,6 @@ import {
   IconStock,
 } from "@/app/admin/(panel)/icons";
 import {
-  ADMIN_MORE_ROOMS,
   ADMIN_PHONE_ROOMS,
   ADMIN_ROOMS,
   type AdminRoom,
@@ -62,6 +61,7 @@ type RoomAction = {
   label: string;
   room: AdminRoom;
   external?: boolean;
+  tour?: string;
 };
 
 function roomActionFor(pathname: string, owed: number): RoomAction {
@@ -77,6 +77,7 @@ function roomActionFor(pathname: string, owed: number): RoomAction {
       href: `/admin/orders/new?customer=${customerMatch[1]}`,
       label: "New order",
       room: roomById("orders"),
+      tour: "order-new",
     };
   }
 
@@ -87,24 +88,30 @@ function roomActionFor(pathname: string, owed: number): RoomAction {
   const room = roomForPath(pathname);
   switch (room.id) {
     case "home":
-      return { href: "/admin/orders/new", label: "New order", room: roomById("orders") };
+      return { href: "/admin/orders/new", label: "New order", room: roomById("orders"), tour: "order-new" };
     case "stock":
-      return { href: "/admin/pieces/new", label: "New piece", room: roomById("stock") };
+      return { href: "/admin/pieces/new", label: "New piece", room: roomById("stock"), tour: "new-piece" };
     case "orders":
-      return { href: "/admin/orders/new", label: "New order", room: roomById("orders") };
+      return { href: "/admin/orders/new", label: "New order", room: roomById("orders"), tour: "order-new" };
     case "people":
-      return { href: "/admin/customers/new", label: "New customer", room: roomById("people") };
+      return { href: "/admin/customers/new", label: "New customer", room: roomById("people"), tour: "people-new" };
     case "owed":
       return { href: "/admin/debts", label: owed > 0 ? "Remind" : "Orders", room: roomById("owed") };
     case "deliveries":
       return { href: "/admin/deliveries/new", label: "New delivery", room: roomById("deliveries") };
     case "photos":
-      return { href: "/admin/media", label: "Add photo", room: roomById("photos") };
+      return { href: "/admin/media#add-photo", label: "Add photo", room: roomById("photos") };
     case "insights":
       return { href: "/admin", label: "Today", room: roomById("home") };
     case "settings":
       return { href: "/admin/settings/history", label: "History", room: roomById("settings") };
   }
+}
+
+function ActionGlyph({ action }: { action: RoomAction }) {
+  const addAction = /^(Add|New)\b/.test(action.label);
+  if (addAction) return <IconAdd className="h-5 w-5" />;
+  return <RoomGlyph room={action.room} className="h-5 w-5" />;
 }
 
 function useChromeCompact() {
@@ -135,6 +142,7 @@ function pageActionFromDom(): RoomAction | null {
     label,
     room: roomById(roomId),
     external: el.dataset.external === "true",
+    tour: el.dataset.tour,
   };
 }
 
@@ -149,7 +157,7 @@ function usePageAction(pathname: string) {
       subtree: true,
       childList: true,
       attributes: true,
-      attributeFilter: ["data-admin-action", "data-href", "data-label", "data-room", "data-external"],
+      attributeFilter: ["data-admin-action", "data-href", "data-label", "data-room", "data-external", "data-tour"],
     });
     return () => observer.disconnect();
   }, [pathname]);
@@ -228,12 +236,10 @@ export function AdminRailNav({ owed = 0 }: { owed?: number }) {
 export function AdminTabBar({ owed = 0 }: { owed?: number }) {
   const pathname = usePathname();
   const isActive = useActive();
-  const [moreOpen, setMoreOpen] = useState(false);
   const compact = useChromeCompact();
   const pageAction = usePageAction(pathname);
   const routeAction = useMemo(() => roomActionFor(pathname, owed), [pathname, owed]);
   const action = pageAction ?? routeAction;
-  const moreOn = ADMIN_MORE_ROOMS.some((room) => isActive(room));
 
   return (
     <>
@@ -251,7 +257,6 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
                 key={r.href}
                 href={r.href}
                 aria-current={on ? "page" : undefined}
-                onClick={() => setMoreOpen(false)}
                 className={`flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-[12px] font-semibold tracking-[0] transition-[background,color,width] duration-300 active:scale-[0.98] ${
                   on ? "bg-shell text-ink shadow-lift" : "text-mist"
                 }`}
@@ -262,81 +267,18 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
             );
           })}
         </nav>
-        <button
-          type="button"
-          onClick={() => setMoreOpen((v) => !v)}
-          aria-expanded={moreOpen}
-          aria-label="More rooms"
-          className={`glass liquid-glass pointer-events-auto relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors duration-300 active:scale-[0.98] ${
-            moreOn ? "text-gold" : "text-mist"
-          }`}
-        >
-          <IconMore className="h-5 w-5" />
-          {owed > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex min-w-5 items-center justify-center rounded-full bg-gold px-1 text-[11px] font-semibold leading-5 text-[#17150f]">
-              {owed}
-            </span>
-          )}
-        </button>
         <Link
           href={action.href}
           target={action.external ? "_blank" : undefined}
           rel={action.external ? "noreferrer" : undefined}
-          onClick={() => setMoreOpen(false)}
-          className="btn-gold pointer-events-auto flex h-14 max-w-[9rem] shrink-0 items-center gap-2 px-3 text-[12px] shadow-lift active:scale-[0.98]"
+          aria-label={action.label}
+          title={action.label}
+          data-tour={action.tour}
+          className="btn-gold admin-fab pointer-events-auto shadow-lift"
         >
-          <RoomGlyph room={action.room} className="admin-action-icon h-4 w-4 shrink-0" />
-          <span className="min-w-0 truncate whitespace-nowrap">{action.label}</span>
+          <ActionGlyph action={action} />
         </Link>
       </div>
-      {moreOpen && (
-        <>
-          <button
-            aria-label="Close rooms"
-            onClick={() => setMoreOpen(false)}
-            className="filter-scrim layer-admin-scrim fixed inset-0 lg:hidden"
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="More rooms"
-            className="filter-surface liquid-glass layer-admin-panel fixed inset-x-3 bottom-[calc(86px+env(safe-area-inset-bottom))] max-h-[min(72svh,32rem)] overflow-auto rounded-[28px] p-5 outline-none lg:hidden"
-          >
-            <div className="flex items-center justify-between px-2">
-              <p className="eyebrow">More</p>
-              <button
-                type="button"
-                onClick={() => setMoreOpen(false)}
-                className="link-hair text-dusk text-[12px]"
-              >
-                Close
-              </button>
-            </div>
-            <div className="mt-4 grid gap-1">
-              {ADMIN_MORE_ROOMS.map((r) => {
-                const on = isActive(r);
-                return (
-                  <Link
-                    key={r.href}
-                    href={r.href}
-                    aria-current={on ? "page" : undefined}
-                    onClick={() => setMoreOpen(false)}
-                    className={`flex min-h-12 items-center justify-between rounded-[18px] px-5 text-[14px] transition-colors duration-200 active:scale-[0.99] ${
-                      on ? "bg-shell text-ink shadow-lift" : "text-dusk"
-                    }`}
-                  >
-                    <span className="flex items-center gap-3">
-                      <RoomGlyph room={r} className={`h-5 w-5 ${on ? "text-gold" : "text-mist"}`} />
-                      {r.label}
-                    </span>
-                    {r.label === "Owed" && <CountPill n={owed} />}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
     </>
   );
 }

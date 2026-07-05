@@ -116,7 +116,7 @@ export default async function PiecesPage({
               ` ${rows.filter((r) => !r.piece.published).length} waiting off the site.`}
           </p>
         </div>
-        <Link href="/admin/pieces/new" className="btn-gold" data-tour="new-piece">
+        <Link href="/admin/pieces/new" className="btn-gold admin-page-action" data-tour="new-piece">
           New piece
         </Link>
       </div>

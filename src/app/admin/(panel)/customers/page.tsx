@@ -96,7 +96,7 @@ export default async function CustomersPage({
             {total > 0 && ` ${total} ${total === 1 ? "person" : "people"} in the book.`}
           </p>
         </div>
-        <Link href="/admin/customers/new" className="btn-gold shrink-0" data-tour="people-new">
+        <Link href="/admin/customers/new" className="btn-gold admin-page-action shrink-0" data-tour="people-new">
           New customer
         </Link>
       </div>

@@ -90,7 +90,7 @@ export default async function DeliveriesPage({
             </Teach>
           </p>
         </div>
-        <Link href="/admin/deliveries/new" className="btn-gold">
+        <Link href="/admin/deliveries/new" className="btn-gold admin-page-action">
           New delivery
         </Link>
       </div>

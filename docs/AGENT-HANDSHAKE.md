@@ -16,6 +16,29 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 - CODEX - Compact action shell
+
+Done lane: `AdminNav`, `admin-rooms.ts`, stock `FilterSheet`,
+`ThemeToggle`, `PalettePicker`, compact page actions, and the media form
+anchor.
+
+Owner asked to cut the compact chrome down. The phone island is now four
+stable rooms: Stock, Orders, People, Photos. The More button and its sheet
+are gone. The gold action remains separate from navigation, but compact
+renders it as icon only. Add and New actions use the plus glyph; state actions
+keep the room glyph and an accessible label.
+
+The Stock filter no longer behaves like a popover on desktop. It is one modal
+sheet at every size, with the explicit layer order now admin chrome 60, tours
+86 to 90, scrims 88, sheets 96, consequence dialogs 99 to 100. Compact
+page-header Add and New links hide below desktop so the fixed action owns the
+thumb zone.
+
+The sidebar footer changed from a small sun icon to a beam toggle, and the
+palette active state moved from a ring utility to glow and scale. No new CSS
+border was added. `LandmarksBuildingAnAppWithLiquidGlass/` and
+`docs/LIQUID-GLASS.md` remain ignored and untracked.
+
 ## 2026-07-05 · Claude · Liquid Glass, translated to the web
 
 Owner added Apple's `LandmarksBuildingAnAppWithLiquidGlass` sample and asked
