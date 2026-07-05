@@ -174,3 +174,40 @@ export const CARD: Record<string, { night: string; day: string }> = {
   "stone-mosaic": { night: "/media/sku-stone-mosaic-night.jpg", day: "/media/sku-stone-mosaic-day.jpg" },
   "hexagon-marble": { night: "/media/sku-hexagon-marble-night.jpg", day: "/media/sku-hexagon-marble-day.jpg" },
 };
+
+/* Rooted in Lagos, 2026-07-05: the house's own city, in the Oba light.
+   Portrait scenes, single-sun (they hold in both themes). Home: /lagos. */
+export const LAGOS = {
+  villaPool: "/media/lagos-villa-pool.jpg",
+  showroom: "/media/lagos-showroom.jpg",
+  poolMaterials: "/media/lagos-pool-materials.jpg",
+  aquaInterior: "/media/lagos-aqua-interior.jpg",
+  blackBath: "/media/lagos-black-bath.jpg",
+};
+
+export const LAGOS_SCENES: { src: string; place: string; line: string; alt: string }[] = [
+  {
+    src: LAGOS.aquaInterior,
+    place: "The aqua room",
+    line: "A turquoise wall, lit by the lagoon.",
+    alt: "A bright Lagos interior with a turquoise glass-mosaic feature wall by the water",
+  },
+  {
+    src: LAGOS.showroom,
+    place: "The showroom counter",
+    line: "Every colourway, within reach.",
+    alt: "Mosaic sample boards in gold, silver, copper, and blue on a stone showroom counter",
+  },
+  {
+    src: LAGOS.blackBath,
+    place: "The dark bath",
+    line: "Black glass, brass, and quiet.",
+    alt: "A dark luxury bathroom clad in black glass mosaic with brass fittings",
+  },
+  {
+    src: LAGOS.poolMaterials,
+    place: "The materials bench",
+    line: "The water's hardware, ready.",
+    alt: "A swimming pool pump, filter, and fittings beside blue pool-mosaic samples",
+  },
+];

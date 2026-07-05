@@ -135,6 +135,12 @@ public/media/*
 !public/media/container-day.jpg
 !public/media/custom-night.jpg
 !public/media/custom-day.jpg
+# Rooted in Lagos (2026-07-05): heritage page scenes.
+!public/media/lagos-villa-pool.jpg
+!public/media/lagos-showroom.jpg
+!public/media/lagos-pool-materials.jpg
+!public/media/lagos-aqua-interior.jpg
+!public/media/lagos-black-bath.jpg
 !.env.example
 
 # rendered paper (scripts/invoice.py)
