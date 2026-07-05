@@ -154,15 +154,18 @@ export default async function PiecesPage({
           Running low
         </Link>
         <span aria-hidden className="mx-1.5" />
-        <span className="flex flex-wrap items-center gap-2" data-tour="stock-hues">
+        <span className="flex flex-wrap items-center gap-2.5" data-tour="stock-hues">
           {HUES.map((h) => (
             <Link
               key={h.key}
               href={makeStockHref(filters, { hue: filters.hue === h.key ? undefined : h.key })}
               aria-label={`${h.label} only`}
-              className={`chip-solid ${filters.hue === h.key ? "is-on" : ""}`}
+              title={h.label}
+              className={`grid h-9 w-9 place-items-center rounded-full transition-transform duration-300 hover:scale-110 active:scale-95 ${
+                filters.hue === h.key ? "ring-2 ring-gold ring-offset-2 ring-offset-sand" : ""
+              }`}
             >
-              <span className="h-3.5 w-3.5 rounded-full" style={{ background: h.dot }} />
+              <span className="h-[18px] w-[18px] rounded-full" style={{ background: h.dot }} />
             </Link>
           ))}
         </span>
