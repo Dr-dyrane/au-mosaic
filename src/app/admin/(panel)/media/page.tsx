@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { and, asc, desc, eq, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import MediaBatchAction from "./MediaBatchActions";
 import { MediaAssetControls, MediaCreateAction } from "./MediaForms";
 
@@ -142,7 +143,7 @@ export default async function MediaPage({
             data-href="#media-add-photo"
             data-label="Add photo"
             data-room="photos"
-            data-event="admin:media-add-photo"
+            data-intent={ADMIN_ACTION_INTENTS.mediaCreate}
           />
           <MediaCreateAction pieces={pieces} />
         </>

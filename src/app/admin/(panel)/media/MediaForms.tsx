@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
 import AdminSheet from "@/components/AdminSheet";
+import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import { useAdminSurface } from "@/components/admin-surface-router";
 import Sentence from "../Sentence";
 import { keepValues } from "../keep";
@@ -161,7 +162,7 @@ export function MediaCreateForm({
 export function MediaCreateAction({ pieces }: { pieces: PieceOption[] }) {
   const surface = useAdminSurface(
     { kind: "media-create", pieces },
-    { id: "media-add-photo", eventName: "admin:media-add-photo" }
+    { id: "media-add-photo", intent: ADMIN_ACTION_INTENTS.mediaCreate }
   );
 
   return (

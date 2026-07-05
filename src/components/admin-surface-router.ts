@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { buzz } from "@/lib/backoffice";
 import {
+  adminActionEventName,
+  type AdminActionIntent,
+} from "@/components/admin-action-intents";
+import {
   clearAdminContextPanel,
   getAdminContextPanel,
   showMediaBatchPanel,
@@ -46,7 +50,7 @@ function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest
 
 export function useAdminSurface(
   request: AdminSurfaceRequest,
-  options: { id: string; eventName?: string }
+  options: { id: string; intent?: AdminActionIntent }
 ) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const desktop = useSyncExternalStore(subscribeDesktopSurface, getDesktopSurface, () => false);
@@ -67,11 +71,12 @@ export function useAdminSurface(
   }, [desktop, railOpen, request]);
 
   useEffect(() => {
-    if (!options.eventName) return;
+    if (!options.intent) return;
+    const eventName = adminActionEventName(options.intent);
     const openFromEvent = () => openSurface();
-    window.addEventListener(options.eventName, openFromEvent);
-    return () => window.removeEventListener(options.eventName!, openFromEvent);
-  }, [openSurface, options.eventName]);
+    window.addEventListener(eventName, openFromEvent);
+    return () => window.removeEventListener(eventName, openFromEvent);
+  }, [openSurface, options.intent]);
 
   return {
     desktop,

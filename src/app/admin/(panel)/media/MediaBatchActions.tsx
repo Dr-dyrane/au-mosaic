@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import AdminSheet from "@/components/AdminSheet";
+import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import { useAdminSurface } from "@/components/admin-surface-router";
 import Sentence from "../Sentence";
 import { importBatch08Action, promoteBatch08Action, type MediaState } from "./actions";
@@ -46,7 +47,7 @@ export function MediaBatchPanel({ surface = "panel" }: { surface?: "panel" | "pl
 export default function MediaBatchAction() {
   const surface = useAdminSurface(
     { kind: "media-batch" },
-    { id: "media-prepared-photos", eventName: "admin:media-prepared" }
+    { id: "media-prepared-photos", intent: ADMIN_ACTION_INTENTS.mediaBatch }
   );
 
   return (

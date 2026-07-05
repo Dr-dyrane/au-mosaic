@@ -24,6 +24,12 @@ import {
   isActiveRoom,
   roomForPath,
 } from "@/lib/admin-rooms";
+import {
+  ADMIN_ACTION_INTENTS,
+  dispatchAdminActionIntent,
+  isPlainAdminClick,
+  type AdminActionIntent,
+} from "@/components/admin-action-intents";
 
 /* Wayfinding for the back office, HIG style: you can always see
    where you are, and the primary rooms are always one tap away. On
@@ -62,7 +68,7 @@ type RoomAction = {
   room: AdminRoom;
   external?: boolean;
   tour?: string;
-  event?: string;
+  intent?: AdminActionIntent;
 };
 
 function roomActionFor(pathname: string, owed: number): RoomAction {
@@ -101,7 +107,12 @@ function roomActionFor(pathname: string, owed: number): RoomAction {
     case "deliveries":
       return { href: "/admin/deliveries/new", label: "New delivery", room: roomById("deliveries") };
     case "photos":
-      return { href: "/admin/media#media-add-photo", label: "Add photo", room: roomById("photos") };
+      return {
+        href: "/admin/media#media-add-photo",
+        label: "Add photo",
+        room: roomById("photos"),
+        intent: ADMIN_ACTION_INTENTS.mediaCreate,
+      };
     case "insights":
       return { href: "/admin", label: "Today", room: roomById("home") };
     case "settings":
@@ -144,7 +155,7 @@ function pageActionFromDom(): RoomAction | null {
     room: roomById(roomId),
     external: el.dataset.external === "true",
     tour: el.dataset.tour,
-    event: el.dataset.event,
+    intent: el.dataset.intent as AdminActionIntent | undefined,
   };
 }
 
@@ -159,7 +170,7 @@ function usePageAction(pathname: string) {
       subtree: true,
       childList: true,
       attributes: true,
-      attributeFilter: ["data-admin-action", "data-href", "data-label", "data-room", "data-external", "data-tour", "data-event"],
+      attributeFilter: ["data-admin-action", "data-href", "data-label", "data-room", "data-external", "data-tour", "data-intent"],
     });
     return () => observer.disconnect();
   }, [pathname]);
@@ -274,10 +285,10 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
           target={action.external ? "_blank" : undefined}
           rel={action.external ? "noreferrer" : undefined}
           onClick={(event) => {
-            if (!action.event) return;
-            if (event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return;
+            if (!action.intent) return;
+            if (!isPlainAdminClick(event)) return;
             event.preventDefault();
-            window.dispatchEvent(new CustomEvent(action.event, { detail: action }));
+            dispatchAdminActionIntent(action.intent, action);
           }}
           aria-label={action.label}
           title={action.label}

@@ -7,6 +7,12 @@ import type { AdminPulse } from "@/lib/admin-pulse";
 import { naira } from "@/lib/backoffice";
 import { type AdminRoomId, roomForPath } from "@/lib/admin-rooms";
 import {
+  ADMIN_ACTION_INTENTS,
+  dispatchAdminActionIntent,
+  isPlainAdminClick,
+  type AdminActionIntent,
+} from "@/components/admin-action-intents";
+import {
   clearAdminContextPanel,
   getAdminContextPanel,
   subscribeAdminContextPanel,
@@ -16,7 +22,7 @@ import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 
 type Metric = { label: string; value: string; href?: string };
-type Action = { label: string; href: string; event?: string };
+type Action = { label: string; href: string; intent?: AdminActionIntent };
 type ContextModel = {
   eyebrow: string;
   title: string;
@@ -112,8 +118,8 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
         line: "Photos can stay draft, become approved, or go live where they belong.",
         metrics: [],
         actions: [
-          { label: "Add a photo", href: "/admin/media#media-add-photo", event: "admin:media-add-photo" },
-          { label: "Prepared photos", href: "/admin/media#media-prepared-photos", event: "admin:media-prepared" },
+          { label: "Add a photo", href: "/admin/media#media-add-photo", intent: ADMIN_ACTION_INTENTS.mediaCreate },
+          { label: "Prepared photos", href: "/admin/media#media-prepared-photos", intent: ADMIN_ACTION_INTENTS.mediaBatch },
           { label: "Stockroom", href: "/admin/pieces" },
         ],
       };
@@ -217,10 +223,10 @@ function ContextBody({ ctx, compact = false }: { ctx: ContextModel; compact?: bo
               key={`${action.href}-${action.label}`}
               href={action.href}
               onClick={(event) => {
-                if (!action.event) return;
-                if (event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return;
+                if (!action.intent) return;
+                if (!isPlainAdminClick(event)) return;
                 event.preventDefault();
-                window.dispatchEvent(new CustomEvent(action.event, { detail: action }));
+                dispatchAdminActionIntent(action.intent, action);
               }}
               className="link-hair text-dusk text-[12px]"
             >
