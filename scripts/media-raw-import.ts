@@ -23,6 +23,17 @@
 import { readFile, readdir } from "fs/promises";
 import path from "path";
 
+/* A plain `tsx script.ts` does not read .env the way Next does, so pull it in
+   explicitly (mirrors scripts/seed.ts). Without this the DATABASE_URL check
+   below falls to a dry run. */
+for (const envFile of [".env", ".env.local"]) {
+  try {
+    process.loadEnvFile(envFile);
+  } catch {
+    /* file not present; fine */
+  }
+}
+
 const ROOT = "public/media";
 const FOLDERS = ["brand-batch-01", "brand-batch-02", "brand-batch-lagos", "product-ledger-2026-07-04"];
 

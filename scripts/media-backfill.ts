@@ -18,6 +18,17 @@
 import { getDb, schema } from "@/db";
 import { CARD, DAY, ENVIRONMENTS, OWN } from "@/lib/images";
 
+/* A plain `tsx script.ts` does not read .env the way Next does, so pull it in
+   explicitly (mirrors scripts/seed.ts). Without this the DATABASE_URL check
+   below falls to a dry run. */
+for (const envFile of [".env", ".env.local"]) {
+  try {
+    process.loadEnvFile(envFile);
+  } catch {
+    /* file not present; fine */
+  }
+}
+
 type Role = "card" | "applied" | "window" | "proof" | "contact_sheet";
 type Sun = "night" | "day" | "single";
 
