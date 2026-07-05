@@ -14,7 +14,7 @@ operational systems next.
 
 ## What we've already built
 
-Live today: https://au-mosaic.shop (also at au-mosaic.vercel.app)
+Live today: https://www.aumosaic.com
 
 A luxury digital flagship, built from your Business Discovery answers and
 designed in the class of the world's mosaic houses: dark, editorial,
@@ -44,11 +44,11 @@ chat, the way you already sell.
 
 ## Domain strategy
 
-**au-mosaic.shop is already purchased, connected, and live.** Dyrane bought it
-upfront on the business's behalf, our commitment to making this work; its cost
-is part of the Phase 1 investment. Premium upgrade: **au-mosaic.com**,
-recommended for long-term brand strength, about USD 40 per year. The .shop
-investment is credited if you later migrate to the .com.
+**aumosaic.com is live, connected, and the brand's home.** The .com was always
+the recommendation for long-term brand strength, and the flagship now runs on
+it. Dyrane secured the domain on the business's behalf, our commitment to making
+this work; its cost is part of the Phase 1 investment. The earlier au-mosaic.shop
+address is retired.
 
 ## Investment
 
