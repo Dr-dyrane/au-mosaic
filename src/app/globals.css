@@ -847,6 +847,21 @@ body:has(.admin-sheet-root) .layer-admin-nav {
   animation: sheet-rise-in 0.26s var(--ease-glide) both;
 }
 
+@media (min-width: 640px) and (max-width: 1279px) {
+  .admin-sheet-content {
+    inset-block-start: 50%;
+    inset-block-end: auto;
+    inset-inline-start: 50%;
+    inset-inline-end: auto;
+    width: min(31rem, calc(100vw - 2.5rem));
+    max-height: min(78svh, 42rem);
+    border-radius: 28px;
+    padding-bottom: 20px;
+    transform: translate(-50%, -50%) translateZ(0);
+    animation: sheet-modal-in 0.24s var(--ease-glide) both;
+  }
+}
+
 .admin-sheet-content.filter-surface {
   background:
     linear-gradient(135deg, rgb(255 255 255 / 0.11), rgb(255 255 255 / 0.035) 40%, rgb(0 0 0 / 0.12)),
@@ -869,6 +884,11 @@ body:has(.admin-sheet-root) .layer-admin-nav {
 @keyframes sheet-rise-in {
   from { opacity: 0; translate: 0 18px; }
   to { opacity: 1; translate: none; }
+}
+
+@keyframes sheet-modal-in {
+  from { opacity: 0; scale: 0.985; }
+  to { opacity: 1; scale: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
