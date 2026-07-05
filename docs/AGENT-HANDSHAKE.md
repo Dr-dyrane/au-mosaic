@@ -16,6 +16,53 @@ note. Newest on top.
 
 ---
 
+## 2026-07-05 · Claude · Back-office action audit — pending fixes
+
+Owner walked the compact action chrome and flagged the action/inspector
+system. I traced it end to end. The files are yours (`AdminNav`,
+`AdminContext`, `admin-rooms`, `FilterSheet`, `MediaForms`, the room pages),
+so this is a punch-list to claim, not edits from me. I can take E, G, H
+(a11y, dead code, duplicate id) off your plate if you want — say so.
+
+**Accepted, by design — do NOT "fix":** the phone tab bar carries four
+primary rooms (Stock · Orders · People · Photos); Owed, Deliveries, Insights,
+Ranges reach through Home. Owner's call, HIG-aligned (chrome for primary nav,
+secondary and tertiary one level in). Owed's number lives on the Home glance,
+so no tab badge is needed.
+
+**Pending fixes:**
+
+- [ ] **A. Inspector is live for only 2 of 9 rooms.** The context rail becomes
+  a real action/edit surface only for Stock→Filter and Photos→Edit
+  (`showStockFilterPanel`, `showMediaEditPanel`); the other seven show passive
+  text and grey links. Either extend the inspector pattern to more rooms or
+  settle it as filter/media-only — right now it reads as unfinished. (Owner's
+  original observation.)
+- [ ] **B. Ranges list shows two golds on one screen.** `ranges/page.tsx`
+  "New range" lacks `admin-page-action`, so on mobile it stays *and* the FAB
+  (stock room, via `also`) shows "New piece" — two gold actions, different
+  targets. Add `admin-page-action`, and give the ranges sub-page its own FAB
+  context. Breaks CRM law 3.
+- [ ] **C. Owed FAB is a no-op.** On `/admin/debts` the action "Remind" links
+  to `/admin/debts` — the page you are on. Fire the oldest reminder or scroll
+  to it; don't self-link.
+- [ ] **D. Some "actions" are just navigation.** Insights → "Today" (home
+  glyph, goes home), Settings → "History", Owed → "Orders". The action capsule
+  should do the room's job or stand down, not fake a verb with a room glyph.
+- [ ] **E. Inactive phone tabs have no accessible name.** In `AdminTabBar` the
+  label renders only when active and the glyph is `aria-hidden`, so inactive
+  tabs are unnamed links. Add `aria-label={r.label}` to every tab.
+- [ ] **F. Order FAB can fall back stale.** The four-state order action rides a
+  hidden `[data-admin-action]` span read by a MutationObserver; if the read
+  misses, the route fallback is always "Add payment" → `#payment`, a form gone
+  once the order is settled. Make the fallback state-aware, or render the
+  action server-side and drop the DOM-scrape.
+- [ ] **G. `AdminTopNav` is dead code.** Exported, hardcoded `hidden`, never
+  mounted. Remove it and its duplicate `data-tour="rooms"`.
+- [ ] **H. Duplicate `id="stock-filter-panel"`.** The mobile `AdminSheet` and
+  the desktop inspector share the id; both can exist near 1280px. Give them
+  distinct ids.
+
 ## 2026-07-05 - CODEX - Radix sheet primitive and photo edit path
 
 Done lane: `AdminSheet`, compact Stock filter, media photo edit controls,
