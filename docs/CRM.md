@@ -505,17 +505,16 @@ and Pool Materials; should the trade names join the book's piece
 names. The royal house, the blue mark, the lockup, the icons, and
 the og card all come from this harvest.
 
-**Unplanned, on the record (owner's note, 2026-07-04): returns
-management.** No phase has planned it. When a customer brings sheets
-back, today the office can only edit the order lines and counts by
-hand, which loses the story. A real returns room would touch four
-laws at once: stock (returned sheets walk back onto the shelf the
-way delivered ones walked off), money (a refund is negative kobo
-that must keep the ledger honest without hard deletes), the order
-(a status or a mirrored line, never an erasure), and the history
-(every return signs itself). Scope it against the Instagram data
-the owner is now collecting; trade returns at Agric Market are
-routine, so this likely earns a place ahead of some Phase 3 quotes.
+**DONE 2026-07-04: returns management.** The unplanned gap earned its
+place. A return is now a mirrored order line tied to the original line,
+never an edit over the sale. It cannot exceed what remains on that
+line. If the order has already left the shelf, the returned quantity
+walks back into stock immediately; if the order moves backward later,
+the status action reads the net physical quantity, so stock is not
+counted twice. Money settles two ways: credit leaves the customer in
+credit, and refund writes a negative payment beside the received
+payments. Every return signs the history, and the original sale stays
+visible.
 
 **The mark landed (2026-07-04): the owner drew the logo.** Masters
 live in assets/brand (au-logo-master.png, au-logo-3d.png, never

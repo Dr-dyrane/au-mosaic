@@ -97,6 +97,9 @@ const DDL: string[] = [
   `CREATE INDEX "media_assets_piece_idx" ON "media_assets" USING btree ("piece_slug")`,
   `CREATE INDEX "media_assets_role_idx" ON "media_assets" USING btree ("role")`,
   `CREATE INDEX "media_assets_status_idx" ON "media_assets" USING btree ("status")`,
+  /* 2026-07-04 · returns correct beside the original sale */
+  `ALTER TABLE "order_items" ADD COLUMN "return_for_item_id" uuid`,
+  `CREATE INDEX "order_items_return_for_idx" ON "order_items" USING btree ("return_for_item_id")`,
 ];
 
 let healed = false;
@@ -115,7 +118,9 @@ export async function healSchema(): Promise<void> {
              (select 1 from pieces where slug = 'hexagon-marble') as skus,
              (select 1 from information_schema.columns
                 where table_name = 'pieces' and column_name = 'card_image_night') as card_slot,
-             to_regclass('public.media_assets') as media_assets`);
+             to_regclass('public.media_assets') as media_assets,
+             (select 1 from information_schema.columns
+                where table_name = 'order_items' and column_name = 'return_for_item_id') as returns`);
     const row = rowsOf<{
       staff: string | null;
       push: string | null;
@@ -124,6 +129,7 @@ export async function healSchema(): Promise<void> {
       skus: number | null;
       card_slot: number | null;
       media_assets: string | null;
+      returns: number | null;
     }>(probe)[0];
     if (
       row?.staff &&
@@ -132,7 +138,8 @@ export async function healSchema(): Promise<void> {
       !row?.stale_ig &&
       row?.skus &&
       row?.card_slot &&
-      row?.media_assets
+      row?.media_assets &&
+      row?.returns
     ) {
       healed = true;
       return;

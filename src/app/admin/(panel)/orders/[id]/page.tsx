@@ -7,6 +7,7 @@ import { STATUS_LABEL, fmtDate } from "../pipeline";
 import StatusForm from "./StatusForm";
 import AddLineForm from "./AddLineForm";
 import AddPaymentForm from "./AddPaymentForm";
+import AddReturnForm from "./AddReturnForm";
 import Back from "../../Back";
 import Teach from "../../Teach";
 import { Touch } from "../../touched";
@@ -45,13 +46,41 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   /* What crossing the door would physically move: the piece lines,
      named with quantity and unit, so the confirm can say the exact
      movement before it runs. Free-text lines move nothing. */
-  const movements = lines
-    .filter((l) => l.item.pieceSlug && l.item.quantity > 0 && l.pieceName)
-    .map((l) => ({
-      name: l.pieceName as string,
-      qty: l.item.quantity,
-      unit: l.pieceUnit ?? "units",
-    }));
+  const movementByPiece = new Map<string, { name: string; qty: number; unit: string }>();
+  const returnedByLine = new Map<string, number>();
+  for (const l of lines) {
+    if (l.item.quantity < 0 && l.item.returnForItemId) {
+      returnedByLine.set(
+        l.item.returnForItemId,
+        (returnedByLine.get(l.item.returnForItemId) ?? 0) + Math.abs(l.item.quantity)
+      );
+    }
+    if (l.item.pieceSlug && l.pieceName) {
+      const current = movementByPiece.get(l.item.pieceSlug) ?? {
+        name: l.pieceName,
+        qty: 0,
+        unit: l.pieceUnit ?? "units",
+      };
+      current.qty += l.item.quantity;
+      movementByPiece.set(l.item.pieceSlug, current);
+    }
+  }
+  const movements = [...movementByPiece.values()]
+    .filter((m) => m.qty > 0)
+    .map((m) => ({ ...m, qty: m.qty }));
+  const returnOptions = lines
+    .filter((l) => l.item.quantity > 0)
+    .map((l) => {
+      const available = l.item.quantity - (returnedByLine.get(l.item.id) ?? 0);
+      return {
+        id: l.item.id,
+        name: l.pieceName ?? (l.item.description || "Line"),
+        unit: l.pieceUnit ?? "units",
+        available,
+        valueKobo: l.item.givenPriceKobo,
+      };
+    })
+    .filter((l) => l.available > 0);
 
   const pays = await db
     .select()
@@ -131,8 +160,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           {lines.length > 0 && (
             <div className="mt-4 grid gap-4">
               {lines.map(({ item, pieceName }) => {
+                const isReturn = item.quantity < 0;
                 const lineGap =
-                  item.listPriceKobo > item.givenPriceKobo
+                  !isReturn && item.listPriceKobo > item.givenPriceKobo
                     ? (item.listPriceKobo - item.givenPriceKobo) * item.quantity
                     : 0;
                 return (
@@ -146,12 +176,19 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                           <p className="mt-1 text-[13px] text-dusk">{item.description}</p>
                         )}
                       </div>
-                      <p className="shrink-0 text-[13px] text-dusk">x{item.quantity}</p>
+                      <p className="shrink-0 text-[13px] text-dusk">
+                        {isReturn ? `Returned x${Math.abs(item.quantity)}` : `x${item.quantity}`}
+                      </p>
                     </div>
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                       <p className="text-[13px] text-dusk">
                         List {naira(item.listPriceKobo)} · Given {naira(item.givenPriceKobo)}
                       </p>
+                      {isReturn && (
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">
+                          Return · {naira(item.givenPriceKobo * item.quantity)}
+                        </p>
+                      )}
                       {lineGap > 0 && (
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
                           {naira(lineGap)} below list
@@ -197,7 +234,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   <div>
                     <p className="font-serif text-[18px] leading-snug">{naira(p.amountKobo)}</p>
                     <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-mist">
-                      {p.method} · {fmtDate(p.paidAt)}
+                      {p.amountKobo < 0 ? "refund" : p.method} · {fmtDate(p.paidAt)}
                     </p>
                   </div>
                   {p.note && <p className="text-[13px] text-dusk">{p.note}</p>}
@@ -210,12 +247,15 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               <p className="text-[13px] text-dusk">Paid {naira(paid)}</p>
               {balance > 0 ? (
                 <p className="mt-2 font-serif text-[26px]">Balance {naira(balance)}</p>
+              ) : balance < 0 ? (
+                <p className="mt-2 font-serif text-[26px]">Credit {naira(Math.abs(balance))}</p>
               ) : (
                 <p className="mt-2 text-[13px] text-dusk">Settled in full.</p>
               )}
             </div>
           )}
           <AddPaymentForm orderId={order.id} />
+          <AddReturnForm orderId={order.id} lines={returnOptions} />
         </section>
       </div>
     </main>

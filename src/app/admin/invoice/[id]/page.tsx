@@ -137,23 +137,27 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               </tr>
             </thead>
             <tbody className="text-[13px]">
-              {lines.map(({ item, pieceName }) => (
-                <tr key={item.id}>
-                  <td className="py-3 pr-4 align-top">
-                    <span className="font-serif text-[15px]">
-                      {pieceName ?? (item.description || "Work")}
-                    </span>
-                    {pieceName && item.description && (
-                      <span className="block text-[11px] text-[#746C57]">{item.description}</span>
-                    )}
-                  </td>
-                  <td className="py-3 pr-4 text-right align-top tabular-nums">{item.quantity}</td>
-                  <td className="py-3 pr-4 text-right align-top tabular-nums">{naira(item.givenPriceKobo)}</td>
-                  <td className="py-3 text-right align-top tabular-nums">
-                    {naira(item.givenPriceKobo * item.quantity)}
-                  </td>
-                </tr>
-              ))}
+              {lines.map(({ item, pieceName }) => {
+                const isReturn = item.quantity < 0;
+                const name = isReturn ? item.description || `Return: ${pieceName ?? "work"}` : pieceName ?? (item.description || "Work");
+                return (
+                  <tr key={item.id}>
+                    <td className="py-3 pr-4 align-top">
+                      <span className="font-serif text-[15px]">{name}</span>
+                      {!isReturn && pieceName && item.description && (
+                        <span className="block text-[11px] text-[#746C57]">{item.description}</span>
+                      )}
+                    </td>
+                    <td className="py-3 pr-4 text-right align-top tabular-nums">
+                      {isReturn ? `Returned ${Math.abs(item.quantity)}` : item.quantity}
+                    </td>
+                    <td className="py-3 pr-4 text-right align-top tabular-nums">{naira(item.givenPriceKobo)}</td>
+                    <td className="py-3 text-right align-top tabular-nums">
+                      {naira(item.givenPriceKobo * item.quantity)}
+                    </td>
+                  </tr>
+                );
+              })}
               {lines.length === 0 && (
                 <tr>
                   <td colSpan={4} className="py-4 text-[#5D564A]">
@@ -186,12 +190,12 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         {pays.length > 0 && (
           <section className="mt-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#856A30]">
-              Payments received
+              Payments and refunds
             </p>
             <div className="mt-3 text-[12px] leading-relaxed text-[#5D564A]">
               {pays.map((p) => (
                 <p key={p.id}>
-                  {fmtDate(p.paidAt)} · {naira(p.amountKobo)} by {p.method}
+                  {fmtDate(p.paidAt)} · {naira(p.amountKobo)} by {p.amountKobo < 0 ? "refund" : p.method}
                   {p.note ? ` · ${p.note}` : ""}
                 </p>
               ))}

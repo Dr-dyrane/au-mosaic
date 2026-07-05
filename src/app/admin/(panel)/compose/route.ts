@@ -51,14 +51,23 @@ export async function GET(req: Request) {
   const billed = lines.reduce((s, l) => s + l.item.givenPriceKobo * l.item.quantity, 0);
   const paid = pays.reduce((s, p) => s + p.amountKobo, 0);
   const balance = billed - paid;
+  const balanceLine =
+    balance > 0
+      ? `Balance: ${naira(balance)}`
+      : balance < 0
+        ? `Credit: ${naira(Math.abs(balance))}`
+        : "Settled in full. Thank you for your trust.";
 
   const lineText = lines
-    .map(
-      (l) =>
-        `${l.item.quantity} x ${l.pieceName ?? (l.item.description || "Custom work")}: ${naira(
+    .map((l) => {
+      const name = l.pieceName ?? (l.item.description || "Custom work");
+      if (l.item.quantity < 0) {
+        return `Return, ${Math.abs(l.item.quantity)} x ${name}: ${naira(
           l.item.givenPriceKobo * l.item.quantity
-        )}`
-    )
+        )}`;
+      }
+      return `${l.item.quantity} x ${name}: ${naira(l.item.givenPriceKobo * l.item.quantity)}`;
+    })
     .join("\n");
 
   const name = row.customer.name.split(" ")[0];
@@ -70,7 +79,7 @@ export async function GET(req: Request) {
           lineText || "We will price the work on your order page.",
           "",
           `Billed: ${naira(billed)}`,
-          paid > 0 ? `Paid so far: ${naira(paid)}\nBalance: ${naira(balance)}` : null,
+          paid !== 0 ? `Paid so far: ${naira(paid)}\n${balanceLine}` : null,
           "",
           "Thank you.",
         ]
@@ -81,7 +90,7 @@ export async function GET(req: Request) {
           "",
           `Received: ${naira(paid)}`,
           `Billed: ${naira(billed)}`,
-          balance > 0 ? `Balance: ${naira(balance)}` : "Settled in full. Thank you for your trust.",
+          balanceLine,
           "",
           "Thank you.",
         ].join("\n");

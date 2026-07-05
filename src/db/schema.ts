@@ -199,8 +199,15 @@ export const orderItems = pgTable(
     quantity: integer("quantity").notNull().default(1),
     listPriceKobo: integer("list_price_kobo").notNull().default(0),
     givenPriceKobo: integer("given_price_kobo").notNull().default(0),
+    /* A return is a mirrored order line, never an erasure. This points
+       back to the line it corrects so the owner cannot return more
+       than was sold. */
+    returnForItemId: uuid("return_for_item_id"),
   },
-  (t) => [index("order_items_order_idx").on(t.orderId)]
+  (t) => [
+    index("order_items_order_idx").on(t.orderId),
+    index("order_items_return_for_idx").on(t.returnForItemId),
+  ]
 );
 
 export const payments = pgTable(

@@ -183,6 +183,7 @@ and answers in a sentence instead of throwing.
 | Order lifecycle is an enum walk | Pass (five statuses guarded by enum on write; optimistic chips walk back on failure with a sentence) |
 | Stock moves only at the door | Pass (crossing into delivered or settled subtracts each line's quantity, clamped at zero; walking back out returns it; delivered to settled moves nothing twice; enquiry to deposit never touches a shelf) |
 | Stock movements are audited and speak | Pass (per-line history sentences: taken for a delivery, returned to the shelf; a reorder crossing answers in the save sentence and taps the phone once, guarded by the before-above, after-at-or-below test) |
+| Returns correct beside the sale | Pass (a return writes a mirrored line tied to the original line, cannot exceed what remains, restores delivered stock, and settles as customer credit or a negative refund payment) |
 | Deliveries walk one step, server-verified | Pass (the action reads true status first; a stale screen cannot push a delivery two steps) |
 | Enquiries convert themselves | Pass (opening an order marks that customer's new and replied enquiries converted; attach ties a name without touching status) |
 | Settled orders leave the ledger | Pass (debts and the glance exclude enquiry and settled everywhere, including the owed badge) |
@@ -201,6 +202,7 @@ the exact movement in one sentence. Never ceremony.
 | Order moves with free-text lines only | Nothing physical moves | Pass (no confirm, by design: consequence, never ceremony) |
 | Enquiry to Quoted to Deposit | Nothing physical moves | Pass (one tap, reversible, no confirm) |
 | Record a payment | Records money that already moved; the row cannot be deleted | Accepted without confirm (a wrong entry is corrected beside it, per law 8; a confirm here would tax every honest entry to guard a rare slip) |
+| Record a return | Writes a correction line, restores stock if the order has left, and may record a refund | Accepted without extra confirm (the dedicated form names the line, quantity, and credit or refund choice; the original sale remains beside it) |
 | Piece stock edited by hand | Sets the count directly | Accepted without confirm (his own number typed by his own hand, undone by typing the old one; the threshold confirm stays reserved for bulk edits if they ever arrive) |
 | Delivery walks a step | The van moves, the shelf does not (stock moves on the order) | Pass (one step forward, server-verified, optimistic, no confirm) |
 

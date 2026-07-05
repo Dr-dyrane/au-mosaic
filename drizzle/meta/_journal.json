@@ -50,6 +50,13 @@
       "when": 1783209647702,
       "tag": "0006_loose_magdalene",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783222304259,
+      "tag": "0007_clumsy_mulholland_black",
+      "breakpoints": true
     }
   ]
 }

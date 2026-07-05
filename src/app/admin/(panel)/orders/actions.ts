@@ -18,6 +18,7 @@ import { PIPELINE, STATUS_LABEL, type OrderStatus } from "./pipeline";
 export type SaveState = { ok: boolean; message: string } | null;
 
 const METHODS = ["transfer", "cash", "POS"] as const;
+const RETURN_SETTLEMENTS = ["credit", "refund"] as const;
 
 function refresh(orderId: string) {
   revalidatePath(`/admin/orders/${orderId}`);
@@ -66,6 +67,10 @@ export async function createOrder(_prev: SaveState, form: FormData): Promise<Sav
 const OUT_THE_DOOR: readonly OrderStatus[] = ["delivered", "settled"];
 
 type Crossing = { name: string; qty: number; unit: string; slug: string };
+type StockMove = {
+  action: "took stock for a delivery" | "returned stock to the shelf";
+  detail: string;
+};
 
 export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveState> {
   if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
@@ -81,7 +86,7 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
 
   const db = getDb();
   const crossings: Crossing[] = [];
-  const moved: string[] = [];
+  const moved: StockMove[] = [];
   try {
     const [before] = await db
       .select({ status: schema.orders.status })
@@ -112,8 +117,14 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
         .from(schema.orderItems)
         .where(eq(schema.orderItems.orderId, id));
 
+      const byPiece = new Map<string, number>();
       for (const line of lines) {
-        if (!line.pieceSlug || line.quantity <= 0) continue;
+        if (!line.pieceSlug || line.quantity === 0) continue;
+        byPiece.set(line.pieceSlug, (byPiece.get(line.pieceSlug) ?? 0) + line.quantity);
+      }
+
+      for (const [pieceSlug, quantity] of byPiece) {
+        if (quantity === 0) continue;
         const [row] = await db
           .select({
             qty: schema.stockLevels.quantitySheets,
@@ -123,26 +134,29 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
           })
           .from(schema.stockLevels)
           .innerJoin(schema.pieces, eq(schema.pieces.slug, schema.stockLevels.pieceSlug))
-          .where(eq(schema.stockLevels.pieceSlug, line.pieceSlug));
+          .where(eq(schema.stockLevels.pieceSlug, pieceSlug));
         if (!row) continue;
 
-        /* Never below the visible truth. */
-        const after = nowOut
-          ? Math.max(0, row.qty - line.quantity)
-          : row.qty + line.quantity;
+        /* Positive net quantity means the order took stock. Negative
+           can only happen after correction lines, and moves the other
+           way. Never below the visible truth. */
+        const stockChange = nowOut ? -quantity : quantity;
+        const after = Math.max(0, row.qty + stockChange);
         await db
           .update(schema.stockLevels)
           .set({ quantitySheets: after, updatedAt: sql`now()` })
-          .where(eq(schema.stockLevels.pieceSlug, line.pieceSlug));
+          .where(eq(schema.stockLevels.pieceSlug, pieceSlug));
 
-        moved.push(
-          nowOut
-            ? `${row.name}: ${line.quantity} ${row.unit} out, ${after} left`
-            : `${row.name}: ${line.quantity} ${row.unit} back, ${after} on hand`
-        );
+        moved.push({
+          action: stockChange < 0 ? "took stock for a delivery" : "returned stock to the shelf",
+          detail:
+            stockChange < 0
+              ? `${row.name}: ${Math.abs(quantity)} ${row.unit} out, ${after} left`
+              : `${row.name}: ${Math.abs(quantity)} ${row.unit} back, ${after} on hand`,
+        });
         /* A threshold of zero is no threshold; it never cries wolf. */
-        if (nowOut && row.reorderAt > 0 && row.qty > row.reorderAt && after <= row.reorderAt) {
-          crossings.push({ name: row.name, qty: after, unit: row.unit, slug: line.pieceSlug });
+        if (stockChange < 0 && row.reorderAt > 0 && row.qty > row.reorderAt && after <= row.reorderAt) {
+          crossings.push({ name: row.name, qty: after, unit: row.unit, slug: pieceSlug });
         }
       }
     }
@@ -153,9 +167,9 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
   await logAction("moved an order", `order ${id.slice(0, 8)}`, `to ${STATUS_LABEL[status].toLowerCase()}`);
   for (const m of moved) {
     await logAction(
-      OUT_THE_DOOR.includes(status) ? "took stock for a delivery" : "returned stock to the shelf",
+      m.action,
       `order ${id.slice(0, 8)}`,
-      m
+      m.detail
     );
   }
   /* A crossing taps the phone; the digest never repeats it louder. */
@@ -228,6 +242,114 @@ export async function addLine(_prev: SaveState, form: FormData): Promise<SaveSta
   );
   refresh(orderId);
   return { ok: true, message: "Line added." };
+}
+
+export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+
+  const orderId = String(form.get("orderId") ?? "");
+  const itemId = String(form.get("itemId") ?? "");
+  if (!orderId || !itemId) return { ok: false, message: "Choose the line that came back." };
+
+  const quantity = parseInt(String(form.get("quantity") ?? ""), 10);
+  if (!Number.isFinite(quantity) || quantity < 1) {
+    return { ok: false, message: "Return at least one." };
+  }
+
+  const settlement = String(form.get("settlement") ?? "");
+  if (!(RETURN_SETTLEMENTS as readonly string[]).includes(settlement)) {
+    return { ok: false, message: "Choose credit or refund." };
+  }
+
+  const note = String(form.get("note") ?? "").trim();
+  const db = getDb();
+  let detail = "";
+  let movedStock = "";
+  try {
+    const [source] = await db
+      .select({
+        item: schema.orderItems,
+        orderStatus: schema.orders.status,
+        pieceName: schema.pieces.name,
+        unit: schema.pieces.unit,
+        stockQty: schema.stockLevels.quantitySheets,
+      })
+      .from(schema.orderItems)
+      .innerJoin(schema.orders, eq(schema.orders.id, schema.orderItems.orderId))
+      .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.orderItems.pieceSlug))
+      .leftJoin(schema.stockLevels, eq(schema.stockLevels.pieceSlug, schema.orderItems.pieceSlug))
+      .where(and(eq(schema.orderItems.id, itemId), eq(schema.orderItems.orderId, orderId)));
+
+    if (!source) return { ok: false, message: "That line is not on this order." };
+    if (source.item.returnForItemId || source.item.quantity <= 0) {
+      return { ok: false, message: "Choose the original sale line." };
+    }
+
+    const [returned] = await db
+      .select({
+        qty: sql<number>`coalesce(sum(case when ${schema.orderItems.quantity} < 0 then -${schema.orderItems.quantity} else 0 end), 0)`,
+      })
+      .from(schema.orderItems)
+      .where(and(eq(schema.orderItems.orderId, orderId), eq(schema.orderItems.returnForItemId, itemId)));
+
+    const returnedQty = Number(returned?.qty ?? 0);
+    const left = source.item.quantity - returnedQty;
+    if (left <= 0) return { ok: false, message: "That line has already come back." };
+    if (quantity > left) {
+      return { ok: false, message: `Only ${left} can still come back.` };
+    }
+
+    const lineName = source.pieceName ?? (source.item.description || "Order line");
+    const unit = source.unit ?? "units";
+    const returnValueKobo = source.item.givenPriceKobo * quantity;
+    await db.insert(schema.orderItems).values({
+      orderId,
+      pieceSlug: source.item.pieceSlug,
+      description: `Return: ${lineName}${note ? `, ${note}` : ""}`,
+      quantity: -quantity,
+      listPriceKobo: source.item.listPriceKobo,
+      givenPriceKobo: source.item.givenPriceKobo,
+      returnForItemId: itemId,
+    });
+
+    if (settlement === "refund") {
+      await db.insert(schema.payments).values({
+        orderId,
+        amountKobo: -returnValueKobo,
+        method: "refund",
+        note: note || `Return: ${lineName}`,
+      });
+    }
+
+    if (source.item.pieceSlug && OUT_THE_DOOR.includes(source.orderStatus)) {
+      const after = Number(source.stockQty ?? 0) + quantity;
+      await db
+        .update(schema.stockLevels)
+        .set({ quantitySheets: after, updatedAt: sql`now()` })
+        .where(eq(schema.stockLevels.pieceSlug, source.item.pieceSlug));
+      movedStock = `${lineName}: ${quantity} ${unit} back, ${after} on hand`;
+    }
+
+    await db
+      .update(schema.orders)
+      .set({ updatedAt: sql`now()` })
+      .where(eq(schema.orders.id, orderId));
+
+    detail = `${quantity} ${unit} of ${lineName}; ${settlement === "refund" ? "refunded" : "kept as credit"} ${naira(returnValueKobo)}`;
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+
+  await logAction("recorded a return", `order ${orderId.slice(0, 8)}`, detail);
+  if (movedStock) {
+    await logAction("returned stock to the shelf", `order ${orderId.slice(0, 8)}`, movedStock);
+  }
+  refresh(orderId);
+  revalidatePath("/admin/pieces");
+  return {
+    ok: true,
+    message: settlement === "refund" ? "Returned and refunded." : "Returned. The customer has credit.",
+  };
 }
 
 export async function addPayment(_prev: SaveState, form: FormData): Promise<SaveState> {
