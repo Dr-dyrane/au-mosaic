@@ -112,6 +112,9 @@ export default async function PiecesPage({
         <Link href="/admin/ranges" className="link-hair text-dusk text-[13px]">
           The ranges
         </Link>
+        <Link href="/admin/media" className="link-hair text-dusk text-[13px]">
+          Media bench
+        </Link>
         <FilterSheet current={filters} />
         <button data-tour-start="stockroom" className="link-hair text-dusk text-[13px]">
           Learn this room

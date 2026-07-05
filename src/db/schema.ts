@@ -73,6 +73,11 @@ export const pieces = pgTable(
     colors: jsonb("colors").$type<string[]>().notNull().default([]),
     imageNight: text("image_night"),
     imageDay: text("image_day"),
+    /* The shop-card face: clean product display for grids and the
+       reveal's object act. The applied photograph stays in image_*,
+       so promise and product do different jobs. */
+    cardImageNight: text("card_image_night"),
+    cardImageDay: text("card_image_day"),
     /* What one of it is called on the shelf: sheets for mosaic,
        units or bags for the pool side. */
     unit: text("unit").notNull().default("sheets"),
@@ -93,6 +98,41 @@ export const stockLevels = pgTable("stock_levels", {
   containerEta: date("container_eta"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/* The media bench: generated drafts, product cards, window cinema,
+   showroom proof, contact sheets, and real photos before promotion.
+   The public site reads only promoted piece slots; this table keeps
+   everything else findable without making it public truth. */
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    url: text("url").notNull(),
+    title: text("title").notNull(),
+    batch: text("batch").notNull().default(""),
+    sun: text("sun", { enum: ["night", "day", "single"] }).notNull().default("single"),
+    role: text("role", { enum: ["card", "applied", "window", "proof", "contact_sheet"] })
+      .notNull()
+      .default("card"),
+    status: text("status", { enum: ["draft", "approved", "wired", "archived"] })
+      .notNull()
+      .default("draft"),
+    pieceSlug: text("piece_slug").references(() => pieces.slug),
+    notes: text("notes").notNull().default(""),
+    source: text("source").notNull().default(""),
+    width: integer("width"),
+    height: integer("height"),
+    originalPath: text("original_path").notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("media_assets_batch_idx").on(t.batch),
+    index("media_assets_piece_idx").on(t.pieceSlug),
+    index("media_assets_role_idx").on(t.role),
+    index("media_assets_status_idx").on(t.status),
+  ]
+);
 
 /* House facts the owner may change without a deploy: the WhatsApp
    number, the hours, the address. Seeded once from site.ts; after

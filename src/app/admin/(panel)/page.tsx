@@ -116,6 +116,7 @@ export default async function AdminHome() {
             </ul>
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3.5">
               <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[13px]">Deliveries</Link></li>
+              <li><Link href="/admin/media" className="link-hair text-dusk text-[13px]">Media bench</Link></li>
               <li><Link href="/admin/debts" className="link-hair text-dusk text-[13px]">Who owes what</Link></li>
               <li><Link href="/admin/insights" className="link-hair text-dusk text-[13px]">Insights</Link></li>
               <li><Link href="/admin/settings" className="link-hair text-dusk text-[13px]">Settings</Link></li>

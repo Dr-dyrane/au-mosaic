@@ -443,6 +443,36 @@ keepValues, icons components exist).
     Do not turn it into a delivered-project archive with client files,
     dates, and case-study weight unless the owner reverses this ruling.
 
+15. SHIPPED 2026-07-04: THE MEDIA BENCH. The piece record now has two
+    more face slots, card_image_night and card_image_day, for the clean
+    Shop-style product object. The old image_night and image_day remain
+    the applied promise and hero face. A new media_assets table holds
+    the bench: draft, approved, wired, and archived assets by batch,
+    sun, role, linked piece, dimensions, source, notes, and original
+    local path. /admin/media opens as a secondary room from Home and
+    Stock, not the phone tab bar yet, because it is powerful but not
+    daily for every hand. Batch 08 entered Blob and the bench: twelve
+    card assets are wired into the six gap pieces, two kitchen frames
+    are approved proof, and the contact sheet stays draft. catalog.ts
+    now prefers the book's card slots and falls back to src/lib/images.ts
+    CARD; PieceReveal reads the piece card fields too, so grid and detail
+    share the same backend truth. The rollback is surgical: clear the
+    six card_image slots, move the media rows back from wired or approved
+    to draft, and the old scene photos return because image_night and
+    image_day were never touched.
+
+16. SHIPPED 2026-07-04: THE APPLIED PROMISE BAND. The home page now has
+    the bridge between the dream rooms and the product cards. catalog.ts
+    owns `getAppliedPromises`: first it looks for approved Batch 08 proof
+    in `media_assets`, then it falls back to owned scenes in images.ts.
+    The kitchen backsplash pair therefore enters the showroom as proof,
+    not as a product card and not as a delivered-client archive. The
+    remaining frames point to the pool edge, gold room, and custom wall,
+    keeping the promise visual without inventing case studies. Rollback
+    is small: remove the home band and the `getAppliedPromises` export,
+    or move the kitchen proof rows from approved to draft so the band
+    returns to the fallback aqua scene.
+
 **2026-07-04, the night everything held.** Every outside seam proven
 live, not assumed: the book under every room, the public blob store
 under the photographs (first real upload landed), the window serving

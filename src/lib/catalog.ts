@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { getDb, schema } from "@/db";
 import {
@@ -11,7 +11,7 @@ import {
   type ProductGroup,
 } from "./products";
 import { PROJECTS, projectBySlug, type Project } from "./projects";
-import { CARD } from "./images";
+import { CARD, DAY, OWN } from "./images";
 
 /* The seam, flipped: law 10. The window now reads the book, so what
    he edits in the stockroom is what Lagos sees, photos included.
@@ -45,6 +45,51 @@ for (const g of [...MOSAIC_RANGES, ...POOL_MATERIALS]) {
 type BookRange = typeof schema.ranges.$inferSelect;
 type BookPiece = typeof schema.pieces.$inferSelect;
 type Book = { ranges: BookRange[]; pieces: BookPiece[] };
+type MediaAsset = typeof schema.mediaAssets.$inferSelect;
+
+export type AppliedPromise = {
+  title: string;
+  line: string;
+  href: string;
+  src: string;
+  srcDay?: string;
+  alt: string;
+};
+
+const APPLIED_PROMISES: AppliedPromise[] = [
+  {
+    title: "Kitchen wall",
+    line: "Aqua glass across the sink line.",
+    href: "/piece/aqua-turquoise-blends",
+    src: OWN.aquaBlends,
+    srcDay: DAY.aquaBlends,
+    alt: "Aqua mosaic applied across a kitchen wall",
+  },
+  {
+    title: "Pool edge",
+    line: "Blue chosen before the water arrives.",
+    href: "/piece/deep-midnight-blends",
+    src: OWN.poolEdge,
+    srcDay: DAY.poolEdge,
+    alt: "Blue mosaic at the edge of a swimming pool",
+  },
+  {
+    title: "Gold room",
+    line: "Mirror tesserae turn a wall into light.",
+    href: "/piece/gold-metallic-accents",
+    src: OWN.metallicRoom,
+    srcDay: DAY.metallicRoom,
+    alt: "Gold and silver mosaic in a warm interior room",
+  },
+  {
+    title: "Custom wall",
+    line: "Pictures made from colour.",
+    href: "/piece/custom-murals",
+    src: OWN.artGallery,
+    srcDay: DAY.artGallery,
+    alt: "A custom mosaic artwork displayed on a wall",
+  },
+];
 
 const readBook = unstable_cache(
   async (): Promise<Book> => {
@@ -61,11 +106,50 @@ const readBook = unstable_cache(
   { tags: ["catalog"], revalidate: 3600 }
 );
 
+const readApprovedShowroomProofs = unstable_cache(
+  async (): Promise<MediaAsset[]> => {
+    const db = getDb();
+    return db
+      .select()
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.batch, "batch-08"),
+          eq(schema.mediaAssets.role, "proof"),
+          eq(schema.mediaAssets.status, "approved")
+        )
+      )
+      .orderBy(asc(schema.mediaAssets.createdAt));
+  },
+  ["showroom-proofs"],
+  { tags: ["catalog"], revalidate: 3600 }
+);
+
 /* The book, or null when it cannot speak or was never seeded. */
 async function bookOrNull(): Promise<Book | null> {
   try {
     const book = await readBook();
     return book.pieces.length > 0 ? book : null;
+  } catch {
+    return null;
+  }
+}
+
+async function approvedKitchenProof(): Promise<AppliedPromise | null> {
+  try {
+    const rows = await readApprovedShowroomProofs();
+    const night = rows.find((row) => row.sun === "night");
+    const day = rows.find((row) => row.sun === "day");
+    if (!night && !day) return null;
+    const pieceSlug = night?.pieceSlug ?? day?.pieceSlug;
+    return {
+      title: "Kitchen wall",
+      line: "Aqua glass across the sink line.",
+      href: pieceSlug ? `/piece/${pieceSlug}` : "/mosaic-tiles",
+      src: night?.url ?? day!.url,
+      srcDay: day?.url ?? night?.url,
+      alt: "Aqua mosaic showroom proof across a kitchen wall",
+    };
   } catch {
     return null;
   }
@@ -79,8 +163,16 @@ function toProduct(p: BookPiece): Product & { slug: string } {
     colors: p.colors && p.colors.length > 0 ? p.colors : undefined,
     image: p.imageNight ?? undefined,
     imageLight: p.imageDay ?? undefined,
+    card: p.cardImageNight ?? undefined,
+    cardLight: p.cardImageDay ?? undefined,
     variants: VARIANTS.get(p.slug),
   };
+}
+
+function withCard<T extends Product>(i: T): T {
+  if (i.card) return i;
+  if (!i.slug || !CARD[i.slug]) return i;
+  return { ...i, card: CARD[i.slug].night, cardLight: CARD[i.slug].day };
 }
 
 function groupsOf(book: Book, family: "mosaic" | "pool"): ProductGroup[] {
@@ -90,7 +182,7 @@ function groupsOf(book: Book, family: "mosaic" | "pool"): ProductGroup[] {
       id: r.slug,
       title: r.name,
       blurb: r.line,
-      items: book.pieces.filter((p) => p.rangeSlug === r.slug).map(toProduct),
+      items: book.pieces.filter((p) => p.rangeSlug === r.slug).map(toProduct).map(withCard),
     }))
     .filter((g) => g.items.length > 0);
 }
@@ -105,7 +197,8 @@ function piecesOf(book: Book): Piece[] {
       ...toProduct(p),
       collection: mosaic.get(p.rangeSlug)!.name,
       groupId: p.rangeSlug,
-    }));
+    }))
+    .map(withCard);
 }
 
 /* The grid wears the shop-style card where one exists, keyed by slug, over
@@ -114,9 +207,7 @@ function piecesOf(book: Book): Piece[] {
 function withCards(g: ProductGroup): ProductGroup {
   return {
     ...g,
-    items: g.items.map((i) =>
-      i.slug && CARD[i.slug] ? { ...i, card: CARD[i.slug].night, cardLight: CARD[i.slug].day } : i
-    ),
+    items: g.items.map(withCard),
   };
 }
 
@@ -139,6 +230,11 @@ export async function getPiece(slug: string): Promise<Piece | undefined> {
   const book = await bookOrNull();
   if (book) return piecesOf(book).find((p) => p.slug === slug);
   return pieceBySlug(slug);
+}
+
+export async function getAppliedPromises(): Promise<AppliedPromise[]> {
+  const proof = await approvedKitchenProof();
+  return proof ? [proof, ...APPLIED_PROMISES.slice(1)] : APPLIED_PROMISES;
 }
 
 /* Projects stay the repo's concept studies until real ones replace

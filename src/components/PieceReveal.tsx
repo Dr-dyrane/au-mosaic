@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { OWN, DAY, CARD } from "@/lib/images";
+import { OWN, DAY } from "@/lib/images";
 import { waProduct } from "@/lib/wa";
 import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
@@ -28,6 +28,8 @@ type RevealPiece = {
   imageLight?: string;
   colors?: string[];
   variants?: string[];
+  card?: string;
+  cardLight?: string;
   groupId: string;
 };
 
@@ -50,7 +52,7 @@ function dreamFor(p: RevealPiece): Dream {
      the piece's own applied mosaic, its legacy cinematic scene, so the product
      and the application both show. When there is no card, the applied image is
      already the object, so the dream is a family window frame instead. */
-  if (CARD[p.slug] && p.image) {
+  if (p.card && p.image) {
     return { night: p.image, day: p.imageLight, line: "Made real, tessera by tessera.", alt: `${p.name}, applied` };
   }
   return DREAM_BY_SLUG[p.slug] ?? DREAM_BY_GROUP[p.groupId] ?? DREAM_BY_GROUP["glass-mosaics"];
@@ -76,8 +78,7 @@ const GENERIC_COPY: Copy = {
    cinematic scene) becomes the dream. Where a piece has no product card, its
    own image is the object and the dream is a family window frame. */
 function objectOf(p: RevealPiece): { night: string; day?: string } {
-  const c = CARD[p.slug];
-  return c ? { night: c.night, day: c.day } : { night: p.image ?? "", day: p.imageLight };
+  return p.card ? { night: p.card, day: p.cardLight } : { night: p.image ?? "", day: p.imageLight };
 }
 
 export default function PieceReveal({ piece }: { piece: RevealPiece }) {
@@ -87,6 +88,13 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
   const copy = COPY[piece.slug] ?? GENERIC_COPY;
   const stageSub = copy.stageSub ?? piece.note;
 
+  /* The stage holds dark in both suns. A dark studio card sinks into it and
+     the sheet dies — worst of all for dark tiles, which vanish outright. So a
+     carded piece is lit here by its light-ground card: the vignette feathers
+     its edges into the black and it reads as a sample under the spotlight. An
+     un-carded piece keeps its own hero photo, which already carries the light. */
+  const stageImg = piece.card ? piece.cardLight ?? obj.night : obj.night;
+
   return (
     <>
       {/* ACT ONE — THE STAGE. A dark opening, the sheet lit alone. */}
@@ -95,7 +103,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
         <Reveal>
           <div className="reveal-artwork">
             <ThemeImage
-              dark={obj.night}
+              dark={stageImg}
               alt={piece.name}
               fill
               priority

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
-import { getMosaicRanges, getProjects } from "@/lib/catalog";
+import { getAppliedPromises, getMosaicRanges, getProjects } from "@/lib/catalog";
 import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
@@ -32,6 +32,7 @@ const PLATES = [
 
 export default async function Home() {
   const ranges = await getMosaicRanges();
+  const applied = await getAppliedPromises();
   const projects = (await getProjects()).slice(0, 2);
   const picks = [
     { ...ranges[0].items[0], collection: "Pool mosaic" },
@@ -119,6 +120,65 @@ export default async function Home() {
               </Link>
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* Applied promise: the stock becomes a surface */}
+      <section className="px-4 pb-28 sm:px-6 sm:pb-36">
+        <div className="mx-auto max-w-[1400px] rounded-[40px] bg-shell/70">
+          <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
+            <Reveal>
+              <p className="eyebrow">Applied promise</p>
+              <h2 className="font-serif text-display-section mt-4 max-w-xl">
+                The sheet becomes the room.
+              </h2>
+              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
+                The stock is real. The room is the invitation.
+              </p>
+            </Reveal>
+
+            <div className="-mx-5 mt-14 grid gap-5 sm:mx-0 sm:grid-cols-2 lg:grid-cols-5">
+              {applied.map((item, i) => (
+                <Reveal
+                  key={item.title}
+                  delay={(i % 4) * 70}
+                  className={i === 0 ? "sm:col-span-2 lg:col-span-2" : ""}
+                >
+                  <Link href={item.href} className="group block">
+                    <div
+                      className={`relative overflow-hidden rounded-none sm:rounded-[26px] ${
+                        i === 0 ? "aspect-[16/10] sm:aspect-[16/9]" : "aspect-[4/5]"
+                      }`}
+                    >
+                      <SceneFrame
+                        dark={item.src}
+                        light={item.srcDay}
+                        alt={item.alt}
+                        fill
+                        quality={90}
+                        sizes={i === 0 ? "(max-width: 640px) 100vw, 50vw" : "(max-width: 640px) 100vw, 25vw"}
+                        className="img-glide media-lux object-cover"
+                      >
+                        <div className="scrim-scene pointer-events-none absolute inset-0" />
+                        <div className="scene-deepen absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                        <div className="absolute inset-x-0 bottom-0 p-7 sm:p-8">
+                          <p className="eyebrow scene-eyebrow">{item.title}</p>
+                          <p
+                            className={`font-serif scene-title mt-2 leading-snug ${
+                              i === 0 ? "text-[20px]" : "text-[16px]"
+                            }`}
+                          >
+                            {item.line}
+                          </p>
+                          <span className="link-hair scene-link mt-5">View the piece</span>
+                        </div>
+                      </SceneFrame>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

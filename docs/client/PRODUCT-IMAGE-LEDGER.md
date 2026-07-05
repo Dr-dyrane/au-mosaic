@@ -174,6 +174,14 @@ for `DAY`, night images are candidates for `OWN`.
 | SKU stone mosaic | `sku-stone-mosaic-light.png` | `sku-stone-mosaic-dark.png` | Strong pair | Exact Shop-style card with matte stone grain and quiet colour variation. |
 | SKU hexagon marble | `sku-hexagon-marble-light.png` | `sku-hexagon-marble-dark.png` | Strong pair | Exact Shop-style card; hex geometry reads at thumbnail size. |
 | Batch 07 Shop SKU review | `contact-sheet-batch-07-shop-sku-cards.png` | same file | Reference only | Reviews ten exact SKU product-card pairs after the cinematic window batch. |
+| Gap aqua colour mosaic | `gap-aqua-colour-mosaic-light.png` | `gap-aqua-colour-mosaic-dark.png` | Strong pair | Product-card gap for aqua stock seen repeatedly in the Instagram grid. |
+| Gap deep and midnight blends | `gap-deep-midnight-blends-light.png` | `gap-deep-midnight-blends-dark.png` | Strong pair | Product-card gap for darker pool and interior blue stock. |
+| Gap patterned pool borders | `gap-patterned-pool-borders-light.png` | `gap-patterned-pool-borders-dark.png` | Usable pair | Strong as a border family, but review placement so it does not read as a decorative flyer. |
+| Gap mixed and gradient blends | `gap-mixed-gradient-blends-light.png` | `gap-mixed-gradient-blends-dark.png` | Strong pair | Product-card gap for shade choice and pool-water planning. |
+| Gap container project orders | `gap-container-project-orders-light.png` | `gap-container-project-orders-dark.png` | Strong pair | Shows order readiness and bulk stock without turning into warehouse reportage. |
+| Gap custom colours and sizes | `gap-custom-colours-sizes-light.png` | `gap-custom-colours-sizes-dark.png` | Strong pair | Sample-fan language for custom colour matching and requested sizes. |
+| Showroom kitchen backsplash and sink | `showroom-kitchen-backsplash-sink-light.png` | `showroom-kitchen-backsplash-sink-dark.png` | Strong pair | Installed-context proof, staged as showroom promise rather than a case-study archive. |
+| Batch 08 gap and showroom review | `contact-sheet-batch-08-gap-showroom.png` | same file | Reference only | Reviews six inventory-gap pairs plus one showroom proof pair. |
 
 ## Rendered site audit for Batch 04
 
@@ -294,10 +302,20 @@ queue once the current batch is approved.
 
 | Priority | Image pair | Why |
 |---|---|---|
-| 1 | Kitchen backsplash and sink, day and night | Kitchens are a real application lane in the screenshots and are not yet covered by a window pair. |
+| 1 | Kitchen backsplash and sink placement review | Batch 08 now covers the image pair. Review it only after page placement. |
 | 2 | Exterior cladding, day and night | Hold until there is clearer project proof or owner confirmation. |
-| 3 | Real project proof from Nonso | Replace dream-lane frames with delivered work once owner photos arrive. |
+| 3 | Real project proof from Nonso | Use as showroom proof, not as a case-study archive. Full proof stays in WhatsApp and Instagram. |
 | 4 | Product-card retakes after page placement | Generate only if a wired card crop exposes a weak product read. |
+
+Owner ruling, 2026-07-04: real completed projects belong in WhatsApp
+and Instagram, where the sales conversation already lives. The website
+remains a showroom: controlled product display, cinematic promise,
+sample flow, quote path, and selected real-project context used the way
+Shop-style product pages use props. A real project can appear as an
+installed-context vignette or a quiet proof surface, but not as a heavy
+case-study archive with client files, dates, and completion claims.
+Generated scenes must never pretend to be delivered work, and full
+project proof stays in the channels where Nonso closes trust.
 
 Every current day and night draft is normalized to a 4:5 portrait. Most
 are 1122 by 1402; a few cropped outputs keep smaller native dimensions.
@@ -389,6 +407,25 @@ numbers, logos, watermarks, or application context.
 
 This lane is for catalogue comparison and future product-card wiring.
 Window images and project proof do not belong here.
+
+### Batch 08 gap cards and showroom proof
+
+Product-card gap image. One clear stocked product promise centered on a
+clean warm off-white studio plate for light mode, or a warm near-black
+studio plate for dark mode. The product may be a single sheet, a family
+sheet, a border panel, a sample fan, or stacked order cartons, but the
+image must still behave like a commerce card.
+
+Use the same crop rhythm, contact shadow, realistic grout, and readable
+material texture as the exact SKU set. Do not add rooms, water, hands,
+people, packaging text, phone numbers, labels, logos, watermarks, or
+borders.
+
+Showroom proof image. One installed-context vignette may show a real
+application lane, such as a kitchen backsplash and sink, with sample
+sheets used as quiet props. It must feel like a showroom promise, not a
+completed-client archive. No dates, client names, completion claims,
+case-study weight, people, labels, logos, or phone numbers.
 
 ### Batch 06 cinematic window frames
 
@@ -599,6 +636,45 @@ stone-mosaic and hexagon-marble under feature mosaics. Rows arrive
 through heal, insert-only, counts and warn-at zero: the shelves are
 the owner's to fill from the stockroom.
 
+## Batch 08 enters the media bench
+
+Batch 08 no longer lives only as ignored local drafts. The files were
+uploaded to Vercel Blob, recorded in `media_assets`, and promoted through
+the new `card_image_night` and `card_image_day` slots on `pieces`.
+`src/lib/images.ts` remains the fallback, not the first source.
+
+| Piece | Night card | Day card | Status |
+|---|---|---|---|
+| `aqua-turquoise-blends` | `gap-aqua-colour-mosaic-dark.png` | `gap-aqua-colour-mosaic-light.png` | Wired |
+| `deep-midnight-blends` | `gap-deep-midnight-blends-dark.png` | `gap-deep-midnight-blends-light.png` | Wired |
+| `patterned-pool-borders` | `gap-patterned-pool-borders-dark.png` | `gap-patterned-pool-borders-light.png` | Wired |
+| `mixed-gradient-blends` | `gap-mixed-gradient-blends-dark.png` | `gap-mixed-gradient-blends-light.png` | Wired |
+| `container-project-orders` | `gap-container-project-orders-dark.png` | `gap-container-project-orders-light.png` | Wired |
+| `custom-colours-sizes` | `gap-custom-colours-sizes-dark.png` | `gap-custom-colours-sizes-light.png` | Wired |
+| Kitchen backsplash showroom proof | `showroom-kitchen-backsplash-sink-dark.png` | `showroom-kitchen-backsplash-sink-light.png` | Approved proof, not a product card |
+
+The public grid and piece reveal now prefer backend card slots. The old
+scene photographs are untouched and remain the applied promise.
+
+## Showroom proof placement
+
+The kitchen backsplash pair now has one public job: the first frame in
+the home page applied-promise band. The page asks `catalog.ts` for
+`getAppliedPromises`, which reads approved Batch 08 proof rows first and
+falls back to owned scene media if the database is quiet.
+
+This keeps three lanes separate:
+
+- Product cards show the stock object.
+- Applied promise shows what the stock can become.
+- Real project proof stays in WhatsApp and Instagram unless Nonso sends
+  a controlled proof surface for the showroom.
+
+No new canonical media path was added. No Batch 08 proof became a product
+card. To hide the kitchen proof without changing code, move those two
+`media_assets` rows back to `draft`; the home band will return to the
+fallback aqua scene.
+
 ## Back office implications
 
 The CRM heart is the piece record. These images suggest future stockroom
@@ -630,7 +706,45 @@ work, not just site work.
 
 ## Rollback notes
 
-No live site references were changed in this pass.
+The live site now reads Batch 08 through the database. No canonical
+`src/lib/images.ts` path was changed.
+
+To roll back the public promotion, clear `card_image_night` and
+`card_image_day` for:
+
+```text
+aqua-turquoise-blends
+deep-midnight-blends
+patterned-pool-borders
+mixed-gradient-blends
+container-project-orders
+custom-colours-sizes
+```
+
+Then move the related `media_assets` rows for `batch-08` back to
+`draft`. The kitchen proof rows can stay approved or return to draft.
+Drafting the proof rows also removes them from the home applied-promise
+first slot.
+
+To roll back only Batch 08, delete:
+
+```text
+public/media/product-ledger-2026-07-04/gap-aqua-colour-mosaic-light.png
+public/media/product-ledger-2026-07-04/gap-aqua-colour-mosaic-dark.png
+public/media/product-ledger-2026-07-04/gap-deep-midnight-blends-light.png
+public/media/product-ledger-2026-07-04/gap-deep-midnight-blends-dark.png
+public/media/product-ledger-2026-07-04/gap-patterned-pool-borders-light.png
+public/media/product-ledger-2026-07-04/gap-patterned-pool-borders-dark.png
+public/media/product-ledger-2026-07-04/gap-mixed-gradient-blends-light.png
+public/media/product-ledger-2026-07-04/gap-mixed-gradient-blends-dark.png
+public/media/product-ledger-2026-07-04/gap-container-project-orders-light.png
+public/media/product-ledger-2026-07-04/gap-container-project-orders-dark.png
+public/media/product-ledger-2026-07-04/gap-custom-colours-sizes-light.png
+public/media/product-ledger-2026-07-04/gap-custom-colours-sizes-dark.png
+public/media/product-ledger-2026-07-04/showroom-kitchen-backsplash-sink-light.png
+public/media/product-ledger-2026-07-04/showroom-kitchen-backsplash-sink-dark.png
+public/media/product-ledger-2026-07-04/contact-sheet-batch-08-gap-showroom.png
+```
 
 To roll back the draft media, delete:
 

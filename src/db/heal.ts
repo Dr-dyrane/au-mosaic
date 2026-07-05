@@ -71,6 +71,32 @@ const DDL: string[] = [
      'green-mosaic','orange-mosaic','stone-mosaic','hexagon-marble'
    ]) AS s
    ON CONFLICT (piece_slug) DO NOTHING`,
+  /* 2026-07-04 · the media bench and shop-card slots */
+  `ALTER TABLE "pieces" ADD COLUMN "card_image_night" text`,
+  `ALTER TABLE "pieces" ADD COLUMN "card_image_day" text`,
+  `CREATE TABLE "media_assets" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+    "url" text NOT NULL,
+    "title" text NOT NULL,
+    "batch" text DEFAULT '' NOT NULL,
+    "sun" text DEFAULT 'single' NOT NULL,
+    "role" text DEFAULT 'card' NOT NULL,
+    "status" text DEFAULT 'draft' NOT NULL,
+    "piece_slug" text,
+    "notes" text DEFAULT '' NOT NULL,
+    "source" text DEFAULT '' NOT NULL,
+    "width" integer,
+    "height" integer,
+    "original_path" text DEFAULT '' NOT NULL,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT "media_assets_piece_slug_pieces_slug_fk"
+      FOREIGN KEY ("piece_slug") REFERENCES "pieces"("slug") ON DELETE no action ON UPDATE no action
+  )`,
+  `CREATE INDEX "media_assets_batch_idx" ON "media_assets" USING btree ("batch")`,
+  `CREATE INDEX "media_assets_piece_idx" ON "media_assets" USING btree ("piece_slug")`,
+  `CREATE INDEX "media_assets_role_idx" ON "media_assets" USING btree ("role")`,
+  `CREATE INDEX "media_assets_status_idx" ON "media_assets" USING btree ("status")`,
 ];
 
 let healed = false;
@@ -86,9 +112,28 @@ export async function healSchema(): Promise<void> {
                 where table_name = 'enquiries' and column_name = 'session_id') as sid,
              (select 1 from settings
                 where key = 'instagram' and value = 'https://instagram.com') as stale_ig,
-             (select 1 from pieces where slug = 'hexagon-marble') as skus`);
-    const row = rowsOf<{ staff: string | null; push: string | null; sid: number | null; stale_ig: number | null; skus: number | null }>(probe)[0];
-    if (row?.staff && row?.push && row?.sid && !row?.stale_ig && row?.skus) {
+             (select 1 from pieces where slug = 'hexagon-marble') as skus,
+             (select 1 from information_schema.columns
+                where table_name = 'pieces' and column_name = 'card_image_night') as card_slot,
+             to_regclass('public.media_assets') as media_assets`);
+    const row = rowsOf<{
+      staff: string | null;
+      push: string | null;
+      sid: number | null;
+      stale_ig: number | null;
+      skus: number | null;
+      card_slot: number | null;
+      media_assets: string | null;
+    }>(probe)[0];
+    if (
+      row?.staff &&
+      row?.push &&
+      row?.sid &&
+      !row?.stale_ig &&
+      row?.skus &&
+      row?.card_slot &&
+      row?.media_assets
+    ) {
       healed = true;
       return;
     }
