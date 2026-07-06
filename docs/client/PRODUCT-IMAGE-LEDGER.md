@@ -154,6 +154,7 @@ for `DAY`, night images are candidates for `OWN`.
 | Commerce solid colour glass | `commerce-solid-colour-glass-light.png` | `commerce-solid-colour-glass-dark.png` | Strong pair | Product-card plate for orange, green, black, white, aqua, and royal blue. |
 | Commerce speciality neutrals | `commerce-speciality-neutral-light.png` | `commerce-speciality-neutral-dark.png` | Strong pair | Product-card plate for crystal, stone, chess, hex, and white neutrals. |
 | Commerce pool materials kit | `commerce-pool-materials-kit-light.png` | `commerce-pool-materials-kit-dark.png` | Strong pair | Product-card plate for pool equipment, fittings, and tile samples. |
+| Commerce pattern and picture mosaics | `plate-pattern-picture-mosaic-day.jpg` | `plate-pattern-picture-mosaic-night.jpg` | Strong pair | Product-card plate inspired by the owner's Sacred Heart artwork evidence. Replaces the generated colour sheet fallback for `pattern-picture-mosaics`. |
 | Commerce custom mosaic art | `commerce-custom-mosaic-art-light.png` | `commerce-custom-mosaic-art-dark.png` | Strong pair | Product-card plate for abstract custom panels without lettering or logos. |
 | Batch 05 commerce display review | `contact-sheet-batch-05-commerce-display.png` | same file | Reference only | Reviews six Shop-style and Jeffrey Court-style product plate pairs. |
 | Window showroom wall | `window-showroom-wall-light.png` | `window-showroom-wall-dark.png` | Strong pair | Cinematic site-window image for brand breadth and showroom depth. |
