@@ -36,6 +36,14 @@ type Homography = {
   h: number;
 };
 type SnapResult = { quad: Pt[]; confidence: number };
+type AiStatus = "idle" | "thinking" | "applied" | "skipped" | "unavailable" | "error";
+type AiPlan = {
+  surface: SurfaceId;
+  prepMode: PrepMode;
+  quad: Pt[];
+  confidence: number;
+  note?: string;
+};
 
 function homography(q: Pt[]): Homography | null {
   const [p0, p1, p2, p3] = q;
@@ -206,6 +214,31 @@ function drawSource(
   const dx = (width - drawW) / 2;
   const dy = (height - drawH) / 2;
   ctx.drawImage(source, dx - pad, dy - pad, drawW + pad * 2, drawH + pad * 2);
+}
+
+function imageForAi(image: HTMLImageElement) {
+  const sourceW = image.naturalWidth || image.width;
+  const sourceH = image.naturalHeight || image.height;
+  if (!sourceW || !sourceH) return null;
+  const maxSide = 860;
+  const scale = Math.min(1, maxSide / Math.max(sourceW, sourceH));
+  const width = Math.max(1, Math.round(sourceW * scale));
+  const height = Math.max(1, Math.round(sourceH * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(image, 0, 0, width, height);
+  let dataUrl: string;
+  try {
+    dataUrl = canvas.toDataURL("image/jpeg", 0.68);
+  } catch {
+    return null;
+  }
+  const imageData = dataUrl.split(",")[1];
+  if (!imageData) return null;
+  return { image: imageData, mediaType: "image/jpeg" as const, width, height };
 }
 
 function detectSurfaceFrame(source: CanvasImageSource, sourceW: number, sourceH: number, surface: SurfaceId): SnapResult | null {
@@ -475,6 +508,38 @@ function setCorner(q: Pt[], index: number, point: Pt) {
   return q.map((pt, i) => (i === index ? point : pt));
 }
 
+function isSurfaceId(value: unknown): value is SurfaceId {
+  return typeof value === "string" && value in SURFACES;
+}
+
+function isPrepMode(value: unknown): value is PrepMode {
+  return value === "primer" || value === "blur" || value === "none";
+}
+
+function cleanAiPlan(value: unknown): AiPlan | null {
+  if (!value || typeof value !== "object") return null;
+  const plan = value as Record<string, unknown>;
+  if (!isSurfaceId(plan.surface) || !isPrepMode(plan.prepMode) || !Array.isArray(plan.quad)) return null;
+  const quad = plan.quad.map((point) => {
+    if (!point || typeof point !== "object") return null;
+    const p = point as Record<string, unknown>;
+    const x = Number(p.x);
+    const y = Number(p.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    return { x: clamp(x, 0.02, 0.98), y: clamp(y, 0.02, 0.98) };
+  });
+  if (quad.some((point) => point == null)) return null;
+  const nextQuad = quad as Pt[];
+  if (!isValidQuad(nextQuad)) return null;
+  return {
+    surface: plan.surface,
+    prepMode: plan.prepMode,
+    quad: nextQuad,
+    confidence: clamp(Number(plan.confidence) || 0.45, 0, 1),
+    note: typeof plan.note === "string" ? plan.note.slice(0, 96) : undefined,
+  };
+}
+
 /* Saved controls, if the browser kept them. Safe on the server:
    the first rendered photo is still the house's empty pool. */
 function readStore(): Record<string, unknown> {
@@ -519,6 +584,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
+  const [aiStatus, setAiStatus] = useState<AiStatus>("idle");
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
   const originalRef = useRef<HTMLCanvasElement | null>(null);
@@ -532,6 +599,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const primerColor = useRef("rgba(214, 206, 190, 0.78)");
   const holdingRef = useRef(false);
   const restored = useRef(false);
+  const aiAbortRef = useRef<AbortController | null>(null);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
   const pattern = useMemo(() => {
@@ -576,6 +644,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         track("viz_autosnap", { source: from, surface, status: "fallback" });
       }
       setPhoto(img);
+      setAiStatus("idle");
+      setAiMessage(null);
       if (from !== "default") track("viz_photo", { source: from });
       revokeObjectUrl(src);
     };
@@ -677,6 +747,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
   }, []);
 
+  useEffect(() => () => {
+    aiAbortRef.current?.abort();
+  }, []);
+
   useEffect(() => {
     if (!photo) return;
     const id = setTimeout(() => {
@@ -690,12 +764,88 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     return () => clearTimeout(id);
   }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug]);
 
+  const clearAiAssist = () => {
+    aiAbortRef.current?.abort();
+    aiAbortRef.current = null;
+    setAiStatus("idle");
+    setAiMessage(null);
+  };
+
+  const skipAiAssist = () => {
+    aiAbortRef.current?.abort();
+    aiAbortRef.current = null;
+    setAiStatus("skipped");
+    setAiMessage("Manual fit is ready.");
+    track("viz_ai_skip", {});
+  };
+
+  const runAiAssist = async () => {
+    if (!photo || aiStatus === "thinking") return;
+    const payload = imageForAi(photo);
+    if (!payload) {
+      setAiStatus("error");
+      setAiMessage("Manual fit is ready.");
+      return;
+    }
+
+    const controller = new AbortController();
+    aiAbortRef.current = controller;
+    setAiStatus("thinking");
+    setAiMessage("Reading the surface.");
+    track("viz_ai_start", { surface, piece: piece.slug });
+
+    try {
+      const res = await fetch("/api/visualizer/analyze", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...payload, surface, piece: piece.slug }),
+        signal: controller.signal,
+      });
+      const data = (await res.json()) as {
+        ok?: boolean;
+        available?: boolean;
+        message?: string;
+        plan?: unknown;
+      };
+      if (data.available === false) {
+        setAiStatus("unavailable");
+        setAiMessage(data.message || "Manual fit is ready.");
+        track("viz_ai_unavailable", {});
+        return;
+      }
+      if (!res.ok || !data.ok) throw new Error("ai-fit-failed");
+      const plan = cleanAiPlan(data.plan);
+      if (!plan) throw new Error("ai-fit-invalid");
+      setSurface(plan.surface);
+      setTileSize(SURFACES[plan.surface].tileSize);
+      setPrepMode(plan.prepMode);
+      setQuad(plan.quad);
+      setAiStatus("applied");
+      setAiMessage(plan.confidence >= 0.62 ? "AI found a surface. Adjust stones to approve." : "AI suggested a starter. Adjust stones to approve.");
+      setSnapMessage(null);
+      buzz(8);
+      track("viz_ai_apply", {
+        surface: plan.surface,
+        prep: plan.prepMode,
+        confidence: Math.round(plan.confidence * 100),
+      });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      setAiStatus("error");
+      setAiMessage("Manual fit is ready.");
+      track("viz_ai_error", {});
+    } finally {
+      if (aiAbortRef.current === controller) aiAbortRef.current = null;
+    }
+  };
+
   const onFile = (f: File | undefined) => {
     if (!f) return;
     loadImage(objectUrl(f), "upload");
   };
 
   const findSurface = (id = surface) => {
+    clearAiAssist();
     const found = photo ? detectSurfaceQuad(photo, id) : null;
     if (!found) {
       setSnapMessage("No clean edge yet. Drag corners to refine.");
@@ -712,6 +862,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   };
 
   const fitSurface = (id: SurfaceId) => {
+    clearAiAssist();
     const next = SURFACES[id];
     setSurface(id);
     setTileSize(next.tileSize);
@@ -728,6 +879,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   };
 
   const loadContext = (id: SurfaceId) => {
+    clearAiAssist();
     const context = CONTEXTS.find((item) => item.id === id);
     if (!context) return;
     const next = SURFACES[id];
@@ -1315,8 +1467,17 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
                       Find surface
                     </button>
-                    <p className="text-[12px] uppercase tracking-[0.18em] text-mist">
-                      {snapMessage ?? "The stones stay editable."}
+                    {aiStatus === "thinking" ? (
+                      <button type="button" onClick={skipAiAssist} className="link-hair text-dusk">
+                        Skip
+                      </button>
+                    ) : (
+                      <button type="button" onClick={runAiAssist} className="link-hair text-dusk">
+                        AI fit
+                      </button>
+                    )}
+                    <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">
+                      {aiMessage ?? snapMessage ?? "The stones stay editable."}
                     </p>
                   </div>
                 </div>
