@@ -8,6 +8,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Gap | Resolution |
 |---|---|
+| Visualizer autosnap | Find surface now analyzes the loaded photo in-browser, scores likely surface edges, proposes a quad for pools, walls, backsplashes, showers, and floors, then keeps the four draggable stones as the correction layer. Uploads and camera stills try it automatically; the user can rerun it any time. |
 | Action chrome verbs | The compact gold action stands down on Insights, Settings, and an empty Owed ledger instead of faking a Today or History that only navigates, or a Remind that reloads the page. Closes back-office action audit items C and D; the debts room keeps its real Remind oldest action whenever a balance is open. |
 | Root layout crash fallback | `src/app/global-error.tsx` now gives the whole app a maison fallback with Try again and WhatsApp. |
 | Stale db:push owner errand | `docs/CRM.md` and `docs/SAAS-QA.md` now say schema healing carries staff, audit, push, media, and card slots. |
@@ -39,9 +40,9 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Visualizer engine | Make Find surface suggest the tile area from a customer photo or live camera still. Start with quad detection, then test MediaPipe interactive segmentation or a custom surface model if geometry is not enough. Manual stones stay as the correction layer. |
-| 2 | Record context adapters | Let order, customer, piece, media, and delivery records feed their own live facts into the context rail without duplicating the page. |
-| 3 | Room density sweep | Tune each room inside the new shell for its archetype: glance, ledger, record, form, read-only, config, and bridge. |
+| 1 | Visualizer surface intelligence | Test segmentation on hard photos: curved pools, low-contrast walls, busy kitchens, and rooms with furniture crossing the target surface. Keep manual stones as the correction layer. |
+| 2 | Product experience | Bring individual piece pages closer to the best modern product experience: immersive media, practical proof, one enquiry path, and richer context without clutter. |
+| 3 | Record context adapters | Let order, customer, piece, media, and delivery records feed their own live facts into the context rail without duplicating the page. |
 
 ## Standing decisions
 

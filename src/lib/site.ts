@@ -39,7 +39,6 @@ export const NAV = [
   { href: "/mosaic-tiles", label: "Tiles" },
   { href: "/pool-materials", label: "Materials" },
   { href: "/pools", label: "Pools" },
-  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -48,6 +47,7 @@ export const NAV = [
    stays five at rest; discovery is offered, never forced. */
 export const EXPLORE = [
   { href: "/gallery", label: "The gallery" },
+  { href: "/about", label: "About" },
   { href: "/lagos", label: "Rooted in Lagos" },
   { href: "/atelier", label: "The Atelier" },
   { href: "/interiors", label: "Interiors" },

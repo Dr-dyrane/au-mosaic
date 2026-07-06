@@ -50,7 +50,7 @@ export default async function Home() {
           light={DAY.heroDusk}
           alt="A villa over an infinity pool of aquamarine mosaic"
           fill
-          fetchPriority="high"
+          preload
           quality={90}
           sizes="100vw"
           className="kenburns media-lux object-cover"
@@ -409,7 +409,7 @@ export default async function Home() {
               One message starts it. Photos and a quote follow the same day.
             </p>
             <div className="mt-10">
-              <a href={waQuote()} target="_blank" rel="noopener" data-wa="close" className="btn-gold">
+              <a href={waQuote()} target="_blank" rel="noopener" data-wa="invite" className="btn-gold">
                 Speak with the house
               </a>
             </div>

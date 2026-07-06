@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { NAV, SITE } from "@/lib/site";
+import { EXPLORE, NAV, SITE } from "@/lib/site";
 import { getFacts } from "@/lib/facts";
 import { waGeneral } from "@/lib/wa";
 import { AuLockup } from "./Mosaic";
@@ -47,36 +47,13 @@ export default async function Footer() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href="/projects" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                Projects
-              </Link>
-            </li>
-            <li>
-              <Link href="/lagos" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                Rooted in Lagos
-              </Link>
-            </li>
-            <li>
-              <Link href="/atelier" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                The Atelier
-              </Link>
-            </li>
-            <li>
-              <Link href="/how-we-work" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                How we work
-              </Link>
-            </li>
-            <li>
-              <Link href="/interiors" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                Interiors
-              </Link>
-            </li>
-            <li>
-              <Link href="/journal" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                The journal
-              </Link>
-            </li>
+            {EXPLORE.map((n) => (
+              <li key={n.href}>
+                <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                  {n.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
         </div>

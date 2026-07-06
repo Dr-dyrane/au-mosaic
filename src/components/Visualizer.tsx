@@ -24,6 +24,7 @@ type LoadSource = "upload" | "sample" | "default" | "camera";
 type CameraCapture = new (track: MediaStreamTrack) => {
   takePhoto?: () => Promise<Blob>;
 };
+type SnapResult = { quad: Pt[]; confidence: number };
 
 function homography(q: Pt[]) {
   const [p0, p1, p2, p3] = q;
@@ -100,6 +101,173 @@ function makePattern(colors: string[], tile: number, groutLight: boolean) {
     }
   }
   return c;
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+function detectSurfaceQuad(image: HTMLImageElement, surface: SurfaceId): SnapResult | null {
+  const sourceW = image.naturalWidth || image.width;
+  const sourceH = image.naturalHeight || image.height;
+  if (sourceW < 80 || sourceH < 80) return null;
+
+  const maxSide = 360;
+  const scale = Math.min(1, maxSide / Math.max(sourceW, sourceH));
+  const w = Math.max(80, Math.round(sourceW * scale));
+  const h = Math.max(80, Math.round(sourceH * scale));
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(image, 0, 0, w, h);
+
+  let pixels: Uint8ClampedArray;
+  try {
+    pixels = ctx.getImageData(0, 0, w, h).data;
+  } catch {
+    return null;
+  }
+
+  const lum = new Float32Array(w * h);
+  for (let i = 0, j = 0; i < pixels.length; i += 4, j += 1) {
+    lum[j] = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
+  }
+
+  const edgeX = new Float32Array(w * h);
+  const edgeY = new Float32Array(w * h);
+  for (let y = 1; y < h - 1; y += 1) {
+    for (let x = 1; x < w - 1; x += 1) {
+      const i = y * w + x;
+      edgeX[i] = Math.abs(lum[i + 1] - lum[i - 1]);
+      edgeY[i] = Math.abs(lum[i + w] - lum[i - w]);
+    }
+  }
+
+  const smooth = (scores: Float32Array) => {
+    const next = new Float32Array(scores.length);
+    for (let i = 0; i < scores.length; i += 1) {
+      let sum = 0;
+      let count = 0;
+      for (let j = Math.max(0, i - 2); j <= Math.min(scores.length - 1, i + 2); j += 1) {
+        sum += scores[j];
+        count += 1;
+      }
+      next[i] = sum / count;
+    }
+    return next;
+  };
+
+  const rowScores = (x0 = 0.05, x1 = 0.95) => {
+    const scores = new Float32Array(h);
+    const startX = Math.round(w * x0);
+    const endX = Math.round(w * x1);
+    for (let y = 1; y < h - 1; y += 1) {
+      let sum = 0;
+      for (let x = startX; x < endX; x += 1) sum += edgeY[y * w + x];
+      scores[y] = sum / Math.max(1, endX - startX);
+    }
+    return smooth(scores);
+  };
+
+  const columnScores = (y0 = 0.05, y1 = 0.95) => {
+    const scores = new Float32Array(w);
+    const startY = Math.round(h * y0);
+    const endY = Math.round(h * y1);
+    for (let x = 1; x < w - 1; x += 1) {
+      let sum = 0;
+      for (let y = startY; y < endY; y += 1) sum += edgeX[y * w + x];
+      scores[x] = sum / Math.max(1, endY - startY);
+    }
+    return smooth(scores);
+  };
+
+  const pick = (scores: Float32Array, from: number, to: number, fallback: number) => {
+    const start = clamp(Math.round(scores.length * from), 1, scores.length - 2);
+    const end = clamp(Math.round(scores.length * to), start + 1, scores.length - 2);
+    let best = start;
+    let bestScore = -1;
+    let total = 0;
+    let count = 0;
+    for (let i = start; i <= end; i += 1) {
+      const score = scores[i];
+      total += score;
+      count += 1;
+      if (score > bestScore) {
+        bestScore = score;
+        best = i;
+      }
+    }
+    const average = total / Math.max(1, count);
+    return {
+      value: clamp(best / Math.max(1, scores.length - 1), 0.02, 0.98),
+      strength: bestScore / Math.max(1, average),
+      fallback,
+    };
+  };
+
+  const q = SURFACES[surface].quad;
+  const rows = rowScores();
+  const wallLike = surface === "wall" || surface === "backsplash" || surface === "shower";
+  if (wallLike) {
+    const topRange: Record<SurfaceId, [number, number]> = {
+      pool: [0.25, 0.55],
+      wall: [0.08, 0.45],
+      backsplash: [0.2, 0.5],
+      shower: [0.08, 0.38],
+      floor: [0.35, 0.65],
+    };
+    const bottomRange: Record<SurfaceId, [number, number]> = {
+      pool: [0.65, 0.95],
+      wall: [0.5, 0.92],
+      backsplash: [0.52, 0.78],
+      shower: [0.62, 0.94],
+      floor: [0.7, 0.98],
+    };
+    const top = pick(rows, topRange[surface][0], topRange[surface][1], q[0].y);
+    const bottom = pick(rows, bottomRange[surface][0], bottomRange[surface][1], q[2].y);
+    const y0 = Math.min(top.value, bottom.value - 0.22);
+    const y1 = Math.max(bottom.value, y0 + 0.24);
+    const cols = columnScores(clamp(y0 - 0.04, 0.02, 0.9), clamp(y1 + 0.04, 0.1, 0.98));
+    const left = pick(cols, 0.04, 0.48, q[0].x);
+    const right = pick(cols, 0.52, 0.96, q[1].x);
+    const x0 = Math.min(left.value, right.value - 0.26);
+    const x1 = Math.max(right.value, x0 + 0.28);
+    const confidence = (top.strength + bottom.strength + left.strength + right.strength) / 4;
+    if (confidence < 1.12 || x1 - x0 < 0.24 || y1 - y0 < 0.2) return null;
+    return {
+      quad: [
+        { x: clamp(x0, 0.02, 0.92), y: clamp(y0, 0.02, 0.9) },
+        { x: clamp(x1, 0.08, 0.98), y: clamp(y0, 0.02, 0.9) },
+        { x: clamp(x1, 0.08, 0.98), y: clamp(y1, 0.1, 0.98) },
+        { x: clamp(x0, 0.02, 0.92), y: clamp(y1, 0.1, 0.98) },
+      ],
+      confidence,
+    };
+  }
+
+  const top = pick(rows, surface === "pool" ? 0.28 : 0.36, surface === "pool" ? 0.68 : 0.72, q[0].y);
+  const bottom = pick(rows, 0.72, 0.98, q[2].y);
+  const yTop = clamp(top.value, 0.16, 0.82);
+  const yBottom = clamp(Math.max(bottom.value, yTop + 0.18), yTop + 0.18, 0.98);
+  const topCols = columnScores(clamp(yTop - 0.1, 0.04, 0.86), clamp(yTop + 0.14, 0.12, 0.94));
+  const lowerCols = columnScores(clamp(yTop, 0.08, 0.9), 0.98);
+  const leftTop = pick(topCols, 0.04, 0.48, q[0].x);
+  const rightTop = pick(topCols, 0.52, 0.96, q[1].x);
+  const leftBottom = pick(lowerCols, 0.0, 0.42, q[3].x);
+  const rightBottom = pick(lowerCols, 0.58, 1.0, q[2].x);
+  const confidence = (top.strength + bottom.strength + leftTop.strength + rightTop.strength + leftBottom.strength + rightBottom.strength) / 6;
+  const topWidth = rightTop.value - leftTop.value;
+  const bottomWidth = rightBottom.value - leftBottom.value;
+  if (confidence < 1.1 || topWidth < 0.22 || bottomWidth < 0.28 || yBottom - yTop < 0.16) return null;
+  return {
+    quad: [
+      { x: clamp(leftTop.value, 0.02, 0.74), y: yTop },
+      { x: clamp(rightTop.value, 0.26, 0.98), y: yTop },
+      { x: clamp(Math.max(rightBottom.value, rightTop.value + 0.08), 0.34, 0.98), y: yBottom },
+      { x: clamp(Math.min(leftBottom.value, leftTop.value - 0.08), 0.02, 0.66), y: yBottom },
+    ],
+    confidence,
+  };
 }
 
 const DEFAULT_QUAD: Pt[] = [
@@ -208,26 +376,48 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
   const originalRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraPanelRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const objectUrls = useRef<string[]>([]);
   const dragging = useRef<number | null>(null);
   const restored = useRef(false);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
 
+  const objectUrl = useCallback((blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    objectUrls.current.push(url);
+    return url;
+  }, []);
+
   const loadImage = useCallback((src: string, from: LoadSource, nextQuad?: Pt[]) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      if (nextQuad) setQuad(nextQuad);
+      const shouldSnap = !nextQuad && (from === "upload" || from === "camera");
+      const snapped = shouldSnap ? detectSurfaceQuad(img, surface) : null;
+      if (snapped) {
+        setQuad(snapped.quad);
+        setSnapMessage("Surface found. Drag corners to refine.");
+        track("viz_autosnap", { source: from, surface, confidence: Math.round(snapped.confidence * 100) });
+      } else if (nextQuad) {
+        setQuad(nextQuad);
+        setSnapMessage(null);
+      } else if (shouldSnap) {
+        setQuad(SURFACES[surface].quad);
+        setSnapMessage("Best starter fit. Drag corners to refine.");
+        track("viz_autosnap", { source: from, surface, status: "fallback" });
+      }
       setPhoto(img);
       if (from !== "default") track("viz_photo", { source: from });
     };
     img.src = src;
-  }, []);
+  }, [surface]);
 
   const stopCamera = useCallback(() => {
     cameraStream?.getTracks().forEach((track) => track.stop());
@@ -269,7 +459,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         const capture = new ImageCaptureCtor(trackRef);
         if (capture.takePhoto) {
           const blob = await capture.takePhoto();
-          loadImage(URL.createObjectURL(blob), "camera", SURFACES[surface].quad);
+          loadImage(objectUrl(blob), "camera");
           track("viz_camera_snap", { method: "photo" });
           stopCamera();
           return;
@@ -283,7 +473,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(
       (blob) => {
-        if (blob) loadImage(URL.createObjectURL(blob), "camera", SURFACES[surface].quad);
+        if (blob) loadImage(objectUrl(blob), "camera");
         else loadImage(canvas.toDataURL("image/jpeg", 0.92), "camera", SURFACES[surface].quad);
         track("viz_camera_snap", { method: "canvas" });
         stopCamera();
@@ -313,9 +503,22 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     };
   }, [cameraStream]);
 
+  useEffect(() => {
+    if (!cameraOpen) return;
+    const id = requestAnimationFrame(() => {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      cameraPanelRef.current?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [cameraOpen]);
+
   useEffect(() => () => {
     cameraStream?.getTracks().forEach((track) => track.stop());
   }, [cameraStream]);
+
+  useEffect(() => () => {
+    objectUrls.current.forEach((url) => URL.revokeObjectURL(url));
+  }, []);
 
   useEffect(() => {
     if (!photo) return;
@@ -332,16 +535,40 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const onFile = (f: File | undefined) => {
     if (!f) return;
-    loadImage(URL.createObjectURL(f), "upload", SURFACES[surface].quad);
+    loadImage(objectUrl(f), "upload");
+  };
+
+  const findSurface = (id = surface) => {
+    if (!photo) return;
+    const found = detectSurfaceQuad(photo, id);
+    if (!found) {
+      setSnapMessage("No clean edge yet. Drag corners to refine.");
+      track("viz_autosnap", { surface: id, status: "miss" });
+      buzz(2);
+      return;
+    }
+    setSurface(id);
+    setTileSize(SURFACES[id].tileSize);
+    setQuad(found.quad);
+    setSnapMessage(found.confidence > 1.35 ? "Surface found. Drag corners to refine." : "Best edge found. Drag corners to refine.");
+    track("viz_autosnap", { surface: id, confidence: Math.round(found.confidence * 100) });
+    buzz(8);
   };
 
   const fitSurface = (id: SurfaceId) => {
     const next = SURFACES[id];
     setSurface(id);
-    setQuad(next.quad);
     setTileSize(next.tileSize);
+    const found = photo ? detectSurfaceQuad(photo, id) : null;
+    if (found) {
+      setQuad(found.quad);
+      setSnapMessage("Surface found. Drag corners to refine.");
+    } else {
+      setQuad(next.quad);
+      setSnapMessage("Starter fit. Drag corners to refine.");
+    }
     buzz(4);
-    track("viz_surface", { surface: id });
+    track("viz_surface", { surface: id, autosnap: !!found });
   };
 
   const loadContext = (id: SurfaceId) => {
@@ -352,6 +579,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setTileSize(next.tileSize);
     if (pieces.some((p) => p.slug === context.piece)) setPieceSlug(context.piece);
     loadImage(context.src, "sample", next.quad);
+    setSnapMessage(null);
     buzz(6);
     track("viz_context", { surface: id });
   };
@@ -604,17 +832,25 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             )}
           </div>
           <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
-            Drag the stones to your surface · press and hold to compare
+            Find surface, then drag corners to refine. Press and hold to compare.
           </p>
+          <div className="mt-4 flex flex-wrap items-center gap-6">
+            <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
+              Find surface
+            </button>
+            <p className="text-[12px] uppercase tracking-[0.18em] text-mist">
+              {snapMessage ?? "The stones stay editable."}
+            </p>
+          </div>
 
           {cameraOpen && (
-            <div className="panel mt-7">
+            <div ref={cameraPanelRef} className="panel mt-7">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="eyebrow">Live camera</p>
                   <p className="font-serif mt-3 text-[20px]">Snap your space.</p>
                   <p className="mt-2 max-w-sm text-[14px] leading-relaxed text-dusk">
-                    Point at the surface, take one still, then fit the stones.
+                    Point at the surface. One still finds the tile area.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-6">

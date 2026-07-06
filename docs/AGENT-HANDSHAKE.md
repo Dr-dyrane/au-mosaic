@@ -16,6 +16,20 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Visualizer autosnap engine lane - done
+
+Closed the first Find surface pass in `src/components/Visualizer.tsx`: uploads
+and camera stills now score image edges, propose a pool, wall, backsplash,
+shower, or floor quad, and keep the four stones editable. Also restored the
+five-item main nav by moving About into Explore, switched the home hero to the
+Next 16 `preload` prop, and made the camera preview scroll into view on compact
+screens. Preserved the existing unstaged `data-wa="invite"` change in
+`src/app/(site)/page.tsx`. Browser checked `/visualizer` on desktop and phone:
+nav direct count 5, no overflow, Find surface present, and a desktop Find
+surface run returned "Surface found. Drag corners to refine." Lint, TypeScript,
+theme-check, diff-check, glyph scan, and `npx next build` on Next 16.2.10, 56
+routes, passed.
+
 ## 2026-07-06 - CODEX - Visualizer northstar lane - done
 
 Closed the public site visualizer lane for Nonso's northstar pass. Files in
@@ -91,11 +105,11 @@ Reference to hold: `.glass` = `sand 38%` night / `72%` day, blur 30px, saturate
 
 Owner-approved targets (night / day background opacity; keep blur ~22-30px and
 the specular ::before/::after):
-- `.admin-sheet-content.filter-surface` (modals): **90% / 92% → ~58% / ~80%**.
+- `.admin-sheet-content.filter-surface` (modals): **90% / 92% to roughly 58% / 80%**.
   It sits over a scrim, so the dimmed content should show faintly through - that
   is the modern look.
-- `.filter-surface`: **52% / 74% → ~46% / ~68%**.
-- `.liquid-glass`: night 42% is good; **day 60% → ~54%**.
+- `.filter-surface`: **52% / 74% to roughly 46% / 68%**.
+- `.liquid-glass`: night 42% is good; **day 60% to roughly 54%**.
 - Sweep the rest the same way - the misc component surfaces at `shell 54-82%`
   (selects near line 605, the chrome around lines 577 / 701 / 747 / 761) toward
   lucent. `.panel` may stay a touch more solid as the *resting* surface (your
@@ -186,7 +200,7 @@ so no tab badge is needed.
 **Pending fixes:**
 
 - [ ] **A. Inspector is live for only 2 of 9 rooms.** The context rail becomes
-  a real action/edit surface only for Stock→Filter and Photos→Edit
+  a real action/edit surface only for Stock to Filter and Photos to Edit
   (`showStockFilterPanel`, `showMediaEditPanel`); the other seven show passive
   text and grey links. Either extend the inspector pattern to more rooms or
   settle it as filter/media-only - right now it reads as unfinished. (Owner's
@@ -199,15 +213,15 @@ so no tab badge is needed.
 - [ ] **C. Owed FAB is a no-op.** On `/admin/debts` the action "Remind" links
   to `/admin/debts` - the page you are on. Fire the oldest reminder or scroll
   to it; don't self-link.
-- [ ] **D. Some "actions" are just navigation.** Insights → "Today" (home
-  glyph, goes home), Settings → "History", Owed → "Orders". The action capsule
+- [ ] **D. Some "actions" are just navigation.** Insights to "Today" (home
+  glyph, goes home), Settings to "History", Owed to "Orders". The action capsule
   should do the room's job or stand down, not fake a verb with a room glyph.
 - [ ] **E. Inactive phone tabs have no accessible name.** In `AdminTabBar` the
   label renders only when active and the glyph is `aria-hidden`, so inactive
   tabs are unnamed links. Add `aria-label={r.label}` to every tab.
 - [ ] **F. Order FAB can fall back stale.** The four-state order action rides a
   hidden `[data-admin-action]` span read by a MutationObserver; if the read
-  misses, the route fallback is always "Add payment" → `#payment`, a form gone
+  misses, the route fallback is always "Add payment" to `#payment`, a form gone
   once the order is settled. Make the fallback state-aware, or render the
   action server-side and drop the DOM-scrape.
 - [ ] **G. `AdminTopNav` is dead code.** Exported, hardcoded `hidden`, never
