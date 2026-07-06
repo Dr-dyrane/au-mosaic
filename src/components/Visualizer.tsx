@@ -8,7 +8,7 @@ import { track } from "@vercel/analytics";
 import { VISUALIZER_CONTEXTS, VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
 import { SITE } from "@/lib/site";
-import { waProduct } from "@/lib/wa";
+import { wa } from "@/lib/wa";
 
 /* See it in your space. Upload a photo, drag the four stones to the
    corners of your surface, choose a piece: the colourway is laid onto
@@ -529,6 +529,7 @@ const CONTEXTS: Array<{
   { id: "shower", label: "Shower", src: VISUALIZER_CONTEXTS.showerWall.src, piece: "black-mosaic" },
   { id: "floor", label: "Open floor", src: VISUALIZER_CONTEXTS.roomFloor.src, piece: "stone-mosaic" },
 ];
+const QUICK_SURFACES: SurfaceId[] = ["pool", "wall", "backsplash", "shower", "floor"];
 
 const DEFAULT_PIECE = "classic-pool-blues";
 const STORE_KEY = "aumosaic.viz";
@@ -569,21 +570,6 @@ function pieceSlugForSurface(surface: SurfaceId, pieces: Piece[], fallback: stri
 function suggestionText(surface: SurfaceId, prep: PrepMode, pieceName: string) {
   const prepLabel = prep === "primer" ? "primer" : prep === "blur" ? "blur" : "original";
   return `Suggested: ${SURFACES[surface].label}, ${prepLabel}, ${pieceName}.`;
-}
-
-function bestSurfaceForPhoto(image: HTMLImageElement, fallback: SurfaceId) {
-  let bestSurface = fallback;
-  let bestSnap: SnapResult | null = null;
-  for (const candidate of Object.keys(SURFACES) as SurfaceId[]) {
-    const snap = detectSurfaceQuad(image, candidate);
-    if (!snap) continue;
-    if (!bestSnap || snap.confidence > bestSnap.confidence) {
-      bestSurface = candidate;
-      bestSnap = snap;
-    }
-  }
-  if (bestSnap && bestSnap.confidence > 1.16) return { surface: bestSurface, snap: bestSnap };
-  return { surface: fallback, snap: null };
 }
 
 function quadArea(q: Pt[]) {
@@ -683,6 +669,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const originalRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const objectUrls = useRef<Set<string>>(new Set());
   const dragging = useRef<number | null>(null);
   const dragFrame = useRef<number | null>(null);
@@ -743,23 +730,14 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     buzz(3);
   }, [withActiveLayer]);
 
-  const suggestFromPhoto = useCallback((img: HTMLImageElement, fallback: SurfaceId) => {
-    const best = bestSurfaceForPhoto(img, fallback);
-    const nextSurface = best.surface;
-    const nextPrep: PrepMode = "primer";
-    const nextPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
-    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
-    return {
-      surface: nextSurface,
-      prepMode: nextPrep,
-      pieceSlug: nextPieceSlug,
-      pieceName: nextPiece.name,
-      snap: best.snap,
-      text: suggestionText(nextSurface, nextPrep, nextPiece.name),
-    };
-  }, [piece, pieces, pieceSlug]);
-
-  const loadImage = useCallback((src: string, from: LoadSource, nextQuad?: Pt[], nextSurface = surface, acceptedFit = false) => {
+  const loadImage = useCallback((
+    src: string,
+    from: LoadSource,
+    nextQuad?: Pt[],
+    nextSurface = surface,
+    acceptedFit = false,
+    nextPieceSlug?: string
+  ) => {
     const ticket = loadSeq.current + 1;
     loadSeq.current = ticket;
     const img = new Image();
@@ -770,23 +748,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         return;
       }
       const shouldSnap = !nextQuad && (from === "upload" || from === "camera");
-      const lockedPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
-      const lockedPieceName = pieces.find((item) => item.slug === lockedPieceSlug)?.name ?? piece.name;
-      const suggestion = nextQuad
-        ? {
-          surface: nextSurface,
-          prepMode: prepMode,
-          pieceSlug: lockedPieceSlug,
-          pieceName: lockedPieceName,
-          snap: null,
-          text: suggestionText(nextSurface, prepMode, lockedPieceName),
-        }
-        : suggestFromPhoto(img, nextSurface);
-      const targetSurface = shouldSnap ? suggestion.surface : nextSurface;
-      const targetPieceSlug = from === "default" ? pieceSlug : suggestion.pieceSlug;
-      const targetPrep = from === "default" ? prepMode : suggestion.prepMode;
+      const preferredSlug = nextPieceSlug && pieces.some((item) => item.slug === nextPieceSlug)
+        ? nextPieceSlug
+        : pieceSlugForSurface(nextSurface, pieces, pieceSlug);
+      const targetSurface = nextSurface;
+      const targetPieceSlug = from === "default" ? pieceSlug : preferredSlug;
+      const targetPrep: PrepMode = from === "default" ? prepMode : "primer";
       const targetTileSize = SURFACES[targetSurface].tileSize;
-      const snapped = shouldSnap ? suggestion.snap ?? detectSurfaceQuad(img, targetSurface) : null;
+      const targetPiece = pieces.find((item) => item.slug === targetPieceSlug) ?? piece;
+      const suggestion = suggestionText(targetSurface, targetPrep, targetPiece.name);
+      const snapped = shouldSnap ? detectSurfaceQuad(img, targetSurface) : null;
       setHasFittedSurface(acceptedFit);
       setSurface(targetSurface);
       setTileSize(targetTileSize);
@@ -794,14 +765,14 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       setPrepMode(targetPrep);
       if (snapped) {
         setQuad(snapped.quad);
-        setSnapMessage(suggestion.text);
+        setSnapMessage(suggestion);
         track("viz_autosnap", { source: from, surface: targetSurface, confidence: Math.round(snapped.confidence * 100) });
       } else if (nextQuad) {
         setQuad(nextQuad);
-        setSnapMessage(suggestionText(targetSurface, targetPrep, pieces.find((item) => item.slug === targetPieceSlug)?.name ?? piece.name));
+        setSnapMessage(suggestion);
       } else if (shouldSnap) {
         setQuad(SURFACES[targetSurface].quad);
-        setSnapMessage(suggestion.text);
+        setSnapMessage(suggestion);
         track("viz_autosnap", { source: from, surface: targetSurface, status: "fallback" });
       }
       setPhoto(img);
@@ -813,7 +784,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       revokeObjectUrl(src);
     };
     img.src = src;
-  }, [piece.name, pieceSlug, pieces, prepMode, revokeObjectUrl, surface, suggestFromPhoto]);
+  }, [piece, pieceSlug, pieces, prepMode, revokeObjectUrl, surface]);
 
   const stopCamera = useCallback(() => {
     cameraStream?.getTracks().forEach((track) => track.stop());
@@ -919,8 +890,24 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     return () => clearTimeout(id);
   }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, layers, withActiveLayer]);
 
+  const chooseStarterSurface = (id: SurfaceId) => {
+    const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
+    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
+    setLayers(withActiveLayer);
+    setSurface(id);
+    setTileSize(SURFACES[id].tileSize);
+    setPieceSlug(nextPieceSlug);
+    setPrepMode("primer");
+    setQuad(SURFACES[id].quad);
+    setHasFittedSurface(false);
+    setSnapMessage(suggestionText(id, "primer", nextPiece.name));
+    buzz(4);
+    track("viz_surface_choice", { surface: id });
+  };
+
   const onFile = (f: File | undefined) => {
     if (!f) return;
+    setCameraError(null);
     loadImage(objectUrl(f), "upload", undefined, surface);
   };
 
@@ -970,16 +957,28 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSurface(id);
     setTileSize(next.tileSize);
     if (pieces.some((p) => p.slug === context.piece)) setPieceSlug(context.piece);
-    loadImage(context.src, "sample", next.quad, id, true);
+    loadImage(context.src, "sample", next.quad, id, true, context.piece);
     buzz(6);
     track("viz_context", { surface: id });
   };
 
   const addSurfaceLayer = () => {
-    const used = new Set(layers.map((layer) => layer.surface));
-    const nextSurface = NEXT_SURFACE[surface].find((candidate) => !used.has(candidate)) ?? NEXT_SURFACE[surface][0];
+    const committedLayers = withActiveLayer(layers);
+    if (!hasFittedSurface) {
+      setLayers(committedLayers);
+      setSnapMessage(`Find ${LAYER_LABELS[surface]} first.`);
+      buzz(2);
+      return;
+    }
+    const used = new Set(committedLayers.map((layer) => layer.surface));
+    const nextSurface = NEXT_SURFACE[surface].find((candidate) => !used.has(candidate));
+    if (!nextSurface) {
+      setLayers(committedLayers);
+      setSnapMessage("Every surface type is already in this preview.");
+      buzz(2);
+      return;
+    }
     const nextPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
-    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
     const id = `surface-${layerSeq.current + 1}`;
     layerSeq.current += 1;
     const nextLayer: SurfaceLayer = {
@@ -995,7 +994,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       visible: true,
       accepted: false,
     };
-    setLayers((current) => withActiveLayer(current).concat(nextLayer));
+    setLayers(committedLayers.concat(nextLayer));
     setActiveLayerId(id);
     setSurface(nextSurface);
     setQuad(nextLayer.quad);
@@ -1006,9 +1005,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSnapMessage(`Added ${nextLayer.label}. Find surface, then refine.`);
     buzz(5);
     track("viz_layer_add", { surface: nextSurface });
-    if (nextPiece.name) {
-      window.setTimeout(() => setSnapMessage(suggestionText(nextSurface, "primer", nextPiece.name)), 800);
-    }
   };
 
   const render = useCallback(() => {
@@ -1171,14 +1167,23 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const share = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    track("viz_share", { piece: piece.slug });
+    const currentLayers = withActiveLayer(layers).filter((layer) => layer.visible);
+    const layerSummary = currentLayers.map((layer) => {
+      const layerPiece = pieceMap.get(layer.pieceSlug) ?? piece;
+      return `${layer.label}: ${layerPiece.name}`;
+    }).join("; ");
+    const primaryLayer = currentLayers.find((layer) => layer.id === activeLayerId) ?? currentLayers[0];
+    const primaryPiece = primaryLayer ? pieceMap.get(primaryLayer.pieceSlug) ?? piece : piece;
+    const fileName = currentLayers.length > 1 ? "au-mosaic-visualizer-surfaces.png" : `au-mosaic-${primaryPiece.slug}.png`;
+    const shareText = layerSummary || piece.name;
+    track("viz_share", { piece: primaryPiece.slug, layers: currentLayers.length });
     buzz(8);
     canvas.toBlob(async (blob) => {
       if (!blob) return;
-      const file = new File([blob], `au-mosaic-${piece.slug}.png`, { type: "image/png" });
+      const file = new File([blob], fileName, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], text: `${piece.name} · ${SITE.url.replace(/^https?:\/\//, "")}` });
+          await navigator.share({ files: [file], text: `${shareText} · ${SITE.url.replace(/^https?:\/\//, "")}` });
           return;
         } catch {}
       }
@@ -1189,20 +1194,24 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       a.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setSnapMessage("Preview saved. Attach it in WhatsApp.");
-      window.open(waProduct(`${piece.name} (visualised in my space)`), "_blank");
+      window.open(wa(`Hello AU Mosaic, I visualised ${shareText} in my space. Please send a quote.`), "_blank");
     }, "image/png");
   };
 
   const download = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    track("viz_download", { piece: piece.slug });
+    const currentLayers = withActiveLayer(layers).filter((layer) => layer.visible);
+    const primaryLayer = currentLayers.find((layer) => layer.id === activeLayerId) ?? currentLayers[0];
+    const primaryPiece = primaryLayer ? pieceMap.get(primaryLayer.pieceSlug) ?? piece : piece;
+    const fileName = currentLayers.length > 1 ? "au-mosaic-visualizer-surfaces.png" : `au-mosaic-${primaryPiece.slug}.png`;
+    track("viz_download", { piece: primaryPiece.slug, layers: currentLayers.length });
     canvas.toBlob((blob) => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `au-mosaic-${piece.slug}.png`;
+      a.download = fileName;
       a.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
     }, "image/png");
@@ -1223,6 +1232,27 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           {layer.id === activeLayerId ? LAYER_LABELS[surface] : layer.label}
         </button>
       ))}
+    </div>
+  );
+
+  const starterSurfaceOptions = (
+    <div className="min-w-0">
+      <p className="eyebrow">Surface</p>
+      <div className="no-scrollbar -mx-2 mt-3 flex gap-2 overflow-x-auto px-2 py-1">
+        {QUICK_SURFACES.map((id) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={surface === id}
+            onClick={() => chooseStarterSurface(id)}
+            className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.18em] transition-all duration-300 active:scale-95 ${
+              surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+            }`}
+          >
+            {LAYER_LABELS[id]}
+          </button>
+        ))}
+      </div>
     </div>
   );
 
@@ -1474,7 +1504,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             cx={`${p.x * 100}%`}
             cy={`${p.y * 100}%`}
             r="14"
-            tabIndex={0}
+            tabIndex={hasFittedSurface ? 0 : -1}
             role="button"
             aria-label={`${CORNER_LABELS[i]} surface corner. Use arrow keys to nudge.`}
             aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
@@ -1524,7 +1554,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   return (
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
-      <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="eyebrow">Your space</p>
           <p className="font-serif mt-2 text-[20px]">Photo or camera.</p>
@@ -1532,14 +1562,42 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             We find the surface. You refine it.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-6">
-          <label className="btn-gold cursor-pointer">
-            Use your photo
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
-          </label>
-          <button type="button" onClick={openCamera} className="link-hair text-dusk">
-            Use camera
-          </button>
+        <div className="flex w-full min-w-0 flex-col gap-5 sm:w-auto sm:min-w-[420px]">
+          {starterSurfaceOptions}
+          <div className="flex flex-wrap items-center gap-6">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="btn-gold"
+              aria-label={`Use your photo for ${SURFACES[surface].label}`}
+            >
+              Use your photo
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              tabIndex={-1}
+              onChange={(e) => {
+                onFile(e.target.files?.[0]);
+                e.currentTarget.value = "";
+              }}
+            />
+            <button
+              type="button"
+              onClick={openCamera}
+              className="link-hair text-dusk"
+              aria-describedby={cameraError && !cameraOpen ? "viz-camera-error" : undefined}
+            >
+              Use camera
+            </button>
+          </div>
+          {cameraError && !cameraOpen && (
+            <p id="viz-camera-error" className="text-[14px] leading-relaxed text-dusk" aria-live="polite">
+              {cameraError}
+            </p>
+          )}
         </div>
       </div>
 
@@ -1568,6 +1626,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                         Add another surface
                       </button>
                     )}
+                    {!hasFittedSurface && layers.length > 1 && (
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-mist">
+                        Find {LAYER_LABELS[surface]} first
+                      </span>
+                    )}
                     <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">
                       {snapMessage ?? "The stones stay editable."}
                     </p>
@@ -1578,8 +1641,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               {mobileRefineSnippets}
             </>
           )}
-
-          {cameraError && <p className="mt-4 text-[14px] leading-relaxed text-dusk">{cameraError}</p>}
 
           <Dialog.Root open={refineOpen} onOpenChange={setRefineOpen}>
             <Dialog.Portal>
