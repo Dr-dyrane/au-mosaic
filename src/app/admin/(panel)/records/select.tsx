@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { createContext, useContext, useState, useTransition, type ReactNode } from "react";
 import { archiveRecords, restoreRecords, deleteRecords } from "./actions";
 import type { ArchivableEntity } from "./types";
@@ -84,6 +85,45 @@ export function RowCheckbox({ id }: { id: string }) {
         on ? "bg-gold" : "bg-shell"
       }`}
     />
+  );
+}
+
+/* Wrap any room's card. At rest it links to the record; in select mode
+   it becomes a chooser with a mark, and a tap chooses instead of
+   leaving. Each room keeps its own card content; only this wrapper
+   changes, so a room joins select mode with almost no new code. */
+export function SelectableRow({
+  id,
+  href,
+  children,
+  className = "panel group block",
+}: {
+  id: string;
+  href: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  const { mode, selected, toggle } = useSelect();
+  if (!mode) {
+    return (
+      <Link href={href} className={`${className} transition-transform duration-300 active:scale-[0.99]`}>
+        {children}
+      </Link>
+    );
+  }
+  const on = selected.has(id);
+  return (
+    <button
+      type="button"
+      onClick={() => toggle(id)}
+      aria-pressed={on}
+      className={`${className} w-full text-left transition-transform duration-300 active:scale-[0.99]`}
+    >
+      <div className="flex items-start gap-3">
+        <RowCheckbox id={id} />
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </button>
   );
 }
 

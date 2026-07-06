@@ -28,7 +28,7 @@ export const readAdminPulse = cache(async (): Promise<AdminPulse> => {
       with active_orders as (
         select id, customer_id
         from orders
-        where status not in ('enquiry','settled')
+        where status not in ('enquiry','settled') and archived_at is null
       ),
       customer_lines as (
         select o.customer_id,
@@ -55,14 +55,14 @@ export const readAdminPulse = cache(async (): Promise<AdminPulse> => {
         (select count(*)::int
           from stock_levels
           where reorder_at > 0 and quantity_sheets <= reorder_at) as low_stock,
-        (select count(*)::int from orders where status <> 'settled') as open_orders,
+        (select count(*)::int from orders where status <> 'settled' and archived_at is null) as open_orders,
         greatest(
           (select coalesce(sum(billed), 0) from customer_lines)
           -
           (select coalesce(sum(paid), 0) from customer_payments),
           0
         )::bigint as outstanding_kobo,
-        (select count(*)::int from enquiries where status = 'new') as fresh_enquiries,
+        (select count(*)::int from enquiries where status = 'new' and archived_at is null) as fresh_enquiries,
         (select count(*)::int from customer_balances where balance > 0) as owing_customers
     `);
     const row = rowsOf<{
