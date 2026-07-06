@@ -5,6 +5,7 @@ import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
 import Reveal from "@/components/Reveal";
 import PieceBar from "@/components/PieceBar";
+import { ProductCard } from "@/components/ui";
 
 /* Item 12, generalised. Every piece page is a four-act reveal now, the
    shop.app product-detail discipline built the maison way. The acts are
@@ -153,7 +154,13 @@ function objectOf(p: RevealPiece): { night: string; day?: string } {
   return p.card ? { night: p.card, day: p.cardLight } : { night: p.image ?? "", day: p.imageLight };
 }
 
-export default function PieceReveal({ piece }: { piece: RevealPiece }) {
+const SHOP_NOTES = [
+  { title: "Real stock", body: "Photos and videos come from the Lagos shelf." },
+  { title: "Today quote", body: "Price follows the quantity and the job." },
+  { title: "Site ready", body: "Pick up at Agric Market, or send to site." },
+];
+
+export default function PieceReveal({ piece, related = [] }: { piece: RevealPiece; related?: RevealPiece[] }) {
   const wa = waProduct(piece.name);
   const obj = objectOf(piece);
   const dream = dreamFor(piece);
@@ -166,6 +173,16 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
      its edges into the black and it reads as a sample under the spotlight. An
      un-carded piece keeps its own hero photo, which already carries the light. */
   const stageImg = piece.card ? piece.cardLight ?? obj.night : obj.night;
+  const gallery = [
+    { eyebrow: "Product", title: "The sheet", dark: obj.night, light: obj.day, alt: piece.name },
+    { eyebrow: "Applied", title: "The room", dark: dream.night, light: dream.day, alt: dream.alt },
+  ];
+  const tradeFacts = [
+    ...(piece.variants?.length ? [{ label: "Type", value: piece.variants.join(" · ") }] : []),
+    ...(piece.applicationTags?.length ? [{ label: "Use", value: piece.applicationTags.slice(0, 4).join(" · ") }] : []),
+    { label: "Price", value: "Quoted today" },
+    { label: "Route", value: "WhatsApp first" },
+  ];
 
   return (
     <>
@@ -216,7 +233,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
             dark={obj.night}
             alt=""
             fill
-            quality={85}
+            quality={90}
             sizes="100vw"
             className="reveal-macro-img media-lux object-cover"
           />
@@ -274,7 +291,7 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
                 light={obj.day}
                 alt={piece.name}
                 fill
-                quality={85}
+                quality={90}
                 sizes="(max-width: 768px) 78vw, 420px"
                 className="media-lux object-cover"
               />
@@ -328,6 +345,95 @@ export default function PieceReveal({ piece }: { piece: RevealPiece }) {
           </div>
         </div>
       </section>
+
+      <section className="mx-auto max-w-6xl px-5 pb-24 sm:px-8 sm:pb-32">
+        <div className="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-start">
+          <div className="grid gap-5 sm:grid-cols-2">
+            {gallery.map((frame) => (
+              <Reveal key={frame.eyebrow}>
+                <figure className="group">
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-[26px] bg-shell">
+                    <ThemeImage
+                      dark={frame.dark}
+                      light={frame.light}
+                      alt={frame.alt}
+                      fill
+                      quality={90}
+                      sizes="(max-width: 640px) 100vw, 42vw"
+                      className="img-glide media-lux object-cover"
+                    />
+                  </div>
+                  <figcaption className="mt-5">
+                    <p className="eyebrow">{frame.eyebrow}</p>
+                    <p className="font-serif mt-2 text-[20px] leading-snug">{frame.title}</p>
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={80}>
+            <aside className="panel lg:sticky lg:top-28">
+              <p className="eyebrow">{piece.collection}</p>
+              <h2 className="font-serif text-display-section mt-3">{piece.name}</h2>
+              <p className="mt-5 text-[14px] leading-relaxed text-dusk">
+                Photos first. Price after. The house sends proof, quantity, and delivery in the same thread.
+              </p>
+
+              {piece.colors && (
+                <div className="mt-7 flex flex-wrap gap-2.5" aria-label="Colourways">
+                  {piece.colors.map((c, i) => (
+                    <span key={`${c}-${i}`} className="h-8 w-8 rounded-full" style={{ background: c }} aria-hidden />
+                  ))}
+                </div>
+              )}
+
+              <dl className="mt-8 grid gap-5 sm:grid-cols-2">
+                {tradeFacts.map((fact) => (
+                  <div key={fact.label}>
+                    <dt className="eyebrow">{fact.label}</dt>
+                    <dd className="mt-2 text-[14px] leading-relaxed text-dusk">{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="mt-9 flex flex-wrap items-center gap-7">
+                <a href={wa} target="_blank" rel="noopener" data-wa="piece-shop" className="btn-gold">
+                  Ask for photos and price
+                </a>
+                <Link href={`/visualizer?piece=${piece.slug}`} className="link-hair">
+                  Try it on a surface
+                </Link>
+              </div>
+            </aside>
+          </Reveal>
+        </div>
+
+        <div className="mt-14 grid gap-4 sm:grid-cols-3">
+          {SHOP_NOTES.map((note, index) => (
+            <Reveal key={note.title} delay={index * 70}>
+              <div className="panel h-full">
+                <p className="eyebrow">{note.title}</p>
+                <p className="mt-4 text-[14px] leading-relaxed text-dusk">{note.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {related.length > 0 && (
+        <section className="mx-auto max-w-6xl px-5 pb-24 sm:px-8 sm:pb-32">
+          <Reveal>
+            <p className="eyebrow">Same range</p>
+            <h2 className="font-serif text-display-section mt-3 max-w-xl">Nearby pieces.</h2>
+          </Reveal>
+          <div className="-mx-5 mt-12 grid gap-x-8 gap-y-14 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((item) => (
+              <ProductCard key={item.slug} item={item} collection={item.collection} />
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }

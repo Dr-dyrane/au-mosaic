@@ -36,6 +36,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function PiecePage({ params }: { params: Params }) {
   const piece = await getPiece((await params).slug);
   if (!piece) notFound();
+  const pieces = await getPieces();
+  const related = pieces
+    .filter((p) => p.slug !== piece.slug && p.groupId === piece.groupId)
+    .slice(0, 3);
 
   /* Structured data, honest to the house: a Product without a price,
      because every job is quoted in the chat, and the path that led here.
@@ -78,7 +82,7 @@ export default async function PiecePage({ params }: { params: Params }) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: scriptJson(productLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: scriptJson(crumbsLd) }} />
-      <PieceReveal piece={piece} />
+      <PieceReveal piece={piece} related={related} />
     </>
   );
 }
