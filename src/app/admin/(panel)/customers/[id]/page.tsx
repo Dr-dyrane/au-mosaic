@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira, waChat } from "@/lib/backoffice";
+import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import CustomerForm from "./CustomerForm";
 import SalesMotions from "./SalesMotions";
 import Back from "../../Back";
@@ -111,6 +112,13 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
           data-external={action.external ? "true" : undefined}
         />
       ))}
+      <span
+        hidden
+        data-admin-context-action
+        data-href={`/admin/customers/${id}#customer-motion`}
+        data-label="Add motion"
+        data-intent={ADMIN_ACTION_INTENTS.customerMotion}
+      />
       <Back href="/admin/customers" label="All customers" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/customers/${id}`} label={customer.name} room="Customers" />

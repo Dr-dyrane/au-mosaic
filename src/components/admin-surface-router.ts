@@ -13,6 +13,7 @@ import {
   type CustomerFilterContext,
   getAdminContextPanel,
   showCustomerFilterPanel,
+  showCustomerMotionPanel,
   showDeliveryCreatePanel,
   showMediaFilterPanel,
   showOrderFilterPanel,
@@ -57,6 +58,9 @@ function showAdminSurface(request: AdminSurfaceRequest) {
       break;
     case "customer-filter":
       showCustomerFilterPanel(request.current);
+      break;
+    case "customer-motion":
+      showCustomerMotionPanel(request.customerId);
       break;
     case "delivery-create":
       showDeliveryCreatePanel(request.orders, request.selectedOrder);
@@ -161,6 +165,9 @@ function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest
     case "customer-filter":
       if (panel.kind !== "customer-filter") return false;
       return sameCustomerFilterContext(panel.current, request.current);
+    case "customer-motion":
+      if (panel.kind !== "customer-motion") return false;
+      return panel.customerId === request.customerId;
     case "delivery-create":
       if (panel.kind !== "delivery-create") return false;
       return (

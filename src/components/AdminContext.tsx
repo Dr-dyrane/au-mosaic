@@ -28,6 +28,7 @@ import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 import { OrderFilterPanel } from "@/app/admin/(panel)/orders/OrderFilterSheet";
 import { CustomerFilterPanel } from "@/app/admin/(panel)/customers/CustomerFilterSheet";
+import { AddMotionForm } from "@/app/admin/(panel)/customers/[id]/SalesMotions";
 import NewDeliveryForm from "@/app/admin/(panel)/deliveries/new/NewDeliveryForm";
 import AddLineForm from "@/app/admin/(panel)/orders/[id]/AddLineForm";
 import AddPaymentForm from "@/app/admin/(panel)/orders/[id]/AddPaymentForm";
@@ -383,6 +384,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const mediaFilter = panel?.kind === "media-filter" ? panel.current : null;
   const orderFilter = panel?.kind === "order-filter" ? panel.current : null;
   const customerFilter = panel?.kind === "customer-filter" ? panel.current : null;
+  const customerMotion = panel?.kind === "customer-motion" ? panel : null;
   const deliveryCreate = panel?.kind === "delivery-create" ? panel : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
   const mediaBatch = panel?.kind === "media-batch";
@@ -390,12 +392,14 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const orderPayment = panel?.kind === "order-payment" ? panel : null;
   const orderReturn = panel?.kind === "order-return" ? panel : null;
   const orderRecord = /^\/admin\/orders\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pathname);
+  const customerRecord = /^\/admin\/customers\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pathname);
 
   useEffect(() => {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
     if (mediaFilter && pathname !== "/admin/media") clearAdminContextPanel();
     if (orderFilter && pathname !== "/admin/orders") clearAdminContextPanel();
     if (customerFilter && pathname !== "/admin/customers") clearAdminContextPanel();
+    if (customerMotion && !customerRecord) clearAdminContextPanel();
     if (deliveryCreate && pathname !== "/admin/deliveries") clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
     if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
@@ -406,6 +410,8 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
     mediaFilter,
     orderFilter,
     customerFilter,
+    customerMotion,
+    customerRecord,
     deliveryCreate,
     mediaCreate,
     mediaBatch,
@@ -448,6 +454,33 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
               onPick={clearAdminContextPanel}
               onClose={clearAdminContextPanel}
             />
+          ) : customerMotion ? (
+            <div id="customer-motion">
+              <div className="flex items-start justify-between gap-5 px-2">
+                <div>
+                  <p className="eyebrow">Add motion</p>
+                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
+                    Keep the next move visible.
+                  </h2>
+                  <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                    Track a sample, visit, quote, or materials list.
+                  </p>
+                </div>
+                <button
+                  onClick={clearAdminContextPanel}
+                  className="link-hair shrink-0 text-dusk text-[12px]"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-6">
+                <AddMotionForm
+                  customerId={customerMotion.customerId}
+                  surface="plain"
+                  idPrefix="motion-rail"
+                />
+              </div>
+            </div>
           ) : deliveryCreate ? (
             <div id="delivery-create">
               <div className="flex items-start justify-between gap-5 px-2">

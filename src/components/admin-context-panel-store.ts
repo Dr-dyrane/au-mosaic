@@ -65,6 +65,10 @@ export type AdminContextPanel =
       current: CustomerFilterContext;
     }
   | {
+      kind: "customer-motion";
+      customerId: string;
+    }
+  | {
       kind: "delivery-create";
       orders: ContextDeliveryOrderOption[];
       selectedOrder?: string;
@@ -125,6 +129,11 @@ export function showOrderFilterPanel(current: OrderFilterContext) {
 
 export function showCustomerFilterPanel(current: CustomerFilterContext) {
   panel = { kind: "customer-filter", current };
+  emit();
+}
+
+export function showCustomerMotionPanel(customerId: string) {
+  panel = { kind: "customer-motion", customerId };
   emit();
 }
 

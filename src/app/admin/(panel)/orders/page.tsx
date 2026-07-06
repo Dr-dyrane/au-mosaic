@@ -68,6 +68,12 @@ export default async function OrdersPage({
 
   return (
     <main>
+      <span
+        hidden
+        data-admin-context-action
+        data-href="/admin/export/orders.csv"
+        data-label="Export orders"
+      />
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
           <p className="eyebrow">Ledger</p>
@@ -88,10 +94,6 @@ export default async function OrdersPage({
             </Link>
           </p>
         )}
-        {/* A plain link, so the book prints itself with no script. */}
-        <a href="/admin/export/orders.csv" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
-          CSV for the accountant
-        </a>
         <button data-tour-start="orders" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
           Learn this room
         </button>
