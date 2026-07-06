@@ -2,6 +2,7 @@ import { count, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import Back from "../../Back";
 import Pager from "../../Pager";
+import ClearHistory from "../ClearHistory";
 
 /* The book's history, read-only and append-only: who did what, in
    sentences, newest first. Before the audit table lands it teaches
@@ -60,7 +61,7 @@ export default async function HistoryPage({
       <p className="eyebrow mt-6">The record</p>
       <h1 className="font-serif text-display-section mt-3">The book&apos;s history.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Who did what, and when. Nothing here is ever edited or removed.
+        Who did what, and when. It only grows as you work, and you can clear it for a fresh start.
         {total !== null && total > 0 && ` ${total.toLocaleString()} lines so far.`}
       </p>
 
@@ -107,6 +108,8 @@ export default async function HistoryPage({
           />
         </div>
       )}
+
+      {total !== null && total > 0 && <ClearHistory total={total} />}
     </main>
   );
 }

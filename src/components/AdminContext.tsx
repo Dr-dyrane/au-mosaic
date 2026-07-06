@@ -428,7 +428,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
         <div>
           {stockFilter ? (
             <StockFilterPanel
-              id="stock-filter-panel"
+              id="stock-filter-rail"
               current={stockFilter}
               onPick={clearAdminContextPanel}
               onClose={clearAdminContextPanel}
