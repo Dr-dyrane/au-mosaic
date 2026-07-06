@@ -1027,139 +1027,208 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     }, "image/png");
   };
 
-  const refineControls = (
-    <>
-      <div>
-        <p className="eyebrow">Surface fit</p>
-        <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
-          {(Object.entries(SURFACES) as Array<[SurfaceId, (typeof SURFACES)[SurfaceId]]>).map(([id, item]) => (
-            <button
-              key={id}
-              onClick={() => fitSurface(id)}
-              aria-pressed={surface === id}
-              className={`shrink-0 rounded-full px-5 py-3 text-left transition-all duration-300 active:scale-95 ${
-                surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-              }`}
-            >
-              <span className="block text-[12px] font-semibold uppercase tracking-[0.18em]">{item.label}</span>
-              <span className="mt-1 block text-[12px] normal-case tracking-normal text-mist">{item.line}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-7">
-        <p className="eyebrow">Start from</p>
-        <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
-          {CONTEXTS.map((context) => (
-            <button
-              key={context.id}
-              onClick={() => loadContext(context.id)}
-              className="shrink-0 rounded-full bg-shell/40 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk transition-all duration-300 hover:bg-shell/60 active:scale-95"
-            >
-              {context.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="no-scrollbar -mx-5 mt-8 flex gap-3 overflow-x-auto px-5 py-3 sm:-mx-2 sm:px-2">
-        {pieces.map((p) => (
+  const surfaceOptions = (
+    <div>
+      <p className="eyebrow">Surface fit</p>
+      <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
+        {(Object.entries(SURFACES) as Array<[SurfaceId, (typeof SURFACES)[SurfaceId]]>).map(([id, item]) => (
           <button
-            key={p.slug}
-            onClick={() => {
-              setPieceSlug(p.slug);
-              buzz(4);
-              track("viz_piece", { piece: p.slug });
-            }}
-            aria-pressed={p.slug === pieceSlug}
-            title={p.name}
-            className={`flex h-12 shrink-0 items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-95 ${
-              p.slug === pieceSlug ? "scale-[1.04] bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+            key={id}
+            onClick={() => fitSurface(id)}
+            aria-pressed={surface === id}
+            className={`shrink-0 rounded-full px-5 py-3 text-left transition-all duration-300 active:scale-95 ${
+              surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
             }`}
           >
-            <span className="flex gap-0.5">
-              {(p.colors || []).slice(0, 4).map((c, i) => (
-                <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
-              ))}
-            </span>
-            <span className="whitespace-nowrap text-[12px] font-semibold">{p.name}</span>
+            <span className="block text-[12px] font-semibold uppercase tracking-[0.18em]">{item.label}</span>
+            <span className="mt-1 block text-[12px] normal-case tracking-normal text-mist">{item.line}</span>
           </button>
         ))}
       </div>
+    </div>
+  );
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="panel">
-          <p className="eyebrow">Tile size</p>
-          <input
-            type="range"
-            min={14}
-            max={48}
-            value={tileSize}
-            onChange={(e) => {
-              setTileSize(+e.target.value);
-              buzz(2);
-            }}
-            className="mt-4 w-full accent-[#c2a15c]"
-            aria-label="Tile size"
-          />
-        </div>
-        <div className="panel">
-          <p className="eyebrow">Blend with the light</p>
-          <input
-            type="range"
-            min={40}
-            max={100}
-            value={blend * 100}
-            onChange={(e) => {
-              setBlend(+e.target.value / 100);
-              buzz(2);
-            }}
-            className="mt-4 w-full accent-[#c2a15c]"
-            aria-label="Blend"
-          />
-        </div>
-        <div className="panel">
-          <p className="eyebrow">Prep surface</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {([
-              ["primer", "Primer"],
-              ["blur", "Blur"],
-              ["none", "Original"],
-            ] as Array<[PrepMode, string]>).map(([mode, label]) => (
-              <button
-                key={mode}
-                type="button"
-                aria-pressed={prepMode === mode}
-                onClick={() => {
-                  setPrepMode(mode);
-                  buzz(3);
-                  track("viz_prep", { mode });
-                }}
-                className={`rounded-full px-4 py-2 text-[12px] font-semibold transition-all duration-300 active:scale-95 ${
-                  prepMode === mode ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-3 text-[12px] leading-relaxed text-mist">Primer hides old tile.</p>
-        </div>
-        <div className="panel flex items-center justify-between gap-4">
-          <p className="eyebrow">Grout</p>
+  const contextOptions = (
+    <div className="mt-7">
+      <p className="eyebrow">Start from</p>
+      <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
+        {CONTEXTS.map((context) => (
           <button
-            onClick={() => {
-              setGroutLight(!groutLight);
-              buzz(4);
-            }}
-            className="link-hair text-dusk"
+            key={context.id}
+            onClick={() => loadContext(context.id)}
+            className="shrink-0 rounded-full bg-shell/40 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk transition-all duration-300 hover:bg-shell/60 active:scale-95"
           >
-            {groutLight ? "Light" : "Dark"}
+            {context.label}
           </button>
-        </div>
+        ))}
       </div>
+    </div>
+  );
+
+  const pieceOptions = (
+    <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5 py-3 sm:-mx-2 sm:px-2">
+      {pieces.map((p) => (
+        <button
+          key={p.slug}
+          onClick={() => {
+            setPieceSlug(p.slug);
+            buzz(4);
+            track("viz_piece", { piece: p.slug });
+          }}
+          aria-pressed={p.slug === pieceSlug}
+          title={p.name}
+          className={`flex h-12 shrink-0 items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-95 ${
+            p.slug === pieceSlug ? "scale-[1.04] bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+          }`}
+        >
+          <span className="flex gap-0.5">
+            {(p.colors || []).slice(0, 4).map((c, i) => (
+              <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
+            ))}
+          </span>
+          <span className="whitespace-nowrap text-[12px] font-semibold">{p.name}</span>
+        </button>
+      ))}
+    </div>
+  );
+
+  const lightOptions = (
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
+      <div className="panel">
+        <p className="eyebrow">Tile size</p>
+        <input
+          type="range"
+          min={14}
+          max={48}
+          value={tileSize}
+          onChange={(e) => {
+            setTileSize(+e.target.value);
+            buzz(2);
+          }}
+          className="mt-4 w-full accent-[#c2a15c]"
+          aria-label="Tile size"
+        />
+      </div>
+      <div className="panel">
+        <p className="eyebrow">Blend with the light</p>
+        <input
+          type="range"
+          min={40}
+          max={100}
+          value={blend * 100}
+          onChange={(e) => {
+            setBlend(+e.target.value / 100);
+            buzz(2);
+          }}
+          className="mt-4 w-full accent-[#c2a15c]"
+          aria-label="Blend"
+        />
+      </div>
+      <div className="panel">
+        <p className="eyebrow">Prep surface</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {([
+            ["primer", "Primer"],
+            ["blur", "Blur"],
+            ["none", "Original"],
+          ] as Array<[PrepMode, string]>).map(([mode, label]) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={prepMode === mode}
+              onClick={() => {
+                setPrepMode(mode);
+                buzz(3);
+                track("viz_prep", { mode });
+              }}
+              className={`rounded-full px-4 py-2 text-[12px] font-semibold transition-all duration-300 active:scale-95 ${
+                prepMode === mode ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-3 text-[12px] leading-relaxed text-mist">Primer hides old tile.</p>
+      </div>
+      <div className="panel flex items-center justify-between gap-4">
+        <p className="eyebrow">Grout</p>
+        <button
+          onClick={() => {
+            setGroutLight(!groutLight);
+            buzz(4);
+          }}
+          className="link-hair text-dusk"
+        >
+          {groutLight ? "Light" : "Dark"}
+        </button>
+      </div>
+    </div>
+  );
+
+  const refineControls = (
+    <>
+      {surfaceOptions}
+      {contextOptions}
+      <div className="mt-8">
+        <p className="eyebrow">Colourway</p>
+        <div className="mt-2">{pieceOptions}</div>
+      </div>
+      <div className="mt-8">{lightOptions}</div>
     </>
+  );
+
+  const mobileSnippetClass = "group rounded-[26px] bg-shell/45 px-5 py-4 shadow-lift";
+  const mobileSummaryClass = "flex cursor-pointer list-none items-center justify-between gap-4 [&::-webkit-details-marker]:hidden";
+  const mobileRefineSnippets = (
+    <div className="mt-6 space-y-3 md:hidden" data-viz="mobile-snippets">
+      <details className={mobileSnippetClass}>
+        <summary className={mobileSummaryClass}>
+          <span>
+            <span className="eyebrow block">Surface</span>
+            <span className="mt-1 block font-serif text-[20px]">{SURFACES[surface].label}</span>
+          </span>
+          <span className="link-hair text-dusk group-open:text-ink">Choose</span>
+        </summary>
+        <div className="mt-5">
+          {surfaceOptions}
+          {contextOptions}
+        </div>
+      </details>
+      <details className={mobileSnippetClass}>
+        <summary className={mobileSummaryClass}>
+          <span>
+            <span className="eyebrow block">Colourway</span>
+            <span className="mt-1 block font-serif text-[20px]">{piece.name}</span>
+          </span>
+          <span className="link-hair text-dusk group-open:text-ink">Swap</span>
+        </summary>
+        <div className="mt-5">{pieceOptions}</div>
+      </details>
+      <details className={mobileSnippetClass}>
+        <summary className={mobileSummaryClass}>
+          <span>
+            <span className="eyebrow block">Finish</span>
+            <span className="mt-1 block font-serif text-[20px]">{prepMode === "primer" ? "Primer" : prepMode === "blur" ? "Blur" : "Original"}</span>
+          </span>
+          <span className="link-hair text-dusk group-open:text-ink">Tune</span>
+        </summary>
+        <div className="mt-5">{lightOptions}</div>
+      </details>
+    </div>
+  );
+
+  const exposedRefinement = (
+    <aside className="hidden min-w-0 md:block lg:sticky lg:top-28" data-viz="exposed-refinement">
+      <div className="mb-6">
+        <p className="eyebrow">Refine</p>
+        <p className="font-serif mt-2 text-[26px]">Make the surface yours.</p>
+        <p className="mt-2 max-w-sm text-[14px] leading-relaxed text-dusk">
+          Surface, colour, light, grout.
+        </p>
+      </div>
+      {refineControls}
+    </aside>
   );
 
   const stage = (
@@ -1168,10 +1237,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       className={
         cameraOpen
           ? "relative h-full w-full overflow-hidden bg-sand"
-          : "relative -mx-5 overflow-hidden rounded-none sm:mx-0 sm:rounded-[26px]"
+          : "relative -mx-5 min-w-0 max-w-full overflow-hidden rounded-none sm:mx-0 sm:w-full sm:rounded-[26px]"
       }
     >
-      <canvas ref={canvasRef} className={cameraOpen ? "block h-full w-full" : "block h-auto w-full"} />
+      <canvas ref={canvasRef} className={cameraOpen ? "block h-full w-full" : "block h-auto w-full max-w-full"} />
       {!cameraOpen && <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />}
       <p id="viz-corner-help" className="sr-only">
         Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.
@@ -1282,21 +1351,31 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
       {photo && (
         <>
-          {!cameraOpen && stage}
-          <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
-            Find surface, then drag corners to refine. Press and hold to compare.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-6">
-            <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
-              Find surface
-            </button>
-            <button type="button" onClick={() => setRefineOpen(true)} className="link-hair text-dusk">
-              Refine
-            </button>
-            <p className="text-[12px] uppercase tracking-[0.18em] text-mist">
-              {snapMessage ?? "The stones stay editable."}
-            </p>
-          </div>
+          {!cameraOpen && (
+            <>
+              <div
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_390px] xl:gap-10"
+                data-viz="workspace"
+              >
+                <div className="min-w-0">
+                  {stage}
+                  <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
+                    Find surface, then drag corners to refine. Press and hold to compare.
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center gap-6">
+                    <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
+                      Find surface
+                    </button>
+                    <p className="text-[12px] uppercase tracking-[0.18em] text-mist">
+                      {snapMessage ?? "The stones stay editable."}
+                    </p>
+                  </div>
+                </div>
+                {exposedRefinement}
+              </div>
+              {mobileRefineSnippets}
+            </>
+          )}
 
           {cameraError && <p className="mt-4 text-[14px] leading-relaxed text-dusk">{cameraError}</p>}
 
@@ -1323,14 +1402,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             </Dialog.Portal>
           </Dialog.Root>
 
-          <div className="mt-10 flex flex-wrap items-center gap-8">
-            <button onClick={share} className="btn-gold" data-wa="visualizer">
-              Send it to the house
-            </button>
-            <button onClick={download} className="link-hair text-dusk">
-              Download the preview
-            </button>
-          </div>
+          {!cameraOpen && (
+            <div className="mt-10 flex flex-wrap items-center gap-8">
+              <button onClick={share} className="btn-gold" data-wa="visualizer">
+                Send it to the house
+              </button>
+              <button onClick={download} className="link-hair text-dusk">
+                Download the preview
+              </button>
+            </div>
+          )}
         </>
       )}
 

@@ -16,6 +16,17 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Visualizer refinement controls lane - done
+
+Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake. The
+visualizer now exposes refinement controls on tablet and desktop instead of
+hiding all power behind Refine. Desktop uses a right lane, tablet shows the
+controls open below the preview, and phone keeps three expandable snippets for
+Surface, Colourway, and Finish. The live-camera path still uses the Radix
+Refine surface. Browser geometry checks covered 390 by 844 phone, 820 by 900
+tablet, and 1280 by 900 desktop with no horizontal overflow. TypeScript, lint,
+theme-check, diff-check, dash scan, and Next 16.2.10 build, 56 routes, passed.
+
 ## 2026-07-06 - CODEX - Visualizer live preview lane - done
 
 Closed `src/app/(site)/visualizer/page.tsx`, `src/components/Visualizer.tsx`,
