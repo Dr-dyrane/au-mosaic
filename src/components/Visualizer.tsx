@@ -36,13 +36,18 @@ type Homography = {
   h: number;
 };
 type SnapResult = { quad: Pt[]; confidence: number };
-type AiStatus = "idle" | "thinking" | "applied" | "skipped" | "unavailable" | "error";
-type AiPlan = {
+type SurfaceLayer = {
+  id: string;
+  label: string;
   surface: SurfaceId;
-  prepMode: PrepMode;
   quad: Pt[];
-  confidence: number;
-  note?: string;
+  pieceSlug: string;
+  tileSize: number;
+  blend: number;
+  prepMode: PrepMode;
+  groutLight: boolean;
+  visible: boolean;
+  accepted: boolean;
 };
 
 function homography(q: Pt[]): Homography | null {
@@ -216,29 +221,84 @@ function drawSource(
   ctx.drawImage(source, dx - pad, dy - pad, drawW + pad * 2, drawH + pad * 2);
 }
 
-function imageForAi(image: HTMLImageElement) {
-  const sourceW = image.naturalWidth || image.width;
-  const sourceH = image.naturalHeight || image.height;
-  if (!sourceW || !sourceH) return null;
-  const maxSide = 860;
-  const scale = Math.min(1, maxSide / Math.max(sourceW, sourceH));
-  const width = Math.max(1, Math.round(sourceW * scale));
-  const height = Math.max(1, Math.round(sourceH * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.drawImage(image, 0, 0, width, height);
-  let dataUrl: string;
-  try {
-    dataUrl = canvas.toDataURL("image/jpeg", 0.68);
-  } catch {
-    return null;
+function drawSurfaceLayer({
+  ctx,
+  origCtx,
+  photo,
+  sourceW,
+  sourceH,
+  width,
+  height,
+  layer,
+  piece,
+}: {
+  ctx: CanvasRenderingContext2D;
+  origCtx: CanvasRenderingContext2D;
+  photo: HTMLImageElement;
+  sourceW: number;
+  sourceH: number;
+  width: number;
+  height: number;
+  layer: SurfaceLayer;
+  piece: Piece;
+}) {
+  if (!layer.visible) return;
+  const pattern = makePattern(piece.colors || ["#3aa9d6"], layer.tileSize, layer.groutLight);
+  const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
+
+  if (layer.prepMode !== "none") {
+    ctx.save();
+    clipQuad(ctx, q);
+    if (layer.prepMode === "blur") {
+      drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 22, false);
+      ctx.fillStyle = "rgba(214, 206, 190, 0.08)";
+      ctx.fillRect(0, 0, width, height);
+    } else {
+      ctx.globalAlpha = 0.28;
+      drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 20, false);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = sampleQuadColor(origCtx, q, width, height);
+      ctx.fillRect(0, 0, width, height);
+    }
+    ctx.restore();
   }
-  const imageData = dataUrl.split(",")[1];
-  if (!imageData) return null;
-  return { image: imageData, mediaType: "image/jpeg" as const, width, height };
+
+  const overlay = document.createElement("canvas");
+  overlay.width = width;
+  overlay.height = height;
+  const octx = overlay.getContext("2d")!;
+  const H = homography(q);
+  if (!H) return;
+  const N = 18;
+  const P = pattern.width;
+  for (let r = 0; r < N; r++) {
+    for (let cq = 0; cq < N; cq++) {
+      const u0 = cq / N, u1 = (cq + 1) / N, v0 = r / N, v1 = (r + 1) / N;
+      const s00 = { x: u0 * P, y: v0 * P }, s10 = { x: u1 * P, y: v0 * P };
+      const s11 = { x: u1 * P, y: v1 * P }, s01 = { x: u0 * P, y: v1 * P };
+      const d00 = mapPoint(H, u0, v0), d10 = mapPoint(H, u1, v0);
+      const d11 = mapPoint(H, u1, v1), d01 = mapPoint(H, u0, v1);
+      drawTriangle(octx, pattern, [s00, s10, s11], [d00, d10, d11]);
+      drawTriangle(octx, pattern, [s00, s11, s01], [d00, d11, d01]);
+    }
+  }
+
+  ctx.save();
+  ctx.globalAlpha = layer.blend;
+  ctx.globalCompositeOperation = "multiply";
+  ctx.drawImage(overlay, 0, 0);
+  ctx.restore();
+
+  ctx.save();
+  clipQuad(ctx, q);
+  ctx.globalCompositeOperation = "soft-light";
+  ctx.globalAlpha = layer.blend * (layer.prepMode === "none" ? 0.5 : 0.24);
+  if (layer.prepMode === "none") {
+    drawSource(ctx, photo, sourceW, sourceH, width, height, false);
+  } else {
+    drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 12, false);
+  }
+  ctx.restore();
 }
 
 function detectSurfaceFrame(source: CanvasImageSource, sourceW: number, sourceH: number, surface: SurfaceId): SnapResult | null {
@@ -474,9 +534,57 @@ const DEFAULT_PIECE = "classic-pool-blues";
 const STORE_KEY = "aumosaic.viz";
 const CORNER_LABELS = ["Top left", "Top right", "Bottom right", "Bottom left"] as const;
 const MIN_QUAD_AREA = 0.018;
+const FIRST_LAYER_ID = "surface-1";
+const LAYER_LABELS: Record<SurfaceId, string> = {
+  pool: "Pool",
+  wall: "Wall",
+  backsplash: "Backsplash",
+  shower: "Shower",
+  floor: "Floor",
+};
+const PREFERRED_PIECES: Record<SurfaceId, string> = {
+  pool: "classic-pool-blues",
+  wall: "aqua-turquoise-blends",
+  backsplash: "aqua-turquoise-blends",
+  shower: "black-mosaic",
+  floor: "stone-mosaic",
+};
+const NEXT_SURFACE: Record<SurfaceId, SurfaceId[]> = {
+  pool: ["wall", "floor", "backsplash", "shower", "pool"],
+  wall: ["floor", "backsplash", "shower", "pool", "wall"],
+  backsplash: ["floor", "wall", "shower", "pool", "backsplash"],
+  shower: ["floor", "wall", "backsplash", "pool", "shower"],
+  floor: ["wall", "backsplash", "shower", "pool", "floor"],
+};
 const buzz = (ms = 4) => {
   try { navigator.vibrate?.(ms); } catch {}
 };
+
+function pieceSlugForSurface(surface: SurfaceId, pieces: Piece[], fallback: string) {
+  const preferred = PREFERRED_PIECES[surface];
+  if (pieces.some((piece) => piece.slug === preferred)) return preferred;
+  return fallback;
+}
+
+function suggestionText(surface: SurfaceId, prep: PrepMode, pieceName: string) {
+  const prepLabel = prep === "primer" ? "primer" : prep === "blur" ? "blur" : "original";
+  return `Suggested: ${SURFACES[surface].label}, ${prepLabel}, ${pieceName}.`;
+}
+
+function bestSurfaceForPhoto(image: HTMLImageElement, fallback: SurfaceId) {
+  let bestSurface = fallback;
+  let bestSnap: SnapResult | null = null;
+  for (const candidate of Object.keys(SURFACES) as SurfaceId[]) {
+    const snap = detectSurfaceQuad(image, candidate);
+    if (!snap) continue;
+    if (!bestSnap || snap.confidence > bestSnap.confidence) {
+      bestSurface = candidate;
+      bestSnap = snap;
+    }
+  }
+  if (bestSnap && bestSnap.confidence > 1.16) return { surface: bestSurface, snap: bestSnap };
+  return { surface: fallback, snap: null };
+}
 
 function quadArea(q: Pt[]) {
   let sum = 0;
@@ -508,38 +616,6 @@ function setCorner(q: Pt[], index: number, point: Pt) {
   return q.map((pt, i) => (i === index ? point : pt));
 }
 
-function isSurfaceId(value: unknown): value is SurfaceId {
-  return typeof value === "string" && value in SURFACES;
-}
-
-function isPrepMode(value: unknown): value is PrepMode {
-  return value === "primer" || value === "blur" || value === "none";
-}
-
-function cleanAiPlan(value: unknown): AiPlan | null {
-  if (!value || typeof value !== "object") return null;
-  const plan = value as Record<string, unknown>;
-  if (!isSurfaceId(plan.surface) || !isPrepMode(plan.prepMode) || !Array.isArray(plan.quad)) return null;
-  const quad = plan.quad.map((point) => {
-    if (!point || typeof point !== "object") return null;
-    const p = point as Record<string, unknown>;
-    const x = Number(p.x);
-    const y = Number(p.y);
-    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
-    return { x: clamp(x, 0.02, 0.98), y: clamp(y, 0.02, 0.98) };
-  });
-  if (quad.some((point) => point == null)) return null;
-  const nextQuad = quad as Pt[];
-  if (!isValidQuad(nextQuad)) return null;
-  return {
-    surface: plan.surface,
-    prepMode: plan.prepMode,
-    quad: nextQuad,
-    confidence: clamp(Number(plan.confidence) || 0.45, 0, 1),
-    note: typeof plan.note === "string" ? plan.note.slice(0, 96) : undefined,
-  };
-}
-
 /* Saved controls, if the browser kept them. Safe on the server:
    the first rendered photo is still the house's empty pool. */
 function readStore(): Record<string, unknown> {
@@ -554,12 +630,13 @@ function readStore(): Record<string, unknown> {
 /* The pieces arrive from the page, which asked the catalog, which
    asks the book: the visualizer lays what the stockroom publishes. */
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
-  const [pieceSlug, setPieceSlug] = useState(() => {
+  const startingPieceSlug = () => {
     if (pieces.some((p) => p.slug === initialPiece)) return initialPiece as string;
     const starter = pieces.find((p) => p.slug === DEFAULT_PIECE);
     if (starter) return starter.slug;
     return pieces[0].slug;
-  });
+  };
+  const [pieceSlug, setPieceSlug] = useState(startingPieceSlug);
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
   const [quad, setQuad] = useState<Pt[]>(() => (readStore().quad as Pt[]) || DEFAULT_QUAD);
   const [surface, setSurface] = useState<SurfaceId>("pool");
@@ -584,8 +661,23 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
-  const [aiStatus, setAiStatus] = useState<AiStatus>("idle");
-  const [aiMessage, setAiMessage] = useState<string | null>(null);
+  const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
+  const [hasFittedSurface, setHasFittedSurface] = useState(false);
+  const [layers, setLayers] = useState<SurfaceLayer[]>(() => [
+    {
+      id: FIRST_LAYER_ID,
+      label: LAYER_LABELS.pool,
+      surface: "pool",
+      quad: (readStore().quad as Pt[]) || DEFAULT_QUAD,
+      pieceSlug: startingPieceSlug(),
+      tileSize: (readStore().tileSize as number) || 26,
+      blend: typeof readStore().blend === "number" ? (readStore().blend as number) : 0.85,
+      prepMode: readStore().prepMode === "none" || readStore().prepMode === "blur" ? (readStore().prepMode as PrepMode) : "primer",
+      groutLight: typeof readStore().groutLight === "boolean" ? (readStore().groutLight as boolean) : true,
+      visible: true,
+      accepted: false,
+    },
+  ]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
   const originalRef = useRef<HTMLCanvasElement | null>(null);
@@ -596,16 +688,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const dragFrame = useRef<number | null>(null);
   const dragPoint = useRef<Pt | null>(null);
   const loadSeq = useRef(0);
-  const primerColor = useRef("rgba(214, 206, 190, 0.78)");
   const holdingRef = useRef(false);
   const restored = useRef(false);
-  const aiAbortRef = useRef<AbortController | null>(null);
+  const layerSeq = useRef(1);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
-  const pattern = useMemo(() => {
-    if (typeof document === "undefined") return null;
-    return makePattern(piece.colors || ["#3aa9d6"], tileSize, groutLight);
-  }, [piece.colors, tileSize, groutLight]);
+  const pieceMap = useMemo(() => new Map(pieces.map((item) => [item.slug, item])), [pieces]);
 
   const revokeObjectUrl = useCallback((url: string) => {
     if (!objectUrls.current.has(url)) return;
@@ -619,7 +707,59 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     return url;
   }, []);
 
-  const loadImage = useCallback((src: string, from: LoadSource, nextQuad?: Pt[]) => {
+  const activeLayerSnapshot = useCallback((): SurfaceLayer => ({
+    id: activeLayerId,
+    label: LAYER_LABELS[surface],
+    surface,
+    quad,
+    pieceSlug,
+    tileSize,
+    blend,
+    prepMode,
+    groutLight,
+    visible: true,
+    accepted: hasFittedSurface,
+  }), [activeLayerId, blend, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, surface, tileSize]);
+
+  const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
+    const next = activeLayerSnapshot();
+    return current.map((layer) => (
+      layer.id === activeLayerId ? { ...layer, ...next, label: LAYER_LABELS[surface] } : layer
+    ));
+  }, [activeLayerId, activeLayerSnapshot, surface]);
+
+  const selectLayer = useCallback((layer: SurfaceLayer) => {
+    setLayers(withActiveLayer);
+    setActiveLayerId(layer.id);
+    setSurface(layer.surface);
+    setQuad(layer.quad);
+    setPieceSlug(layer.pieceSlug);
+    setTileSize(layer.tileSize);
+    setBlend(layer.blend);
+    setPrepMode(layer.prepMode);
+    setGroutLight(layer.groutLight);
+    setHasFittedSurface(layer.accepted);
+    setSnapMessage(`${layer.label} selected.`);
+    buzz(3);
+  }, [withActiveLayer]);
+
+  const suggestFromPhoto = useCallback((img: HTMLImageElement, fallback: SurfaceId) => {
+    const best = bestSurfaceForPhoto(img, fallback);
+    const nextSurface = best.surface;
+    const nextPrep: PrepMode = "primer";
+    const nextPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
+    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
+    return {
+      surface: nextSurface,
+      prepMode: nextPrep,
+      pieceSlug: nextPieceSlug,
+      pieceName: nextPiece.name,
+      snap: best.snap,
+      text: suggestionText(nextSurface, nextPrep, nextPiece.name),
+    };
+  }, [piece, pieces, pieceSlug]);
+
+  const loadImage = useCallback((src: string, from: LoadSource, nextQuad?: Pt[], nextSurface = surface, acceptedFit = false) => {
     const ticket = loadSeq.current + 1;
     loadSeq.current = ticket;
     const img = new Image();
@@ -630,22 +770,41 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         return;
       }
       const shouldSnap = !nextQuad && (from === "upload" || from === "camera");
-      const snapped = shouldSnap ? detectSurfaceQuad(img, surface) : null;
+      const lockedPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
+      const lockedPieceName = pieces.find((item) => item.slug === lockedPieceSlug)?.name ?? piece.name;
+      const suggestion = nextQuad
+        ? {
+          surface: nextSurface,
+          prepMode: prepMode,
+          pieceSlug: lockedPieceSlug,
+          pieceName: lockedPieceName,
+          snap: null,
+          text: suggestionText(nextSurface, prepMode, lockedPieceName),
+        }
+        : suggestFromPhoto(img, nextSurface);
+      const targetSurface = shouldSnap ? suggestion.surface : nextSurface;
+      const targetPieceSlug = from === "default" ? pieceSlug : suggestion.pieceSlug;
+      const targetPrep = from === "default" ? prepMode : suggestion.prepMode;
+      const targetTileSize = SURFACES[targetSurface].tileSize;
+      const snapped = shouldSnap ? suggestion.snap ?? detectSurfaceQuad(img, targetSurface) : null;
+      setHasFittedSurface(acceptedFit);
+      setSurface(targetSurface);
+      setTileSize(targetTileSize);
+      setPieceSlug(targetPieceSlug);
+      setPrepMode(targetPrep);
       if (snapped) {
         setQuad(snapped.quad);
-        setSnapMessage("Surface found. Drag corners to refine.");
-        track("viz_autosnap", { source: from, surface, confidence: Math.round(snapped.confidence * 100) });
+        setSnapMessage(suggestion.text);
+        track("viz_autosnap", { source: from, surface: targetSurface, confidence: Math.round(snapped.confidence * 100) });
       } else if (nextQuad) {
         setQuad(nextQuad);
-        setSnapMessage(null);
+        setSnapMessage(suggestionText(targetSurface, targetPrep, pieces.find((item) => item.slug === targetPieceSlug)?.name ?? piece.name));
       } else if (shouldSnap) {
-        setQuad(SURFACES[surface].quad);
-        setSnapMessage("Best starter fit. Drag corners to refine.");
-        track("viz_autosnap", { source: from, surface, status: "fallback" });
+        setQuad(SURFACES[targetSurface].quad);
+        setSnapMessage(suggestion.text);
+        track("viz_autosnap", { source: from, surface: targetSurface, status: "fallback" });
       }
       setPhoto(img);
-      setAiStatus("idle");
-      setAiMessage(null);
       if (from !== "default") track("viz_photo", { source: from });
       revokeObjectUrl(src);
     };
@@ -654,7 +813,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       revokeObjectUrl(src);
     };
     img.src = src;
-  }, [revokeObjectUrl, surface]);
+  }, [piece.name, pieceSlug, pieces, prepMode, revokeObjectUrl, surface, suggestFromPhoto]);
 
   const stopCamera = useCallback(() => {
     cameraStream?.getTracks().forEach((track) => track.stop());
@@ -704,8 +863,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     if (ctx) ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(
       (blob) => {
-        if (blob) loadImage(objectUrl(blob), "camera");
-        else loadImage(canvas.toDataURL("image/jpeg", 0.92), "camera", SURFACES[surface].quad);
+        if (blob) loadImage(objectUrl(blob), "camera", undefined, surface);
+        else loadImage(canvas.toDataURL("image/jpeg", 0.92), "camera", SURFACES[surface].quad, surface);
         track("viz_camera_snap", { method: "capture" });
         stopCamera();
       },
@@ -719,7 +878,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   useEffect(() => {
     if (restored.current) return;
     restored.current = true;
-    loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD);
+    loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD, "pool");
   }, [loadImage]);
 
   useEffect(() => {
@@ -747,105 +906,25 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
   }, []);
 
-  useEffect(() => () => {
-    aiAbortRef.current?.abort();
-  }, []);
-
   useEffect(() => {
     if (!photo) return;
     const id = setTimeout(() => {
       try {
         localStorage.setItem(
           STORE_KEY,
-          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug })
+          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug, layers: withActiveLayer(layers) })
         );
       } catch {}
     }, 600);
     return () => clearTimeout(id);
-  }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug]);
-
-  const clearAiAssist = () => {
-    aiAbortRef.current?.abort();
-    aiAbortRef.current = null;
-    setAiStatus("idle");
-    setAiMessage(null);
-  };
-
-  const skipAiAssist = () => {
-    aiAbortRef.current?.abort();
-    aiAbortRef.current = null;
-    setAiStatus("skipped");
-    setAiMessage("Manual fit is ready.");
-    track("viz_ai_skip", {});
-  };
-
-  const runAiAssist = async () => {
-    if (!photo || aiStatus === "thinking") return;
-    const payload = imageForAi(photo);
-    if (!payload) {
-      setAiStatus("error");
-      setAiMessage("Manual fit is ready.");
-      return;
-    }
-
-    const controller = new AbortController();
-    aiAbortRef.current = controller;
-    setAiStatus("thinking");
-    setAiMessage("Reading the surface.");
-    track("viz_ai_start", { surface, piece: piece.slug });
-
-    try {
-      const res = await fetch("/api/visualizer/analyze", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...payload, surface, piece: piece.slug }),
-        signal: controller.signal,
-      });
-      const data = (await res.json()) as {
-        ok?: boolean;
-        available?: boolean;
-        message?: string;
-        plan?: unknown;
-      };
-      if (data.available === false) {
-        setAiStatus("unavailable");
-        setAiMessage(data.message || "Manual fit is ready.");
-        track("viz_ai_unavailable", {});
-        return;
-      }
-      if (!res.ok || !data.ok) throw new Error("ai-fit-failed");
-      const plan = cleanAiPlan(data.plan);
-      if (!plan) throw new Error("ai-fit-invalid");
-      setSurface(plan.surface);
-      setTileSize(SURFACES[plan.surface].tileSize);
-      setPrepMode(plan.prepMode);
-      setQuad(plan.quad);
-      setAiStatus("applied");
-      setAiMessage(plan.confidence >= 0.62 ? "AI found a surface. Adjust stones to approve." : "AI suggested a starter. Adjust stones to approve.");
-      setSnapMessage(null);
-      buzz(8);
-      track("viz_ai_apply", {
-        surface: plan.surface,
-        prep: plan.prepMode,
-        confidence: Math.round(plan.confidence * 100),
-      });
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-      setAiStatus("error");
-      setAiMessage("Manual fit is ready.");
-      track("viz_ai_error", {});
-    } finally {
-      if (aiAbortRef.current === controller) aiAbortRef.current = null;
-    }
-  };
+  }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, layers, withActiveLayer]);
 
   const onFile = (f: File | undefined) => {
     if (!f) return;
-    loadImage(objectUrl(f), "upload");
+    loadImage(objectUrl(f), "upload", undefined, surface);
   };
 
   const findSurface = (id = surface) => {
-    clearAiAssist();
     const found = photo ? detectSurfaceQuad(photo, id) : null;
     if (!found) {
       setSnapMessage("No clean edge yet. Drag corners to refine.");
@@ -856,45 +935,85 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSurface(id);
     setTileSize(SURFACES[id].tileSize);
     setQuad(found.quad);
+    setHasFittedSurface(true);
     setSnapMessage(found.confidence > 1.35 ? "Surface found. Drag corners to refine." : "Best edge found. Drag corners to refine.");
     track("viz_autosnap", { surface: id, confidence: Math.round(found.confidence * 100) });
     buzz(8);
   };
 
   const fitSurface = (id: SurfaceId) => {
-    clearAiAssist();
     const next = SURFACES[id];
+    const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
+    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
     setSurface(id);
     setTileSize(next.tileSize);
+    setPieceSlug(nextPieceSlug);
+    setPrepMode("primer");
     const found = photo ? detectSurfaceQuad(photo, id) : null;
     if (found) {
       setQuad(found.quad);
-      setSnapMessage("Surface found. Drag corners to refine.");
+      setSnapMessage(suggestionText(id, "primer", nextPiece.name));
+      setHasFittedSurface(true);
     } else {
       setQuad(next.quad);
-      setSnapMessage("Starter fit. Drag corners to refine.");
+      setSnapMessage(suggestionText(id, "primer", nextPiece.name));
+      setHasFittedSurface(false);
     }
     buzz(4);
     track("viz_surface", { surface: id, autosnap: !!found });
   };
 
   const loadContext = (id: SurfaceId) => {
-    clearAiAssist();
     const context = CONTEXTS.find((item) => item.id === id);
     if (!context) return;
     const next = SURFACES[id];
     setSurface(id);
     setTileSize(next.tileSize);
     if (pieces.some((p) => p.slug === context.piece)) setPieceSlug(context.piece);
-    loadImage(context.src, "sample", next.quad);
-    setSnapMessage(null);
+    loadImage(context.src, "sample", next.quad, id, true);
     buzz(6);
     track("viz_context", { surface: id });
   };
 
+  const addSurfaceLayer = () => {
+    const used = new Set(layers.map((layer) => layer.surface));
+    const nextSurface = NEXT_SURFACE[surface].find((candidate) => !used.has(candidate)) ?? NEXT_SURFACE[surface][0];
+    const nextPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
+    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
+    const id = `surface-${layerSeq.current + 1}`;
+    layerSeq.current += 1;
+    const nextLayer: SurfaceLayer = {
+      id,
+      label: LAYER_LABELS[nextSurface],
+      surface: nextSurface,
+      quad: SURFACES[nextSurface].quad,
+      pieceSlug: nextPieceSlug,
+      tileSize: SURFACES[nextSurface].tileSize,
+      blend,
+      prepMode: "primer",
+      groutLight,
+      visible: true,
+      accepted: false,
+    };
+    setLayers((current) => withActiveLayer(current).concat(nextLayer));
+    setActiveLayerId(id);
+    setSurface(nextSurface);
+    setQuad(nextLayer.quad);
+    setPieceSlug(nextPieceSlug);
+    setTileSize(nextLayer.tileSize);
+    setPrepMode("primer");
+    setHasFittedSurface(false);
+    setSnapMessage(`Added ${nextLayer.label}. Find surface, then refine.`);
+    buzz(5);
+    track("viz_layer_add", { surface: nextSurface });
+    if (nextPiece.name) {
+      window.setTimeout(() => setSnapMessage(suggestionText(nextSurface, "primer", nextPiece.name)), 800);
+    }
+  };
+
   const render = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !photo || !pattern) return;
+    if (!canvas || !photo) return;
     const sourceW = photo.naturalWidth;
     const sourceH = photo.naturalHeight;
     const maxW = 1400;
@@ -914,69 +1033,25 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     drawSource(origCtx, photo, sourceW, sourceH, W, Hh, false);
     originalRef.current = orig;
 
-    const q = quad.map((p) => ({ x: p.x * W, y: p.y * Hh }));
-
     if (holdingRef.current) return;
 
-    if (prepMode !== "none") {
-      ctx.save();
-      clipQuad(ctx, q);
-      if (prepMode === "blur") {
-        drawBlurredPhoto(ctx, photo, sourceW, sourceH, W, Hh, 22, false);
-        ctx.fillStyle = "rgba(214, 206, 190, 0.08)";
-        ctx.fillRect(0, 0, W, Hh);
-      } else {
-        ctx.globalAlpha = 0.28;
-        drawBlurredPhoto(ctx, photo, sourceW, sourceH, W, Hh, 20, false);
-        ctx.globalAlpha = 1;
-        if (dragging.current === null) {
-          const nextPrimer = sampleQuadColor(origCtx, q, W, Hh);
-          primerColor.current = nextPrimer;
-        }
-        ctx.fillStyle = primerColor.current;
-        ctx.fillRect(0, 0, W, Hh);
-      }
-      ctx.restore();
-    }
-
-    const overlay = document.createElement("canvas");
-    overlay.width = W;
-    overlay.height = Hh;
-    const octx = overlay.getContext("2d")!;
-    const H = homography(q);
-    if (!H) return;
-    const N = 18;
-    const P = pattern.width;
-    for (let r = 0; r < N; r++) {
-      for (let cq = 0; cq < N; cq++) {
-        const u0 = cq / N, u1 = (cq + 1) / N, v0 = r / N, v1 = (r + 1) / N;
-        const s00 = { x: u0 * P, y: v0 * P }, s10 = { x: u1 * P, y: v0 * P };
-        const s11 = { x: u1 * P, y: v1 * P }, s01 = { x: u0 * P, y: v1 * P };
-        const d00 = mapPoint(H, u0, v0), d10 = mapPoint(H, u1, v0);
-        const d11 = mapPoint(H, u1, v1), d01 = mapPoint(H, u0, v1);
-        drawTriangle(octx, pattern, [s00, s10, s11], [d00, d10, d11]);
-        drawTriangle(octx, pattern, [s00, s11, s01], [d00, d11, d01]);
-      }
-    }
-
-    ctx.save();
-    ctx.globalAlpha = blend;
-    ctx.globalCompositeOperation = "multiply";
-    ctx.drawImage(overlay, 0, 0);
-    ctx.restore();
-
-    ctx.save();
-    clipQuad(ctx, q);
-    ctx.globalCompositeOperation = "soft-light";
-    ctx.globalAlpha = blend * (prepMode === "none" ? 0.5 : 0.24);
-    if (prepMode === "none") {
-      drawSource(ctx, photo, sourceW, sourceH, W, Hh, false);
-    } else {
-      drawBlurredPhoto(ctx, photo, sourceW, sourceH, W, Hh, 12, false);
-    }
-    ctx.restore();
+    const drawableLayers = withActiveLayer(layers);
+    drawableLayers.forEach((layer) => {
+      const layerPiece = pieceMap.get(layer.pieceSlug) ?? piece;
+      drawSurfaceLayer({
+        ctx,
+        origCtx,
+        photo,
+        sourceW,
+        sourceH,
+        width: W,
+        height: Hh,
+        layer,
+        piece: layerPiece,
+      });
+    });
     setTick((t) => t + 1);
-  }, [photo, quad, pattern, blend, prepMode]);
+  }, [layers, photo, piece, pieceMap, withActiveLayer]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(render);
@@ -1132,6 +1207,24 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
     }, "image/png");
   };
+
+  const layerChips = (
+    <div className="no-scrollbar -mx-2 flex gap-2 overflow-x-auto px-2 py-2" data-viz="layer-chips">
+      {layers.map((layer) => (
+        <button
+          key={layer.id}
+          type="button"
+          aria-pressed={layer.id === activeLayerId}
+          onClick={() => selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer)}
+          className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.18em] transition-all duration-300 active:scale-95 ${
+            layer.id === activeLayerId ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+          }`}
+        >
+          {layer.id === activeLayerId ? LAYER_LABELS[surface] : layer.label}
+        </button>
+      ))}
+    </div>
+  );
 
   const surfaceOptions = (
     <div>
@@ -1463,21 +1556,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                   <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
                     Find surface, then drag corners to refine. Press and hold to compare.
                   </p>
+                  <div className="mt-4">
+                    {layerChips}
+                  </div>
                   <div className="mt-4 flex flex-wrap items-center gap-6">
                     <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
                       Find surface
                     </button>
-                    {aiStatus === "thinking" ? (
-                      <button type="button" onClick={skipAiAssist} className="link-hair text-dusk">
-                        Skip
-                      </button>
-                    ) : (
-                      <button type="button" onClick={runAiAssist} className="link-hair text-dusk">
-                        AI fit
+                    {hasFittedSurface && (
+                      <button type="button" onClick={addSurfaceLayer} className="link-hair text-dusk">
+                        Add another surface
                       </button>
                     )}
                     <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">
-                      {aiMessage ?? snapMessage ?? "The stones stay editable."}
+                      {snapMessage ?? "The stones stay editable."}
                     </p>
                   </div>
                 </div>
