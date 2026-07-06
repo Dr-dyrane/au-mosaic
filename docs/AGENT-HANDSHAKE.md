@@ -16,6 +16,15 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Unveiling complexity and UI pass - done
+
+Finished the complexity and UX pass on `public/unveiling.html`, plus
+`docs/QA.md` evidence and this handshake. The tour controller now has grouped
+state, safe DOM rendering, hash deep links, guarded swipe, and selected-state
+accessibility. Mobile now keeps the chapter path and Guide or Drive control
+visible without the extra dashboard chrome. No admin shell, site route,
+catalogue, or global CSS edits touched.
+
 ## 2026-07-06 - CODEX - Interactive Nonso presentation lane - done
 
 Replaced the old trailer with a guided live product tour in

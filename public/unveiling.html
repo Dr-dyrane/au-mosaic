@@ -595,14 +595,17 @@
       order: 1;
     }
     .stage-toolbar {
-      border-radius: 28px;
-      align-items: stretch;
-      flex-direction: column;
-    }
-    .stage-toolbar > .seg,
-    .stage-toolbar > .live-label {
-      width: 100%;
+      width: fit-content;
+      margin-inline: auto;
+      border-radius: 999px;
       justify-content: center;
+    }
+    .device-control,
+    .live-label {
+      display: none;
+    }
+    .drive-control button {
+      min-width: 96px;
     }
     .frame-wrap {
       padding: 4px;
@@ -622,6 +625,23 @@
     }
     .path {
       order: -1;
+      scroll-snap-type: x mandatory;
+    }
+    .chapter {
+      min-width: 50px;
+      width: auto;
+      grid-template-columns: 26px;
+      scroll-snap-align: center;
+    }
+    .chapter span {
+      display: none;
+    }
+    .chapter.is-on {
+      min-width: 154px;
+      grid-template-columns: 26px 1fr;
+    }
+    .chapter.is-on span {
+      display: block;
     }
   }
 
@@ -671,12 +691,12 @@
 
     <section class="stage panel" aria-label="Live website stage">
       <div class="stage-toolbar">
-        <div class="seg" aria-label="Device preview">
+        <div class="seg device-control" aria-label="Device preview">
           <button type="button" data-device="desktop" class="is-on">Desktop</button>
           <button type="button" data-device="phone">Phone</button>
         </div>
         <div class="live-label"><i aria-hidden="true"></i><span id="live-label">Live page</span></div>
-        <div class="seg" aria-label="Tour mode">
+        <div class="seg drive-control" aria-label="Tour mode">
           <button type="button" data-drive="false" class="is-on">Guide</button>
           <button type="button" data-drive="true">Drive</button>
         </div>
@@ -820,26 +840,43 @@
   ];
 
   const root = document.documentElement;
-  const frame = document.getElementById("live-frame");
-  const story = document.getElementById("story");
-  const progress = document.getElementById("progress");
-  const eyebrow = document.getElementById("eyebrow");
-  const title = document.getElementById("title");
-  const copy = document.getElementById("copy");
-  const proof = document.getElementById("proof");
-  const route = document.getElementById("route");
-  const openLive = document.getElementById("open-live");
-  const spotlight = document.getElementById("spotlight");
-  const liveLabel = document.getElementById("live-label");
-  const chaptersWrap = document.getElementById("chapters");
-  const toast = document.getElementById("toast");
-  let current = 0;
-  let device = "desktop";
-  let palette = "royal";
-  let mode = "light";
+  const $ = (selector, scope = document) => scope.querySelector(selector);
+  const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
+  const ui = {
+    frame: $("#live-frame"),
+    story: $("#story"),
+    progress: $("#progress"),
+    eyebrow: $("#eyebrow"),
+    title: $("#title"),
+    copy: $("#copy"),
+    proof: $("#proof"),
+    route: $("#route"),
+    openLive: $("#open-live"),
+    spotlight: $("#spotlight"),
+    liveLabel: $("#live-label"),
+    chapters: $("#chapters"),
+    toast: $("#toast"),
+    metaTheme: $('meta[name="theme-color"]'),
+  };
+  const state = { index: 0, device: "desktop", palette: "royal", mode: "light", drive: "false" };
 
-  function two(n) {
-    return String(n + 1).padStart(2, "0");
+  function currentStep() {
+    return steps[state.index];
+  }
+
+  function textNode(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    node.textContent = text;
+    return node;
+  }
+
+  function syncButtons(selector, key, value) {
+    $$(selector).forEach((button) => {
+      const active = button.dataset[key] === value;
+      button.classList.toggle("is-on", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
   }
 
   function frameUrl(path) {
@@ -848,25 +885,25 @@
 
   function writeSiteTheme() {
     try {
-      localStorage.setItem("aumosaic.palette", palette);
-      localStorage.setItem("aumosaic.theme", mode);
-      const doc = frame.contentDocument;
+      localStorage.setItem("aumosaic.palette", state.palette);
+      localStorage.setItem("aumosaic.theme", state.mode);
+      const doc = ui.frame.contentDocument;
       if (!doc) return;
-      if (palette === "maison") doc.documentElement.removeAttribute("data-palette");
-      else doc.documentElement.dataset.palette = palette;
-      if (mode === "light") doc.documentElement.dataset.theme = "light";
+      if (state.palette === "maison") doc.documentElement.removeAttribute("data-palette");
+      else doc.documentElement.dataset.palette = state.palette;
+      if (state.mode === "light") doc.documentElement.dataset.theme = "light";
       else doc.documentElement.removeAttribute("data-theme");
       try {
-        frame.contentWindow.localStorage.setItem("aumosaic.palette", palette);
-        frame.contentWindow.localStorage.setItem("aumosaic.theme", mode);
-      } catch (e) {}
-    } catch (e) {}
+        ui.frame.contentWindow.localStorage.setItem("aumosaic.palette", state.palette);
+        ui.frame.contentWindow.localStorage.setItem("aumosaic.theme", state.mode);
+      } catch (error) {}
+    } catch (error) {}
   }
 
-  function scrollFrame(step) {
+  function scrollFrame(step = currentStep()) {
     try {
-      const win = frame.contentWindow;
-      const doc = frame.contentDocument;
+      const win = ui.frame.contentWindow;
+      const doc = ui.frame.contentDocument;
       if (!win || !doc) return;
       const behavior = prefersReduced ? "auto" : "smooth";
       if (step.scroll === "bottom") {
@@ -875,176 +912,217 @@
         win.scrollTo({ top: step.scroll, behavior });
       } else if (step.route.includes("#")) {
         const id = step.route.split("#")[1];
-        const el = doc.getElementById(id);
-        if (el) el.scrollIntoView({ behavior, block: "start" });
+        const target = doc.getElementById(id);
+        if (target) target.scrollIntoView({ behavior, block: "start" });
       } else {
         win.scrollTo({ top: 0, behavior: "auto" });
       }
-    } catch (e) {}
+    } catch (error) {}
+  }
+
+  function renderProof(step) {
+    const items = step.proof.map((item, index) => {
+      const li = document.createElement("li");
+      li.append(textNode("b", "", String(index + 1)), textNode("span", "", item));
+      return li;
+    });
+    ui.proof.replaceChildren(...items);
   }
 
   function renderHotspot(step) {
     const h = step.hotspot;
-    spotlight.innerHTML = "";
+    ui.spotlight.replaceChildren();
     if (!h) return;
+
     const dot = document.createElement("button");
     dot.type = "button";
     dot.className = "hotspot";
     dot.style.setProperty("--x", h.x + "%");
     dot.style.setProperty("--y", h.y + "%");
     dot.setAttribute("aria-label", h.title);
-    dot.innerHTML = "<span aria-hidden=\"true\"></span>";
-    dot.addEventListener("click", function (event) {
+    dot.append(textNode("span", "", ""));
+    dot.firstChild.setAttribute("aria-hidden", "true");
+    dot.addEventListener("click", (event) => {
       event.stopPropagation();
       scrollFrame(step);
     });
+
     const card = document.createElement("div");
     card.className = "callout";
     card.style.setProperty("--cx", h.cx);
     card.style.setProperty("--cy", h.cy);
-    card.innerHTML = "<h3>" + h.title + "</h3><p>" + h.text + "</p>";
-    spotlight.append(dot, card);
+    card.append(textNode("h3", "", h.title), textNode("p", "", h.text));
+
+    ui.spotlight.append(dot, card);
   }
 
-  function setDevice(nextDevice) {
-    device = nextDevice;
-    root.dataset.device = device;
-    document.querySelectorAll(".stage-toolbar [data-device]").forEach(function (button) {
-      button.classList.toggle("is-on", button.dataset.device === device);
-    });
+  function setDevice(value) {
+    state.device = value;
+    root.dataset.device = value;
+    syncButtons(".stage-toolbar [data-device]", "device", value);
+  }
+
+  function setDrive(value) {
+    state.drive = value;
+    root.dataset.drive = value;
+    syncButtons(".stage-toolbar [data-drive]", "drive", value);
+  }
+
+  function setMode(value) {
+    state.mode = value;
+    root.dataset.theme = value;
+    ui.metaTheme.setAttribute("content", value === "dark" ? "#071022" : "#F2F8FA");
+    syncButtons(".mode-row [data-mode]", "mode", value);
+    writeSiteTheme();
+  }
+
+  function setPalette(value) {
+    state.palette = value;
+    root.dataset.palette = value;
+    syncButtons(".swatches [data-palette]", "palette", value);
+    writeSiteTheme();
   }
 
   function showToast(text) {
-    toast.textContent = text;
-    toast.classList.add("is-on");
-    setTimeout(function () {
-      toast.classList.remove("is-on");
-    }, 1400);
+    ui.toast.textContent = text;
+    ui.toast.classList.add("is-on");
+    setTimeout(() => ui.toast.classList.remove("is-on"), 1400);
   }
 
-  function go(index, options) {
-    current = Math.max(0, Math.min(steps.length - 1, index));
-    const step = steps[current];
-    progress.textContent = two(current) + " of " + String(steps.length).padStart(2, "0");
-    eyebrow.textContent = step.eyebrow;
-    title.textContent = step.title;
-    copy.textContent = step.copy;
-    route.textContent = step.route;
-    openLive.href = step.route;
-    liveLabel.textContent = step.label + " is live";
-    story.classList.toggle("is-admin", Boolean(step.admin));
-    proof.innerHTML = step.proof.map(function (item, i) {
-      return "<li><b>" + (i + 1) + "</b><span>" + item + "</span></li>";
-    }).join("");
-    setDevice(step.device || device);
-    renderHotspot(step);
-    document.querySelectorAll(".chapter").forEach(function (button, i) {
-      button.classList.toggle("is-on", i === current);
-      button.setAttribute("aria-current", i === current ? "step" : "false");
+  function renderChapters() {
+    let activeButton = null;
+    $$(".chapter", ui.chapters).forEach((button, index) => {
+      const active = index === state.index;
+      button.classList.toggle("is-on", active);
+      if (active) {
+        button.setAttribute("aria-current", "step");
+        activeButton = button;
+      } else {
+        button.removeAttribute("aria-current");
+      }
     });
+    if (activeButton) {
+      activeButton.scrollIntoView({
+        behavior: prefersReduced ? "auto" : "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  }
+
+  function go(index, options = {}) {
+    state.index = Math.max(0, Math.min(steps.length - 1, index));
+    const step = currentStep();
+
+    ui.progress.textContent = String(state.index + 1).padStart(2, "0") + " of " + String(steps.length).padStart(2, "0");
+    ui.eyebrow.textContent = step.eyebrow;
+    ui.title.textContent = step.title;
+    ui.copy.textContent = step.copy;
+    ui.route.textContent = step.route;
+    ui.openLive.href = step.route;
+    ui.liveLabel.textContent = step.label + " is live";
+    ui.story.classList.toggle("is-admin", Boolean(step.admin));
+
+    setDevice(step.device || state.device);
+    renderProof(step);
+    renderHotspot(step);
+    renderChapters();
+
     const target = frameUrl(step.route);
-    if (frame.src !== target) {
+    if (ui.frame.src !== target) {
       writeSiteTheme();
-      frame.src = target;
+      ui.frame.src = target;
     } else {
       writeSiteTheme();
       scrollFrame(step);
     }
-    if (!options || !options.silent) {
-      history.replaceState(null, "", "#" + step.id);
-    }
+    if (!options.silentHash) history.replaceState(null, "", "#" + step.id);
   }
 
   function buildChapters() {
-    chaptersWrap.innerHTML = steps.map(function (step, i) {
-      return "<button class=\"chapter\" type=\"button\" data-step=\"" + i + "\"><b>" + (i + 1) + "</b><span>" + step.label + "</span></button>";
-    }).join("");
-    chaptersWrap.querySelectorAll(".chapter").forEach(function (button) {
-      button.addEventListener("click", function () {
-        go(Number(button.dataset.step));
-      });
+    const buttons = steps.map((step, index) => {
+      const button = document.createElement("button");
+      button.className = "chapter";
+      button.type = "button";
+      button.dataset.step = String(index);
+      button.setAttribute("aria-label", "Open " + step.label + " chapter");
+      button.append(textNode("b", "", String(index + 1)), textNode("span", "", step.label));
+      button.addEventListener("click", () => go(index));
+      return button;
+    });
+    ui.chapters.replaceChildren(...buttons);
+  }
+
+  function indexFromHash() {
+    const id = location.hash.replace("#", "");
+    if (!id) return null;
+    const index = steps.findIndex((step) => step.id === id);
+    return index >= 0 ? index : null;
+  }
+
+  function bindControls() {
+    $("#prev").addEventListener("click", () => go(state.index - 1));
+    $("#next").addEventListener("click", () => go(state.index + 1));
+    $("#recenter").addEventListener("click", () => scrollFrame());
+    $("#copy-link").addEventListener("click", async () => {
+      const url = location.origin + location.pathname + "#" + currentStep().id;
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast("Copied");
+      } catch (error) {
+        showToast("Link ready");
+      }
+    });
+    $$(".stage-toolbar [data-device]").forEach((button) => {
+      button.addEventListener("click", () => setDevice(button.dataset.device));
+    });
+    $$(".stage-toolbar [data-drive]").forEach((button) => {
+      button.addEventListener("click", () => setDrive(button.dataset.drive));
+    });
+    $$(".mode-row [data-mode]").forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.mode));
+    });
+    $$(".swatches [data-palette]").forEach((button) => {
+      button.addEventListener("click", () => setPalette(button.dataset.palette));
     });
   }
 
-  frame.addEventListener("load", function () {
-    const step = steps[current];
+  ui.frame.addEventListener("load", () => {
     writeSiteTheme();
-    setTimeout(function () {
-      scrollFrame(step);
-    }, prefersReduced ? 20 : 520);
+    setTimeout(() => scrollFrame(), prefersReduced ? 20 : 520);
   });
 
-  document.getElementById("prev").addEventListener("click", function () { go(current - 1); });
-  document.getElementById("next").addEventListener("click", function () { go(current + 1); });
-  document.getElementById("recenter").addEventListener("click", function () { scrollFrame(steps[current]); });
-  document.getElementById("copy-link").addEventListener("click", async function () {
-    const url = location.origin + location.pathname + "#" + steps[current].id;
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast("Copied");
-    } catch (e) {
-      showToast("Link ready");
-    }
+  addEventListener("hashchange", () => {
+    const index = indexFromHash();
+    if (index !== null && index !== state.index) go(index, { silentHash: true });
   });
 
-  document.querySelectorAll(".stage-toolbar [data-device]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      setDevice(button.dataset.device);
-    });
+  addEventListener("keydown", (event) => {
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
+    if (event.key === "ArrowRight" || event.key === "PageDown") go(state.index + 1);
+    if (event.key === "ArrowLeft" || event.key === "PageUp") go(state.index - 1);
   });
 
-  document.querySelectorAll(".stage-toolbar [data-drive]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      root.dataset.drive = button.dataset.drive;
-      document.querySelectorAll(".stage-toolbar [data-drive]").forEach(function (b) {
-        b.classList.toggle("is-on", b === button);
-      });
-    });
-  });
-
-  document.querySelectorAll(".mode-row [data-mode]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      mode = button.dataset.mode;
-      root.dataset.theme = mode;
-      document.querySelector('meta[name="theme-color"]').setAttribute("content", mode === "dark" ? "#071022" : "#F2F8FA");
-      document.querySelectorAll(".mode-row [data-mode]").forEach(function (b) {
-        b.classList.toggle("is-on", b === button);
-      });
-      writeSiteTheme();
-    });
-  });
-
-  document.querySelectorAll(".swatches [data-palette]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      palette = button.dataset.palette;
-      root.dataset.palette = palette;
-      document.querySelectorAll(".swatches [data-palette]").forEach(function (b) {
-        b.classList.toggle("is-on", b === button);
-      });
-      writeSiteTheme();
-    });
-  });
-
-  addEventListener("keydown", function (event) {
-    if (event.key === "ArrowRight" || event.key === "PageDown") go(current + 1);
-    if (event.key === "ArrowLeft" || event.key === "PageUp") go(current - 1);
-  });
-
-  let touchX = null;
-  addEventListener("touchstart", function (event) {
-    touchX = event.touches[0].clientX;
+  let touchStart = null;
+  addEventListener("touchstart", (event) => {
+    touchStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
   }, { passive: true });
-  addEventListener("touchend", function (event) {
-    if (touchX === null) return;
-    const dx = event.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 70) go(dx < 0 ? current + 1 : current - 1);
-    touchX = null;
+  addEventListener("touchend", (event) => {
+    if (!touchStart) return;
+    const dx = event.changedTouches[0].clientX - touchStart.x;
+    const dy = event.changedTouches[0].clientY - touchStart.y;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      go(dx < 0 ? state.index + 1 : state.index - 1);
+    }
+    touchStart = null;
   }, { passive: true });
 
   buildChapters();
-  const startHash = location.hash.replace("#", "");
-  const start = steps.findIndex(function (step) { return step.id === startHash; });
-  go(start >= 0 ? start : 0, { silent: start < 0 });
+  bindControls();
+  setDrive(state.drive);
+  setMode(state.mode);
+  setPalette(state.palette);
+  go(indexFromHash() ?? 0, { silentHash: true });
 </script>
 </body>
 </html>
