@@ -16,6 +16,22 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Public ask and map lane - done
+
+Closed the public-site ask and map lane: `src/lib/ask-house.ts`,
+`src/lib/maps.ts`, `src/components/AskHouse.tsx`,
+`src/components/ShowroomMap.tsx`, `src/components/Header.tsx`,
+`src/components/Footer.tsx`, `src/app/(site)/visualizer/page.tsx`,
+`src/app/(site)/contact/page.tsx`, `docs/QA.md`, and this handshake. Reused
+existing Radix dialog patterns, `IconClose`, `wa` helpers, Header, Footer, and
+site facts. The five-link primary nav stays intact; Ask lives inside Explore,
+the mobile menu, Visualizer, and Footer. Footer and Contact now share one lazy
+OpenStreetMap showroom frame with map and directions links. I did not touch
+Claude's open admin production files. Verified with in-app browser phone and
+contact checks, bundled Playwright desktop check, `npx tsc --noEmit`,
+`npx eslint src --max-warnings=0`, `python3 scripts/theme-check.py`,
+`git diff --check`, dash scan, and `npx next build` on Next 16.2.10, 57 routes.
+
 ## 2026-07-06 - Claude - production fleet, five lanes - open
 
 A fleet of agents landed the production substrate, each in a disjoint lane, all

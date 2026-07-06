@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AskHouse from "@/components/AskHouse";
 import Visualizer from "@/components/Visualizer";
 import { getPieces } from "@/lib/catalog";
 
@@ -22,6 +23,7 @@ export default async function VisualizerPage({ searchParams }: { searchParams: S
           Photo or camera. Try stock colourways in your own light.
           Send the result, get a quote.
         </p>
+        <AskHouse trigger="chip" context="visualizer" label="Ask what fits this space" className="mt-7" />
       </section>
       <div className="py-10 sm:py-14">
         <Visualizer initialPiece={piece} pieces={pieces} />

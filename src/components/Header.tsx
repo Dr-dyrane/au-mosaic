@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { EXPLORE, NAV, SITE } from "@/lib/site";
 import { waQuote } from "@/lib/wa";
+import AskHouse from "./AskHouse";
 import { AuLockup } from "./Mosaic";
 import ThemeToggle from "./ThemeToggle";
 
@@ -20,6 +21,7 @@ const getScrolled = () => window.scrollY > 24;
 export default function Header() {
   const [openPath, setOpenPath] = useState<string | null>(null);
   const [explorePath, setExplorePath] = useState<string | null>(null);
+  const [askOpen, setAskOpen] = useState(false);
   const exploreRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const scrolled = useSyncExternalStore(subscribe, getScrolled, () => false);
@@ -29,13 +31,13 @@ export default function Header() {
   /* Explore dismisses on an outside tap; touch has no hover to leave.
      (Menu links close themselves on click; no route-change effect needed.) */
   useEffect(() => {
-    if (!explore) return;
+    if (!explore || askOpen) return;
     const onDown = (e: PointerEvent) => {
       if (exploreRef.current && !exploreRef.current.contains(e.target as Node)) setExplorePath(null);
     };
     document.addEventListener("pointerdown", onDown);
     return () => document.removeEventListener("pointerdown", onDown);
-  }, [explore]);
+  }, [askOpen, explore]);
 
   /* While the mobile menu is open, lock the page so the panel scrolls, not
      the page behind it. */
@@ -87,7 +89,9 @@ export default function Header() {
               ref={exploreRef}
               className="relative"
               onMouseEnter={() => setExplorePath(pathname)}
-              onMouseLeave={() => setExplorePath(null)}
+              onMouseLeave={() => {
+                if (!askOpen) setExplorePath(null);
+              }}
             >
               <button
                 type="button"
@@ -122,6 +126,14 @@ export default function Header() {
                       {e.label}
                     </Link>
                   ))}
+                  <AskHouse
+                    trigger="menu"
+                    label="Ask the house"
+                    onOpenChange={(next) => {
+                      setAskOpen(next);
+                      if (!next) setExplorePath(null);
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -185,6 +197,7 @@ export default function Header() {
                   {e.label}
                 </Link>
               ))}
+              <AskHouse trigger="mobile" label="Ask the house" />
             </div>
             <a href={waQuote()} target="_blank" rel="noopener" data-wa="menu" className="btn-gold mt-6 inline-block">
               Enquire on WhatsApp

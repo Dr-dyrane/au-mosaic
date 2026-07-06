@@ -2,8 +2,10 @@ import Link from "next/link";
 import { EXPLORE, NAV, SITE } from "@/lib/site";
 import { getFacts } from "@/lib/facts";
 import { waGeneral } from "@/lib/wa";
+import AskHouse from "./AskHouse";
 import { AuLockup } from "./Mosaic";
 import PalettePicker from "./PalettePicker";
+import ShowroomMap from "./ShowroomMap";
 
 export default async function Footer() {
   /* Visit facts come from the book he edits; site.ts stands behind. */
@@ -27,6 +29,7 @@ export default async function Footer() {
           <a href={waGeneral()} target="_blank" rel="noopener" data-wa="footer" className="link-hair mt-6 text-dusk">
             WhatsApp the house
           </a>
+          <AskHouse trigger="chip" context="visit" label="Ask before visiting" className="mt-4" />
           <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
             <a href={facts.instagram} target="_blank" rel="noopener" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
               Instagram
@@ -35,6 +38,7 @@ export default async function Footer() {
               Telegram samples
             </a>
           </div>
+          <ShowroomMap compact className="mt-7" />
         </div>
 
         <nav>

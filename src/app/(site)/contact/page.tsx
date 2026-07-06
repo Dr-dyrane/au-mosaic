@@ -5,6 +5,7 @@ import { SITE } from "@/lib/site";
 import { DAY, OWN } from "@/lib/images";
 import { waGeneral, waQuote } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
+import ShowroomMap from "@/components/ShowroomMap";
 
 export const metadata: Metadata = {
   title: "Contact and showroom, Agric Market Lagos",
@@ -43,6 +44,7 @@ export default async function ContactPage() {
             <p className="font-serif mt-3 text-[20px]">Pickup or delivery</p>
             <p className="mt-1.5 text-[14px] text-dusk">Collect at the market, or we bring it to site.</p>
           </div>
+          <ShowroomMap className="md:col-span-3" />
         </div>
       </Section>
 
