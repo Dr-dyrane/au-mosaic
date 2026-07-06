@@ -13,8 +13,12 @@ document map. The short version of the culture:
   primitives in `src/app/globals.css`, components in `src/components`,
   pages only compose. Pages reach the catalogue through
   `src/lib/catalog.ts`, never `products.ts` directly.
-- Copy: Apple-terse. Few words, human prose, no em dashes anywhere in
-  the repo, one idea per sentence.
+- Copy: Apple-terse. Few words, human prose, one idea per sentence.
+- No em dashes. Ever. Not in copy, docs, code comments, commit
+  messages, client letters, or chat with the owner. Dyrane dislikes
+  them. Use a comma, colon, semicolon, period, or parentheses instead.
+  The same goes for en dashes used as punctuation. When you touch text
+  that already has one, quietly replace it.
 - Type: the ramp is 11, 12, 14, 16, 20, 26 plus text-display-section,
   text-display-page, text-display-hero. No other sizes.
 - Geometry: capsules for interactive chrome, 28px squircles for panels,
