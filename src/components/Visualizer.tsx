@@ -375,11 +375,6 @@ function detectSurfaceQuad(image: HTMLImageElement, surface: SurfaceId): SnapRes
   return detectSurfaceFrame(image, image.naturalWidth || image.width, image.naturalHeight || image.height, surface);
 }
 
-function detectVideoSurface(video: HTMLVideoElement, surface: SurfaceId): SnapResult | null {
-  if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !video.videoWidth || !video.videoHeight) return null;
-  return detectSurfaceFrame(video, video.videoWidth, video.videoHeight, surface);
-}
-
 const DEFAULT_QUAD: Pt[] = [
   { x: 0.28, y: 0.45 }, { x: 0.75, y: 0.45 }, { x: 0.92, y: 0.92 }, { x: 0.1, y: 0.92 },
 ];
@@ -522,7 +517,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [liveTracking, setLiveTracking] = useState(false);
   const [refineOpen, setRefineOpen] = useState(false);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -533,12 +527,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const objectUrls = useRef<Set<string>>(new Set());
   const dragging = useRef<number | null>(null);
   const dragFrame = useRef<number | null>(null);
-  const liveFrame = useRef<number | null>(null);
-  const liveDetectAt = useRef(0);
   const dragPoint = useRef<Pt | null>(null);
   const loadSeq = useRef(0);
   const primerColor = useRef("rgba(214, 206, 190, 0.78)");
-  const livePrimerColor = useRef("rgba(214, 206, 190, 0.78)");
   const holdingRef = useRef(false);
   const restored = useRef(false);
 
@@ -599,7 +590,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     cameraStream?.getTracks().forEach((track) => track.stop());
     setCameraStream(null);
     setCameraOpen(false);
-    setLiveTracking(false);
+    setCameraError(null);
+    setSnapMessage(null);
   }, [cameraStream]);
 
   const openCamera = async () => {
@@ -619,8 +611,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       });
       setCameraStream(stream);
       setCameraOpen(true);
-      setLiveTracking(true);
-      setSnapMessage("Live preview is on. Move slowly, then refine the corners.");
+      setSnapMessage("Camera ready. Capture once, then refine the still.");
       buzz(6);
       track("viz_camera_open", {});
     } catch {
@@ -631,18 +622,21 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const snapCamera = async () => {
     const video = videoRef.current;
     if (!video || !cameraStream) return;
+    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !video.videoWidth || !video.videoHeight) {
+      setCameraError("Camera is warming up. Try again.");
+      return;
+    }
+    setCameraError(null);
     const canvas = document.createElement("canvas");
-    const stage = canvasRef.current;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.max(1, Math.round((stage?.clientWidth || video.videoWidth || 1280) * dpr));
-    canvas.height = Math.max(1, Math.round((stage?.clientHeight || video.videoHeight || 720) * dpr));
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
-    if (ctx) drawSource(ctx, video, video.videoWidth || canvas.width, video.videoHeight || canvas.height, canvas.width, canvas.height, true);
+    if (ctx) ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(
       (blob) => {
         if (blob) loadImage(objectUrl(blob), "camera");
         else loadImage(canvas.toDataURL("image/jpeg", 0.92), "camera", SURFACES[surface].quad);
-        track("viz_camera_snap", { method: "live-frame" });
+        track("viz_camera_snap", { method: "capture" });
         stopCamera();
       },
       "image/jpeg",
@@ -681,7 +675,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   useEffect(() => () => {
     if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
-    if (liveFrame.current !== null) cancelAnimationFrame(liveFrame.current);
   }, []);
 
   useEffect(() => {
@@ -703,8 +696,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   };
 
   const findSurface = (id = surface) => {
-    const video = videoRef.current;
-    const found = cameraOpen && video ? detectVideoSurface(video, id) : photo ? detectSurfaceQuad(photo, id) : null;
+    const found = photo ? detectSurfaceQuad(photo, id) : null;
     if (!found) {
       setSnapMessage("No clean edge yet. Drag corners to refine.");
       track("viz_autosnap", { surface: id, status: "miss" });
@@ -713,7 +705,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     }
     setSurface(id);
     setTileSize(SURFACES[id].tileSize);
-    setLiveTracking(false);
     setQuad(found.quad);
     setSnapMessage(found.confidence > 1.35 ? "Surface found. Drag corners to refine." : "Best edge found. Drag corners to refine.");
     track("viz_autosnap", { surface: id, confidence: Math.round(found.confidence * 100) });
@@ -722,10 +713,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const fitSurface = (id: SurfaceId) => {
     const next = SURFACES[id];
-    const video = videoRef.current;
     setSurface(id);
     setTileSize(next.tileSize);
-    const found = cameraOpen && video ? detectVideoSurface(video, id) : photo ? detectSurfaceQuad(photo, id) : null;
+    const found = photo ? detectSurfaceQuad(photo, id) : null;
     if (found) {
       setQuad(found.quad);
       setSnapMessage("Surface found. Drag corners to refine.");
@@ -752,30 +742,24 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
-    const video = videoRef.current;
-    const isLive = Boolean(cameraOpen && video && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0 && video.videoHeight > 0);
-    const liveVideo = isLive ? video! : null;
-    const source = liveVideo ?? photo;
-    if (!canvas || !source || !pattern) return;
-    const sourceW = liveVideo ? liveVideo.videoWidth : photo!.naturalWidth;
-    const sourceH = liveVideo ? liveVideo.videoHeight : photo!.naturalHeight;
-    const coverMode = cameraOpen;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (!canvas || !photo || !pattern) return;
+    const sourceW = photo.naturalWidth;
+    const sourceH = photo.naturalHeight;
     const maxW = 1400;
     const scale = Math.min(1, maxW / sourceW);
-    const W = coverMode ? Math.max(1, Math.round((canvas.clientWidth || window.innerWidth) * dpr)) : Math.round(sourceW * scale);
-    const Hh = coverMode ? Math.max(1, Math.round((canvas.clientHeight || window.innerHeight) * dpr)) : Math.round(sourceH * scale);
+    const W = Math.round(sourceW * scale);
+    const Hh = Math.round(sourceH * scale);
     canvas.width = W;
     canvas.height = Hh;
     const ctx = canvas.getContext("2d")!;
-    drawSource(ctx, source, sourceW, sourceH, W, Hh, coverMode);
+    drawSource(ctx, photo, sourceW, sourceH, W, Hh, false);
 
     /* Keep the untouched photo for press-and-hold compare. */
     const orig = document.createElement("canvas");
     orig.width = W;
     orig.height = Hh;
     const origCtx = orig.getContext("2d")!;
-    drawSource(origCtx, source, sourceW, sourceH, W, Hh, coverMode);
+    drawSource(origCtx, photo, sourceW, sourceH, W, Hh, false);
     originalRef.current = orig;
 
     const q = quad.map((p) => ({ x: p.x * W, y: p.y * Hh }));
@@ -786,19 +770,18 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       ctx.save();
       clipQuad(ctx, q);
       if (prepMode === "blur") {
-        drawBlurredPhoto(ctx, source, sourceW, sourceH, W, Hh, 22, coverMode);
+        drawBlurredPhoto(ctx, photo, sourceW, sourceH, W, Hh, 22, false);
         ctx.fillStyle = "rgba(214, 206, 190, 0.08)";
         ctx.fillRect(0, 0, W, Hh);
       } else {
         ctx.globalAlpha = 0.28;
-        drawBlurredPhoto(ctx, source, sourceW, sourceH, W, Hh, 20, coverMode);
+        drawBlurredPhoto(ctx, photo, sourceW, sourceH, W, Hh, 20, false);
         ctx.globalAlpha = 1;
         if (dragging.current === null) {
           const nextPrimer = sampleQuadColor(origCtx, q, W, Hh);
-          if (isLive) livePrimerColor.current = nextPrimer;
-          else primerColor.current = nextPrimer;
+          primerColor.current = nextPrimer;
         }
-        ctx.fillStyle = isLive ? livePrimerColor.current : primerColor.current;
+        ctx.fillStyle = primerColor.current;
         ctx.fillRect(0, 0, W, Hh);
       }
       ctx.restore();
@@ -835,46 +818,18 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     ctx.globalCompositeOperation = "soft-light";
     ctx.globalAlpha = blend * (prepMode === "none" ? 0.5 : 0.24);
     if (prepMode === "none") {
-      drawSource(ctx, source, sourceW, sourceH, W, Hh, coverMode);
+      drawSource(ctx, photo, sourceW, sourceH, W, Hh, false);
     } else {
-      drawBlurredPhoto(ctx, source, sourceW, sourceH, W, Hh, 12, coverMode);
+      drawBlurredPhoto(ctx, photo, sourceW, sourceH, W, Hh, 12, false);
     }
     ctx.restore();
-    if (!cameraOpen) setTick((t) => t + 1);
-  }, [cameraOpen, photo, quad, pattern, blend, prepMode]);
+    setTick((t) => t + 1);
+  }, [photo, quad, pattern, blend, prepMode]);
 
   useEffect(() => {
-    if (cameraOpen) return;
     const frame = requestAnimationFrame(render);
     return () => cancelAnimationFrame(frame);
-  }, [cameraOpen, render]);
-
-  useEffect(() => {
-    if (!cameraOpen) return;
-    let mounted = true;
-    const loop = (now: number) => {
-      if (!mounted) return;
-      render();
-      const video = videoRef.current;
-      if (liveTracking && dragging.current === null && video && now > liveDetectAt.current) {
-        const found = detectVideoSurface(video, surface);
-        if (found && isValidQuad(found.quad)) {
-          setQuad(found.quad);
-          setSnapMessage("Live surface found. Drag corners to refine.");
-        } else {
-          setSnapMessage("Live preview is on. Drag corners if the surface drifts.");
-        }
-        liveDetectAt.current = now + 1300;
-      }
-      liveFrame.current = requestAnimationFrame(loop);
-    };
-    liveFrame.current = requestAnimationFrame(loop);
-    return () => {
-      mounted = false;
-      if (liveFrame.current !== null) cancelAnimationFrame(liveFrame.current);
-      liveFrame.current = null;
-    };
-  }, [cameraOpen, liveTracking, render, surface]);
+  }, [render]);
 
   const pointerPos = (e: React.PointerEvent): Pt => {
     const rect = wrapRef.current!.getBoundingClientRect();
@@ -954,7 +909,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const nudgeCorner = (index: number, dx: number, dy: number) => {
     const current = quad[index];
     const next = { x: clamp(current.x + dx, 0.02, 0.98), y: clamp(current.y + dy, 0.02, 0.98) };
-    setLiveTracking(false);
     updateCorner(index, next);
     setLoupe(next);
     requestAnimationFrame(() => drawLoupe(next));
@@ -1234,14 +1188,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const stage = (
     <div
       ref={wrapRef}
-      className={
-        cameraOpen
-          ? "relative h-full w-full overflow-hidden bg-sand"
-          : "relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px]"
-      }
+      className="relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px]"
     >
-      <canvas ref={canvasRef} className={cameraOpen ? "block h-full w-full" : "block h-auto w-full max-w-full"} />
-      {!cameraOpen && <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />}
+      <canvas ref={canvasRef} className="block h-auto w-full max-w-full" />
+      <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />
       <p id="viz-corner-help" className="sr-only">
         Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.
       </p>
@@ -1297,7 +1247,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             onPointerDown={(e) => {
               e.stopPropagation();
               (e.target as Element).setPointerCapture(e.pointerId);
-              setLiveTracking(false);
               dragging.current = i;
               const p2 = pointerPos(e);
               dragPoint.current = p2;
@@ -1333,7 +1282,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="eyebrow">Your space</p>
-          <p className="font-serif mt-2 text-[20px]">Live camera or one photo.</p>
+          <p className="font-serif mt-2 text-[20px]">Photo or camera.</p>
           <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-dusk">
             We find the surface. You refine it.
           </p>
@@ -1344,7 +1293,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
           </label>
           <button type="button" onClick={openCamera} className="link-hair text-dusk">
-            Live camera
+            Use camera
           </button>
         </div>
       </div>
@@ -1419,23 +1368,22 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-[90] bg-sand/80" />
           <Dialog.Content className="fixed inset-0 z-[91] overflow-hidden bg-sand outline-none">
-            <Dialog.Title className="sr-only">Live camera</Dialog.Title>
+            <Dialog.Title className="sr-only">Camera capture</Dialog.Title>
             <Dialog.Description className="sr-only">
-              Point the camera at the surface. The mosaic preview follows the live frame.
+              Point the camera at the surface, capture a still, then refine the visualizer.
             </Dialog.Description>
-            {cameraOpen && stage}
-            <video ref={videoRef} muted playsInline autoPlay className="sr-only" />
+            <video ref={videoRef} muted playsInline autoPlay className="h-full w-full object-cover" />
             <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-4 p-5 sm:p-8">
               <div className="glass pointer-events-auto max-w-[min(360px,calc(100vw-104px))] px-5 py-4">
-                <p className="eyebrow">Live preview</p>
+                <p className="eyebrow">Camera</p>
                 <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                  Move slowly. Drag the four stones if the surface drifts.
+                  Capture the surface once. We refine it after.
                 </p>
               </div>
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  aria-label="Close live camera"
+                  aria-label="Close camera"
                   className="glass pointer-events-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors duration-300 hover:text-gold"
                 >
                   <IconClose className="h-4 w-4" />
@@ -1443,37 +1391,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               </Dialog.Close>
             </div>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-8">
-              <div className="glass pointer-events-auto mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-5 px-5 py-4 sm:justify-between">
+              <div className="glass pointer-events-auto mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-5 px-5 py-4 sm:justify-between">
                 <div className="min-w-[180px] flex-1">
-                  <p className="eyebrow">{liveTracking ? "Tracking" : "Manual fit"}</p>
+                  <p className="eyebrow">Capture</p>
                   <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-mist">
-                    {snapMessage ?? "Move slowly. The surface stays editable."}
+                    {cameraError ?? "Take one still. Then the surface stays editable."}
                   </p>
                 </div>
                 <button type="button" onClick={snapCamera} className="btn-gold">
-                  Use this view
+                  Capture photo
                 </button>
-                <div className="flex flex-wrap items-center justify-center gap-5">
-                  {!liveTracking && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLiveTracking(true);
-                        liveDetectAt.current = 0;
-                        setSnapMessage("Tracking live surface.");
-                      }}
-                      className="link-hair text-dusk"
-                    >
-                      Track again
-                    </button>
-                  )}
-                  <button type="button" onClick={() => setRefineOpen(true)} className="link-hair text-dusk">
-                    Refine
-                  </button>
-                  <button type="button" onClick={share} className="link-hair text-dusk" data-wa="visualizer-live">
-                    Send
-                  </button>
-                </div>
               </div>
             </div>
           </Dialog.Content>

@@ -19,7 +19,7 @@ export default async function VisualizerPage({ searchParams }: { searchParams: S
         <p className="eyebrow">Visualizer</p>
         <h1 className="font-serif text-display-page mt-4 max-w-2xl">See it in your space.</h1>
         <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
-          Live camera or one photo. Try stock colourways in your own light.
+          Photo or camera. Try stock colourways in your own light.
           Send the result, get a quote.
         </p>
       </section>
