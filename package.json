@@ -15,7 +15,8 @@
     "media:raw": "tsx scripts/media-raw-import.ts",
     "media:import": "npm run media:backfill && npm run media:raw",
     "demo:seed": "tsx scripts/demo-seed.ts",
-    "demo:clear": "tsx scripts/demo-seed.ts --clear"
+    "demo:clear": "tsx scripts/demo-seed.ts --clear",
+    "reset:book": "tsx scripts/reset-book.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

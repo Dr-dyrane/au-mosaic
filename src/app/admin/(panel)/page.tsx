@@ -49,9 +49,12 @@ export default async function AdminHome() {
           <h1 className="font-serif text-display-section">The house, in numbers.</h1>
           <RefreshLine />
         </div>
-        <div data-tour="new-order">
+        <div data-tour="new-order" className="flex flex-col items-end gap-3">
           <Link href="/admin/orders/new" className="btn-gold admin-page-action">
             New order
+          </Link>
+          <Link href="/admin/share" className="link-hair text-dusk text-[12px]">
+            From WhatsApp
           </Link>
         </div>
       </div>

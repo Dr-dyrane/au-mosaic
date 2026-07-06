@@ -8,12 +8,19 @@
   "background_color": "#071022",
   "theme_color": "#eef3fa",
   "share_target": {
-    "action": "/admin/share",
-    "method": "GET",
+    "action": "/admin/share/receive",
+    "method": "POST",
+    "enctype": "multipart/form-data",
     "params": {
       "title": "title",
       "text": "text",
-      "url": "url"
+      "url": "url",
+      "files": [
+        {
+          "name": "chat",
+          "accept": ["text/plain", ".txt", "application/zip", ".zip"]
+        }
+      ]
     }
   },
   "icons": [

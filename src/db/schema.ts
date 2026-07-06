@@ -124,7 +124,7 @@ export const mediaAssets = pgTable(
     status: text("status", { enum: ["draft", "approved", "wired", "archived"] })
       .notNull()
       .default("draft"),
-    pieceSlug: text("piece_slug").references(() => pieces.slug),
+    pieceSlug: text("piece_slug").references(() => pieces.slug, { onDelete: "set null" }),
     notes: text("notes").notNull().default(""),
     source: text("source").notNull().default(""),
     width: integer("width"),
@@ -132,6 +132,7 @@ export const mediaAssets = pgTable(
     originalPath: text("original_path").notNull().default(""),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
   },
   (t) => [
     index("media_assets_batch_idx").on(t.batch),
@@ -159,6 +160,10 @@ export const customers = pgTable("customers", {
   area: text("area").notNull().default(""),
   note: text("note").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  /* When set, the row is archived: kept in the book but hidden from
+     the working lists. Null means live. Restore clears it back to
+     null; permanent delete removes the row for good. */
+  archivedAt: timestamp("archived_at", { withTimezone: true }),
 });
 
 export const salesMotions = pgTable(
@@ -167,7 +172,7 @@ export const salesMotions = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     customerId: uuid("customer_id")
       .notNull()
-      .references(() => customers.id),
+      .references(() => customers.id, { onDelete: "cascade" }),
     kind: text("kind", {
       enum: [
         "showroom_visit",
@@ -183,6 +188,7 @@ export const salesMotions = pgTable(
     completedAt: timestamp("completed_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
   },
   (t) => [
     index("sales_motions_customer_idx").on(t.customerId),
@@ -194,8 +200,8 @@ export const enquiries = pgTable(
   "enquiries",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    customerId: uuid("customer_id").references(() => customers.id),
-    pieceSlug: text("piece_slug").references(() => pieces.slug),
+    customerId: uuid("customer_id").references(() => customers.id, { onDelete: "cascade" }),
+    pieceSlug: text("piece_slug").references(() => pieces.slug, { onDelete: "set null" }),
     source: text("source").notNull().default("whatsapp"),
     message: text("message").notNull().default(""),
     status: enquiryStatus("status").notNull().default("new"),
@@ -204,6 +210,7 @@ export const enquiries = pgTable(
        Distinct ids draw the top of the funnel. */
     sessionId: text("session_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
   },
   (t) => [index("enquiries_customer_idx").on(t.customerId)]
 );
@@ -214,11 +221,12 @@ export const orders = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     customerId: uuid("customer_id")
       .notNull()
-      .references(() => customers.id),
+      .references(() => customers.id, { onDelete: "cascade" }),
     status: orderStatus("status").notNull().default("enquiry"),
     note: text("note").notNull().default(""),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
   },
   (t) => [index("orders_customer_idx").on(t.customerId), index("orders_status_idx").on(t.status)]
 );
@@ -274,6 +282,7 @@ export const deliveries = pgTable(
     scheduledFor: date("scheduled_for"),
     deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     note: text("note").notNull().default(""),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
   },
   (t) => [index("deliveries_order_idx").on(t.orderId)]
 );

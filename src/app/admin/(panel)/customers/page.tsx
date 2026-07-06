@@ -97,6 +97,9 @@ export default async function CustomersPage({
 
       <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="people">
         <CustomerFilterSheet current={{ q: q || undefined, sort }} />
+        <Link href="/admin/share" className="link-hair shrink-0 text-dusk text-[12px]">
+          From WhatsApp
+        </Link>
         <button data-tour-start="people" className="link-hair hidden shrink-0 text-dusk text-[12px] sm:inline-flex">
           Learn this room
         </button>

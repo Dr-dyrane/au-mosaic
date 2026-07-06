@@ -16,6 +16,107 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - Claude - production fleet, five lanes - open
+
+A fleet of agents landed the production substrate, each in a disjoint lane, all
+new files or additive, none of yours. `npx tsc --noEmit` and `npx eslint src`
+are clean across the project.
+
+- Archive and delete: `src/db/schema.ts` gains a nullable `archived_at` on
+  customers, orders, enquiries, sales_motions, deliveries, media_assets, and the
+  customer foreign keys cascade (piece links set null). New
+  `src/app/admin/(panel)/records/actions.ts` and `types.ts` hold generic
+  archive, restore, and permanent-delete actions (delete only on explicit
+  confirm, every move signs the audit log). Migration
+  `drizzle/0011_secret_dazzler.sql` plus its snapshot and journal. The owner runs
+  `npx drizzle-kit migrate` before archive or delete is used.
+- History and purge: new `src/app/admin/(panel)/settings/history-actions.ts`
+  (clear all, or older than a date) and `scripts/reset-book.ts` (dry by default;
+  `--history`, `--demo`, `--all`; keeps real data and the owner's kept test).
+  `package.json` gains `reset:book`.
+- Reader door: a single hairline "From WhatsApp" link on the Home page
+  (`src/app/admin/(panel)/page.tsx`) and People page
+  (`src/app/admin/(panel)/customers/page.tsx`), pointing at `/admin/share`. No
+  new gold action, no nav change.
+- Reader tuning: `src/lib/ai/extract-order.ts` now flags loose matches; a slug
+  under 0.75 confidence wears "check this one".
+- Launch audit: `docs/PROD-AUDIT.md`. It confirms two old punch-list items are
+  already fixed in code (phone tabs carry aria-label, AdminTopNav is gone); the
+  live one left is the duplicate `stock-filter-panel` id (`FilterSheet.tsx` and
+  `AdminContext.tsx`), plus a missing `src/app/admin/error.tsx`.
+
+Still yours to steer, the shell wiring on top of this substrate: the select mode
+and action bar on the list rooms, the "Clear history" button in Settings, and
+archived-row filtering in the list queries. I prototype and gate; we wire one
+hand per file. Plan is `docs/PRODUCTION-READY.md`.
+
+## 2026-07-06 - CODEX - Visualizer flow repair lane - done
+
+Closed `src/components/Visualizer.tsx` and `docs/QA.md` for the visualizer
+flow repair. Upload is a real button, camera errors stay beside the camera
+action, surface choice happens before upload, stale layer suggestion timing is
+gone, corner handles enter keyboard order only after fitting, Add another
+surface explains its gate, duplicate surface layers are blocked, and WhatsApp
+shares summarize every visible layer. I did not touch Claude's open
+order-reading, WhatsApp, admin share, or manifest files.
+
+## 2026-07-06 - CODEX - Visualizer layered surfaces lane - done
+
+Closed `src/components/Visualizer.tsx` and `docs/QA.md` for the layered
+surface UX. Removed visible AI fit, kept Find surface as the main action,
+added quiet suggestions after image load, unlocked Add another surface after
+fit, added surface chips, and composited all fitted surfaces in order. I did
+not touch Claude's open order-reading, WhatsApp, admin share, or manifest
+files. Verified with Playwright phone, tablet, and desktop checks, plus
+TypeScript, lint, theme gate, dash scan, diff check, and production build.
+
+## 2026-07-06 - CODEX - Visualizer Haiku assist lane - done
+
+Closed `src/components/Visualizer.tsx`, `src/app/api/visualizer/analyze/route.ts`,
+`src/lib/visualizer-ai.ts`, and `docs/QA.md` for a visualizer-only AI assist.
+I did not touch Claude's open `src/lib/ai`, `src/lib/whatsapp`, order import,
+or admin-shell files. The customer path is progressive: local autosnap first,
+Haiku as optional assist, Skip while it thinks, manual four-stone correction
+always available. Verified with mocked Playwright, no real model call, plus
+TypeScript, lint, theme gate, diff check, dash scan, and production build.
+
+## 2026-07-06 - Claude - AI order-reading engine lane - open
+
+Opened the lane that reads a WhatsApp chat into a draft order. Landed and
+verified this pass, all new files, none of them yours: `src/lib/ai/client.ts`,
+`src/lib/ai/extract-order.ts`, `src/lib/ai/types.ts`, `src/lib/ai/chat-to-draft.ts`,
+`src/lib/ai/catalog.ts`, `src/lib/whatsapp/parse-export.ts`, and
+`src/lib/whatsapp/read-upload.ts`. The engine reads
+free words plus the live catalogue into draft lines whose `pieceSlug` is enum
+fenced to real slugs; there is no price field, so the model cannot price, and the
+suggested price is seeded from the ledger. The Claude call reads `CLAUDE_API_KEY`
+from the environment like `DATABASE_URL`, never logged. `npx tsc --noEmit` and
+`npx eslint src/lib/ai src/lib/whatsapp --max-warnings=0` are clean; the parser
+passed a node self-test over iPhone, Android, 12-hour, multi-line, system, and
+media lines. Plan is `docs/ORDER-LIFECYCLE-AI.md`.
+
+Phase 1 landed, on the owner's go, held to `docs/ORDER-LIFECYCLE-AI.md` section
+10. New files, mine: `src/app/admin/(panel)/share/draft-types.ts`,
+`draft-actions.ts`, `ReviewDraft.tsx`, `ReadChat.tsx`, and
+`share/receive/route.ts`. Touched, in the admin shell you had ceded here:
+`src/app/admin/(panel)/share/page.tsx` and `public/admin.webmanifest`
+(share_target moved GET to POST multipart with a `files` param, action now
+`/admin/share/receive`). The `/share` bridge now reads a shared, pasted, or
+uploaded chat into a draft order and confirms it through the existing
+`createOrder` and `addLine` writes; price is seeded from the ledger and set by
+hand, never by the model; the number-match still ties the known customer; one
+gold action per screen. `npx tsc --noEmit` and `npx eslint src --max-warnings=0`
+are clean and the manifest is valid JSON. I did not touch
+`src/components/Visualizer.tsx`, `src/app/(site)/visualizer/page.tsx`,
+`src/app/api/visualizer/analyze/route.ts`, `src/lib/visualizer-ai.ts`,
+`docs/QA.md`, or `globals.css`. Committing only my own files, no `add -A`.
+
+Still open, and yours to steer: rendering that same `ReviewDraft` as a true
+detent sheet on compact and the inspector on wide, launched from Orders and a
+customer record. It runs inline on the `/share` bridge today, working on every
+platform; the adaptive sheet and inspector wiring is the shell work I will
+prototype and gate with you.
+
 ## 2026-07-06 - CODEX - Visualizer mobile stage bleed - done
 
 Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake. The
