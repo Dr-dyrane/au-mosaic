@@ -16,6 +16,18 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Mobile Explore drill-in lane - done
+
+Closed `src/components/Header.tsx`, `docs/QA.md`, and this handshake for the
+mobile Explore menu repair. The phone menu now opens with primary links only,
+then Explore opens as its own focused drill-in with Back to menu, the editorial
+links, and Ask the house. I did not touch the open admin production lane or the
+dirty admin orders file. Bundled Playwright checked `/visualizer` at 390 by 844,
+including both menu states and no horizontal overflow. `npx tsc --noEmit`,
+`npx eslint src --max-warnings=0`, `python3 scripts/theme-check.py`,
+`git diff --check`, dash scan, and `npx next build` on Next 16.2.10, 57 routes,
+passed.
+
 ## 2026-07-06 - CODEX - Public ask and map lane - done
 
 Closed the public-site ask and map lane: `src/lib/ask-house.ts`,
