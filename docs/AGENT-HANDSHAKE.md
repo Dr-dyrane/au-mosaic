@@ -16,6 +16,16 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Interactive Nonso presentation lane - done
+
+Replaced the old trailer with a guided live product tour in
+`public/unveiling.html`. It now embeds the real showroom routes, adds chapter
+hotspots, device preview, drive mode, palette and day or night controls, and an
+honest Office chapter that opens the real private `/admin` path instead of
+inventing CRM figures. Updated `docs/QA.md` with Chrome CDP evidence,
+screenshots, source checks, lint, and build. No admin shell or `globals.css`
+edits.
+
 ## 2026-07-05 · Claude · Material lucency pass - OWNER-APPROVED (globals.css, yours)
 
 Owner reviewed the glass surfaces and **approved this direction** - his words:
