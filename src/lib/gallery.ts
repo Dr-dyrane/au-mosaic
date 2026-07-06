@@ -1,3 +1,7 @@
+import { and, desc, eq, inArray, ne } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
+import { getDb, schema } from "@/db";
+import { healSchema } from "@/db/heal";
 import {
   ATELIER_SCENES,
   CARD,
@@ -29,6 +33,11 @@ export type GalleryItem = {
 
 type GalleryCopy = Omit<GalleryItem, "src" | "srcDay">;
 type Tone = "day" | "night";
+type MediaAsset = typeof schema.mediaAssets.$inferSelect;
+type GalleryMediaRow = {
+  asset: MediaAsset;
+  pieceName: string | null;
+};
 
 function titled(value: string) {
   return value
@@ -47,6 +56,103 @@ function frame(src: string, copy: GalleryCopy, tone?: Tone): GalleryItem {
     alt: tone ? `${copy.alt}, ${tone} frame` : copy.alt,
   };
 }
+
+function publicTitle(asset: MediaAsset, pieceName: string | null) {
+  if (asset.role === "card" && pieceName) return pieceName;
+  return titled(
+    asset.title
+      .replace(/^sku\s+/i, "")
+      .replace(/^window\s+/i, "")
+      .replace(/\s+stock\s*$/i, "")
+      .replace(/\s+(light|dark|day|night)\s*$/i, "")
+  );
+}
+
+function publicLabel(asset: MediaAsset) {
+  const text = `${asset.title} ${asset.notes}`.toLowerCase();
+  if (asset.role === "card") return "Product";
+  if (text.includes("mural") || text.includes("custom art")) return "Mural";
+  if (text.includes("pool")) return "Pool";
+  if (text.includes("sample") || text.includes("artisan")) return "Craft";
+  return "Room";
+}
+
+function publicLine(asset: MediaAsset, title: string) {
+  if (asset.role === "card") return `${title} seen close.`;
+  if (asset.role === "window") return "A house frame from the showroom.";
+  if (asset.role === "proof" || asset.role === "applied") {
+    return "A room example from the showroom.";
+  }
+  return "A house frame from the archive.";
+}
+
+function publicHref(asset: MediaAsset) {
+  const text = `${asset.title} ${asset.notes}`.toLowerCase();
+  if (asset.pieceSlug) return `/piece/${asset.pieceSlug}`;
+  if (text.includes("materials")) return "/pool-materials";
+  if (text.includes("pool")) return "/mosaic-tiles#pool-mosaics";
+  if (text.includes("mural") || text.includes("custom art")) {
+    return "/projects/gallery-commission";
+  }
+  if (text.includes("artisan") || text.includes("sample")) return "/how-we-work";
+  return "/mosaic-tiles";
+}
+
+function publicAction(asset: MediaAsset) {
+  if (asset.pieceSlug) return "View piece";
+  const href = publicHref(asset);
+  if (href === "/pool-materials") return "Explore materials";
+  if (href === "/how-we-work") return "See the process";
+  if (href.startsWith("/projects/")) return "Open story";
+  return "Explore tiles";
+}
+
+function mediaItem({ asset, pieceName }: GalleryMediaRow): GalleryItem {
+  const title = publicTitle(asset, pieceName);
+  const tone = asset.sun === "day" ? "day" : asset.sun === "night" ? "night" : undefined;
+  return frame(
+    asset.url,
+    {
+      href: publicHref(asset),
+      alt: title,
+      label: publicLabel(asset),
+      title,
+      line: publicLine(asset, title),
+      action: publicAction(asset),
+    },
+    tone,
+  );
+}
+
+const readPublicGalleryMedia = unstable_cache(
+  async (): Promise<GalleryMediaRow[]> => {
+    try {
+      await healSchema();
+      const db = getDb();
+      return await db
+        .select({
+          asset: schema.mediaAssets,
+          pieceName: schema.pieces.name,
+        })
+        .from(schema.mediaAssets)
+        .leftJoin(
+          schema.pieces,
+          eq(schema.pieces.slug, schema.mediaAssets.pieceSlug),
+        )
+        .where(
+          and(
+            inArray(schema.mediaAssets.status, ["approved", "wired"]),
+            ne(schema.mediaAssets.role, "contact_sheet"),
+          ),
+        )
+        .orderBy(desc(schema.mediaAssets.createdAt), desc(schema.mediaAssets.id));
+    } catch {
+      return [];
+    }
+  },
+  ["gallery-media"],
+  { tags: ["catalog"], revalidate: 3600 }
+);
 
 function pair(src: string, day: string | undefined, copy: GalleryCopy): GalleryItem[] {
   return day ? [frame(src, copy, "night"), frame(day, copy, "day")] : [frame(src, copy)];
@@ -288,7 +394,7 @@ function interleave(...lists: GalleryItem[][]): GalleryItem[] {
   return out;
 }
 
-const seen = new Set<string>();
+const staticSeen = new Set<string>();
 export const GALLERY: GalleryItem[] = interleave(
   environments,
   lagos,
@@ -299,4 +405,26 @@ export const GALLERY: GalleryItem[] = interleave(
   more,
   cardArchive,
   ownArchive,
-).filter((item) => (seen.has(item.src) ? false : (seen.add(item.src), true)));
+).filter((item) =>
+  staticSeen.has(item.src) ? false : (staticSeen.add(item.src), true),
+);
+
+function mergeGallery(...lists: GalleryItem[][]): GalleryItem[] {
+  const out: GalleryItem[] = [];
+  const seen = new Set<string>();
+
+  for (const list of lists) {
+    for (const item of list) {
+      if (seen.has(item.src)) continue;
+      seen.add(item.src);
+      out.push(item);
+    }
+  }
+
+  return out;
+}
+
+export async function getGallery(): Promise<GalleryItem[]> {
+  const media = (await readPublicGalleryMedia()).map(mediaItem);
+  return mergeGallery(media, GALLERY);
+}
