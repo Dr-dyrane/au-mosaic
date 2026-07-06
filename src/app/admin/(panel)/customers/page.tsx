@@ -49,7 +49,7 @@ export default async function CustomersPage({
   const [freshRow] = await db
     .select({ n: count() })
     .from(schema.enquiries)
-    .where(eq(schema.enquiries.status, "new"));
+    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt)));
   const freshTotal = freshRow.n;
   const enqPages = Math.max(1, Math.ceil(freshTotal / ENQ_PER_PAGE));
   const fresh = await db
@@ -61,7 +61,7 @@ export default async function CustomersPage({
     .from(schema.enquiries)
     .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.enquiries.pieceSlug))
     .leftJoin(schema.customers, eq(schema.customers.id, schema.enquiries.customerId))
-    .where(eq(schema.enquiries.status, "new"))
+    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt)))
     .orderBy(desc(schema.enquiries.createdAt))
     .limit(ENQ_PER_PAGE)
     .offset((Math.min(enqPage, enqPages) - 1) * ENQ_PER_PAGE);

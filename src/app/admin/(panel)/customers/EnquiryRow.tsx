@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useOptimistic, useState } from "react";
+import { useActionState, useOptimistic, useState, useTransition } from "react";
 import { attachEnquiry, setEnquiryStatus, type SaveState } from "./actions";
+import { archiveRecords } from "../records/actions";
 import Sentence from "../Sentence";
 import { keepValues } from "../keep";
 import { buzz } from "@/lib/backoffice";
@@ -31,10 +32,11 @@ export default function EnquiryRow({
   const [state, action, pending] = useActionState<SaveState, FormData>(setEnquiryStatus, null);
   const [tieState, tieAction, tiePending] = useActionState<SaveState, FormData>(attachEnquiry, null);
   const [open, setOpen] = useState(false);
-  const [cleared, clearNow] = useOptimistic<"replied" | "closed" | null, "replied" | "closed">(
-    null,
-    (_c, v) => v
-  );
+  const [archiving, startArchive] = useTransition();
+  const [cleared, clearNow] = useOptimistic<
+    "replied" | "closed" | "archived" | null,
+    "replied" | "closed" | "archived"
+  >(null, (_c, v) => v);
 
   /* A successful tie closes the picker by derivation; the revalidated
      row carries the name from then on and the button itself leaves. */
@@ -50,7 +52,7 @@ export default function EnquiryRow({
   if (cleared) {
     return (
       <p className="py-3 text-[14px] text-dusk" role="status">
-        {cleared === "replied" ? "Marked replied." : "Closed."}
+        {cleared === "replied" ? "Marked replied." : cleared === "closed" ? "Closed." : "Removed."}
       </p>
     );
   }
@@ -100,6 +102,20 @@ export default function EnquiryRow({
             className="link-hair text-mist text-[12px] disabled:opacity-60"
           >
             Close
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              startArchive(async () => {
+                buzz(4);
+                clearNow("archived");
+                await archiveRecords("enquiry", [id]);
+              })
+            }
+            disabled={archiving}
+            className="link-hair text-mist text-[12px] disabled:opacity-60"
+          >
+            Remove
           </button>
           {state && !state.ok && (
             <p className="text-[12px] text-gold" role="status">
