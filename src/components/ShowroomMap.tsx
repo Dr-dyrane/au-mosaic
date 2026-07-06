@@ -11,29 +11,33 @@ function classes(...values: Array<string | false | undefined>) {
 
 export default function ShowroomMap({ compact = false, className }: ShowroomMapProps) {
   return (
-    <div className={classes("panel overflow-hidden p-0", className)}>
-      <div className={classes("relative bg-sand/35", compact ? "h-44" : "h-72")}>
-        <iframe
-          title="OpenStreetMap near AU Mosaic showroom"
-          src={SHOWROOM_MAP.embedSrc}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          className="h-full w-full"
-          style={{ border: 0 }}
-        />
-      </div>
-      <div className="p-5">
-        <p className="eyebrow">Open map</p>
-        <h3 className="font-serif mt-3 text-[20px] leading-tight">{SHOWROOM_MAP.label}</h3>
-        <p className="mt-2 text-[14px] leading-relaxed text-dusk">{SHOWROOM_MAP.note}</p>
-        <div className="mt-5 flex flex-wrap gap-x-7 gap-y-3">
-          <a href={SHOWROOM_MAP.openUrl} target="_blank" rel="noopener" className="link-hair text-dusk">
-            Open map
-          </a>
-          <a href={SHOWROOM_MAP.directionsUrl} target="_blank" rel="noopener" className="link-hair text-dusk">
-            Directions
-          </a>
-        </div>
+    <div
+      className={classes(
+        "relative isolate overflow-hidden rounded-[28px] bg-shell/60",
+        compact ? "h-64" : "h-[min(72svh,34rem)] min-h-80",
+        className
+      )}
+      aria-label="AU Mosaic showroom map"
+    >
+      <iframe
+        title="Map to AU Mosaic showroom"
+        src={SHOWROOM_MAP.embedSrc}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        className="pointer-events-none absolute inset-0 h-full w-full scale-[1.18] opacity-75 grayscale-[0.62] saturate-[0.38] contrast-[0.88] brightness-[0.94]"
+        style={{ border: 0 }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sand/0 via-sand/20 to-sand/70" />
+      <div className="glass absolute inset-x-4 bottom-4 flex flex-col gap-4 rounded-[24px] px-4 py-4 sm:inset-x-5 sm:bottom-5 sm:flex-row sm:items-end sm:justify-between">
+        <p className="max-w-xl text-[14px] leading-relaxed text-ink">{SHOWROOM_MAP.address}</p>
+        <a
+          href={SHOWROOM_MAP.directionsUrl}
+          target="_blank"
+          rel="noopener"
+          className="link-hair shrink-0 text-ink"
+        >
+          Directions
+        </a>
       </div>
     </div>
   );
