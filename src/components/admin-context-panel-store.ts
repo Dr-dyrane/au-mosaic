@@ -34,6 +34,11 @@ export type ContextPieceOption = {
   name: string;
 };
 
+export type ContextDeliveryOrderOption = {
+  id: string;
+  label: string;
+};
+
 export type ContextReturnLine = {
   id: string;
   name: string;
@@ -58,6 +63,11 @@ export type AdminContextPanel =
   | {
       kind: "customer-filter";
       current: CustomerFilterContext;
+    }
+  | {
+      kind: "delivery-create";
+      orders: ContextDeliveryOrderOption[];
+      selectedOrder?: string;
     }
   | {
       kind: "media-create";
@@ -115,6 +125,14 @@ export function showOrderFilterPanel(current: OrderFilterContext) {
 
 export function showCustomerFilterPanel(current: CustomerFilterContext) {
   panel = { kind: "customer-filter", current };
+  emit();
+}
+
+export function showDeliveryCreatePanel(
+  orders: ContextDeliveryOrderOption[],
+  selectedOrder?: string
+) {
+  panel = { kind: "delivery-create", orders, selectedOrder };
   emit();
 }
 

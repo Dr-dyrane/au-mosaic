@@ -113,6 +113,23 @@ export default async function DebtsPage() {
           data-external="true"
         />
       )}
+      {!oldestReminder && debtors.length > 0 && (
+        <span
+          hidden
+          data-admin-action
+          data-href="/admin/orders"
+          data-label="Open orders"
+          data-room="orders"
+        />
+      )}
+      {debtors.length > 0 && (
+        <span
+          hidden
+          data-admin-context-action
+          data-href="/admin/export/debts.csv"
+          data-label="Export debts"
+        />
+      )}
       <p className="eyebrow">The ledger</p>
       <h1 className="font-serif text-display-section mt-3" data-tour="debts">Who owes what.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
@@ -125,12 +142,6 @@ export default async function DebtsPage() {
         <div className="mt-8">
           <p className="font-serif text-display-section leading-none">{naira(grand)}</p>
           <p className="mt-2 text-[14px] text-dusk">owed across everyone</p>
-          <a
-            href="/admin/export/debts.csv"
-            className="link-hair mt-4 hidden text-dusk text-[12px] sm:inline-block"
-          >
-            CSV for the accountant
-          </a>
         </div>
       )}
 

@@ -1,4 +1,5 @@
 export const ADMIN_ACTION_INTENTS = {
+  deliveryCreate: "delivery-create",
   mediaCreate: "media-create",
   mediaBatch: "media-batch",
   orderLine: "order-line",

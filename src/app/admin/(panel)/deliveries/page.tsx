@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { asc, count, desc, eq, inArray } from "drizzle-orm";
+import { asc, count, desc, eq, inArray, notInArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import StatusStep from "./StatusStep";
+import { DeliveryCreateAction } from "./new/NewDeliveryForm";
 import Pager from "../Pager";
 import Teach from "../Teach";
 
@@ -64,6 +66,21 @@ export default async function DeliveriesPage({
     .limit(LANDED_PER_PAGE)
     .offset((page - 1) * LANDED_PER_PAGE);
 
+  const openOrders = await db
+    .select({
+      id: schema.orders.id,
+      createdAt: schema.orders.createdAt,
+      customerName: schema.customers.name,
+    })
+    .from(schema.orders)
+    .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
+    .where(notInArray(schema.orders.status, ["enquiry", "settled"]))
+    .orderBy(desc(schema.orders.createdAt));
+  const deliveryOrders = openOrders.map((o) => ({
+    id: o.id,
+    label: `${o.customerName}, ${fmtDate(o.createdAt)}`,
+  }));
+
   const groups = [
     { key: "pending", title: "Waiting to go", items: active.filter((r) => r.d.status === "pending") },
     { key: "out", title: "On the road", items: active.filter((r) => r.d.status === "out") },
@@ -76,6 +93,25 @@ export default async function DeliveriesPage({
 
   return (
     <main>
+      {deliveryOrders.length > 0 ? (
+        <span
+          hidden
+          data-admin-action
+          data-href="/admin/deliveries#delivery-create"
+          data-label="New delivery"
+          data-room="deliveries"
+          data-intent={ADMIN_ACTION_INTENTS.deliveryCreate}
+        />
+      ) : (
+        <span
+          hidden
+          data-admin-action
+          data-href="/admin/orders"
+          data-label="Orders"
+          data-room="orders"
+        />
+      )}
+      <DeliveryCreateAction orders={deliveryOrders} />
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
           <p className="eyebrow">The road</p>

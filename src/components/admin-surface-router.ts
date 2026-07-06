@@ -8,10 +8,12 @@ import {
 } from "@/components/admin-action-intents";
 import {
   clearAdminContextPanel,
+  type ContextDeliveryOrderOption,
   type ContextPieceOption,
   type CustomerFilterContext,
   getAdminContextPanel,
   showCustomerFilterPanel,
+  showDeliveryCreatePanel,
   showMediaFilterPanel,
   showOrderFilterPanel,
   showOrderLinePanel,
@@ -55,6 +57,9 @@ function showAdminSurface(request: AdminSurfaceRequest) {
       break;
     case "customer-filter":
       showCustomerFilterPanel(request.current);
+      break;
+    case "delivery-create":
+      showDeliveryCreatePanel(request.orders, request.selectedOrder);
       break;
     case "media-create":
       showMediaCreatePanel(request.pieces);
@@ -108,6 +113,16 @@ function sameCustomerFilterContext(
   return a.q === b.q && a.sort === b.sort;
 }
 
+function sameDeliveryOrders(
+  a: ContextDeliveryOrderOption[],
+  b: ContextDeliveryOrderOption[]
+) {
+  return (
+    a.length === b.length &&
+    a.every((order, index) => order.id === b[index]?.id && order.label === b[index]?.label)
+  );
+}
+
 function samePieceOptions(a: ContextPieceOption[], b: ContextPieceOption[]) {
   return (
     a.length === b.length &&
@@ -146,6 +161,12 @@ function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest
     case "customer-filter":
       if (panel.kind !== "customer-filter") return false;
       return sameCustomerFilterContext(panel.current, request.current);
+    case "delivery-create":
+      if (panel.kind !== "delivery-create") return false;
+      return (
+        panel.selectedOrder === request.selectedOrder &&
+        sameDeliveryOrders(panel.orders, request.orders)
+      );
     case "media-create":
       if (panel.kind !== "media-create") return false;
       return samePieceOptions(panel.pieces, request.pieces);

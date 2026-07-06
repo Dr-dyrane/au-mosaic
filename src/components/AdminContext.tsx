@@ -28,6 +28,7 @@ import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 import { OrderFilterPanel } from "@/app/admin/(panel)/orders/OrderFilterSheet";
 import { CustomerFilterPanel } from "@/app/admin/(panel)/customers/CustomerFilterSheet";
+import NewDeliveryForm from "@/app/admin/(panel)/deliveries/new/NewDeliveryForm";
 import AddLineForm from "@/app/admin/(panel)/orders/[id]/AddLineForm";
 import AddPaymentForm from "@/app/admin/(panel)/orders/[id]/AddPaymentForm";
 import AddReturnForm from "@/app/admin/(panel)/orders/[id]/AddReturnForm";
@@ -382,6 +383,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const mediaFilter = panel?.kind === "media-filter" ? panel.current : null;
   const orderFilter = panel?.kind === "order-filter" ? panel.current : null;
   const customerFilter = panel?.kind === "customer-filter" ? panel.current : null;
+  const deliveryCreate = panel?.kind === "delivery-create" ? panel : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
   const mediaBatch = panel?.kind === "media-batch";
   const orderLine = panel?.kind === "order-line" ? panel : null;
@@ -394,6 +396,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
     if (mediaFilter && pathname !== "/admin/media") clearAdminContextPanel();
     if (orderFilter && pathname !== "/admin/orders") clearAdminContextPanel();
     if (customerFilter && pathname !== "/admin/customers") clearAdminContextPanel();
+    if (deliveryCreate && pathname !== "/admin/deliveries") clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
     if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
     if ((orderLine || orderPayment || orderReturn) && !orderRecord) clearAdminContextPanel();
@@ -403,6 +406,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
     mediaFilter,
     orderFilter,
     customerFilter,
+    deliveryCreate,
     mediaCreate,
     mediaBatch,
     orderLine,
@@ -444,6 +448,34 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
               onPick={clearAdminContextPanel}
               onClose={clearAdminContextPanel}
             />
+          ) : deliveryCreate ? (
+            <div id="delivery-create">
+              <div className="flex items-start justify-between gap-5 px-2">
+                <div>
+                  <p className="eyebrow">New delivery</p>
+                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
+                    Put an order on the road.
+                  </h2>
+                  <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                    Pick the order, address, driver, and day.
+                  </p>
+                </div>
+                <button
+                  onClick={clearAdminContextPanel}
+                  className="link-hair shrink-0 text-dusk text-[12px]"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-6">
+                <NewDeliveryForm
+                  orders={deliveryCreate.orders}
+                  selectedOrder={deliveryCreate.selectedOrder}
+                  surface="plain"
+                  idPrefix="delivery-rail"
+                />
+              </div>
+            </div>
           ) : mediaCreate ? (
             <div id="media-add-photo">
               <div className="flex items-start justify-between gap-5 px-2">
