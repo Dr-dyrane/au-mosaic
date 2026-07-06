@@ -17,8 +17,8 @@ import { PROJECTS } from "./projects";
 
 /* The public gallery feed: one flowing, uncategorised stream of the house's
    own imagery, rooms, pools, walls, murals, each frame linking home to its
-   page. It promotes day and night assets as separate photographs, because a
-   gallery should let the archive breathe instead of hiding half the light. */
+   page. Day and night twins stay one work: the window changes with the sun,
+   while the archive still keeps both photographs. */
 
 export type GalleryItem = {
   src: string;
@@ -57,6 +57,16 @@ function frame(src: string, copy: GalleryCopy, tone?: Tone): GalleryItem {
   };
 }
 
+function framePair(src: string, day: string | undefined, copy: GalleryCopy): GalleryItem {
+  return {
+    ...copy,
+    src,
+    srcDay: day && day !== src ? day : undefined,
+    title: copy.title,
+    alt: copy.alt,
+  };
+}
+
 function publicTitle(asset: MediaAsset, pieceName: string | null) {
   if (asset.role === "card" && pieceName) return pieceName;
   return titled(
@@ -64,7 +74,9 @@ function publicTitle(asset: MediaAsset, pieceName: string | null) {
       .replace(/^sku\s+/i, "")
       .replace(/^window\s+/i, "")
       .replace(/\s+stock\s*$/i, "")
+      .replace(/,\s*(light|dark|day|night)\s*$/i, "")
       .replace(/\s+(light|dark|day|night)\s*$/i, "")
+      .replace(/[,\s]+$/g, "")
   );
 }
 
@@ -107,10 +119,10 @@ function publicAction(asset: MediaAsset) {
   return "Explore tiles";
 }
 
-function mediaItem({ asset, pieceName }: GalleryMediaRow): GalleryItem {
+function mediaItem({ asset, pieceName }: GalleryMediaRow, srcDay?: string): GalleryItem {
   const title = publicTitle(asset, pieceName);
   const tone = asset.sun === "day" ? "day" : asset.sun === "night" ? "night" : undefined;
-  return frame(
+  const item = frame(
     asset.url,
     {
       href: publicHref(asset),
@@ -122,6 +134,8 @@ function mediaItem({ asset, pieceName }: GalleryMediaRow): GalleryItem {
     },
     tone,
   );
+  if (srcDay && srcDay !== asset.url) item.srcDay = srcDay;
+  return item;
 }
 
 const readPublicGalleryMedia = unstable_cache(
@@ -154,8 +168,63 @@ const readPublicGalleryMedia = unstable_cache(
   { tags: ["catalog"], revalidate: 3600 }
 );
 
+function publicMediaPairTitle(asset: MediaAsset, pieceName: string | null) {
+  return publicTitle(asset, pieceName).toLowerCase();
+}
+
+function publicMediaPairKey(row: GalleryMediaRow) {
+  const { asset, pieceName } = row;
+  return [
+    asset.role,
+    asset.pieceSlug ?? "",
+    asset.batch,
+    publicMediaPairTitle(asset, pieceName),
+  ].join("|");
+}
+
+function mediaItems(rows: GalleryMediaRow[]): GalleryItem[] {
+  const groups: {
+    night?: GalleryMediaRow;
+    day?: GalleryMediaRow;
+    extras: GalleryMediaRow[];
+  }[] = [];
+  const byKey = new Map<string, (typeof groups)[number]>();
+
+  for (const row of rows) {
+    const groupKey = publicMediaPairKey(row);
+    let group = byKey.get(groupKey);
+    if (!group) {
+      group = { extras: [] };
+      byKey.set(groupKey, group);
+      groups.push(group);
+    }
+
+    if (row.asset.sun === "night") {
+      if (!group.night) group.night = row;
+      else group.extras.push(row);
+      continue;
+    }
+
+    if (row.asset.sun === "day") {
+      if (!group.day) group.day = row;
+      else group.extras.push(row);
+      continue;
+    }
+
+    group.extras.push(row);
+  }
+
+  return groups.flatMap((group) => {
+    const items: GalleryItem[] = [];
+    const primary = group.night ?? group.day;
+    if (primary) items.push(mediaItem(primary, group.day?.asset.url));
+    for (const extra of group.extras) items.push(mediaItem(extra));
+    return items;
+  });
+}
+
 function pair(src: string, day: string | undefined, copy: GalleryCopy): GalleryItem[] {
-  return day ? [frame(src, copy, "night"), frame(day, copy, "day")] : [frame(src, copy)];
+  return [framePair(src, day, copy)];
 }
 
 const environments: GalleryItem[] = ENVIRONMENTS.flatMap((e) =>
@@ -405,9 +474,12 @@ export const GALLERY: GalleryItem[] = interleave(
   more,
   cardArchive,
   ownArchive,
-).filter((item) =>
-  staticSeen.has(item.src) ? false : (staticSeen.add(item.src), true),
-);
+).filter((item) => {
+  const urls = [item.src, item.srcDay].filter((url): url is string => Boolean(url));
+  if (urls.some((url) => staticSeen.has(url))) return false;
+  urls.forEach((url) => staticSeen.add(url));
+  return true;
+});
 
 function mergeGallery(...lists: GalleryItem[][]): GalleryItem[] {
   const out: GalleryItem[] = [];
@@ -415,8 +487,9 @@ function mergeGallery(...lists: GalleryItem[][]): GalleryItem[] {
 
   for (const list of lists) {
     for (const item of list) {
-      if (seen.has(item.src)) continue;
-      seen.add(item.src);
+      const urls = [item.src, item.srcDay].filter((url): url is string => Boolean(url));
+      if (urls.some((url) => seen.has(url))) continue;
+      urls.forEach((url) => seen.add(url));
       out.push(item);
     }
   }
@@ -425,6 +498,6 @@ function mergeGallery(...lists: GalleryItem[][]): GalleryItem[] {
 }
 
 export async function getGallery(): Promise<GalleryItem[]> {
-  const media = (await readPublicGalleryMedia()).map(mediaItem);
+  const media = mediaItems(await readPublicGalleryMedia());
   return mergeGallery(media, GALLERY);
 }

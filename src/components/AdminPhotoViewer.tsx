@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import * as Dialog from "@radix-ui/react-dialog";
 import { IconClose, IconEye } from "@/app/admin/(panel)/icons";
+import ThemeImage from "./ThemeImage";
 
 type PhotoAction = {
   href: string;
@@ -12,6 +13,7 @@ type PhotoAction = {
 
 export default function AdminPhotoViewer({
   src,
+  srcDay,
   alt,
   title,
   eyebrow = "Photo",
@@ -23,6 +25,7 @@ export default function AdminPhotoViewer({
   unoptimized,
 }: {
   src: string;
+  srcDay?: string;
   alt: string;
   title: string;
   eyebrow?: string;
@@ -53,15 +56,28 @@ export default function AdminPhotoViewer({
           <Dialog.Overlay className="admin-photo-scrim absolute inset-0" />
           <Dialog.Content className="admin-photo-content outline-none">
             <div className="admin-photo-frame">
-              <Image
-                src={src}
-                alt={alt}
-                fill
-                sizes="(max-width: 639px) 100vw, (max-width: 1279px) 76vw, 62vw"
-                className="object-contain"
-                unoptimized={unoptimized}
-                priority
-              />
+              {srcDay ? (
+                <ThemeImage
+                  dark={src}
+                  light={srcDay}
+                  alt={alt}
+                  fill
+                  sizes="(max-width: 639px) 100vw, (max-width: 1279px) 76vw, 62vw"
+                  className="object-contain"
+                  unoptimized={unoptimized}
+                  priority
+                />
+              ) : (
+                <Image
+                  src={src}
+                  alt={alt}
+                  fill
+                  sizes="(max-width: 639px) 100vw, (max-width: 1279px) 76vw, 62vw"
+                  className="object-contain"
+                  unoptimized={unoptimized}
+                  priority
+                />
+              )}
             </div>
             <div className="admin-photo-info liquid-glass">
               <div className="flex items-start justify-between gap-5">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import AdminPhotoViewer from "@/components/AdminPhotoViewer";
 import InfiniteList, { type Batch } from "@/components/InfiniteList";
 import { MediaAssetControls, type PieceOption } from "./MediaForms";
-import type { MediaListRow } from "./actions";
+import type { MediaListRow } from "./media-list";
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "Draft",
@@ -40,6 +40,18 @@ function labelSun(value: string) {
   return SUN_LABELS[value] ?? value.replace(/_/g, " ");
 }
 
+function photoViewSources(asset: MediaListRow["asset"]) {
+  const twin = asset.twin;
+  if (!twin) return { src: asset.url, srcDay: undefined };
+  if (asset.sun === "day" && twin.sun === "night") {
+    return { src: twin.url, srcDay: asset.url };
+  }
+  if (asset.sun === "night" && twin.sun === "day") {
+    return { src: asset.url, srcDay: twin.url };
+  }
+  return { src: asset.url, srcDay: undefined };
+}
+
 function photoTitle(asset: MediaListRow["asset"]) {
   if (asset.role === "contact_sheet") return "Prepared photo review";
   if (asset.role === "proof") return "Kitchen backsplash room example";
@@ -68,10 +80,12 @@ function PhotoCard({
   const { asset, piece } = row;
   const title = photoTitle(asset);
   const note = photoNote(asset);
+  const preview = photoViewSources(asset);
   return (
     <article className="group">
       <AdminPhotoViewer
-        src={asset.url}
+        src={preview.src}
+        srcDay={preview.srcDay}
         alt={title}
         title={title}
         eyebrow={labelRole(asset.role)}
@@ -79,6 +93,9 @@ function PhotoCard({
         triggerClassName="photo-slot relative block aspect-[4/5] w-full overflow-hidden rounded-none sm:rounded-[22px]"
         actions={[
           { label: "Edit photo", href: `/admin/media/${asset.id}` },
+          ...(asset.twin
+            ? [{ label: `Edit ${labelSun(asset.twin.sun).toLowerCase()} photo`, href: `/admin/media/${asset.twin.id}` }]
+            : []),
           ...(piece ? [{ label: piece.name, href: `/admin/pieces/${piece.slug}` }] : []),
         ]}
       >

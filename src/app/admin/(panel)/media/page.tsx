@@ -5,8 +5,9 @@ import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import MediaGrid from "./MediaGrid";
 import MediaBatchAction from "./MediaBatchActions";
 import { MediaCreateAction } from "./MediaForms";
-import { loadMoreMediaRows, type MediaListFilters, type MediaListRow } from "./actions";
+import { loadMoreMediaRows, type MediaListFilters } from "./actions";
 import MediaFilterSheet from "./MediaFilterSheet";
+import { asMediaListRows, type MediaListRow } from "./media-list";
 import {
   ROLES,
   STATUSES,
@@ -18,25 +19,6 @@ import {
 export const dynamic = "force-dynamic";
 
 const MEDIA_PAGE_SIZE = 24;
-
-function asMediaListRow(row: {
-  asset: typeof schema.mediaAssets.$inferSelect;
-  piece: { name: string; slug: string } | null;
-}): MediaListRow {
-  return {
-    asset: {
-      id: row.asset.id,
-      url: row.asset.url,
-      title: row.asset.title,
-      sun: row.asset.sun,
-      role: row.asset.role,
-      status: row.asset.status,
-      pieceSlug: row.asset.pieceSlug,
-      notes: row.asset.notes,
-    },
-    piece: row.piece,
-  };
-}
 
 export default async function MediaPage({
   searchParams,
@@ -80,7 +62,7 @@ export default async function MediaPage({
     const firstPage = await query
       .orderBy(desc(schema.mediaAssets.createdAt), desc(schema.mediaAssets.id))
       .limit(MEDIA_PAGE_SIZE + 1);
-    rows = firstPage.slice(0, MEDIA_PAGE_SIZE).map(asMediaListRow);
+    rows = asMediaListRows(firstPage).slice(0, MEDIA_PAGE_SIZE);
     initialDone = firstPage.length <= MEDIA_PAGE_SIZE;
 
     const tallyBase = getDb()

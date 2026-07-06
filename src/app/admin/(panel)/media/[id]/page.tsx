@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AdminPhotoViewer from "@/components/AdminPhotoViewer";
 import Back from "../../Back";
 import { MediaAssetEditor } from "../MediaForms";
+import { mediaPairKey } from "../media-list";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,30 @@ function label(map: Record<string, string>, value: string) {
   return map[value] ?? value.replace(/_/g, " ");
 }
 
+function photoViewSources(asset: typeof schema.mediaAssets.$inferSelect, twin?: typeof schema.mediaAssets.$inferSelect) {
+  if (!twin) return { src: asset.url, srcDay: undefined };
+  if (asset.sun === "day" && twin.sun === "night") {
+    return { src: twin.url, srcDay: asset.url };
+  }
+  if (asset.sun === "night" && twin.sun === "day") {
+    return { src: asset.url, srcDay: twin.url };
+  }
+  return { src: asset.url, srcDay: undefined };
+}
+
+function photoTwinWhere(asset: typeof schema.mediaAssets.$inferSelect): SQL[] {
+  const where = [
+    eq(schema.mediaAssets.role, asset.role),
+    eq(schema.mediaAssets.batch, asset.batch),
+  ];
+  where.push(
+    asset.pieceSlug
+      ? eq(schema.mediaAssets.pieceSlug, asset.pieceSlug)
+      : isNull(schema.mediaAssets.pieceSlug),
+  );
+  return where;
+}
+
 export default async function MediaAssetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!UUID.test(id)) notFound();
@@ -53,6 +78,19 @@ export default async function MediaAssetPage({ params }: { params: Promise<{ id:
     .from(schema.pieces)
     .orderBy(asc(schema.pieces.name));
   const connectedPiece = pieces.find((piece) => piece.slug === asset.pieceSlug);
+  const candidates = await db
+    .select()
+    .from(schema.mediaAssets)
+    .where(and(...photoTwinWhere(asset)));
+  const pairKey = mediaPairKey(asset);
+  const twin = candidates.find(
+    (candidate) =>
+      candidate.id !== asset.id &&
+      candidate.sun !== asset.sun &&
+      (candidate.sun === "day" || candidate.sun === "night") &&
+      mediaPairKey(candidate) === pairKey,
+  );
+  const preview = photoViewSources(asset, twin);
 
   return (
     <main>
@@ -75,7 +113,8 @@ export default async function MediaAssetPage({ params }: { params: Promise<{ id:
             </Link>
           )}
           <AdminPhotoViewer
-            src={asset.url}
+            src={preview.src}
+            srcDay={preview.srcDay}
             alt={asset.title}
             title={asset.title}
             eyebrow={label(ROLE_LABELS, asset.role)}
@@ -83,6 +122,7 @@ export default async function MediaAssetPage({ params }: { params: Promise<{ id:
             triggerClassName="photo-slot relative mt-8 block aspect-[4/5] w-full overflow-hidden rounded-[26px]"
             actions={[
               { label: "All photos", href: "/admin/media" },
+              ...(twin ? [{ label: `Edit ${label(SUN_LABELS, twin.sun).toLowerCase()} photo`, href: `/admin/media/${twin.id}` }] : []),
               ...(connectedPiece ? [{ label: connectedPiece.name, href: `/admin/pieces/${connectedPiece.slug}` }] : []),
             ]}
           >

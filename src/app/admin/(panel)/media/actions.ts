@@ -7,6 +7,7 @@ import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
 import { importBatch08Assets, promoteBatch08Assets } from "@/lib/media-batch-08";
+import { asMediaListRows, type MediaListRow } from "./media-list";
 
 export type MediaState = { ok: boolean; message: string } | null;
 
@@ -23,19 +24,6 @@ export type MediaListFilters = {
   status?: string;
   role?: string;
   batch?: string;
-};
-export type MediaListRow = {
-  asset: {
-    id: string;
-    url: string;
-    title: string;
-    sun: string;
-    role: string;
-    status: string;
-    pieceSlug: string | null;
-    notes: string;
-  };
-  piece: { name: string; slug: string } | null;
 };
 
 const MEDIA_LIST_PAGE = 24;
@@ -68,25 +56,6 @@ function mediaListWhere(filters: MediaListFilters) {
   return where;
 }
 
-function asMediaListRow(row: {
-  asset: MediaAsset;
-  piece: { name: string; slug: string } | null;
-}): MediaListRow {
-  return {
-    asset: {
-      id: row.asset.id,
-      url: row.asset.url,
-      title: row.asset.title,
-      sun: row.asset.sun,
-      role: row.asset.role,
-      status: row.asset.status,
-      pieceSlug: row.asset.pieceSlug,
-      notes: row.asset.notes,
-    },
-    piece: row.piece,
-  };
-}
-
 async function selectMediaListRows(filters: MediaListFilters, offset: number, limit: number) {
   const where = mediaListWhere(filters);
   const base = getDb()
@@ -104,7 +73,7 @@ async function selectMediaListRows(filters: MediaListFilters, offset: number, li
     .orderBy(desc(schema.mediaAssets.createdAt), desc(schema.mediaAssets.id))
     .limit(limit)
     .offset(offset);
-  return rows.map(asMediaListRow);
+  return asMediaListRows(rows);
 }
 
 function cleanFilePart(value: string) {
