@@ -1,6 +1,7 @@
 export const ADMIN_ACTION_INTENTS = {
   mediaCreate: "media-create",
   mediaBatch: "media-batch",
+  orderLine: "order-line",
   orderPayment: "order-payment",
   orderReturn: "order-return",
 } as const;

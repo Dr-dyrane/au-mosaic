@@ -5,7 +5,7 @@ import { naira } from "@/lib/backoffice";
 import { ADMIN_ACTION_INTENTS, type AdminActionIntent } from "@/components/admin-action-intents";
 import { STATUS_LABEL, fmtDate } from "../pipeline";
 import StatusForm from "./StatusForm";
-import AddLineForm from "./AddLineForm";
+import { OrderLineAction } from "./AddLineForm";
 import { OrderPaymentAction } from "./AddPaymentForm";
 import { OrderReturnAction } from "./AddReturnForm";
 import Back from "../../Back";
@@ -111,24 +111,40 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const paid = pays.reduce((s, p) => s + p.amountKobo, 0);
   const balance = billed - paid;
   const navAction: ShellAction =
-    balance > 0
+    lines.length === 0
       ? {
-          href: `/admin/orders/${order.id}#order-payment`,
-          label: "Add payment",
-          room: "owed",
-          intent: ADMIN_ACTION_INTENTS.orderPayment,
+          href: `/admin/orders/${order.id}#order-line`,
+          label: "Add line",
+          room: "orders",
+          intent: ADMIN_ACTION_INTENTS.orderLine,
         }
-      : order.status !== "delivered" && order.status !== "settled"
-        ? { href: `/admin/deliveries/new?order=${order.id}`, label: "Arrange delivery", room: "deliveries" }
-        : customer.phone
+      : balance > 0
+        ? {
+            href: `/admin/orders/${order.id}#order-payment`,
+            label: "Add payment",
+            room: "owed",
+            intent: ADMIN_ACTION_INTENTS.orderPayment,
+          }
+        : order.status !== "delivered" && order.status !== "settled"
           ? {
-              href: `/admin/compose?kind=receipt&order=${order.id}`,
-              label: "Send receipt",
-              room: "orders",
-              external: true,
+              href: `/admin/deliveries/new?order=${order.id}`,
+              label: "Arrange delivery",
+              room: "deliveries",
             }
-          : { href: `/admin/invoice/${order.id}`, label: "The invoice", room: "orders" };
+          : customer.phone
+            ? {
+                href: `/admin/compose?kind=receipt&order=${order.id}`,
+                label: "Send receipt",
+                room: "orders",
+                external: true,
+              }
+            : { href: `/admin/invoice/${order.id}`, label: "The invoice", room: "orders" };
   const contextActions = [
+    {
+      href: `/admin/orders/${order.id}#order-line`,
+      label: "Add line",
+      intent: ADMIN_ACTION_INTENTS.orderLine,
+    },
     { href: `/admin/customers/${customer.id}`, label: "Their record" },
     { href: `/admin/invoice/${order.id}`, label: "The invoice" },
     customer.phone
@@ -184,6 +200,22 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <div className="mt-10 grid max-w-3xl items-start gap-x-10 gap-y-12 xl:max-w-none xl:grid-cols-2">
         <section className="panel xl:col-span-2">
           <p className="font-serif text-[20px]">Where it stands</p>
+          <div className="mt-5 grid gap-5 sm:grid-cols-3">
+            <div>
+              <p className="eyebrow">Billed</p>
+              <p className="font-serif mt-2 text-[26px] leading-none">{naira(billed)}</p>
+            </div>
+            <div>
+              <p className="eyebrow">Paid</p>
+              <p className="font-serif mt-2 text-[26px] leading-none">{naira(paid)}</p>
+            </div>
+            <div>
+              <p className="eyebrow">{balance < 0 ? "Credit" : "Balance"}</p>
+              <p className="font-serif mt-2 text-[26px] leading-none">
+                {balance < 0 ? naira(Math.abs(balance)) : naira(balance)}
+              </p>
+            </div>
+          </div>
           <StatusForm orderId={order.id} status={order.status} movements={movements} />
         </section>
 
@@ -251,7 +283,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               </p>
             </Teach>
           )}
-          <AddLineForm orderId={order.id} pieces={pieceOptions} />
+          <OrderLineAction orderId={order.id} pieces={pieceOptions} />
         </section>
 
         <section>

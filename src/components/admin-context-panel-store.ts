@@ -67,6 +67,11 @@ export type AdminContextPanel =
       kind: "media-batch";
     }
   | {
+      kind: "order-line";
+      orderId: string;
+      pieces: ContextPieceOption[];
+    }
+  | {
       kind: "order-payment";
       orderId: string;
     }
@@ -120,6 +125,11 @@ export function showMediaCreatePanel(pieces: ContextPieceOption[]) {
 
 export function showMediaBatchPanel() {
   panel = { kind: "media-batch" };
+  emit();
+}
+
+export function showOrderLinePanel(orderId: string, pieces: ContextPieceOption[]) {
+  panel = { kind: "order-line", orderId, pieces };
   emit();
 }
 

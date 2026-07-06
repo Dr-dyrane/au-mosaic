@@ -14,6 +14,7 @@ import {
   showCustomerFilterPanel,
   showMediaFilterPanel,
   showOrderFilterPanel,
+  showOrderLinePanel,
   showOrderPaymentPanel,
   showOrderReturnPanel,
   showMediaBatchPanel,
@@ -60,6 +61,9 @@ function showAdminSurface(request: AdminSurfaceRequest) {
       break;
     case "media-batch":
       showMediaBatchPanel();
+      break;
+    case "order-line":
+      showOrderLinePanel(request.orderId, request.pieces);
       break;
     case "order-payment":
       showOrderPaymentPanel(request.orderId);
@@ -147,6 +151,9 @@ function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest
       return samePieceOptions(panel.pieces, request.pieces);
     case "media-batch":
       return true;
+    case "order-line":
+      if (panel.kind !== "order-line") return false;
+      return panel.orderId === request.orderId && samePieceOptions(panel.pieces, request.pieces);
     case "order-payment":
       if (panel.kind !== "order-payment") return false;
       return panel.orderId === request.orderId;

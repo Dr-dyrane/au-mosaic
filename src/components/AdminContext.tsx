@@ -28,6 +28,7 @@ import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 import { OrderFilterPanel } from "@/app/admin/(panel)/orders/OrderFilterSheet";
 import { CustomerFilterPanel } from "@/app/admin/(panel)/customers/CustomerFilterSheet";
+import AddLineForm from "@/app/admin/(panel)/orders/[id]/AddLineForm";
 import AddPaymentForm from "@/app/admin/(panel)/orders/[id]/AddPaymentForm";
 import AddReturnForm from "@/app/admin/(panel)/orders/[id]/AddReturnForm";
 
@@ -383,6 +384,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const customerFilter = panel?.kind === "customer-filter" ? panel.current : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
   const mediaBatch = panel?.kind === "media-batch";
+  const orderLine = panel?.kind === "order-line" ? panel : null;
   const orderPayment = panel?.kind === "order-payment" ? panel : null;
   const orderReturn = panel?.kind === "order-return" ? panel : null;
   const orderRecord = /^\/admin\/orders\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pathname);
@@ -394,7 +396,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
     if (customerFilter && pathname !== "/admin/customers") clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
     if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
-    if ((orderPayment || orderReturn) && !orderRecord) clearAdminContextPanel();
+    if ((orderLine || orderPayment || orderReturn) && !orderRecord) clearAdminContextPanel();
   }, [
     pathname,
     stockFilter,
@@ -403,6 +405,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
     customerFilter,
     mediaCreate,
     mediaBatch,
+    orderLine,
     orderPayment,
     orderReturn,
     orderRecord,
@@ -490,6 +493,34 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
               </div>
               <div className="mt-6">
                 <MediaBatchPanel surface="plain" />
+              </div>
+            </div>
+          ) : orderLine ? (
+            <div id="order-line">
+              <div className="flex items-start justify-between gap-5 px-2">
+                <div>
+                  <p className="eyebrow">Line</p>
+                  <h2 className="font-serif mt-3 text-[20px] leading-tight">
+                    Add what is being sold.
+                  </h2>
+                  <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                    Choose stock, name work, and keep list beside given.
+                  </p>
+                </div>
+                <button
+                  onClick={clearAdminContextPanel}
+                  className="link-hair shrink-0 text-dusk text-[12px]"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-6">
+                <AddLineForm
+                  orderId={orderLine.orderId}
+                  pieces={orderLine.pieces}
+                  surface="plain"
+                  idPrefix="order-line-rail"
+                />
               </div>
             </div>
           ) : orderPayment ? (
