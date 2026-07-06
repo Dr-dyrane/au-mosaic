@@ -40,11 +40,10 @@ function titled(value: string) {
 }
 
 function frame(src: string, copy: GalleryCopy, tone?: Tone): GalleryItem {
-  const suffix = tone ? ` by ${tone}` : "";
   return {
     ...copy,
     src,
-    title: `${copy.title}${suffix}`,
+    title: copy.title,
     alt: tone ? `${copy.alt}, ${tone} frame` : copy.alt,
   };
 }
