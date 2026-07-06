@@ -1,7 +1,7 @@
 # QA ledger · The Mosaic Maison
 
 Every checkpoint verified with evidence, not opinion. Updated each pass.
-Last pass: 2026-07-05.
+Last pass: 2026-07-06.
 
 ## The owner's checklist
 
@@ -31,6 +31,7 @@ Last pass: 2026-07-05.
 | SEO | PASS | Per-page metadata, OG and Twitter cards, JSON-LD LocalBusiness, `sitemap.xml` (all pages and pieces), `robots.txt`, canonical host via `metadataBase`. |
 | Analytics | PASS | `@vercel/analytics` wired in the root layout. Fulfils the proposal's traffic analytics deliverable. |
 | Copy protocol | PASS | Swept: no em dashes, no arrows, few words, human prose. |
+| Public gallery media room | PASS | `/gallery` now draws 119 owned frames from the registered image library and product plates, with 24 frames on first paint and infinite loading after that. Phone browser check at 390px: first media rect left 0, right 390, width 390, 24 visible `View` pills. Desktop browser check at 1280px: exactly 3 columns, each 389px wide. `npx eslint src --max-warnings=0`, `npx next build` on Next 16.2.10, 56 routes. |
 | Desk shell goal | PASS | `docs/DESK-SHELL.md` defines the adaptive admin target before code: room rail, work canvas, context rail, phone sheet behavior, owner-language guardrails, use-case coverage, and Apple HIG source anchors. |
 | Desk shell build | PASS | Shared room model, desktop rail, tablet room row, phone tab bar, wide context rail, and mobile context disclosure shipped. Production visual QA at 390, 768, 1024, and 1440 found no horizontal overflow or tab overlap. `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 49 routes. |
 | Two-hand cleanup | PASS | Cleared stale staged inverse changes, kept Claude's rail-foot fix, wired Claude's room icons into the live nav, and retired unused `.desk-*` shell primitives. Playwright visual pass at 1440 and 390 found no nav overflow; icons render at 20px; `rg "desk-" src` is empty; `npx eslint src --max-warnings=0`; `npx next build` on Next 16.2.10, 49 routes. |
