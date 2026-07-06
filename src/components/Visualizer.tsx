@@ -153,40 +153,32 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
 
-  const loadImage = useCallback((src: string, from: "upload" | "sample" | "memory", nextQuad?: Pt[]) => {
+  const loadImage = useCallback((src: string, from: "upload" | "sample" | "default", nextQuad?: Pt[]) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
       if (nextQuad) setQuad(nextQuad);
       setPhoto(img);
-      if (from !== "memory") track("viz_photo", { source: from });
+      if (from !== "default") track("viz_photo", { source: from });
     };
     img.src = src;
   }, []);
 
-  /* The photo restores asynchronously: the image loads, then appears. */
+  /* The feature opens on its own before-state. User photos are chosen,
+     not silently restored, so the first view always makes sense. */
   useEffect(() => {
     if (restored.current) return;
     restored.current = true;
-    const saved = readStore().photo as string | undefined;
-    if (saved) {
-      track("viz_resume", {});
-      loadImage(saved, "memory");
-    }
+    loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD);
   }, [loadImage]);
 
   useEffect(() => {
     if (!photo) return;
     const id = setTimeout(() => {
       try {
-        const small = document.createElement("canvas");
-        const s = Math.min(1, 1100 / photo.naturalWidth);
-        small.width = Math.round(photo.naturalWidth * s);
-        small.height = Math.round(photo.naturalHeight * s);
-        small.getContext("2d")!.drawImage(photo, 0, 0, small.width, small.height);
         localStorage.setItem(
           STORE_KEY,
-          JSON.stringify({ quad, tileSize, blend, groutLight, pieceSlug, photo: small.toDataURL("image/jpeg", 0.8) })
+          JSON.stringify({ quad, tileSize, blend, groutLight, pieceSlug })
         );
       } catch {}
     }, 600);
