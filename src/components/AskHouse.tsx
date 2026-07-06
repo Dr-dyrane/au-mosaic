@@ -89,9 +89,9 @@ export default function AskHouse({
             </div>
             <Dialog.Close
               aria-label="Close"
-              className="chip-glass -mr-1 -mt-1 flex h-10 w-10 shrink-0 items-center justify-center p-0 text-white transition-transform active:scale-95"
+              className="chip-glass -mr-1 -mt-1 flex h-12 w-12 shrink-0 items-center justify-center !p-0 text-ink transition-transform active:scale-95"
             >
-              <IconClose className="h-4 w-4" />
+              <IconClose className="h-6 w-6" />
             </Dialog.Close>
           </div>
 

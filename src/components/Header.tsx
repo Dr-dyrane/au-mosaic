@@ -227,17 +227,12 @@ export default function Header() {
                   aria-expanded={false}
                   aria-haspopup="menu"
                   onClick={() => setMobileExplore(true)}
-                  className={`mt-5 flex w-full items-center justify-between gap-4 rounded-[24px] bg-shell/35 px-5 py-4 text-left transition-colors duration-300 hover:bg-shell/55 ${
+                  className={`mt-5 flex w-full items-center justify-between gap-4 py-3 text-left transition-colors duration-300 ${
                     activeExplore ? "text-gold" : "text-ink"
                   }`}
                 >
-                  <span>
-                    <span className="eyebrow block">Explore</span>
-                    <span className="font-serif mt-2 block text-[20px] leading-tight">More rooms</span>
-                  </span>
-                  <span className="rounded-full bg-sand/45 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-dusk">
-                    Open
-                  </span>
+                  <span className="font-serif text-[20px] leading-tight">Explore</span>
+                  <span className="link-hair text-dusk">Open</span>
                 </button>
                 <a href={waQuote()} target="_blank" rel="noopener" data-wa="menu" className="btn-gold mt-6 inline-block">
                   Enquire on WhatsApp

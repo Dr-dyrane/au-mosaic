@@ -14,52 +14,56 @@ export default async function Footer() {
     <footer className="mt-32 px-2 pb-2 sm:px-6 sm:pb-4">
       <div className="mx-auto max-w-[1400px] rounded-[28px] bg-shell/70 sm:rounded-[40px]">
         <div className="mx-auto grid max-w-6xl gap-14 px-5 pb-10 pt-16 sm:px-8 md:grid-cols-3">
-        <div>
-          <AuLockup className="text-[16px]" />
-          <p className="font-serif mt-6 max-w-xs text-[20px] leading-snug text-dusk">
-            Everything mosaic, and the water it belongs to.
-          </p>
-        </div>
-
-        <div>
-          <p className="eyebrow">Visit</p>
-          <p className="mt-5 text-[14px] leading-relaxed text-dusk">{facts.location}</p>
-          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{facts.hours}</p>
-          <p className="mt-1 text-[14px] leading-relaxed text-dusk">{facts.phoneDisplay}</p>
-          <a href={waGeneral()} target="_blank" rel="noopener" data-wa="footer" className="link-hair mt-6 text-dusk">
-            WhatsApp the house
-          </a>
-          <AskHouse trigger="chip" context="visit" label="Ask before visiting" className="mt-4" />
-          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-            <a href={facts.instagram} target="_blank" rel="noopener" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-              Instagram
-            </a>
-            <a href={SITE.telegram} target="_blank" rel="noopener" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-              Telegram samples
-            </a>
+          <div>
+            <AuLockup className="text-[16px]" />
+            <p className="font-serif mt-6 max-w-xs text-[20px] leading-snug text-dusk">
+              Everything mosaic, and the water it belongs to.
+            </p>
           </div>
-          <ShowroomMap compact className="mt-7" />
+
+          <div>
+            <p className="eyebrow">Visit</p>
+            <p className="mt-5 text-[14px] leading-relaxed text-dusk">{facts.hours}</p>
+            <p className="mt-1 text-[14px] leading-relaxed text-dusk">{facts.phoneDisplay}</p>
+            <div className="mt-7 flex flex-col items-start gap-5">
+              <a href={waGeneral()} target="_blank" rel="noopener" data-wa="footer" className="link-hair text-dusk">
+                WhatsApp the house
+              </a>
+              <AskHouse trigger="chip" context="visit" label="Ask before visiting" />
+            </div>
+            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2">
+              <a href={facts.instagram} target="_blank" rel="noopener" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                Instagram
+              </a>
+              <a href={SITE.telegram} target="_blank" rel="noopener" className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                Telegram samples
+              </a>
+            </div>
+          </div>
+
+          <nav>
+            <p className="eyebrow">Explore</p>
+            <ul className="mt-5 columns-2 gap-x-8 [&>li]:mb-2.5 [&>li]:break-inside-avoid">
+              {NAV.map((n) => (
+                <li key={n.href}>
+                  <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                    {n.label}
+                  </Link>
+                </li>
+              ))}
+              {EXPLORE.map((n) => (
+                <li key={n.href}>
+                  <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
+                    {n.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
-        <nav>
-          <p className="eyebrow">Explore</p>
-          <ul className="mt-5 columns-2 gap-x-8 [&>li]:mb-2.5 [&>li]:break-inside-avoid">
-            {NAV.map((n) => (
-              <li key={n.href}>
-                <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                  {n.label}
-                </Link>
-              </li>
-            ))}
-            {EXPLORE.map((n) => (
-              <li key={n.href}>
-                <Link href={n.href} className="text-[14px] text-dusk transition-colors duration-300 hover:text-ink">
-                  {n.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="mx-auto max-w-6xl px-5 pb-10 sm:px-8">
+          <ShowroomMap compact />
         </div>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 pb-8 pt-2 sm:px-8">
           <p className="text-[11px] uppercase tracking-[0.18em] text-mist">{SITE.name}</p>

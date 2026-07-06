@@ -16,6 +16,19 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Footer and compact nav restraint lane - done
+
+Closed `src/components/Header.tsx`, `src/components/Footer.tsx`,
+`src/components/AskHouse.tsx`, `docs/QA.md`, and this handshake. The compact
+menu Explore trigger is now a plain row, the footer no longer repeats the
+address above the map, the map is a full content-rail row, Visit actions have a
+20px gap, and the Ask dialog close target renders 48 by 48 with the shared close
+icon at 24 by 24. I did not touch the open admin production lane or dirty admin
+files. Bundled Playwright checked `/how-we-work` at 390 by 844 and 820 by 900
+with no overflow. `npx tsc --noEmit`, `npx eslint src --max-warnings=0`,
+`python3 scripts/theme-check.py`, `git diff --check`, dash scan, and
+`npx next build` on Next 16.2.10, 57 routes, passed.
+
 ## 2026-07-06 - CODEX - Public showroom map restraint lane - done
 
 Closed `src/components/ShowroomMap.tsx`, `src/lib/maps.ts`, `docs/QA.md`, and
