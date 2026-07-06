@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>AU Mosaic · The Unveiling</title>
 <meta name="theme-color" content="#071022" />
-<meta name="description" content="For Nonso. Everything we built, now open to the world. A walk through aumosaic.com." />
+<meta name="description" content="For Nonso. Everything we built, now open to the world. A short walk through aumosaic.com." />
 <meta property="og:title" content="AU Mosaic · The Unveiling" />
 <meta property="og:description" content="Your house is open. A short walk through everything we built." />
 <meta property="og:image" content="https://www.aumosaic.com/media/hero-dusk.jpg" />
@@ -15,13 +15,10 @@
 <style>
   :root{
     --sand:#071022; --shell:#0e1a33; --ink:#eef3fb; --dusk:#a3b4d4; --mist:#8b9cc0;
-    --gold:#7fb3e8; --gold-deep:#2b5fc7; --water:#7fb3e8; --wa:#25d366;
-    --tint:rgba(127,179,232,.14);
-    --e:cubic-bezier(.22,.61,.36,1);
-    --cap:999px; --panel:28px; --card:24px; --band:40px;
+    --gold:#7fb3e8; --water:#7fb3e8; --wa:#25d366; --tint:rgba(127,179,232,.14);
+    --e:cubic-bezier(.22,.61,.36,1); --cap:999px; --panel:28px; --card:24px; --band:40px;
     --serif:"Didot","Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif;
     --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
-    --eb:.25em;
   }
   html[data-palette="royal"]     { --gold:#7fb3e8; --sand:#071022; --shell:#0e1a33; --ink:#eef3fb; --dusk:#a3b4d4; --mist:#8b9cc0; --tint:rgba(127,179,232,.14); }
   html[data-palette="maison"]    { --gold:#c2a15c; --sand:#0c0b09; --shell:#16130f; --ink:#f3efe6; --dusk:#a79e8f; --mist:#8a8172; --tint:rgba(194,161,92,.14); }
@@ -31,411 +28,390 @@
   html[data-palette="terracotta"]{ --gold:#d99a6c; --sand:#150c08; --shell:#20140d; --ink:#f6efe8; --dusk:#b5a08f; --mist:#97826d; --tint:rgba(217,154,108,.15); }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
-  body{ background:var(--sand); color:var(--ink); font-family:var(--sans); line-height:1.5; overflow-x:hidden; transition:background 1s var(--e); -webkit-font-smoothing:antialiased; }
+  html,body{ height:100%; }
+  body{ background:var(--sand); color:var(--ink); font-family:var(--sans); line-height:1.5; overflow:hidden; transition:background .9s var(--e); -webkit-font-smoothing:antialiased; }
   ::selection{ background:var(--gold); color:var(--sand); }
-  a{ color:inherit; text-decoration:none; }
-  img,iframe{ display:block; border:0; }
+  a{ color:inherit; text-decoration:none; } img,iframe{ display:block; border:0; }
 
-  /* whisper motion, per the maison law: glide, never fly */
-  .r{ opacity:0; transform:translateY(14px) scale(.99); transition:opacity .5s var(--e), transform .5s var(--e); }
-  .in .r{ opacity:1; transform:none; }
-  .in .r2{ transition-delay:.09s; } .in .r3{ transition-delay:.18s; } .in .r4{ transition-delay:.27s; } .in .r5{ transition-delay:.36s; }
-
-  /* sticky glass chrome */
-  #top{ position:fixed; top:0; left:0; right:0; z-index:70; display:flex; align-items:center; gap:14px; padding:12px clamp(16px,4vw,34px);
-    background:color-mix(in srgb, var(--sand) 60%, transparent); backdrop-filter:blur(24px) saturate(1.6); -webkit-backdrop-filter:blur(24px) saturate(1.6); }
-  #top .wm{ font-family:var(--serif); font-size:16px; }
-  #top .wm i{ font-style:normal; color:var(--gold); }
-  #top .wm small{ font-family:var(--sans); font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--mist); margin-left:10px; }
-  #top .sp{ flex:1; }
-  #top .visit{ font-size:12px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--sand); background:var(--gold); padding:9px 18px; border-radius:var(--cap); }
-  #rail{ position:absolute; left:0; bottom:0; height:1.5px; width:0%; background:var(--gold); opacity:.85; }
-
-  #grain{ position:fixed; inset:0; z-index:65; pointer-events:none; opacity:.04; mix-blend-mode:overlay;
+  /* top chrome */
+  #top{ position:fixed; top:0; left:0; right:0; z-index:60; display:flex; align-items:center; padding:13px clamp(16px,4vw,30px);
+    background:linear-gradient(180deg, color-mix(in srgb,var(--sand) 70%,transparent), transparent); pointer-events:none; }
+  #top .wm{ font-family:var(--serif); font-size:15px; opacity:.92; } #top .wm i{ font-style:normal; color:var(--gold); }
+  #rail{ position:fixed; top:0; left:0; height:2px; width:0%; background:var(--gold); z-index:61; box-shadow:0 0 12px var(--gold); transition:width .5s var(--e); }
+  #grain{ position:fixed; inset:0; z-index:58; pointer-events:none; opacity:.04; mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
-  section{ position:relative; padding:clamp(88px,15vh,150px) clamp(22px,6vw,60px); }
-  .wrap{ max-width:1120px; margin:0 auto; width:100%; }
-  .mid{ max-width:820px; }
-  .center{ text-align:center; }
-  .center .wrap{ margin-inline:auto; }
+  /* the deck: one screen at a time */
+  #deck{ position:fixed; inset:0; }
+  .step{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+    padding:clamp(70px,11vh,120px) clamp(22px,6vw,56px) 108px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    opacity:0; transform:translateY(20px) scale(.99); transition:opacity .55s var(--e), transform .55s var(--e); pointer-events:none; }
+  .step.active{ opacity:1; transform:none; pointer-events:auto; }
+  .inner{ max-width:900px; width:100%; margin:auto; }
+  .shot{ padding:0; justify-content:flex-end; text-align:left; }
+  .shot .bg{ position:absolute; inset:0; background-size:cover; background-position:center; transform:scale(1.02); }
+  .step.active.shot .bg{ animation:ken 15s var(--e) forwards; }
+  @keyframes ken{ to{ transform:scale(1.09); } }
+  .shot .scrim{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(4,8,17,.24), rgba(4,8,17,.02) 40%, rgba(4,8,17,.82)); }
+  .shot .inner{ position:relative; margin:0; max-width:none; padding:clamp(28px,6vw,72px); }
 
-  .eb{ font-size:12px; font-weight:600; letter-spacing:var(--eb); text-transform:uppercase; color:var(--gold); }
-  h1{ font-family:var(--serif); font-weight:400; line-height:1.03; letter-spacing:-.01em; font-size:clamp(2.8rem,8vw,5.5rem); }
-  h2{ font-family:var(--serif); font-weight:400; line-height:1.05; letter-spacing:-.01em; font-size:clamp(2.1rem,5.2vw,3.4rem); }
-  h3{ font-family:var(--serif); font-weight:400; font-size:clamp(1.5rem,3.4vw,2.1rem); line-height:1.1; }
-  .lede{ font-size:clamp(1.1rem,2.4vw,1.5rem); color:var(--ink); }
-  .sub{ font-size:clamp(1rem,2.1vw,1.2rem); color:var(--dusk); max-width:46ch; }
-  .center .sub{ margin-inline:auto; }
-  .whisper{ font-family:var(--serif); font-style:italic; color:var(--dusk); font-size:clamp(1.15rem,3vw,1.6rem); }
+  /* reveal on becoming active */
+  .r{ opacity:0; transform:translateY(14px) scale(.99); transition:opacity .55s var(--e), transform .55s var(--e); }
+  .active .r{ opacity:1; transform:none; }
+  .active .r2{ transition-delay:.12s;} .active .r3{ transition-delay:.24s;} .active .r4{ transition-delay:.36s;} .active .r5{ transition-delay:.48s;}
+
+  .eb{ font-size:12px; font-weight:600; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); }
+  h1{ font-family:var(--serif); font-weight:400; line-height:1.03; letter-spacing:-.01em; font-size:clamp(2.7rem,8vw,5rem); }
+  h2{ font-family:var(--serif); font-weight:400; line-height:1.06; letter-spacing:-.01em; font-size:clamp(2rem,6vw,3.3rem); }
+  h3{ font-family:var(--serif); font-weight:400; font-size:clamp(1.4rem,4vw,2rem); }
+  .sub{ font-size:clamp(1.02rem,2.5vw,1.28rem); color:var(--dusk); max-width:40ch; margin-inline:auto; }
+  .shot .sub{ margin-inline:0; }
   .cap{ font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--mist); }
-  .s{ height:16px; } .m{ height:28px; } .l{ height:48px; }
+  .whisper{ font-family:var(--serif); font-style:italic; color:var(--dusk); font-size:clamp(1.1rem,3vw,1.5rem); }
+  .s{ height:14px; } .m{ height:26px; } .l{ height:42px; }
 
-  .btn{ display:inline-block; font-size:13px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; padding:14px 26px; border-radius:var(--cap); transition:transform .4s var(--e); }
-  .btn.gold{ background:var(--gold); color:var(--sand); }
-  .btn.ghost{ color:var(--ink); background:color-mix(in srgb, var(--shell) 78%, transparent); box-shadow:inset 0 1px 0 rgba(255,255,255,.07); }
+  .btn{ display:inline-block; font-size:13px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; padding:14px 26px; border-radius:var(--cap); transition:transform .35s var(--e); }
+  .btn.gold{ background:var(--gold); color:var(--sand); } .btn.ghost{ color:var(--ink); background:color-mix(in srgb,var(--shell) 78%,transparent); }
   .btn:hover{ transform:translateY(-2px); }
-  .row{ display:flex; flex-wrap:wrap; gap:12px; }
-  .center .row{ justify-content:center; }
+  .row{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
 
-  /* hero */
-  .hero{ min-height:100svh; display:flex; align-items:flex-end; overflow:hidden; }
-  .hero .bg{ position:absolute; inset:0; background:url('https://www.aumosaic.com/media/hero-dusk.jpg') center/cover; transform:scale(1.02); }
-  .hero.in .bg{ animation:ken 14s var(--e) forwards; }
-  @keyframes ken{ to{ transform:scale(1.08); } }
-  .hero .scrim{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(4,8,17,.36), rgba(4,8,17,.04) 34%, rgba(4,8,17,.8)); }
-  .hero .wrap{ position:relative; padding-bottom:clamp(20px,6vh,40px); }
+  .panel{ background:color-mix(in srgb,var(--shell) 82%,transparent); backdrop-filter:blur(18px) saturate(1.3); -webkit-backdrop-filter:blur(18px) saturate(1.3);
+    border-radius:var(--band); padding:clamp(22px,4vw,36px); box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 28px 64px rgba(0,0,0,.36); text-align:left; }
 
-  /* panels: no borders, only glow and whitespace */
-  .panel{ background:color-mix(in srgb, var(--shell) 82%, transparent); backdrop-filter:blur(18px) saturate(1.3); -webkit-backdrop-filter:blur(18px) saturate(1.3);
-    border-radius:var(--band); padding:clamp(24px,4vw,42px); box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 30px 70px rgba(0,0,0,.36); }
-  .glow{ box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 24px 60px rgba(0,0,0,.4); }
-
-  /* highlights */
-  .high{ display:grid; gap:2px 30px; grid-template-columns:1fr; margin-top:8px; }
-  .high div{ padding:16px 0; font-size:clamp(1.05rem,2.3vw,1.3rem); color:var(--ink); }
+  .high{ display:grid; gap:2px 26px; grid-template-columns:1fr; }
+  .high div{ padding:13px 0; font-size:clamp(1.02rem,2.3vw,1.22rem); }
   .high div b{ color:var(--gold); font-weight:400; font-family:var(--serif); }
-  .high div span{ display:block; color:var(--mist); font-size:.82em; margin-top:3px; }
+  .high div span{ display:block; color:var(--mist); font-size:.82em; margin-top:2px; }
 
-  /* full-bleed scene */
-  .scene{ min-height:88svh; display:flex; align-items:flex-end; overflow:hidden; border-radius:0; }
-  .scene .bg{ position:absolute; inset:0; background-size:cover; background-position:center; transform:scale(1.03); }
-  .scene.in .bg{ animation:ken 16s var(--e) forwards; }
-  .scene .scrim{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(4,8,17,.1), rgba(4,8,17,.02) 40%, rgba(4,8,17,.72)); }
-  .scene .wrap{ position:relative; padding-bottom:clamp(24px,7vh,54px); }
-
-  /* live device */
-  .device{ position:relative; margin-top:30px; border-radius:var(--card); overflow:hidden; background:#0a1830; box-shadow:0 44px 100px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08); }
-  .device .chrome{ display:flex; align-items:center; gap:7px; padding:12px 16px; }
-  .device .chrome i{ width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.2); }
-  .device .chrome .u{ margin-left:10px; font-size:11px; color:var(--mist); letter-spacing:.04em; }
+  .device{ position:relative; margin:22px auto 0; max-width:560px; border-radius:var(--card); overflow:hidden; background:#0a1830; box-shadow:0 40px 90px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08); }
+  .device .chrome{ display:flex; align-items:center; gap:7px; padding:11px 15px; }
+  .device .chrome i{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.2); }
+  .device .chrome u{ margin-left:9px; font-size:11px; color:var(--mist); font-style:normal; }
   .device .screen{ position:relative; aspect-ratio:16/10; }
-  .device .screen iframe{ position:absolute; top:0; left:0; width:143%; height:143%; transform:scale(.7); transform-origin:top left; pointer-events:none; }
-  .device .open{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; padding:22px;
-    background:linear-gradient(180deg, transparent 60%, rgba(4,8,17,.5)); }
-  .device .open span{ font-size:12px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--sand); background:var(--gold); padding:11px 22px; border-radius:var(--cap); }
+  .device iframe{ position:absolute; top:0; left:0; width:167%; height:167%; transform:scale(.6); transform-origin:top left; pointer-events:none; }
+  .device .open{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; padding:20px; background:linear-gradient(180deg,transparent 58%,rgba(4,8,17,.55)); }
+  .device .open span{ font-size:12px; letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:var(--sand); background:var(--gold); padding:11px 22px; border-radius:var(--cap); }
 
-  /* ranges */
-  .ranges{ display:grid; grid-template-columns:1fr; gap:14px; margin-top:30px; }
-  .range{ border-radius:var(--card); overflow:hidden; background:color-mix(in srgb, var(--shell) 70%, transparent); box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 20px 50px rgba(0,0,0,.34); }
-  .sheet{ display:grid; grid-template-columns:repeat(10,1fr); grid-template-rows:repeat(4,1fr); gap:2px; padding:8px; aspect-ratio:10/4; background:rgba(0,0,0,.28); }
+  .ranges{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:22px; }
+  .range{ border-radius:var(--card); overflow:hidden; background:color-mix(in srgb,var(--shell) 70%,transparent); box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 18px 44px rgba(0,0,0,.32); }
+  .sheet{ display:grid; grid-template-columns:repeat(10,1fr); grid-template-rows:repeat(3,1fr); gap:2px; padding:7px; aspect-ratio:10/3; background:rgba(0,0,0,.28); }
   .sheet i{ border-radius:2px; opacity:0; transform:scale(.5); transition:opacity .45s var(--e), transform .45s var(--e); }
-  .in .sheet i{ opacity:1; transform:none; }
-  .range .t{ padding:16px 18px 20px; }
-  .range .t h3{ font-size:1.3rem; } .range .t p{ color:var(--dusk); margin-top:4px; }
-  .range .t .msg{ display:inline-flex; align-items:center; gap:8px; margin-top:12px; color:var(--wa); font-size:12px; font-weight:600; letter-spacing:.02em; }
-  .range .t .msg b{ width:8px; height:8px; border-radius:50%; background:var(--wa); box-shadow:0 0 9px var(--wa); }
+  .active .sheet i{ opacity:1; transform:none; }
+  .range .t{ padding:13px 15px 16px; text-align:left; }
+  .range .t h3{ font-size:1.12rem; } .range .t p{ color:var(--dusk); font-size:.92rem; margin-top:3px; }
 
-  /* six houses */
-  .houses{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:8px; }
-  .house{ font-size:13px; letter-spacing:.13em; text-transform:uppercase; padding:11px 18px; border-radius:var(--cap); color:var(--ink); background:color-mix(in srgb, var(--shell) 75%, transparent); cursor:pointer; transition:transform .35s var(--e), box-shadow .35s; }
-  .house::before{ content:""; display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:9px; vertical-align:middle; }
+  .houses{ display:flex; flex-wrap:wrap; gap:9px; justify-content:center; }
+  .house{ font-size:13px; letter-spacing:.12em; text-transform:uppercase; padding:10px 17px; border-radius:var(--cap); color:var(--ink); background:color-mix(in srgb,var(--shell) 75%,transparent); cursor:pointer; transition:transform .3s var(--e), box-shadow .3s; }
+  .house::before{ content:""; display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; vertical-align:middle; }
   .house[data-p="royal"]::before{background:#7fb3e8;} .house[data-p="maison"]::before{background:#c2a15c;}
   .house[data-p="oba"]::before{background:#e6b23c;} .house[data-p="onyx"]::before{background:#cbc6ba;}
   .house[data-p="lagoon"]::before{background:#63cfbf;} .house[data-p="terracotta"]::before{background:#d99a6c;}
-  .house.on{ color:var(--sand); background:var(--gold); box-shadow:0 10px 30px var(--tint); transform:translateY(-2px); }
+  .house.on{ color:var(--sand); background:var(--gold); box-shadow:0 8px 26px var(--tint); transform:translateY(-2px); }
   .house.on::before{ background:var(--sand); }
-  .envs{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:26px; }
-  .envs figure{ position:relative; aspect-ratio:4/3; border-radius:var(--card); overflow:hidden; }
-  .envs img{ width:100%; height:100%; object-fit:cover; transition:transform 1s var(--e); }
-  .envs figure:hover img{ transform:scale(1.04); }
-  .envs figcaption{ position:absolute; left:13px; bottom:11px; font-family:var(--serif); font-size:14px; text-shadow:0 1px 12px rgba(0,0,0,.85); }
+  .envs{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:22px; }
+  .envs figure{ position:relative; aspect-ratio:1; border-radius:16px; overflow:hidden; }
+  .envs img{ width:100%; height:100%; object-fit:cover; }
+  .envs figcaption{ position:absolute; left:9px; bottom:8px; font-family:var(--serif); font-size:12px; text-shadow:0 1px 10px rgba(0,0,0,.85); }
 
-  /* liquid glass */
-  .glass{ margin-top:28px; border-radius:var(--panel); padding:28px; position:relative; overflow:hidden;
+  .glass{ margin-top:8px; border-radius:var(--panel); padding:26px; position:relative; overflow:hidden; text-align:left;
     background:linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.03));
     backdrop-filter:blur(22px) saturate(1.6); -webkit-backdrop-filter:blur(22px) saturate(1.6);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.28), 0 34px 70px rgba(0,0,0,.4); }
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.28), 0 30px 64px rgba(0,0,0,.4); }
 
-  /* five numbers glance */
-  .glance{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px 22px; margin-top:8px; }
-  .glance .n{ font-family:var(--serif); font-size:clamp(2.2rem,6vw,3.2rem); color:var(--ink); line-height:1; }
+  .glance{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:6px; }
+  .glance .n{ font-family:var(--serif); font-size:clamp(1.7rem,6vw,2.7rem); line-height:1; }
   .glance .n.warn{ color:var(--water); } .glance .n.owe{ color:var(--gold); }
-  .glance .k{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--mist); margin-top:8px; }
+  .glance .k{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--mist); margin-top:7px; }
 
-  /* order line: two prices */
-  .line{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+  .line{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; }
   .line .lbl{ color:var(--mist); font-size:12px; letter-spacing:.1em; text-transform:uppercase; }
-  .line .v{ font-family:var(--serif); font-size:1.35rem; font-variant-numeric:tabular-nums; }
-  .line .v.give{ color:var(--gold); }
-  .gap{ text-align:center; margin-top:6px; color:var(--dusk); }
+  .line .v{ font-family:var(--serif); font-size:1.3rem; font-variant-numeric:tabular-nums; } .line .v.give{ color:var(--gold); }
+  .gap{ text-align:center; margin-top:6px; color:var(--dusk); font-size:.95rem; }
 
-  /* owed */
-  .owed{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:8px; }
+  .owed{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
   .owed .who span{ display:block; color:var(--mist); font-size:12px; margin-top:2px; }
-  .owed .amt{ font-family:var(--serif); font-size:1.6rem; color:var(--gold); font-variant-numeric:tabular-nums; }
-  .send{ display:inline-flex; align-items:center; gap:8px; margin-top:16px; color:var(--sand); background:var(--gold); font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:11px 20px; border-radius:var(--cap); }
+  .owed .amt{ font-family:var(--serif); font-size:1.5rem; color:var(--gold); }
+  .send{ display:inline-block; margin-top:16px; color:var(--sand); background:var(--gold); font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:11px 20px; border-radius:var(--cap); }
 
-  .bits{ display:flex; flex-direction:column; gap:22px; margin-top:14px; }
-  .bit{ font-size:clamp(1.05rem,2.4vw,1.32rem); }
-  .bit span{ display:block; color:var(--mist); font-size:.8em; margin-top:3px; }
+  .bits{ display:flex; flex-direction:column; gap:18px; text-align:left; margin-top:8px; }
+  .bit{ font-size:clamp(1rem,2.4vw,1.2rem); } .bit span{ display:block; color:var(--mist); font-size:.82em; margin-top:2px; }
+  .bigurl{ font-family:var(--serif); font-size:clamp(2.2rem,8vw,3.6rem); color:var(--gold); }
+  .sign{ font-family:var(--serif); font-style:italic; color:var(--dusk); font-size:1.3rem; margin-top:6px; }
 
-  .bigurl{ font-family:var(--serif); font-size:clamp(2.2rem,7vw,3.6rem); color:var(--gold); }
-  .sign{ font-family:var(--serif); font-style:italic; color:var(--dusk); font-size:1.3rem; margin-top:8px; }
+  /* controls */
+  #back{ position:fixed; top:11px; right:16px; z-index:62; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--mist); cursor:pointer; padding:8px; opacity:0; pointer-events:none; transition:opacity .4s; }
+  #bar{ position:fixed; left:0; right:0; bottom:0; z-index:62; display:flex; align-items:center; justify-content:center; gap:16px; padding:20px; pointer-events:none; }
+  .dots{ display:flex; gap:6px; pointer-events:auto; }
+  .dot{ width:6px; height:6px; border-radius:50%; background:color-mix(in srgb,var(--ink) 22%,transparent); cursor:pointer; transition:.3s var(--e); }
+  .dot.on{ background:var(--gold); transform:scale(1.4); }
+  #cont{ position:fixed; bottom:44px; left:50%; transform:translateX(-50%); z-index:62; display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--mist); font-size:10px; letter-spacing:.24em; text-transform:uppercase; cursor:pointer; transition:opacity .4s; }
+  #cont .ch{ width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--gold); animation:bob 2.4s ease-in-out infinite; }
+  #cont svg{ width:16px; height:16px; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(4px);} }
 
-  @media (min-width:760px){
-    .high{ grid-template-columns:1fr 1fr; }
-    .ranges{ grid-template-columns:repeat(2,1fr); }
-    .envs{ grid-template-columns:repeat(4,1fr); }
-    .glance{ grid-template-columns:repeat(5,1fr); }
-    .device .screen{ aspect-ratio:16/9; }
-  }
-  @media (prefers-reduced-motion:reduce){
-    *{ animation:none !important; transition-duration:.001s !important; }
-    .r{ opacity:1 !important; transform:none !important; }
-    .sheet i{ opacity:1 !important; transform:none !important; }
-  }
+  @media (min-width:760px){ .high{ grid-template-columns:1fr 1fr; } .ranges{ grid-template-columns:repeat(4,1fr); } }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; } #cont .ch{ animation:none !important; } }
 </style>
 </head>
 <body>
-<header id="top">
-  <span class="wm">au<i>&#183;</i>mosaic <small>The Unveiling</small></span>
-  <span class="sp"></span>
-  <a class="visit" href="https://www.aumosaic.com" target="_blank" rel="noopener">Visit site</a>
-  <span id="rail"></span>
-</header>
+<header id="top"><span class="wm">au<i>&#183;</i>mosaic</span></header>
+<div id="rail"></div>
 <div id="grain"></div>
+<div id="back">Back</div>
 
-<!-- Hero -->
-<section class="hero center" data-io>
-  <div class="bg"></div><div class="scrim"></div>
-  <div class="wrap mid">
-    <p class="eb r">For Nonso</p>
-    <div class="m"></div>
-    <h1 class="r r2">Your house is open.</h1>
-    <div class="m"></div>
-    <p class="sub r r3">Ten years of work, now a place the world can walk into. Live at aumosaic.com.</p>
-    <div class="l"></div>
-    <div class="row r r4"><a class="btn gold" href="https://www.aumosaic.com" target="_blank" rel="noopener">See it live</a></div>
-  </div>
-</section>
+<main id="deck">
 
-<!-- Highlights, for the impatient -->
-<section data-io>
-  <div class="wrap">
-    <p class="eb r">The short version</p>
-    <div class="s"></div>
-    <div class="panel r r2">
-      <div class="high">
+  <!-- 1 cover -->
+  <section class="step shot" data-hint>
+    <div class="bg" style="background-image:url('https://www.aumosaic.com/media/hero-dusk.jpg')"></div><div class="scrim"></div>
+    <div class="inner">
+      <p class="eb r">For Nonso</p><div class="m"></div>
+      <h1 class="r r2">Your house is open.</h1><div class="m"></div>
+      <p class="sub r r3">Ten years of work, now a place the world can walk into. Tap to begin.</p>
+    </div>
+  </section>
+
+  <!-- 2 short version -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">The short version</p><div class="s"></div>
+      <div class="panel r r2"><div class="high">
         <div><b>Two sites in one.</b><span>A showroom the world sees. A back office only you see.</span></div>
         <div><b>Six looks, day and night.</b><span>One tap changes the whole wardrobe.</span></div>
         <div><b>Every price is a message.</b><span>It sells on WhatsApp, the way you already sell. No cart, ever.</span></div>
-        <div><b>The office fits in your pocket.</b><span>Works with weak network. Nothing you write is ever lost.</span></div>
+        <div><b>The office fits your pocket.</b><span>Works with weak network. Nothing you write is ever lost.</span></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- 3 showroom chapter -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">The showroom</p><div class="m"></div>
+      <h2 class="r r2">It opens like a gallery,<br>not a shop.</h2><div class="s"></div>
+      <p class="sub r r3">Story first. Your work is the light, and the materials that made it follow.</p>
+    </div>
+  </section>
+
+  <!-- 4 environment scene -->
+  <section class="step shot">
+    <div class="bg" style="background-image:url('https://www.aumosaic.com/media/dusk-villa.jpg')"></div><div class="scrim"></div>
+    <div class="inner">
+      <p class="cap r">The Dusk Villa</p><div class="s"></div>
+      <h2 class="r r2">Water holds the last light.</h2>
+    </div>
+  </section>
+
+  <!-- 5 live front door -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">Your front door, live</p><div class="s"></div>
+      <h3 class="r r2">Spaces that begin with water.</h3>
+      <div class="device r r3">
+        <div class="chrome"><i></i><i></i><i></i><u>aumosaic.com</u></div>
+        <div class="screen"><iframe loading="lazy" src="https://www.aumosaic.com/" title="The AU Mosaic showroom, live"></iframe>
+          <a class="open" data-stop href="https://www.aumosaic.com" target="_blank" rel="noopener"><span>Open the showroom</span></a></div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Chapter: showroom -->
-<section class="center" data-io>
-  <div class="wrap mid">
-    <p class="eb r">The showroom</p>
-    <div class="m"></div>
-    <h2 class="r r2">It opens like a gallery,<br>not a shop.</h2>
-    <div class="s"></div>
-    <p class="sub r r3">Story first. Your work is the light, and the materials that made it follow.</p>
-  </div>
-</section>
-
-<!-- Environment scene, real line -->
-<section class="scene" data-io style="padding:0">
-  <div class="bg" style="background-image:url('https://www.aumosaic.com/media/dusk-villa.jpg')"></div><div class="scrim"></div>
-  <div class="wrap">
-    <p class="cap r">The Dusk Villa</p>
-    <div class="s"></div>
-    <h2 class="r r2">Water holds the last light.</h2>
-  </div>
-</section>
-
-<!-- Live site in a device -->
-<section data-io>
-  <div class="wrap">
-    <p class="eb r">This is your front door, live</p>
-    <div class="s"></div>
-    <h3 class="r r2">Spaces that begin with water.</h3>
-    <div class="device r r3">
-      <div class="chrome"><i></i><i></i><i></i><span class="u">aumosaic.com</span></div>
-      <div class="screen"><iframe loading="lazy" src="https://www.aumosaic.com/" title="The AU Mosaic showroom, live"></iframe>
-        <a class="open" href="https://www.aumosaic.com" target="_blank" rel="noopener"><span>Open the showroom</span></a>
+  <!-- 6 ranges -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">Your ranges</p><div class="s"></div>
+      <h2 class="r r2">Every colour, within reach.</h2>
+      <div class="ranges">
+        <div class="range r r2"><div class="sheet" data-colors="#1179a8,#1e8fc0,#3aa9d6,#6cc4e6,#a8def2"></div><div class="t"><h3>Pool mosaic</h3><p>Designed for water, light, and time.</p></div></div>
+        <div class="range r r3"><div class="sheet" data-colors="#0fb5c9,#2ecddd,#63e0ea,#98ecf2,#c8f6f9"></div><div class="t"><h3>Glass mosaic</h3><p>Colour you can stand in.</p></div></div>
+        <div class="range r r4"><div class="sheet" data-colors="#8a6d1a,#b8942d,#d9b64a,#edd27a,#f7e7ae"></div><div class="t"><h3>Gold and silver</h3><p>Gold, silver, and rose gold mirror.</p></div></div>
+        <div class="range r r5"><div class="sheet" data-colors="#0e7490,#c05f2b,#134e5e,#e8b48e,#38cfe0"></div><div class="t"><h3>Art mosaic</h3><p>Pictures made of stone and glass.</p></div></div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Ranges, real names + whispers + real colourways -->
-<section data-io>
-  <div class="wrap">
-    <p class="eb r">Your ranges</p>
-    <div class="s"></div>
-    <h2 class="r r2">Every colour, within reach.</h2>
-    <div class="ranges">
-      <div class="range r r2"><div class="sheet" data-colors="#1179a8,#1e8fc0,#3aa9d6,#6cc4e6,#a8def2"></div><div class="t"><h3>Pool mosaic</h3><p>Designed for water, light, and time.</p><span class="msg"><b></b>Message for price</span></div></div>
-      <div class="range r r3"><div class="sheet" data-colors="#0fb5c9,#2ecddd,#63e0ea,#98ecf2,#c8f6f9"></div><div class="t"><h3>Glass mosaic</h3><p>Colour you can stand in.</p><span class="msg"><b></b>Message for price</span></div></div>
-      <div class="range r r4"><div class="sheet" data-colors="#8a6d1a,#b8942d,#d9b64a,#edd27a,#f7e7ae"></div><div class="t"><h3>Gold and silver</h3><p>Gold, silver, and rose gold mirror.</p><span class="msg"><b></b>Message for price</span></div></div>
-      <div class="range r r5"><div class="sheet" data-colors="#0e7490,#c05f2b,#134e5e,#e8b48e,#38cfe0"></div><div class="t"><h3>Art mosaic</h3><p>Pictures made of stone and glass.</p><span class="msg"><b></b>Message for price</span></div></div>
+  <!-- 7 selling -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">How it does the selling</p><div class="m"></div>
+      <h2 class="r r2">See it in your space.<br>Then just message.</h2><div class="s"></div>
+      <p class="sub r r3">A customer places the tile on their own wall or pool before they buy. Every price opens a WhatsApp chat with you, already written. No cart, ever.</p>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Visualizer + WhatsApp -->
-<section data-io>
-  <div class="wrap mid">
-    <p class="eb r">Two ways it does the selling</p>
-    <div class="m"></div>
-    <h2 class="r r2">See it in your space.<br>Then just message.</h2>
-    <div class="s"></div>
-    <p class="sub r r3">A customer places the tile on their own wall or pool before they buy. And every price opens a WhatsApp chat with you, already written. Come see the stock, or just message. No cart, ever.</p>
-  </div>
-</section>
-
-<!-- Six houses -->
-<section class="center" data-io>
-  <div class="wrap mid">
-    <p class="eb r">Six houses, two suns</p>
-    <div class="m"></div>
-    <h2 class="r r2">Try one.<br>This page will wear it.</h2>
-    <div class="s"></div>
-    <p class="sub r r3">You are seeing Royal now, your own blue. Which one greets the world is your call.</p>
-    <div class="houses r r4">
-      <button class="house on" data-p="royal">Royal</button>
-      <button class="house" data-p="oba">Oba</button>
-      <button class="house" data-p="maison">Maison</button>
-      <button class="house" data-p="lagoon">Lagoon</button>
-      <button class="house" data-p="terracotta">Terracotta</button>
-      <button class="house" data-p="onyx">Onyx</button>
+  <!-- 8 six houses -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">Six houses, two suns</p><div class="s"></div>
+      <h2 class="r r2">Try one.<br>This page will wear it.</h2><div class="s"></div>
+      <p class="sub r r3">You are seeing Royal now, your own blue.</p>
+      <div class="m"></div>
+      <div class="houses r r4">
+        <button class="house on" data-stop data-p="royal">Royal</button>
+        <button class="house" data-stop data-p="oba">Oba</button>
+        <button class="house" data-stop data-p="maison">Maison</button>
+        <button class="house" data-stop data-p="lagoon">Lagoon</button>
+        <button class="house" data-stop data-p="terracotta">Terracotta</button>
+        <button class="house" data-stop data-p="onyx">Onyx</button>
+      </div>
+      <div class="envs r r5">
+        <figure><img loading="lazy" src="https://www.aumosaic.com/media/dusk-villa.jpg" alt=""><figcaption>Dusk Villa</figcaption></figure>
+        <figure><img loading="lazy" src="https://www.aumosaic.com/media/terrace.jpg" alt=""><figcaption>Terrace</figcaption></figure>
+        <figure><img loading="lazy" src="https://www.aumosaic.com/media/hammam.jpg" alt=""><figcaption>Hammam</figcaption></figure>
+        <figure><img loading="lazy" src="https://www.aumosaic.com/media/dark-bath.jpg" alt=""><figcaption>Dark Bath</figcaption></figure>
+      </div>
     </div>
-    <div class="envs r r5">
-      <figure><img loading="lazy" src="https://www.aumosaic.com/media/dusk-villa.jpg" alt="A villa over an infinity pool of aquamarine mosaic"><figcaption>The Dusk Villa</figcaption></figure>
-      <figure><img loading="lazy" src="https://www.aumosaic.com/media/terrace.jpg" alt="A stone villa and palms mirrored in still mosaic water"><figcaption>The Infinity Terrace</figcaption></figure>
-      <figure><img loading="lazy" src="https://www.aumosaic.com/media/hammam.jpg" alt="Warm stone, quiet hours"><figcaption>The Private Hammam</figcaption></figure>
-      <figure><img loading="lazy" src="https://www.aumosaic.com/media/dark-bath.jpg" alt="Shadow, texture, calm"><figcaption>The Dark Bath</figcaption></figure>
+  </section>
+
+  <!-- 9 built like apple -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">The make of it</p><div class="m"></div>
+      <h2 class="r r2">No borders. No clutter.<br>Light does the work.</h2><div class="s"></div>
+      <div class="glass r r3">
+        <p style="font-size:1.08rem">One gold action per screen, so nothing ever confuses. It wears Liquid Glass, the newest material Apple shipped.</p>
+        <div class="s"></div><p class="sub" style="margin:0">Flawless on any phone, tablet, or desktop. Fast to load, quiet on the eye.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Built like Apple -->
-<section data-io>
-  <div class="wrap mid">
-    <p class="eb r">The make of it</p>
-    <div class="m"></div>
-    <h2 class="r r2">No borders. No clutter.<br>Light does the work.</h2>
-    <div class="glass r r3">
-      <p style="font-size:1.1rem">One gold action per screen, so nothing ever confuses. It wears Liquid Glass, the newest material Apple shipped.</p>
-      <div class="s"></div>
-      <p class="sub">Flawless on any phone, tablet, or desktop. Fast to load, open to everyone, quiet on the eye.</p>
+  <!-- 10 back office chapter -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">The back office</p><div class="m"></div>
+      <h2 class="r r2">Only you see this one.<br>Where the money lives.</h2>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Chapter: back office -->
-<section class="center" data-io>
-  <div class="wrap mid">
-    <p class="eb r">The back office</p>
-    <div class="m"></div>
-    <h2 class="r r2">Only you see this one.<br>Where the money lives.</h2>
-  </div>
-</section>
-
-<!-- The glance, five numbers -->
-<section data-io>
-  <div class="wrap mid">
-    <p class="eb r">The morning glance</p>
-    <div class="s"></div>
-    <h2 class="r r2">Three seconds, and you know<br>if the house is okay.</h2>
-    <div class="panel r r3" style="margin-top:30px">
-      <div class="glance">
+  <!-- 11 glance -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">The morning glance</p><div class="s"></div>
+      <h2 class="r r2">Three seconds, and you know<br>if the house is okay.</h2>
+      <div class="panel r r3" style="margin-top:26px"><div class="glance">
         <div><div class="n">184</div><div class="k">Pieces</div></div>
-        <div><div class="n warn">3</div><div class="k">Stock warnings</div></div>
-        <div><div class="n">7</div><div class="k">Open orders</div></div>
+        <div><div class="n warn">3</div><div class="k">Warnings</div></div>
+        <div><div class="n">7</div><div class="k">Orders</div></div>
         <div><div class="n owe">&#8358;312k</div><div class="k">Outstanding</div></div>
-        <div><div class="n">5</div><div class="k">New enquiries</div></div>
+        <div><div class="n">5</div><div class="k">Enquiries</div></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- 12 two prices -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">Every order line, two prices</p><div class="s"></div>
+      <h2 class="r r2">A discount is visible before<br>it becomes a habit.</h2>
+      <div class="panel r r3" style="margin-top:24px">
+        <div class="line"><span class="lbl">List price</span><span class="v">&#8358;12,000</span></div>
+        <div class="line"><span class="lbl">Given price</span><span class="v give">&#8358;10,500</span></div>
+        <p class="gap">The gap is your discount. A number you can see, not a feeling.</p>
+      </div>
+      <div class="s"></div><p class="sub r r4">Record a payment, and the balance updates itself. You never carry it in your head again.</p>
+    </div>
+  </section>
+
+  <!-- 13 who owes -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">Who owes what</p><div class="s"></div>
+      <h2 class="r r2">Nobody is forgotten<br>on paper again.</h2>
+      <div class="panel r r3" style="margin-top:24px">
+        <div class="owed"><div class="who">Chidi A.<span>The longest debt, on top</span></div><div class="amt">&#8358;85,000</div></div>
+        <div class="send">Send the reminder</div>
+        <div class="s"></div><p class="sub" style="margin:0">One tap, the message writes itself and opens in WhatsApp. You just press send.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Two prices -->
-<section data-io>
-  <div class="wrap mid">
-    <p class="eb r">Every order line, two prices</p>
-    <div class="s"></div>
-    <h2 class="r r2">A discount is visible before<br>it becomes a habit.</h2>
-    <div class="panel r r3" style="margin-top:28px">
-      <div class="line"><span class="lbl">List price</span><span class="v">&#8358;12,000</span></div>
-      <div class="line"><span class="lbl">Given price</span><span class="v give">&#8358;10,500</span></div>
-      <p class="gap">The gap is your discount. A number you can see, not a feeling.</p>
+  <!-- 14 stockroom truths -->
+  <section class="step">
+    <div class="inner">
+      <p class="eb r">The truth of the stockroom</p><div class="s"></div>
+      <div class="bits">
+        <div class="bit r r2">Change the number, save, done.<span>Tiles and pool materials both. Low stock warns you by itself.</span></div>
+        <div class="bit r r3">Photos go up straight from your phone.<span>Put one up, and the website wears it the same minute.</span></div>
+        <div class="bit r r4">One switch shows a piece, or keeps it back.<span>On, it is in your window. Off, it waits in the book.</span></div>
+        <div class="bit r r5">It lives on your phone like an app.<span>It works when the network is weak, and nothing is ever lost.</span></div>
+      </div>
     </div>
-    <div class="m"></div>
-    <p class="sub r r4">Record a payment, and the balance updates itself. You never carry it in your head again.</p>
-  </div>
-</section>
+  </section>
 
-<!-- Who owes what -->
-<section data-io>
-  <div class="wrap mid">
-    <p class="eb r">Who owes what</p>
-    <div class="s"></div>
-    <h2 class="r r2">Nobody is forgotten<br>on paper again.</h2>
-    <div class="panel r r3" style="margin-top:28px">
-      <div class="owed"><div class="who">Chidi A.<span>The longest debt, on top</span></div><div class="amt">&#8358;85,000</div></div>
-      <div class="send">Send the reminder</div>
-      <div class="s"></div>
-      <p class="sub">One tap, the message writes itself and opens in WhatsApp. You just press send.</p>
+  <!-- 15 close -->
+  <section class="step" data-end>
+    <div class="inner">
+      <p class="eb r">All of it, live now</p><div class="s"></div>
+      <div class="bigurl r r2">aumosaic.com</div><div class="s"></div>
+      <p class="sub r r3">Built from your own business, so it fits like it was tailored to you. Because it was.</p>
+      <div class="l"></div>
+      <div class="row r r4">
+        <a class="btn gold" data-stop href="https://www.aumosaic.com" target="_blank" rel="noopener">The showroom</a>
+        <a class="btn ghost" data-stop href="https://www.aumosaic.com/admin" target="_blank" rel="noopener">The back office</a>
+      </div>
+      <div class="l"></div>
+      <p class="whisper r r5">Come and see.</p><p class="sign r r5">Dyrane</p>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Stockroom + offline -->
-<section data-io>
-  <div class="wrap mid">
-    <p class="eb r">The stockroom, and the truth of it</p>
-    <div class="m"></div>
-    <div class="bits">
-      <div class="bit r r2">Change the number, save, done.<span>Every piece you sell, tiles and pool materials both. If stock runs low, the glance tells you by itself.</span></div>
-      <div class="bit r r3">Photos go up straight from your phone.<span>Put one up, and the website wears it the same minute.</span></div>
-      <div class="bit r r4">One switch shows a piece, or keeps it back.<span>On, it is in your window. Off, it waits in the book.</span></div>
-      <div class="bit r r5">It lives on your phone like an app.<span>It works when the network is weak, and nothing you write in it is ever lost.</span></div>
-    </div>
-  </div>
-</section>
+</main>
 
-<!-- Close -->
-<section class="center" data-io>
-  <div class="wrap mid">
-    <p class="eb r">All of it, live now</p>
-    <div class="s"></div>
-    <div class="bigurl r r2">aumosaic.com</div>
-    <div class="m"></div>
-    <p class="sub r r3">Built from your own business, so it fits like it was tailored to you. Because it was.</p>
-    <div class="l"></div>
-    <div class="row r r4">
-      <a class="btn gold" href="https://www.aumosaic.com" target="_blank" rel="noopener">The showroom</a>
-      <a class="btn ghost" href="https://www.aumosaic.com/admin" target="_blank" rel="noopener">The back office</a>
-    </div>
-    <div class="l"></div>
-    <p class="whisper r r5">Come and see.</p>
-    <p class="sign r r5">Dyrane</p>
-  </div>
-</section>
+<div id="cont"><span class="ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>Tap or swipe</div>
+<div id="bar"><div class="dots"></div></div>
 
 <script>
-  var rail = document.getElementById('rail');
-  addEventListener('scroll', function(){ var h=document.documentElement.scrollHeight-innerHeight; rail.style.width=(h>0?scrollY/h*100:0)+'%'; }, {passive:true});
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var N = steps.length, i = 0;
+  var rail = document.getElementById('rail'), back = document.getElementById('back'),
+      cont = document.getElementById('cont'), dotsWrap = document.querySelector('.dots');
 
-  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold:.16, rootMargin:'0px 0px -8% 0px' });
-  document.querySelectorAll('[data-io]').forEach(function(s){ io.observe(s); });
+  steps.forEach(function(_, k){ var d=document.createElement('span'); d.className='dot'; d.onclick=function(e){ e.stopPropagation(); go(k); }; dotsWrap.appendChild(d); });
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.dot'));
 
-  document.querySelectorAll('.sheet').forEach(function(sh){
-    var c=(sh.getAttribute('data-colors')||'').split(','); for(var i=0;i<40;i++){ var t=document.createElement('i'); t.style.background=c[i%c.length]; t.style.transitionDelay=(i*10)+'ms'; sh.appendChild(t); }
+  function go(n){
+    n = Math.max(0, Math.min(N-1, n));
+    if (n === i && steps[i].classList.contains('active')) return;
+    steps[i].classList.remove('active'); i = n;
+    var s = steps[i]; s.classList.add('active'); s.scrollTop = 0;
+    dots.forEach(function(d,k){ d.classList.toggle('on', k===i); });
+    rail.style.width = (i/(N-1)*100) + '%';
+    back.style.opacity = i===0 ? 0 : 1; back.style.pointerEvents = i===0 ? 'none' : 'auto';
+    var end = steps[i].hasAttribute('data-end');
+    cont.style.opacity = end ? 0 : 1; cont.style.pointerEvents = end ? 'none' : 'auto';
+  }
+  function next(){ go(i+1); } function prev(){ go(i-1); }
+  go(0);
+
+  document.getElementById('deck').addEventListener('click', function(e){
+    if (e.target.closest('a,button,[data-stop]')) return; next();
+  });
+  cont.addEventListener('click', function(e){ e.stopPropagation(); next(); });
+  back.addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+
+  addEventListener('keydown', function(e){
+    if (['ArrowRight','ArrowDown',' ','Enter','PageDown'].indexOf(e.key) > -1){ e.preventDefault(); next(); }
+    else if (['ArrowLeft','ArrowUp','PageUp'].indexOf(e.key) > -1){ e.preventDefault(); prev(); }
   });
 
-  var hs=document.querySelectorAll('.house');
-  hs.forEach(function(b){ b.addEventListener('click', function(){
+  var x0=null, y0=null;
+  var deck = document.getElementById('deck');
+  deck.addEventListener('touchstart', function(e){ x0=e.touches[0].clientX; y0=e.touches[0].clientY; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if (x0==null) return; var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)*1.4){ e.preventDefault(); dx<0 ? next() : prev(); }
+    x0=null;
+  }, {passive:false});
+
+  // build tile-sheets
+  document.querySelectorAll('.sheet').forEach(function(sh){
+    var c=(sh.getAttribute('data-colors')||'').split(','); for(var j=0;j<30;j++){ var t=document.createElement('i'); t.style.background=c[j%c.length]; t.style.transitionDelay=(j*12)+'ms'; sh.appendChild(t); }
+  });
+  // wardrobe
+  document.querySelectorAll('.house').forEach(function(b){ b.addEventListener('click', function(e){
+    e.stopPropagation();
     document.documentElement.setAttribute('data-palette', b.getAttribute('data-p'));
-    var s=getComputedStyle(document.documentElement).getPropertyValue('--sand').trim();
-    document.querySelector('meta[name=theme-color]').setAttribute('content', s);
-    hs.forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on');
-    if(navigator.vibrate){ try{ navigator.vibrate(7); }catch(e){} }
+    document.querySelector('meta[name=theme-color]').setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--sand').trim());
+    document.querySelectorAll('.house').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on');
+    if(navigator.vibrate){ try{ navigator.vibrate(7); }catch(_){} }
   }); });
 </script>
 </body>
