@@ -16,6 +16,14 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Visualizer mobile stage bleed - done
+
+Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake. The
+mobile visualizer stage now spans the full phone viewport instead of ending at
+content width on the right. At 390 by 844, the browser measured both stage and
+canvas from left 0 to right 390 with no horizontal overflow. TypeScript, lint,
+diff-check, and dash scan passed.
+
 ## 2026-07-06 - CODEX - Visualizer refinement controls lane - done
 
 Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake. The

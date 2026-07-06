@@ -1237,7 +1237,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       className={
         cameraOpen
           ? "relative h-full w-full overflow-hidden bg-sand"
-          : "relative -mx-5 min-w-0 max-w-full overflow-hidden rounded-none sm:mx-0 sm:w-full sm:rounded-[26px]"
+          : "relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px]"
       }
     >
       <canvas ref={canvasRef} className={cameraOpen ? "block h-full w-full" : "block h-auto w-full max-w-full"} />
