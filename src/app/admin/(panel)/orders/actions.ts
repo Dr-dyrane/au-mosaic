@@ -80,7 +80,7 @@ export async function setStatus(_prev: SaveState, form: FormData): Promise<SaveS
 
   const raw = String(form.get("status") ?? "");
   if (!(PIPELINE as readonly string[]).includes(raw)) {
-    return { ok: false, message: "That is not a step on this line." };
+    return { ok: false, message: "That is not a step." };
   }
   const status = raw as OrderStatus;
 
@@ -205,7 +205,7 @@ export async function addLine(_prev: SaveState, form: FormData): Promise<SaveSta
   const pieceSlug = String(form.get("pieceSlug") ?? "").trim();
   const description = String(form.get("description") ?? "").trim();
   if (!pieceSlug && !description) {
-    return { ok: false, message: "Pick a piece or describe the line." };
+    return { ok: false, message: "Pick a piece or describe the item." };
   }
 
   const quantity = parseInt(String(form.get("quantity") ?? ""), 10);
@@ -236,12 +236,12 @@ export async function addLine(_prev: SaveState, form: FormData): Promise<SaveSta
   }
 
   await logAction(
-    "added a line",
+    "added an item",
     `order ${orderId.slice(0, 8)}`,
     `${quantity} x ${description || pieceSlug} at ${naira(givenPriceKobo)}`
   );
   refresh(orderId);
-  return { ok: true, message: "Line added." };
+  return { ok: true, message: "Item added." };
 }
 
 export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveState> {
@@ -249,7 +249,7 @@ export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveS
 
   const orderId = String(form.get("orderId") ?? "");
   const itemId = String(form.get("itemId") ?? "");
-  if (!orderId || !itemId) return { ok: false, message: "Choose the line that came back." };
+  if (!orderId || !itemId) return { ok: false, message: "Choose the item that came back." };
 
   const quantity = parseInt(String(form.get("quantity") ?? ""), 10);
   if (!Number.isFinite(quantity) || quantity < 1) {
@@ -280,9 +280,9 @@ export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveS
       .leftJoin(schema.stockLevels, eq(schema.stockLevels.pieceSlug, schema.orderItems.pieceSlug))
       .where(and(eq(schema.orderItems.id, itemId), eq(schema.orderItems.orderId, orderId)));
 
-    if (!source) return { ok: false, message: "That line is not on this order." };
+    if (!source) return { ok: false, message: "That item is not on this order." };
     if (source.item.returnForItemId || source.item.quantity <= 0) {
-      return { ok: false, message: "Choose the original sale line." };
+      return { ok: false, message: "Choose the original sale item." };
     }
 
     const [returned] = await db
@@ -294,12 +294,12 @@ export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveS
 
     const returnedQty = Number(returned?.qty ?? 0);
     const left = source.item.quantity - returnedQty;
-    if (left <= 0) return { ok: false, message: "That line has already come back." };
+    if (left <= 0) return { ok: false, message: "That item has already come back." };
     if (quantity > left) {
       return { ok: false, message: `Only ${left} can still come back.` };
     }
 
-    const lineName = source.pieceName ?? (source.item.description || "Order line");
+    const lineName = source.pieceName ?? (source.item.description || "Order item");
     const unit = source.unit ?? "units";
     const returnValueKobo = source.item.givenPriceKobo * quantity;
     await db.insert(schema.orderItems).values({

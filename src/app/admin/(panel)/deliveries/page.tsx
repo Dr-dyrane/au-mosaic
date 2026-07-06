@@ -142,14 +142,11 @@ export default async function DeliveriesPage({
           </h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
             {showArchived ? (
-              "Set aside, and easy to bring back or remove for good."
+              "Set aside. Bring back or remove."
             ) : (
               <>
-                Every job on its way to a wall.
-                <Teach>
-                  {" "}Send it out, mark it delivered, and the house remembers
-                  the day it landed.
-                </Teach>
+                Jobs on their way out.
+                <Teach> Send it out, then mark it delivered.</Teach>
               </>
             )}
           </p>

@@ -47,7 +47,7 @@ export default function AddLineForm({
       className={plain ? "grid gap-6" : "panel mt-8 grid gap-6"}
       data-tour="add-line"
     >
-      {!plain && <p className="font-serif text-[20px]">Add a line</p>}
+      {!plain && <p className="font-serif text-[20px]">Add an item</p>}
       <input type="hidden" name="orderId" value={orderId} />
       <div className={`grid gap-6 ${plain ? "" : "sm:grid-cols-2"}`}>
         <div>
@@ -76,7 +76,7 @@ export default function AddLineForm({
           <input
             id={`${idPrefix}-description`}
             name="description"
-            aria-label="Line description"
+            aria-label="Item description"
             placeholder="Fixing, delivery, custom work"
             className={field}
           />
@@ -100,27 +100,27 @@ export default function AddLineForm({
         </div>
         <div>
           <label htmlFor={`${idPrefix}-listPrice`} className={label}>
-            List price
+            Usual price
           </label>
           <input
             id={`${idPrefix}-listPrice`}
             name="listPrice"
             inputMode="numeric"
             placeholder="250,000"
-            aria-label="List price in naira"
+            aria-label="Usual price in naira"
             className={field}
           />
         </div>
         <div>
           <label htmlFor={`${idPrefix}-givenPrice`} className={label}>
-            Given price
+            Price you gave
           </label>
           <input
             id={`${idPrefix}-givenPrice`}
             name="givenPrice"
             inputMode="numeric"
-            placeholder="Same as list"
-            aria-label="Given price in naira"
+            placeholder="Same as usual"
+            aria-label="Price you gave in naira"
             className={field}
           />
         </div>
@@ -132,7 +132,7 @@ export default function AddLineForm({
           onClick={() => buzz(5)}
           className={`${plain ? "btn-gold" : "link-hair text-[12px]"} disabled:opacity-60`}
         >
-          {pending ? "Adding..." : "Add the line"}
+          {pending ? "Adding..." : "Add the item"}
         </button>
         <Sentence state={state} />
       </div>
@@ -166,14 +166,14 @@ export function OrderLineAction({
           aria-expanded={surface.triggerProps["aria-expanded"]}
           className={className}
         >
-          Add a line
+          Add an item
         </button>
       )}
       <AdminSheet
         open={surface.sheetOpen}
         onOpenChange={surface.setSheetOpen}
-        title="Add a line"
-        description="Name the stock, work, and price."
+        title="Add an item"
+        description="Name it, and the price."
         id="order-line"
         compactOnly
       >

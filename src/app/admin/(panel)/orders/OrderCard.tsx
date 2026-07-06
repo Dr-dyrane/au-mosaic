@@ -32,11 +32,11 @@ function Inner({ row }: { row: OrderRow }) {
         <p className="text-[14px] font-medium text-ink">Balance {naira(row.balance)}</p>
       </div>
       {row.status === "enquiry" && row.billed === 0 && (
-        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">No lines yet</p>
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">No items yet</p>
       )}
       {row.gap > 0 && (
         <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
-          Discount given / {naira(row.gap)} below list
+          Discount / {naira(row.gap)} below usual
         </p>
       )}
     </>

@@ -67,9 +67,7 @@ export default async function AdminHome() {
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">The book is quiet.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Refresh once. If it stays quiet, ask for help. The shop
-            window stands on its own catalogue, so customers see nothing
-            of this.
+            Refresh once. If it stays quiet, ask for help.
           </p>
         </div>
       )}

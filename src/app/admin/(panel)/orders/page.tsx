@@ -87,8 +87,8 @@ export default async function OrdersPage({
           <h1 className="mt-3 font-serif text-display-section">{showArchived ? "Archived orders." : "The orders."}</h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
             {showArchived
-              ? "Set aside, and easy to bring back or remove for good."
-              : "List sits beside given. A discount is a number, not a feeling."}
+              ? "Set aside. Bring back or remove."
+              : "Every order, and what is owed."}
           </p>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default async function OrdersPage({
             <div className="panel mt-10 max-w-md">
               <p className="font-serif text-[20px]">Nothing archived.</p>
               <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                Orders you set aside land here, ready to restore or remove.
+                Orders you set aside show up here.
               </p>
             </div>
           )
@@ -150,7 +150,7 @@ export default async function OrdersPage({
 
             {step && rows.filter((r) => r.status === step).length === 0 && (
               <p className="mt-10 max-w-md text-[14px] leading-relaxed text-dusk">
-                Nothing standing at {STATUS_LABEL[step]}. All open shows the whole line.
+                Nothing at {STATUS_LABEL[step]} right now.
               </p>
             )}
 
@@ -158,7 +158,7 @@ export default async function OrdersPage({
               <div className="panel mt-10 max-w-md">
                 <p className="font-serif text-[20px]">Nothing for that name.</p>
                 <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                  Check the spelling, or clear the search to see the whole book.
+                  Check the spelling, or clear the search.
                 </p>
                 <Link href="/admin/orders" className="link-hair mt-5 inline-block text-[12px] text-dusk">
                   Clear the search
@@ -167,9 +167,9 @@ export default async function OrdersPage({
             )}
             {rows.length === 0 && !query && (
               <div className="panel mt-10 max-w-md">
-                <p className="font-serif text-[20px]">The book is open and empty.</p>
+                <p className="font-serif text-[20px]">No orders yet.</p>
                 <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                  An order starts as an enquiry, gets its lines, takes a deposit, and walks to settled. Start the first one and the book keeps itself.
+                  Start the first one.
                 </p>
               </div>
             )}

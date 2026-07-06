@@ -87,7 +87,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       const available = l.item.quantity - (returnedByLine.get(l.item.id) ?? 0);
       return {
         id: l.item.id,
-        name: l.pieceName ?? (l.item.description || "Line"),
+        name: l.pieceName ?? (l.item.description || "Item"),
         unit: l.pieceUnit ?? "units",
         available,
         valueKobo: l.item.givenPriceKobo,
@@ -114,7 +114,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     lines.length === 0
       ? {
           href: `/admin/orders/${order.id}#order-line`,
-          label: "Add line",
+          label: "Add item",
           room: "orders",
           intent: ADMIN_ACTION_INTENTS.orderLine,
         }
@@ -142,7 +142,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const contextActions = [
     {
       href: `/admin/orders/${order.id}#order-line`,
-      label: "Add line",
+      label: "Add item",
       intent: ADMIN_ACTION_INTENTS.orderLine,
     },
     { href: `/admin/customers/${customer.id}`, label: "Their record" },
@@ -220,11 +220,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         </section>
 
         <section data-tour="order-lines">
-          <p className="eyebrow">The lines</p>
+          <p className="eyebrow">The items</p>
           {lines.length === 0 && (
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">
-              No lines yet. The first line is what turns an enquiry into a
-              quote.
+              No items yet.
             </p>
           )}
           {lines.length > 0 && (
@@ -240,7 +239,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="font-serif text-[20px] leading-snug">
-                          {pieceName ?? (item.description || "Line")}
+                          {pieceName ?? (item.description || "Item")}
                         </p>
                         {pieceName && item.description && (
                           <p className="mt-1 text-[14px] text-dusk">{item.description}</p>
@@ -252,7 +251,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                     </div>
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                       <p className="text-[14px] text-dusk">
-                        List {naira(item.listPriceKobo)} · Given {naira(item.givenPriceKobo)}
+                        Usual {naira(item.listPriceKobo)} · You gave {naira(item.givenPriceKobo)}
                       </p>
                       {isReturn && (
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">
@@ -261,7 +260,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                       )}
                       {lineGap > 0 && (
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
-                          {naira(lineGap)} below list
+                          {naira(lineGap)} below usual
                         </p>
                       )}
                     </div>
@@ -279,7 +278,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           {lines.length > 0 && (
             <Teach until="orders">
               <p className="mt-4 text-[14px] text-dusk">
-                Wrong line? Add a corrected one; nothing is ever lost.
+                Wrong item? Add a corrected one.
               </p>
             </Teach>
           )}
@@ -290,8 +289,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <p className="eyebrow">Payments</p>
           {pays.length === 0 && (
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">
-              Nothing recorded yet. Every naira that arrives goes in here,
-              and the balance keeps itself.
+              Nothing recorded yet.
             </p>
           )}
           {pays.length > 0 && (

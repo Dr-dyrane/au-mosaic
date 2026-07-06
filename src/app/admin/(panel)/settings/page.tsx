@@ -41,7 +41,7 @@ export default async function SettingsPage() {
       <p className="eyebrow">Settings</p>
       <h1 className="font-serif text-display-section mt-3">The house facts.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        The number, the hours, the address. Live once the site reads the book.
+        Number, hours, address.
       </p>
       {/* The desk gets two columns; the phone keeps its single file.
           The facts lead on the left, the quieter panels stack right. */}
@@ -54,15 +54,12 @@ export default async function SettingsPage() {
           <p className="font-serif text-[20px]">The keys to the door</p>
           <Teach>
             <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-              Named keys for the people who help. Every save signs the
-              history with its name; a key taken back stops turning but
-              its story stays.
+              Named keys for the people who help.
             </p>
           </Teach>
           {staffRows === null ? (
             <p className="mt-4 text-[14px] leading-relaxed text-dusk">
-              The key rack is not ready yet. Turn on staff keys, and
-              this panel wakes up.
+              Not ready yet. Turn on staff keys.
             </p>
           ) : (
             <>
@@ -77,8 +74,7 @@ export default async function SettingsPage() {
             </>
           )}
           <p className="mt-6 text-[14px] leading-relaxed text-dusk">
-            Your own master key stays outside this room. Keep it with
-            the owner.
+            Your master key stays with you.
           </p>
         </div>
       )}
@@ -87,8 +83,7 @@ export default async function SettingsPage() {
         <p className="font-serif text-[20px]">The morning tap</p>
         <Teach>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            The glance, brought to the phone: what runs low, what is
-            owed, what came in fresh.
+            The glance, on your phone each morning.
           </p>
         </Teach>
         <NotifyToggle />
@@ -98,7 +93,7 @@ export default async function SettingsPage() {
         <p className="font-serif text-[20px]">The book&apos;s history</p>
         <Teach>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Every save, step, and key, in sentences: who did what, and when.
+            Who did what, and when.
           </p>
         </Teach>
         <Link
@@ -112,7 +107,7 @@ export default async function SettingsPage() {
       <div className="panel">
         <p className="font-serif text-[20px]">The welcome</p>
         <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-          Begin again. The welcome returns on this device.
+          Show the welcome again on this device.
         </p>
         <TourReset />
       </div>

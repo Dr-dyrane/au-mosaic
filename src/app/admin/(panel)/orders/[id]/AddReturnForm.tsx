@@ -61,7 +61,7 @@ export default function AddReturnForm({
             <select
               id={`${idPrefix}-item`}
               name="itemId"
-              aria-label="Returned line"
+              aria-label="Returned item"
               defaultValue={lines[0]?.id}
               className={field}
             >
@@ -117,7 +117,7 @@ export default function AddReturnForm({
             />
           </div>
           <p className="text-[14px] leading-relaxed text-dusk">
-            The original line stays. The return writes beside it.
+            The original item stays.
           </p>
         </>
       )}
@@ -169,7 +169,7 @@ export function OrderReturnAction({
         open={surface.sheetOpen}
         onOpenChange={surface.setSheetOpen}
         title="Record a return"
-        description="The sale stays. The return writes beside it."
+        description="The sale stays."
         id="order-return"
         compactOnly
       >

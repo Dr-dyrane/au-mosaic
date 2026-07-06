@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { lt } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
-import { logAction } from "@/lib/audit";
 
 /* Clearing the book's history. The record is append-only by law 8, so
    nothing edits a line; but the owner may wipe the whole record for a
@@ -33,9 +32,8 @@ export async function clearHistory(_prev: SaveState, form: FormData): Promise<Sa
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
-  await logAction("cleared the history");
   revalidatePath("/admin/settings/history");
-  return { ok: true, message: "The history is cleared." };
+  return { ok: true, message: "The history is empty." };
 }
 
 /* Trim the record: drop every line older than the given date, keep the
@@ -59,7 +57,6 @@ export async function clearHistoryBefore(_prev: SaveState, form: FormData): Prom
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
-  await logAction("trimmed the history", `before ${before}`);
   revalidatePath("/admin/settings/history");
   return { ok: true, message: `Cleared everything before ${before}.` };
 }

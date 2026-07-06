@@ -61,8 +61,8 @@ export default async function HistoryPage({
       <p className="eyebrow mt-6">The record</p>
       <h1 className="font-serif text-display-section mt-3">The book&apos;s history.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Who did what, and when. It only grows as you work, and you can clear it for a fresh start.
-        {total !== null && total > 0 && ` ${total.toLocaleString()} lines so far.`}
+        Who did what, and when.
+        {total !== null && total > 0 && ` ${total === 1 ? "1 line" : `${total.toLocaleString()} lines`} so far.`}
       </p>
 
       {total === null && (

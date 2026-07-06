@@ -133,9 +133,8 @@ export default async function DebtsPage() {
       <p className="eyebrow">The ledger</p>
       <h1 className="font-serif text-display-section mt-3" data-tour="debts">Who owes what.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Every unpaid balance in the house, the longest forgotten at the
-        top.
-        <Teach> Each name carries a gentle WhatsApp reminder.</Teach>
+        Unpaid balances, oldest first.
+        <Teach> Tap a name to nudge on WhatsApp.</Teach>
       </p>
 
       {debtors.length > 0 && (
@@ -186,10 +185,6 @@ export default async function DebtsPage() {
       {debtors.length === 0 && (
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">Nobody owes the house. Enjoy it.</p>
-          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            When an order is billed more than it is paid, the balance
-            appears here by itself, oldest first.
-          </p>
         </div>
       )}
     </main>

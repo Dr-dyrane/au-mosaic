@@ -67,7 +67,7 @@ export default async function SharePage({
       <p className="eyebrow mt-6">The bridge</p>
       <h1 className="mt-3 font-serif text-display-section">From WhatsApp.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
-        Share or paste a chat, and the book reads what they want into an order you check.
+        Share or paste a chat. We draft the order.
       </p>
 
       {match && (
@@ -99,7 +99,7 @@ export default async function SharePage({
       </div>
 
       <p className="mt-8 max-w-md text-[14px] leading-relaxed text-mist">
-        Sharing into the app works on Android with Chrome. On iPhone, paste the chat above or add the exported file; the book meets you there.
+        Android with Chrome can share in. On iPhone, paste above.
       </p>
     </main>
   );

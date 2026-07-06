@@ -110,9 +110,9 @@ export default async function PiecesPage({
           <p className="eyebrow">Inventory</p>
           <h1 className="font-serif text-display-section mt-3">The book.</h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk" data-tour="drafts">
-            Everything you stock. The window shows only what you choose.
+            Everything you stock.
             {rows.filter((r) => !r.piece.published).length > 0 &&
-              ` ${rows.filter((r) => !r.piece.published).length} waiting off the site.`}
+              ` ${rows.filter((r) => !r.piece.published).length} off the site.`}
           </p>
         </div>
         <Link href="/admin/pieces/new" className="btn-gold admin-page-action" data-tour="new-piece">
@@ -135,9 +135,7 @@ export default async function PiecesPage({
         <section className="panel mt-8 max-w-2xl" data-tour="stock-start">
           <p className="font-serif text-[20px]">The shelves are waiting.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Load believable starting counts on every untouched shelf,
-            then correct them to your real numbers piece by piece.
-            Selling down and restocking both begin here.
+            Load starting counts, then fix them piece by piece.
           </p>
           <StockStarter />
         </section>

@@ -21,7 +21,7 @@ export default function ClearHistory({ total }: { total: number }) {
     <div className="panel mt-6 max-w-md">
       <p className="eyebrow">Clear the record</p>
       <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-        Empty the whole history for a clean start, or trim everything before a date. This cannot be undone.
+        Empty it all, or trim before a date. This cannot be undone.
       </p>
 
       {!open ? (
@@ -41,7 +41,7 @@ export default function ClearHistory({ total }: { total: number }) {
               disabled={clearing}
               className="btn-gold disabled:opacity-60"
             >
-              {clearing ? "Clearing..." : `Empty all ${total.toLocaleString()} lines`}
+              {clearing ? "Clearing..." : `Empty all ${total.toLocaleString()} ${total === 1 ? "line" : "lines"}`}
             </button>
             <button
               type="button"

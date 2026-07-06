@@ -132,7 +132,7 @@ export function OrderPaymentAction({
         open={surface.sheetOpen}
         onOpenChange={surface.setSheetOpen}
         title="Record a payment"
-        description="Add what arrived. The balance keeps itself."
+        description="Add what arrived."
         id="order-payment"
         compactOnly
       >
