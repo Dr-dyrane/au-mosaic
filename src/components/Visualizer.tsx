@@ -102,7 +102,7 @@ const DEFAULT_QUAD: Pt[] = [
 ];
 
 const SAMPLE_POOL_QUAD: Pt[] = [
-  { x: 0.33, y: 0.38 }, { x: 0.64, y: 0.38 }, { x: 0.57, y: 0.64 }, { x: 0.28, y: 0.63 },
+  { x: 0.31, y: 0.43 }, { x: 0.63, y: 0.43 }, { x: 0.77, y: 0.73 }, { x: 0.14, y: 0.73 },
 ];
 
 const STORE_KEY = "aumosaic.viz";

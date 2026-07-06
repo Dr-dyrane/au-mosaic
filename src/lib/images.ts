@@ -290,10 +290,10 @@ export const HOW_STEPS: { night: string; day: string; step: string; title: strin
 
 export const VISUALIZER_SAMPLE = {
   pool: {
-    src: HOW.build.day,
-    dark: HOW.build.night,
-    light: HOW.build.day,
-    alt: "An unfinished pool shell with blue mosaic samples and pool equipment",
+    src: "/media/visualizer-empty-pool-day.jpg",
+    dark: "/media/visualizer-empty-pool-night.jpg",
+    light: "/media/visualizer-empty-pool-day.jpg",
+    alt: "An empty unfinished pool shell before mosaic tile installation",
   },
 };
 
