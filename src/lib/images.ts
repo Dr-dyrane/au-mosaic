@@ -288,6 +288,15 @@ export const HOW_STEPS: { night: string; day: string; step: string; title: strin
   },
 ];
 
+export const VISUALIZER_SAMPLE = {
+  pool: {
+    src: HOW.build.day,
+    dark: HOW.build.night,
+    light: HOW.build.day,
+    alt: "An unfinished pool shell with blue mosaic samples and pool equipment",
+  },
+};
+
 /* Interiors, 2026-07-05: mosaic as the room's one great surface: feature
    walls, baths, floors. Aspiration, the tradition applied. Single-sun.
    Home: /interiors. */

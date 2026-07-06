@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { POOL_SERVICES } from "@/lib/products";
-import { DAY, OWN } from "@/lib/images";
+import { DAY, OWN, VISUALIZER_SAMPLE } from "@/lib/images";
 import { waPool } from "@/lib/wa";
 import { CtaRow, PageHero, Section } from "@/components/ui";
+import ThemeImage from "@/components/ThemeImage";
 
 export const metadata: Metadata = {
   title: "Swimming pool construction in Lagos",
@@ -39,6 +41,31 @@ export default function PoolsPage() {
             </div>
           ))}
         </div>
+      </Section>
+
+      <Section
+        eyebrow="Before water"
+        title="Choose on the surface."
+        sub="A pool shell is enough. Test the colour before the water arrives."
+      >
+        <figure>
+          <div className="relative -mx-5 aspect-[4/5] overflow-hidden rounded-none bg-shell sm:mx-0 sm:rounded-[26px] md:aspect-[16/10]">
+            <ThemeImage
+              dark={VISUALIZER_SAMPLE.pool.dark}
+              light={VISUALIZER_SAMPLE.pool.light}
+              alt={VISUALIZER_SAMPLE.pool.alt}
+              fill
+              quality={90}
+              sizes="(max-width: 640px) 100vw, 90vw"
+              className="media-lux object-cover"
+            />
+          </div>
+          <figcaption className="mt-8">
+            <Link href="/visualizer" className="link-hair text-dusk">
+              Try it on a photo
+            </Link>
+          </figcaption>
+        </figure>
       </Section>
 
       <Section tint eyebrow="How it goes" title="Four steps to water.">

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
+import { VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { waProduct } from "@/lib/wa";
@@ -100,6 +101,10 @@ const DEFAULT_QUAD: Pt[] = [
   { x: 0.28, y: 0.45 }, { x: 0.75, y: 0.45 }, { x: 0.92, y: 0.92 }, { x: 0.1, y: 0.92 },
 ];
 
+const SAMPLE_POOL_QUAD: Pt[] = [
+  { x: 0.33, y: 0.38 }, { x: 0.64, y: 0.38 }, { x: 0.57, y: 0.64 }, { x: 0.28, y: 0.63 },
+];
+
 const STORE_KEY = "aumosaic.viz";
 const buzz = (ms = 4) => {
   try { navigator.vibrate?.(ms); } catch {}
@@ -148,10 +153,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
 
-  const loadImage = useCallback((src: string, from: "upload" | "sample" | "memory") => {
+  const loadImage = useCallback((src: string, from: "upload" | "sample" | "memory", nextQuad?: Pt[]) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
+      if (nextQuad) setQuad(nextQuad);
       setPhoto(img);
       if (from !== "memory") track("viz_photo", { source: from });
     };
@@ -344,7 +350,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               Choose a photo
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
             </label>
-            <button onClick={() => loadImage("/media/private-pool.jpg", "sample")} className="link-hair text-dusk">
+            <button onClick={() => loadImage(VISUALIZER_SAMPLE.pool.src, "sample", SAMPLE_POOL_QUAD)} className="link-hair text-dusk">
               Try the sample pool
             </button>
           </div>
