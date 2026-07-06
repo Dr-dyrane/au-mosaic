@@ -15,15 +15,15 @@ export default async function VisualizerPage({ searchParams }: { searchParams: S
   const pieces = await getPieces();
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
+      <section className="mx-auto max-w-6xl px-5 pt-32 sm:px-8 sm:pt-44">
         <p className="eyebrow">Visualizer</p>
         <h1 className="font-serif text-display-page mt-4 max-w-2xl">See it in your space.</h1>
         <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
-          A pool, wall, backsplash, shower, or floor. Any colourway from
-          stock, laid in your own light. Send the result, get a quote.
+          Live camera or one photo. Try stock colourways in your own light.
+          Send the result, get a quote.
         </p>
       </section>
-      <div className="py-14">
+      <div className="py-10 sm:py-14">
         <Visualizer initialPiece={piece} pieces={pieces} />
       </div>
     </>

@@ -1,6 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
+import { IconClose } from "@/app/admin/(panel)/icons";
 import { track } from "@vercel/analytics";
 import { VISUALIZER_CONTEXTS, VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
@@ -22,20 +25,29 @@ type Pt = { x: number; y: number };
 type SurfaceId = "pool" | "wall" | "backsplash" | "shower" | "floor";
 type LoadSource = "upload" | "sample" | "default" | "camera";
 type PrepMode = "primer" | "blur" | "none";
-type CameraCapture = new (track: MediaStreamTrack) => {
-  takePhoto?: () => Promise<Blob>;
+type Homography = {
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+  e: number;
+  f: number;
+  g: number;
+  h: number;
 };
 type SnapResult = { quad: Pt[]; confidence: number };
 
-function homography(q: Pt[]) {
+function homography(q: Pt[]): Homography | null {
   const [p0, p1, p2, p3] = q;
   const dx1 = p1.x - p2.x, dx2 = p3.x - p2.x;
   const dy1 = p1.y - p2.y, dy2 = p3.y - p2.y;
   const sx = p0.x - p1.x + p2.x - p3.x;
   const sy = p0.y - p1.y + p2.y - p3.y;
   const den = dx1 * dy2 - dx2 * dy1;
+  if (Math.abs(den) < 1e-8) return null;
   const g = (sx * dy2 - sy * dx2) / den;
   const h = (sy * dx1 - sx * dy1) / den;
+  if (![g, h].every(Number.isFinite)) return null;
   return {
     a: p1.x - p0.x + g * p1.x, b: p3.x - p0.x + h * p3.x, c: p0.x,
     d: p1.y - p0.y + g * p1.y, e: p3.y - p0.y + h * p3.y, f: p0.y,
@@ -43,7 +55,7 @@ function homography(q: Pt[]) {
   };
 }
 
-function mapPoint(H: ReturnType<typeof homography>, u: number, v: number): Pt {
+function mapPoint(H: Homography, u: number, v: number): Pt {
   const w = H.g * u + H.h * v + 1;
   return { x: (H.a * u + H.b * v + H.c) / w, y: (H.d * u + H.e * v + H.f) / w };
 }
@@ -160,20 +172,43 @@ function sampleQuadColor(source: CanvasRenderingContext2D, q: Pt[], width: numbe
 
 function drawBlurredPhoto(
   ctx: CanvasRenderingContext2D,
-  photo: HTMLImageElement,
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
   width: number,
   height: number,
-  blur = 18
+  blur = 18,
+  cover = false
 ) {
   const pad = Math.max(18, Math.round(Math.max(width, height) * 0.02));
   ctx.filter = `blur(${blur}px) saturate(0.82)`;
-  ctx.drawImage(photo, -pad, -pad, width + pad * 2, height + pad * 2);
+  drawSource(ctx, source, sourceWidth, sourceHeight, width, height, cover, pad);
   ctx.filter = "none";
 }
 
-function detectSurfaceQuad(image: HTMLImageElement, surface: SurfaceId): SnapResult | null {
-  const sourceW = image.naturalWidth || image.width;
-  const sourceH = image.naturalHeight || image.height;
+function drawSource(
+  ctx: CanvasRenderingContext2D,
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
+  width: number,
+  height: number,
+  cover = false,
+  pad = 0
+) {
+  if (!cover) {
+    ctx.drawImage(source, -pad, -pad, width + pad * 2, height + pad * 2);
+    return;
+  }
+  const scale = Math.max((width + pad * 2) / sourceWidth, (height + pad * 2) / sourceHeight);
+  const drawW = sourceWidth * scale;
+  const drawH = sourceHeight * scale;
+  const dx = (width - drawW) / 2;
+  const dy = (height - drawH) / 2;
+  ctx.drawImage(source, dx - pad, dy - pad, drawW + pad * 2, drawH + pad * 2);
+}
+
+function detectSurfaceFrame(source: CanvasImageSource, sourceW: number, sourceH: number, surface: SurfaceId): SnapResult | null {
   if (sourceW < 80 || sourceH < 80) return null;
 
   const maxSide = 360;
@@ -185,7 +220,7 @@ function detectSurfaceQuad(image: HTMLImageElement, surface: SurfaceId): SnapRes
   c.height = h;
   const ctx = c.getContext("2d");
   if (!ctx) return null;
-  ctx.drawImage(image, 0, 0, w, h);
+  ctx.drawImage(source, 0, 0, w, h);
 
   let pixels: Uint8ClampedArray;
   try {
@@ -336,6 +371,15 @@ function detectSurfaceQuad(image: HTMLImageElement, surface: SurfaceId): SnapRes
   };
 }
 
+function detectSurfaceQuad(image: HTMLImageElement, surface: SurfaceId): SnapResult | null {
+  return detectSurfaceFrame(image, image.naturalWidth || image.width, image.naturalHeight || image.height, surface);
+}
+
+function detectVideoSurface(video: HTMLVideoElement, surface: SurfaceId): SnapResult | null {
+  if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !video.videoWidth || !video.videoHeight) return null;
+  return detectSurfaceFrame(video, video.videoWidth, video.videoHeight, surface);
+}
+
 const DEFAULT_QUAD: Pt[] = [
   { x: 0.28, y: 0.45 }, { x: 0.75, y: 0.45 }, { x: 0.92, y: 0.92 }, { x: 0.1, y: 0.92 },
 ];
@@ -400,9 +444,41 @@ const CONTEXTS: Array<{
 
 const DEFAULT_PIECE = "classic-pool-blues";
 const STORE_KEY = "aumosaic.viz";
+const CORNER_LABELS = ["Top left", "Top right", "Bottom right", "Bottom left"] as const;
+const MIN_QUAD_AREA = 0.018;
 const buzz = (ms = 4) => {
   try { navigator.vibrate?.(ms); } catch {}
 };
+
+function quadArea(q: Pt[]) {
+  let sum = 0;
+  for (let i = 0; i < q.length; i += 1) {
+    const next = q[(i + 1) % q.length];
+    sum += q[i].x * next.y - next.x * q[i].y;
+  }
+  return Math.abs(sum) / 2;
+}
+
+function isValidQuad(q: Pt[]) {
+  if (q.length !== 4 || q.some((p) => !Number.isFinite(p.x) || !Number.isFinite(p.y))) return false;
+  if (quadArea(q) < MIN_QUAD_AREA) return false;
+  let sign = 0;
+  for (let i = 0; i < q.length; i += 1) {
+    const a = q[i];
+    const b = q[(i + 1) % q.length];
+    const c = q[(i + 2) % q.length];
+    const cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+    if (Math.abs(cross) < 0.002) return false;
+    const nextSign = Math.sign(cross);
+    if (sign && nextSign !== sign) return false;
+    sign = nextSign;
+  }
+  return true;
+}
+
+function setCorner(q: Pt[], index: number, point: Pt) {
+  return q.map((pt, i) => (i === index ? point : pt));
+}
 
 /* Saved controls, if the browser kept them. Safe on the server:
    the first rendered photo is still the house's empty pool. */
@@ -446,29 +522,54 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [liveTracking, setLiveTracking] = useState(false);
+  const [refineOpen, setRefineOpen] = useState(false);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
   const originalRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const cameraPanelRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const objectUrls = useRef<string[]>([]);
+  const objectUrls = useRef<Set<string>>(new Set());
   const dragging = useRef<number | null>(null);
+  const dragFrame = useRef<number | null>(null);
+  const liveFrame = useRef<number | null>(null);
+  const liveDetectAt = useRef(0);
+  const dragPoint = useRef<Pt | null>(null);
+  const loadSeq = useRef(0);
+  const primerColor = useRef("rgba(214, 206, 190, 0.78)");
+  const livePrimerColor = useRef("rgba(214, 206, 190, 0.78)");
+  const holdingRef = useRef(false);
   const restored = useRef(false);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
+  const pattern = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    return makePattern(piece.colors || ["#3aa9d6"], tileSize, groutLight);
+  }, [piece.colors, tileSize, groutLight]);
+
+  const revokeObjectUrl = useCallback((url: string) => {
+    if (!objectUrls.current.has(url)) return;
+    URL.revokeObjectURL(url);
+    objectUrls.current.delete(url);
+  }, []);
 
   const objectUrl = useCallback((blob: Blob) => {
     const url = URL.createObjectURL(blob);
-    objectUrls.current.push(url);
+    objectUrls.current.add(url);
     return url;
   }, []);
 
   const loadImage = useCallback((src: string, from: LoadSource, nextQuad?: Pt[]) => {
+    const ticket = loadSeq.current + 1;
+    loadSeq.current = ticket;
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
+      if (ticket !== loadSeq.current) {
+        revokeObjectUrl(src);
+        return;
+      }
       const shouldSnap = !nextQuad && (from === "upload" || from === "camera");
       const snapped = shouldSnap ? detectSurfaceQuad(img, surface) : null;
       if (snapped) {
@@ -485,14 +586,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       }
       setPhoto(img);
       if (from !== "default") track("viz_photo", { source: from });
+      revokeObjectUrl(src);
+    };
+    img.onerror = () => {
+      if (ticket === loadSeq.current) setSnapMessage("That image did not open. Try another photo.");
+      revokeObjectUrl(src);
     };
     img.src = src;
-  }, [surface]);
+  }, [revokeObjectUrl, surface]);
 
   const stopCamera = useCallback(() => {
     cameraStream?.getTracks().forEach((track) => track.stop());
     setCameraStream(null);
     setCameraOpen(false);
+    setLiveTracking(false);
   }, [cameraStream]);
 
   const openCamera = async () => {
@@ -512,6 +619,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       });
       setCameraStream(stream);
       setCameraOpen(true);
+      setLiveTracking(true);
+      setSnapMessage("Live preview is on. Move slowly, then refine the corners.");
       buzz(6);
       track("viz_camera_open", {});
     } catch {
@@ -522,30 +631,18 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const snapCamera = async () => {
     const video = videoRef.current;
     if (!video || !cameraStream) return;
-    const trackRef = cameraStream.getVideoTracks()[0];
-    const ImageCaptureCtor = (window as unknown as { ImageCapture?: CameraCapture }).ImageCapture;
-    if (trackRef && ImageCaptureCtor) {
-      try {
-        const capture = new ImageCaptureCtor(trackRef);
-        if (capture.takePhoto) {
-          const blob = await capture.takePhoto();
-          loadImage(objectUrl(blob), "camera");
-          track("viz_camera_snap", { method: "photo" });
-          stopCamera();
-          return;
-        }
-      } catch {}
-    }
-
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const stage = canvasRef.current;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.max(1, Math.round((stage?.clientWidth || video.videoWidth || 1280) * dpr));
+    canvas.height = Math.max(1, Math.round((stage?.clientHeight || video.videoHeight || 720) * dpr));
+    const ctx = canvas.getContext("2d");
+    if (ctx) drawSource(ctx, video, video.videoWidth || canvas.width, video.videoHeight || canvas.height, canvas.width, canvas.height, true);
     canvas.toBlob(
       (blob) => {
         if (blob) loadImage(objectUrl(blob), "camera");
         else loadImage(canvas.toDataURL("image/jpeg", 0.92), "camera", SURFACES[surface].quad);
-        track("viz_camera_snap", { method: "canvas" });
+        track("viz_camera_snap", { method: "live-frame" });
         stopCamera();
       },
       "image/jpeg",
@@ -573,21 +670,18 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     };
   }, [cameraStream]);
 
-  useEffect(() => {
-    if (!cameraOpen) return;
-    const id = requestAnimationFrame(() => {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      cameraPanelRef.current?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
-    });
-    return () => cancelAnimationFrame(id);
-  }, [cameraOpen]);
-
   useEffect(() => () => {
     cameraStream?.getTracks().forEach((track) => track.stop());
   }, [cameraStream]);
 
   useEffect(() => () => {
     objectUrls.current.forEach((url) => URL.revokeObjectURL(url));
+    objectUrls.current.clear();
+  }, []);
+
+  useEffect(() => () => {
+    if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
+    if (liveFrame.current !== null) cancelAnimationFrame(liveFrame.current);
   }, []);
 
   useEffect(() => {
@@ -609,8 +703,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   };
 
   const findSurface = (id = surface) => {
-    if (!photo) return;
-    const found = detectSurfaceQuad(photo, id);
+    const video = videoRef.current;
+    const found = cameraOpen && video ? detectVideoSurface(video, id) : photo ? detectSurfaceQuad(photo, id) : null;
     if (!found) {
       setSnapMessage("No clean edge yet. Drag corners to refine.");
       track("viz_autosnap", { surface: id, status: "miss" });
@@ -619,6 +713,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     }
     setSurface(id);
     setTileSize(SURFACES[id].tileSize);
+    setLiveTracking(false);
     setQuad(found.quad);
     setSnapMessage(found.confidence > 1.35 ? "Surface found. Drag corners to refine." : "Best edge found. Drag corners to refine.");
     track("viz_autosnap", { surface: id, confidence: Math.round(found.confidence * 100) });
@@ -627,9 +722,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const fitSurface = (id: SurfaceId) => {
     const next = SURFACES[id];
+    const video = videoRef.current;
     setSurface(id);
     setTileSize(next.tileSize);
-    const found = photo ? detectSurfaceQuad(photo, id) : null;
+    const found = cameraOpen && video ? detectVideoSurface(video, id) : photo ? detectSurfaceQuad(photo, id) : null;
     if (found) {
       setQuad(found.quad);
       setSnapMessage("Surface found. Drag corners to refine.");
@@ -656,39 +752,53 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !photo) return;
+    const video = videoRef.current;
+    const isLive = Boolean(cameraOpen && video && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0 && video.videoHeight > 0);
+    const liveVideo = isLive ? video! : null;
+    const source = liveVideo ?? photo;
+    if (!canvas || !source || !pattern) return;
+    const sourceW = liveVideo ? liveVideo.videoWidth : photo!.naturalWidth;
+    const sourceH = liveVideo ? liveVideo.videoHeight : photo!.naturalHeight;
+    const coverMode = cameraOpen;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
     const maxW = 1400;
-    const scale = Math.min(1, maxW / photo.naturalWidth);
-    const W = Math.round(photo.naturalWidth * scale);
-    const Hh = Math.round(photo.naturalHeight * scale);
+    const scale = Math.min(1, maxW / sourceW);
+    const W = coverMode ? Math.max(1, Math.round((canvas.clientWidth || window.innerWidth) * dpr)) : Math.round(sourceW * scale);
+    const Hh = coverMode ? Math.max(1, Math.round((canvas.clientHeight || window.innerHeight) * dpr)) : Math.round(sourceH * scale);
     canvas.width = W;
     canvas.height = Hh;
     const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(photo, 0, 0, W, Hh);
+    drawSource(ctx, source, sourceW, sourceH, W, Hh, coverMode);
 
     /* Keep the untouched photo for press-and-hold compare. */
     const orig = document.createElement("canvas");
     orig.width = W;
     orig.height = Hh;
     const origCtx = orig.getContext("2d")!;
-    origCtx.drawImage(photo, 0, 0, W, Hh);
+    drawSource(origCtx, source, sourceW, sourceH, W, Hh, coverMode);
     originalRef.current = orig;
 
     const q = quad.map((p) => ({ x: p.x * W, y: p.y * Hh }));
-    const pattern = makePattern(piece.colors || ["#3aa9d6"], tileSize, groutLight);
+
+    if (holdingRef.current) return;
 
     if (prepMode !== "none") {
       ctx.save();
       clipQuad(ctx, q);
       if (prepMode === "blur") {
-        drawBlurredPhoto(ctx, photo, W, Hh, 22);
+        drawBlurredPhoto(ctx, source, sourceW, sourceH, W, Hh, 22, coverMode);
         ctx.fillStyle = "rgba(214, 206, 190, 0.08)";
         ctx.fillRect(0, 0, W, Hh);
       } else {
         ctx.globalAlpha = 0.28;
-        drawBlurredPhoto(ctx, photo, W, Hh, 20);
+        drawBlurredPhoto(ctx, source, sourceW, sourceH, W, Hh, 20, coverMode);
         ctx.globalAlpha = 1;
-        ctx.fillStyle = sampleQuadColor(origCtx, q, W, Hh);
+        if (dragging.current === null) {
+          const nextPrimer = sampleQuadColor(origCtx, q, W, Hh);
+          if (isLive) livePrimerColor.current = nextPrimer;
+          else primerColor.current = nextPrimer;
+        }
+        ctx.fillStyle = isLive ? livePrimerColor.current : primerColor.current;
         ctx.fillRect(0, 0, W, Hh);
       }
       ctx.restore();
@@ -699,6 +809,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     overlay.height = Hh;
     const octx = overlay.getContext("2d")!;
     const H = homography(q);
+    if (!H) return;
     const N = 18;
     const P = pattern.width;
     for (let r = 0; r < N; r++) {
@@ -724,25 +835,63 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     ctx.globalCompositeOperation = "soft-light";
     ctx.globalAlpha = blend * (prepMode === "none" ? 0.5 : 0.24);
     if (prepMode === "none") {
-      ctx.drawImage(photo, 0, 0, W, Hh);
+      drawSource(ctx, source, sourceW, sourceH, W, Hh, coverMode);
     } else {
-      drawBlurredPhoto(ctx, photo, W, Hh, 12);
+      drawBlurredPhoto(ctx, source, sourceW, sourceH, W, Hh, 12, coverMode);
     }
     ctx.restore();
-    setTick((t) => t + 1);
-  }, [photo, quad, piece, tileSize, blend, prepMode, groutLight]);
+    if (!cameraOpen) setTick((t) => t + 1);
+  }, [cameraOpen, photo, quad, pattern, blend, prepMode]);
 
   useEffect(() => {
-    render();
-  }, [render]);
+    if (cameraOpen) return;
+    const frame = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(frame);
+  }, [cameraOpen, render]);
+
+  useEffect(() => {
+    if (!cameraOpen) return;
+    let mounted = true;
+    const loop = (now: number) => {
+      if (!mounted) return;
+      render();
+      const video = videoRef.current;
+      if (liveTracking && dragging.current === null && video && now > liveDetectAt.current) {
+        const found = detectVideoSurface(video, surface);
+        if (found && isValidQuad(found.quad)) {
+          setQuad(found.quad);
+          setSnapMessage("Live surface found. Drag corners to refine.");
+        } else {
+          setSnapMessage("Live preview is on. Drag corners if the surface drifts.");
+        }
+        liveDetectAt.current = now + 1300;
+      }
+      liveFrame.current = requestAnimationFrame(loop);
+    };
+    liveFrame.current = requestAnimationFrame(loop);
+    return () => {
+      mounted = false;
+      if (liveFrame.current !== null) cancelAnimationFrame(liveFrame.current);
+      liveFrame.current = null;
+    };
+  }, [cameraOpen, liveTracking, render, surface]);
 
   const pointerPos = (e: React.PointerEvent): Pt => {
     const rect = wrapRef.current!.getBoundingClientRect();
     return {
-      x: Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
-      y: Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
+      x: clamp((e.clientX - rect.left) / rect.width, 0.02, 0.98),
+      y: clamp((e.clientY - rect.top) / rect.height, 0.02, 0.98),
     };
   };
+
+  const updateCorner = useCallback((index: number, point: Pt) => {
+    const safePoint = { x: clamp(point.x, 0.02, 0.98), y: clamp(point.y, 0.02, 0.98) };
+    setQuad((current) => {
+      const next = setCorner(current, index, safePoint);
+      if (isValidQuad(next)) return next;
+      return current;
+    });
+  }, []);
 
   /* The loupe: what your finger is hiding, shown above it at 2.5x. */
   const drawLoupe = (p: Pt) => {
@@ -769,19 +918,73 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     ctx.stroke();
   };
 
+  const holdEnd = () => {
+    if (!holding) return;
+    holdingRef.current = false;
+    setHolding(false);
+    render();
+  };
+
+  const queueCornerDrag = (index: number, point: Pt) => {
+    dragPoint.current = point;
+    setLoupe(point);
+    if (dragFrame.current !== null) return;
+    dragFrame.current = requestAnimationFrame(() => {
+      dragFrame.current = null;
+      const nextPoint = dragPoint.current;
+      if (!nextPoint || dragging.current !== index) return;
+      updateCorner(index, nextPoint);
+      drawLoupe(nextPoint);
+    });
+  };
+
+  const finishDrag = () => {
+    if (dragFrame.current !== null) {
+      cancelAnimationFrame(dragFrame.current);
+      dragFrame.current = null;
+    }
+    if (dragging.current !== null && dragPoint.current) updateCorner(dragging.current, dragPoint.current);
+    if (dragging.current !== null) buzz(4);
+    dragging.current = null;
+    dragPoint.current = null;
+    setLoupe(null);
+    holdEnd();
+  };
+
+  const nudgeCorner = (index: number, dx: number, dy: number) => {
+    const current = quad[index];
+    const next = { x: clamp(current.x + dx, 0.02, 0.98), y: clamp(current.y + dy, 0.02, 0.98) };
+    setLiveTracking(false);
+    updateCorner(index, next);
+    setLoupe(next);
+    requestAnimationFrame(() => drawLoupe(next));
+    buzz(2);
+    track("viz_adjust", { corner: index, method: "keyboard" });
+  };
+
+  const onCornerKey = (index: number, e: KeyboardEvent<SVGCircleElement>) => {
+    const step = e.shiftKey ? 0.04 : 0.012;
+    const moves: Record<string, [number, number]> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, -step],
+      ArrowDown: [0, step],
+    };
+    const move = moves[e.key];
+    if (!move) return;
+    e.preventDefault();
+    nudgeCorner(index, move[0], move[1]);
+  };
+
   const holdStart = (e: React.PointerEvent) => {
     if ((e.target as Element).tagName === "circle") return;
     if (!originalRef.current || !canvasRef.current) return;
+    holdingRef.current = true;
     setHolding(true);
     buzz(6);
     track("viz_compare", {});
     const ctx = canvasRef.current.getContext("2d")!;
     ctx.drawImage(originalRef.current, 0, 0);
-  };
-  const holdEnd = () => {
-    if (!holding) return;
-    setHolding(false);
-    render();
   };
 
   const share = async () => {
@@ -799,9 +1002,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         } catch {}
       }
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
+      a.href = url;
       a.download = file.name;
       a.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setSnapMessage("Preview saved. Attach it in WhatsApp.");
       window.open(waProduct(`${piece.name} (visualised in my space)`), "_blank");
     }, "image/png");
   };
@@ -810,123 +1016,273 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const canvas = canvasRef.current;
     if (!canvas) return;
     track("viz_download", { piece: piece.slug });
-    const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
-    a.download = `au-mosaic-${piece.slug}.png`;
-    a.click();
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `au-mosaic-${piece.slug}.png`;
+      a.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    }, "image/png");
   };
+
+  const refineControls = (
+    <>
+      <div>
+        <p className="eyebrow">Surface fit</p>
+        <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
+          {(Object.entries(SURFACES) as Array<[SurfaceId, (typeof SURFACES)[SurfaceId]]>).map(([id, item]) => (
+            <button
+              key={id}
+              onClick={() => fitSurface(id)}
+              aria-pressed={surface === id}
+              className={`shrink-0 rounded-full px-5 py-3 text-left transition-all duration-300 active:scale-95 ${
+                surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+              }`}
+            >
+              <span className="block text-[12px] font-semibold uppercase tracking-[0.18em]">{item.label}</span>
+              <span className="mt-1 block text-[12px] normal-case tracking-normal text-mist">{item.line}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-7">
+        <p className="eyebrow">Start from</p>
+        <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
+          {CONTEXTS.map((context) => (
+            <button
+              key={context.id}
+              onClick={() => loadContext(context.id)}
+              className="shrink-0 rounded-full bg-shell/40 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk transition-all duration-300 hover:bg-shell/60 active:scale-95"
+            >
+              {context.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="no-scrollbar -mx-5 mt-8 flex gap-3 overflow-x-auto px-5 py-3 sm:-mx-2 sm:px-2">
+        {pieces.map((p) => (
+          <button
+            key={p.slug}
+            onClick={() => {
+              setPieceSlug(p.slug);
+              buzz(4);
+              track("viz_piece", { piece: p.slug });
+            }}
+            aria-pressed={p.slug === pieceSlug}
+            title={p.name}
+            className={`flex h-12 shrink-0 items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-95 ${
+              p.slug === pieceSlug ? "scale-[1.04] bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+            }`}
+          >
+            <span className="flex gap-0.5">
+              {(p.colors || []).slice(0, 4).map((c, i) => (
+                <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
+              ))}
+            </span>
+            <span className="whitespace-nowrap text-[12px] font-semibold">{p.name}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="panel">
+          <p className="eyebrow">Tile size</p>
+          <input
+            type="range"
+            min={14}
+            max={48}
+            value={tileSize}
+            onChange={(e) => {
+              setTileSize(+e.target.value);
+              buzz(2);
+            }}
+            className="mt-4 w-full accent-[#c2a15c]"
+            aria-label="Tile size"
+          />
+        </div>
+        <div className="panel">
+          <p className="eyebrow">Blend with the light</p>
+          <input
+            type="range"
+            min={40}
+            max={100}
+            value={blend * 100}
+            onChange={(e) => {
+              setBlend(+e.target.value / 100);
+              buzz(2);
+            }}
+            className="mt-4 w-full accent-[#c2a15c]"
+            aria-label="Blend"
+          />
+        </div>
+        <div className="panel">
+          <p className="eyebrow">Prep surface</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {([
+              ["primer", "Primer"],
+              ["blur", "Blur"],
+              ["none", "Original"],
+            ] as Array<[PrepMode, string]>).map(([mode, label]) => (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={prepMode === mode}
+                onClick={() => {
+                  setPrepMode(mode);
+                  buzz(3);
+                  track("viz_prep", { mode });
+                }}
+                className={`rounded-full px-4 py-2 text-[12px] font-semibold transition-all duration-300 active:scale-95 ${
+                  prepMode === mode ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-[12px] leading-relaxed text-mist">Primer hides old tile.</p>
+        </div>
+        <div className="panel flex items-center justify-between gap-4">
+          <p className="eyebrow">Grout</p>
+          <button
+            onClick={() => {
+              setGroutLight(!groutLight);
+              buzz(4);
+            }}
+            className="link-hair text-dusk"
+          >
+            {groutLight ? "Light" : "Dark"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
+  const stage = (
+    <div
+      ref={wrapRef}
+      className={
+        cameraOpen
+          ? "relative h-full w-full overflow-hidden bg-sand"
+          : "relative -mx-5 overflow-hidden rounded-none sm:mx-0 sm:rounded-[26px]"
+      }
+    >
+      <canvas ref={canvasRef} className={cameraOpen ? "block h-full w-full" : "block h-auto w-full"} />
+      {!cameraOpen && <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />}
+      <p id="viz-corner-help" className="sr-only">
+        Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.
+      </p>
+      <svg
+        className="absolute inset-0 h-full w-full touch-none"
+        aria-describedby="viz-corner-help"
+        onPointerDown={holdStart}
+        onPointerMove={(e) => {
+          if (dragging.current === null) return;
+          const p = pointerPos(e);
+          queueCornerDrag(dragging.current, p);
+        }}
+        onPointerUp={finishDrag}
+        onPointerLeave={finishDrag}
+      >
+        {quad.map((p, i) => {
+          const n = quad[(i + 1) % 4];
+          return (
+            <line
+              key={i}
+              x1={`${p.x * 100}%`}
+              y1={`${p.y * 100}%`}
+              x2={`${n.x * 100}%`}
+              y2={`${n.y * 100}%`}
+              stroke="var(--t-brass)"
+              strokeWidth="2"
+              strokeDasharray="6 5"
+              opacity={holding ? 0 : 0.9}
+            />
+          );
+        })}
+        {quad.map((p, i) => (
+          <circle
+            key={`c${i}`}
+            cx={`${p.x * 100}%`}
+            cy={`${p.y * 100}%`}
+            r="14"
+            tabIndex={0}
+            role="button"
+            aria-label={`${CORNER_LABELS[i]} surface corner. Use arrow keys to nudge.`}
+            aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+            fill="var(--t-brass)"
+            fillOpacity={holding ? 0 : 0.9}
+            stroke="#14110b"
+            strokeWidth="2"
+            style={{ cursor: "grab" }}
+            onFocus={() => {
+              setLoupe(p);
+              requestAnimationFrame(() => drawLoupe(p));
+            }}
+            onBlur={() => setLoupe(null)}
+            onKeyDown={(e) => onCornerKey(i, e)}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              (e.target as Element).setPointerCapture(e.pointerId);
+              setLiveTracking(false);
+              dragging.current = i;
+              const p2 = pointerPos(e);
+              dragPoint.current = p2;
+              buzz(6);
+              setLoupe(p2);
+              requestAnimationFrame(() => drawLoupe(p2));
+              track("viz_adjust", { corner: i });
+            }}
+          />
+        ))}
+      </svg>
+      {loupe && (
+        <div
+          className="pointer-events-none absolute z-10"
+          style={{
+            left: `calc(${loupe.x * 100}% - 60px)`,
+            top: `calc(${loupe.y * 100}% - 150px)`,
+          }}
+        >
+          <canvas
+            ref={loupeRef}
+            className="rounded-full"
+            style={{ boxShadow: "0 0 0 2px var(--t-brass), 0 14px 40px -12px rgb(0 0 0 / 0.6)" }}
+          />
+        </div>
+      )}
+      {holding && <span className="chip-glass absolute left-1/2 top-4 -translate-x-1/2">Original</span>}
+    </div>
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
-      {!photo && (
-        <div className="panel flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="eyebrow">Step one</p>
-            <p className="font-serif mt-2 text-[20px]">Your space, one photo.</p>
-            <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-dusk">
-              The empty pool is ready. Choose your own photo anytime.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-6">
-            <label className="btn-gold cursor-pointer">
-              Choose a photo
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
-            </label>
-            <button type="button" onClick={openCamera} className="link-hair text-dusk">
-              Use camera
-            </button>
-          </div>
+      <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="eyebrow">Your space</p>
+          <p className="font-serif mt-2 text-[20px]">Live camera or one photo.</p>
+          <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-dusk">
+            We find the surface. You refine it.
+          </p>
         </div>
-      )}
+        <div className="flex flex-wrap items-center gap-6">
+          <label className="btn-gold cursor-pointer">
+            Use your photo
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
+          </label>
+          <button type="button" onClick={openCamera} className="link-hair text-dusk">
+            Live camera
+          </button>
+        </div>
+      </div>
 
       {photo && (
         <>
-          <div ref={wrapRef} className="relative -mx-5 overflow-hidden rounded-none sm:mx-0 sm:rounded-[26px]">
-            <canvas ref={canvasRef} className="block h-auto w-full" />
-            {/* The render breathes when it changes. */}
-            <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />
-            <svg
-              className="absolute inset-0 h-full w-full touch-none"
-              onPointerDown={holdStart}
-              onPointerMove={(e) => {
-                if (dragging.current === null) return;
-                const p = pointerPos(e);
-                setQuad((q) => q.map((pt, i) => (i === dragging.current ? p : pt)));
-                setLoupe(p);
-                requestAnimationFrame(() => drawLoupe(p));
-              }}
-              onPointerUp={() => {
-                if (dragging.current !== null) buzz(4);
-                dragging.current = null;
-                setLoupe(null);
-                holdEnd();
-              }}
-              onPointerLeave={() => {
-                dragging.current = null;
-                setLoupe(null);
-                holdEnd();
-              }}
-            >
-              {quad.map((p, i) => {
-                const n = quad[(i + 1) % 4];
-                return (
-                  <line
-                    key={i}
-                    x1={`${p.x * 100}%`}
-                    y1={`${p.y * 100}%`}
-                    x2={`${n.x * 100}%`}
-                    y2={`${n.y * 100}%`}
-                    stroke="var(--t-brass)"
-                    strokeWidth="2"
-                    strokeDasharray="6 5"
-                    opacity={holding ? 0 : 0.9}
-                  />
-                );
-              })}
-              {quad.map((p, i) => (
-                <circle
-                  key={`c${i}`}
-                  cx={`${p.x * 100}%`}
-                  cy={`${p.y * 100}%`}
-                  r="14"
-                  fill="var(--t-brass)"
-                  fillOpacity={holding ? 0 : 0.9}
-                  stroke="#14110b"
-                  strokeWidth="2"
-                  style={{ cursor: "grab" }}
-                  onPointerDown={(e) => {
-                    e.stopPropagation();
-                    (e.target as Element).setPointerCapture(e.pointerId);
-                    dragging.current = i;
-                    buzz(6);
-                    const p2 = pointerPos(e);
-                    setLoupe(p2);
-                    requestAnimationFrame(() => drawLoupe(p2));
-                    track("viz_adjust", { corner: i });
-                  }}
-                />
-              ))}
-            </svg>
-            {/* The loupe rides above the finger. */}
-            {loupe && (
-              <div
-                className="pointer-events-none absolute z-10"
-                style={{
-                  left: `calc(${loupe.x * 100}% - 60px)`,
-                  top: `calc(${loupe.y * 100}% - 150px)`,
-                }}
-              >
-                <canvas
-                  ref={loupeRef}
-                  className="rounded-full"
-                  style={{ boxShadow: "0 0 0 2px var(--t-brass), 0 14px 40px -12px rgb(0 0 0 / 0.6)" }}
-                />
-              </div>
-            )}
-            {holding && (
-              <span className="chip-glass absolute left-1/2 top-4 -translate-x-1/2">Original</span>
-            )}
-          </div>
+          {!cameraOpen && stage}
           <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
             Find surface, then drag corners to refine. Press and hold to compare.
           </p>
@@ -934,177 +1290,38 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
               Find surface
             </button>
+            <button type="button" onClick={() => setRefineOpen(true)} className="link-hair text-dusk">
+              Refine
+            </button>
             <p className="text-[12px] uppercase tracking-[0.18em] text-mist">
               {snapMessage ?? "The stones stay editable."}
             </p>
           </div>
 
-          {cameraOpen && (
-            <div ref={cameraPanelRef} className="panel mt-7">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="eyebrow">Live camera</p>
-                  <p className="font-serif mt-3 text-[20px]">Snap your space.</p>
-                  <p className="mt-2 max-w-sm text-[14px] leading-relaxed text-dusk">
-                    Point at the surface. One still finds the tile area.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-6">
-                  <button type="button" onClick={snapCamera} className="btn-gold">
-                    Snap photo
-                  </button>
-                  <button type="button" onClick={stopCamera} className="link-hair text-dusk">
-                    Close camera
-                  </button>
-                </div>
-              </div>
-              <video
-                ref={videoRef}
-                muted
-                playsInline
-                autoPlay
-                className="mt-7 aspect-[4/3] w-full rounded-[22px] bg-sand object-cover"
-              />
-            </div>
-          )}
-
           {cameraError && <p className="mt-4 text-[14px] leading-relaxed text-dusk">{cameraError}</p>}
 
-          <div className="mt-7">
-            <p className="eyebrow">Surface fit</p>
-            <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
-              {(Object.entries(SURFACES) as Array<[SurfaceId, (typeof SURFACES)[SurfaceId]]>).map(([id, item]) => (
-                <button
-                  key={id}
-                  onClick={() => fitSurface(id)}
-                  aria-pressed={surface === id}
-                  className={`shrink-0 rounded-full px-5 py-3 text-left transition-all duration-300 active:scale-95 ${
-                    surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-                  }`}
-                >
-                  <span className="block text-[12px] font-semibold uppercase tracking-[0.18em]">{item.label}</span>
-                  <span className="mt-1 block text-[12px] normal-case tracking-normal text-mist">{item.line}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <p className="eyebrow">Start from</p>
-            <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
-              {CONTEXTS.map((context) => (
-                <button
-                  key={context.id}
-                  onClick={() => loadContext(context.id)}
-                  className="shrink-0 rounded-full bg-shell/40 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk transition-all duration-300 hover:bg-shell/60 active:scale-95"
-                >
-                  {context.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* The pieces: a borderless rail. The chosen chip rises, it is
-              never outlined. Padding absorbs the scale so nothing clips,
-              and the scrollbar stays out of the room. */}
-          <div className="no-scrollbar -mx-5 mt-8 flex gap-3 overflow-x-auto px-5 py-3 sm:-mx-2 sm:px-2">
-            {pieces.map((p) => (
-              <button
-                key={p.slug}
-                onClick={() => {
-                  setPieceSlug(p.slug);
-                  buzz(4);
-                  track("viz_piece", { piece: p.slug });
-                }}
-                aria-pressed={p.slug === pieceSlug}
-                title={p.name}
-                className={`flex h-12 shrink-0 items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-95 ${
-                  p.slug === pieceSlug
-                    ? "scale-[1.04] bg-shell text-ink shadow-lift"
-                    : "bg-shell/40 text-dusk hover:bg-shell/60"
-                }`}
-              >
-                <span className="flex gap-0.5">
-                  {(p.colors || []).slice(0, 4).map((c, i) => (
-                    <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
-                  ))}
-                </span>
-                <span className="whitespace-nowrap text-[12px] font-semibold">{p.name}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="panel">
-              <p className="eyebrow">Tile size</p>
-              <input
-                type="range"
-                min={14}
-                max={48}
-                value={tileSize}
-                onChange={(e) => {
-                  setTileSize(+e.target.value);
-                  buzz(2);
-                }}
-                className="mt-4 w-full accent-[#c2a15c]"
-                aria-label="Tile size"
-              />
-            </div>
-            <div className="panel">
-              <p className="eyebrow">Blend with the light</p>
-              <input
-                type="range"
-                min={40}
-                max={100}
-                value={blend * 100}
-                onChange={(e) => {
-                  setBlend(+e.target.value / 100);
-                  buzz(2);
-                }}
-                className="mt-4 w-full accent-[#c2a15c]"
-                aria-label="Blend"
-              />
-            </div>
-            <div className="panel">
-              <p className="eyebrow">Prep surface</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {([
-                  ["primer", "Primer"],
-                  ["blur", "Blur"],
-                  ["none", "Original"],
-                ] as Array<[PrepMode, string]>).map(([mode, label]) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    aria-pressed={prepMode === mode}
-                    onClick={() => {
-                      setPrepMode(mode);
-                      buzz(3);
-                      track("viz_prep", { mode });
-                    }}
-                    className={`rounded-full px-4 py-2 text-[12px] font-semibold transition-all duration-300 active:scale-95 ${
-                      prepMode === mode ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-                    }`}
+          <Dialog.Root open={refineOpen} onOpenChange={setRefineOpen}>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 z-[92] bg-sand/70 backdrop-blur-[18px]" />
+              <Dialog.Content className="filter-surface fixed inset-x-0 bottom-0 z-[93] max-h-[86svh] overflow-y-auto rounded-t-[28px] px-5 py-7 outline-none sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:w-[min(92vw,980px)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[28px] sm:px-8">
+                <div className="flex items-start justify-between gap-6">
+                  <div>
+                    <Dialog.Title className="eyebrow">Refine</Dialog.Title>
+                    <Dialog.Description className="mt-2 text-[14px] leading-relaxed text-dusk">
+                      Choose the surface, colour, light, and grout.
+                    </Dialog.Description>
+                  </div>
+                  <Dialog.Close
+                    aria-label="Close refine panel"
+                    className="-mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
                   >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <p className="mt-3 text-[12px] leading-relaxed text-mist">Primer hides old tile.</p>
-            </div>
-            <div className="panel flex items-center justify-between gap-4">
-              <p className="eyebrow">Grout</p>
-              <button
-                onClick={() => {
-                  setGroutLight(!groutLight);
-                  buzz(4);
-                }}
-                className="link-hair text-dusk"
-              >
-                {groutLight ? "Light" : "Dark"}
-              </button>
-            </div>
-          </div>
+                    <IconClose className="h-4 w-4" />
+                  </Dialog.Close>
+                </div>
+                <div className="mt-7">{refineControls}</div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
 
           <div className="mt-10 flex flex-wrap items-center gap-8">
             <button onClick={share} className="btn-gold" data-wa="visualizer">
@@ -1113,16 +1330,74 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             <button onClick={download} className="link-hair text-dusk">
               Download the preview
             </button>
-            <label className="link-hair cursor-pointer text-dusk">
-              New photo
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
-            </label>
-            <button type="button" onClick={openCamera} className="link-hair text-dusk">
-              Use camera
-            </button>
           </div>
         </>
       )}
+
+      <Dialog.Root open={cameraOpen} onOpenChange={(open) => !open && stopCamera()}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[90] bg-sand/80" />
+          <Dialog.Content className="fixed inset-0 z-[91] overflow-hidden bg-sand outline-none">
+            <Dialog.Title className="sr-only">Live camera</Dialog.Title>
+            <Dialog.Description className="sr-only">
+              Point the camera at the surface. The mosaic preview follows the live frame.
+            </Dialog.Description>
+            {cameraOpen && stage}
+            <video ref={videoRef} muted playsInline autoPlay className="sr-only" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-4 p-5 sm:p-8">
+              <div className="glass pointer-events-auto max-w-[min(360px,calc(100vw-104px))] px-5 py-4">
+                <p className="eyebrow">Live preview</p>
+                <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                  Move slowly. Drag the four stones if the surface drifts.
+                </p>
+              </div>
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  aria-label="Close live camera"
+                  className="glass pointer-events-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors duration-300 hover:text-gold"
+                >
+                  <IconClose className="h-4 w-4" />
+                </button>
+              </Dialog.Close>
+            </div>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-8">
+              <div className="glass pointer-events-auto mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-5 px-5 py-4 sm:justify-between">
+                <div className="min-w-[180px] flex-1">
+                  <p className="eyebrow">{liveTracking ? "Tracking" : "Manual fit"}</p>
+                  <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-mist">
+                    {snapMessage ?? "Move slowly. The surface stays editable."}
+                  </p>
+                </div>
+                <button type="button" onClick={snapCamera} className="btn-gold">
+                  Use this view
+                </button>
+                <div className="flex flex-wrap items-center justify-center gap-5">
+                  {!liveTracking && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLiveTracking(true);
+                        liveDetectAt.current = 0;
+                        setSnapMessage("Tracking live surface.");
+                      }}
+                      className="link-hair text-dusk"
+                    >
+                      Track again
+                    </button>
+                  )}
+                  <button type="button" onClick={() => setRefineOpen(true)} className="link-hair text-dusk">
+                    Refine
+                  </button>
+                  <button type="button" onClick={share} className="link-hair text-dusk" data-wa="visualizer-live">
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

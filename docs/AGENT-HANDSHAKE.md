@@ -16,6 +16,37 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Visualizer live preview lane - done
+
+Closed `src/app/(site)/visualizer/page.tsx`, `src/components/Visualizer.tsx`,
+`docs/QA.md`, and this handshake. The visualizer now treats camera as a focused
+Radix surface: live preview renders edge to edge on the composited canvas, the
+camera chrome is reduced to status, Use this view, Refine, and Send, and Refine
+holds surface, starter, piece, prep, blend, size, and grout controls in one
+Radix surface. Phone gets a bottom sheet, tablet and desktop get a centered
+modal. The page intro and start panel are tighter so phone users see both start
+actions before the preview. Browser evidence covered 390 by 844 phone, 468
+bottom sheet, 820 tablet modal, and 1280 wide layout with no horizontal
+overflow. Camera permission was not accepted in automation, so one real phone
+camera pass remains. TypeScript, lint, theme-check, diff-check, dash scan, and
+Next 16.2.10 build, 56 routes, passed.
+
+## 2026-07-06 - CODEX - Visualizer hardening lane - done
+
+Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake. The
+visualizer now starts with a persistent Use your photo or Use camera panel,
+keeps the empty-pool sample, labels the four surface stones for keyboard
+nudging, throttles drag work through requestAnimationFrame, rejects folded
+quads, guards homography collapse, ignores stale image loads, revokes object
+URLs, and uses blob-backed preview downloads. Pattern canvas creation is
+browser-guarded so `/visualizer` no longer touches `document` during server
+render. Browser checked desktop and 390 by 844 phone: no horizontal overflow,
+top action visible, canvas rendered, four labelled corners present, and
+ArrowRight moved the top-left corner from 31% to 32.2%. Dev server
+`HEAD /visualizer` returned 200. TypeScript, lint, theme-check, diff-check,
+glyph scan, and Next 16.2.10 build, 56 routes, passed. A pre-existing site
+JSON-LD script warning remains outside this lane.
+
 ## 2026-07-06 - CODEX - Visualizer surface prep lane - done
 
 Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake. The

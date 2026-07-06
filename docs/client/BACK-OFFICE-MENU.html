@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AU Mosaic · How to use your back office</title>
+<style>
+  :root {
+    --paper: #ffffff;
+    --mat: #e4edf8;
+    --ink: #0e1c3d;
+    --dusk: #3b5170;
+    --mist: #4e6488;
+    --royal: #2456c4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--mat);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif; }
+  .card {
+    width: 100%;
+    max-width: 860px;
+    background: var(--paper);
+    border-radius: 26px;
+    padding: 56px 60px 46px;
+    box-shadow: 0 40px 80px -40px rgba(14, 28, 61, 0.35);
+  }
+  .eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--royal); font-weight: 600; margin: 0; }
+  h1 { font-size: 40px; line-height: 1.06; margin: 12px 0 0; font-weight: 500; letter-spacing: -0.01em; }
+  .sub { color: var(--dusk); font-size: 15px; margin: 14px 0 0; max-width: 48ch; line-height: 1.5; }
+  .rule { height: 1px; background: linear-gradient(90deg, var(--royal), transparent); opacity: 0.5; margin: 32px 0; }
+  h2.section { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mist); font-weight: 600; margin: 0 0 20px; }
+
+  .journey { display: flex; align-items: stretch; gap: 8px; margin: 0 0 36px; }
+  .step { flex: 1; }
+  .step .num { width: 28px; height: 28px; border-radius: 50%; background: var(--royal); color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .step h4 { font-size: 16px; margin: 12px 0 0; font-weight: 500; }
+  .step p { font-size: 13px; color: var(--dusk); line-height: 1.5; margin: 6px 0 0; }
+  .arrow { color: var(--royal); font-size: 26px; align-self: center; padding: 0 2px; }
+
+  .feature { background: #eef3fa; border-radius: 18px; padding: 26px 30px; margin: 0 0 34px; }
+  .feature h3 { font-size: 23px; margin: 6px 0 0; font-weight: 500; }
+  .feature .lead { font-size: 13px; color: var(--mist); font-style: italic; margin: 8px 0 0; }
+  ol.steps { margin: 18px 0 0; padding: 0; list-style: none; counter-reset: s; }
+  ol.steps li { position: relative; padding: 0 0 12px 40px; color: var(--dusk); font-size: 14px; line-height: 1.5; counter-increment: s; }
+  ol.steps li:last-child { padding-bottom: 0; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: -1px; width: 26px; height: 26px; border-radius: 50%; background: var(--royal); color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  ol.steps li b { color: var(--ink); font-weight: 600; }
+  .note { color: var(--mist); font-size: 13px; margin: 14px 0 0; font-style: italic; }
+
+  .rooms { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 46px; }
+  .room h3 { font-size: 17px; margin: 0 0 8px; font-weight: 500; }
+  .room ul { margin: 0; padding: 0; list-style: none; }
+  .room li { color: var(--dusk); font-size: 13px; line-height: 1.5; padding: 0 0 5px; }
+
+  footer { margin: 38px 0 0; text-align: center; }
+  footer .line { font-size: 15px; color: var(--ink); margin: 0; }
+  footer .tiny { font-size: 12px; color: var(--mist); margin: 8px 0 0; letter-spacing: 0.04em; }
+  .print { position: fixed; top: 18px; right: 22px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--royal); background: var(--paper); border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; box-shadow: 0 8px 20px -8px rgba(14, 28, 61, 0.28); }
+
+  @media (max-width: 640px) {
+    .rooms { grid-template-columns: 1fr; }
+    .card { padding: 40px 28px; }
+    h1 { font-size: 32px; }
+    .journey { flex-direction: column; gap: 18px; }
+    .arrow { display: none; }
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .card { box-shadow: none; max-width: none; border-radius: 0; padding: 6mm 8mm; }
+    .print { display: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+  <button class="print" onclick="window.print()">Print</button>
+  <div class="card">
+    <p class="eyebrow">AU Mosaic · The back office</p>
+    <h1 class="serif">How to use it</h1>
+    <p class="sub">WhatsApp does the talking and the paying. The book keeps the count for you, from the first tap to settled.</p>
+
+    <div class="rule"></div>
+
+    <h2 class="section">The journey, first tap to settled</h2>
+    <div class="journey">
+      <div class="step">
+        <span class="num">1</span>
+        <h4 class="serif">On the website</h4>
+        <p>A customer taps a price or "Enquire". Every price is a WhatsApp message, already written. The tap is quietly counted, so you see the interest even before they type.</p>
+      </div>
+      <div class="arrow">&rsaquo;</div>
+      <div class="step">
+        <span class="num">2</span>
+        <h4 class="serif">On WhatsApp</h4>
+        <p>The chat opens with you. You talk, price, and sell the way you always have.</p>
+      </div>
+      <div class="arrow">&rsaquo;</div>
+      <div class="step">
+        <span class="num">3</span>
+        <h4 class="serif">Into the book</h4>
+        <p>Copy the customer's number in WhatsApp and paste it into a new customer. Their chat is one tap from then on.</p>
+      </div>
+      <div class="arrow">&rsaquo;</div>
+      <div class="step">
+        <span class="num">4</span>
+        <h4 class="serif">Through to settled</h4>
+        <p>It becomes an order: the tiles and your price, the quote sent back, the payment, the invoice, the delivery, settled.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <p class="eyebrow">Step three, up close · The number is the key</p>
+      <h3 class="serif">Turn a chat into a customer</h3>
+      <p class="lead">Copy once, paste once.</p>
+      <ol class="steps">
+        <li>In WhatsApp, tap the customer's name at the top to open their info.</li>
+        <li>Long-press their number and tap <b>Copy</b>.</li>
+        <li>In AU Mosaic, open <b>Customers</b> and tap <b>New customer</b>.</li>
+        <li>Tap <b>Paste</b>. The number drops in, cleaned. Add their name.</li>
+        <li>Save. You are one tap from their first order.</li>
+      </ol>
+      <p class="note">Works the same on Android and iPhone. Copy and paste is the whole trick.</p>
+    </div>
+
+    <h2 class="section">Every room, one line each</h2>
+    <div class="rooms">
+      <div class="room">
+        <h3 class="serif">The glance</h3>
+        <ul><li>The day at once: what is owed, what is low, what just came in.</li></ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Customers</h3>
+        <ul>
+          <li>Everyone you have saved.</li>
+          <li>Fresh from the window: the taps off your website.</li>
+          <li>Open one for their orders, balance, and history.</li>
+          <li>Add a customer: name, phone, area, a note.</li>
+          <li>Paste a WhatsApp number to add someone in seconds.</li>
+          <li>Tap to open their WhatsApp.</li>
+          <li>Set a to-do, and tick it off when done.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Orders</h3>
+        <ul>
+          <li>Every order and where it sits: enquiry, quoted, deposit, delivered, settled.</li>
+          <li>Start one by choosing the customer.</li>
+          <li>Add lines: a tile or free text, quantity, your price and the price you gave.</li>
+          <li>Move it one step along with a tap.</li>
+          <li>Add a return without erasing anything.</li>
+          <li>Send the quote or receipt on WhatsApp, already written.</li>
+          <li>Open the invoice.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Money</h3>
+        <ul>
+          <li>Record a payment: the amount, and how it came, transfer or cash.</li>
+          <li>A refund is just a minus.</li>
+          <li>The balance works itself out: billed, less paid.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Who owes you</h3>
+        <ul>
+          <li>Everyone who still owes, oldest first.</li>
+          <li>Send a gentle reminder on WhatsApp in one tap.</li>
+          <li>Download the list as a spreadsheet.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Deliveries</h3>
+        <ul>
+          <li>Book a delivery with an address and a day.</li>
+          <li>Mark it out, then delivered.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Invoices</h3>
+        <ul>
+          <li>Open a clean invoice for any order.</li>
+          <li>Print it, to paper or to PDF.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Tiles and ranges</h3>
+        <ul>
+          <li>See and edit every piece and range you sell.</li>
+          <li>Set stock counts and a warn-me level.</li>
+          <li>The book tells you when a piece runs low.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Photos</h3>
+        <ul>
+          <li>See every photo.</li>
+          <li>Approve or archive.</li>
+          <li>Choose which ones the website shows.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Insights</h3>
+        <ul>
+          <li>What is selling, and how the month is going.</li>
+        </ul>
+      </div>
+      <div class="room">
+        <h3 class="serif">Settings</h3>
+        <ul>
+          <li>Change your own facts: WhatsApp number, hours, address.</li>
+          <li>Give staff their own keys, and turn on alerts.</li>
+          <li>History: every change in plain sentences, nothing lost.</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p class="line serif">It works with no signal, and it speaks your language, never computer talk.</p>
+      <p class="tiny">AU Mosaic · aumosaic.com · the book that remembers</p>
+    </footer>
+  </div>
+</body>
+</html>
