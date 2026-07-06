@@ -24,6 +24,11 @@ export type OrderFilterContext = {
   q?: string;
 };
 
+export type CustomerFilterContext = {
+  q?: string;
+  sort?: string;
+};
+
 export type ContextPieceOption = {
   slug: string;
   name: string;
@@ -49,6 +54,10 @@ export type AdminContextPanel =
   | {
       kind: "order-filter";
       current: OrderFilterContext;
+    }
+  | {
+      kind: "customer-filter";
+      current: CustomerFilterContext;
     }
   | {
       kind: "media-create";
@@ -96,6 +105,11 @@ export function showMediaFilterPanel(current: MediaFilterContext) {
 
 export function showOrderFilterPanel(current: OrderFilterContext) {
   panel = { kind: "order-filter", current };
+  emit();
+}
+
+export function showCustomerFilterPanel(current: CustomerFilterContext) {
+  panel = { kind: "customer-filter", current };
   emit();
 }
 

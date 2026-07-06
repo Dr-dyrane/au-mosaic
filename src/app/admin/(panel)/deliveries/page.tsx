@@ -76,8 +76,6 @@ export default async function DeliveriesPage({
 
   return (
     <main>
-      {/* Title left, the one gold right; the phone wraps it back
-          under the thumb. */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
           <p className="eyebrow">The road</p>
@@ -90,9 +88,6 @@ export default async function DeliveriesPage({
             </Teach>
           </p>
         </div>
-        <Link href="/admin/deliveries/new" className="btn-gold admin-page-action">
-          New delivery
-        </Link>
       </div>
 
       {groups.map((g) => {

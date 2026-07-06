@@ -60,7 +60,7 @@ export function adminRouteActionFor(pathname: string, owed: number): AdminPageAc
     case "orders":
       return { href: "/admin/orders/new", label: "New order", room: adminRoomById("orders"), tour: "order-new" };
     case "people":
-      return { href: "/admin/customers/new", label: "New customer", room: adminRoomById("people"), tour: "people-new" };
+      return { href: "/admin/customers/new", label: "Add customer", room: adminRoomById("people"), tour: "people-new" };
     case "owed":
       return { href: "/admin/debts", label: owed > 0 ? "Remind" : "Orders", room: adminRoomById("owed") };
     case "deliveries":

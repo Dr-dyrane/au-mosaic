@@ -68,8 +68,6 @@ export default async function OrdersPage({
 
   return (
     <main>
-      {/* Title left, the one gold right; the phone wraps it back
-          under the thumb. */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
           <p className="eyebrow">Ledger</p>
@@ -78,35 +76,9 @@ export default async function OrdersPage({
             List sits beside given. A discount is a number, not a feeling.
           </p>
         </div>
-        <Link href="/admin/orders/new" className="btn-gold admin-page-action" data-tour="order-new">
-          New order
-        </Link>
-      </div>
-      <div className="mt-8 flex flex-wrap items-center gap-5 sm:gap-6" data-tour="orders">
-        {/* No-JS search, the customers-room way: type a name, press
-            Enter. */}
-        <form method="GET" className="w-full max-w-xs">
-          {step && <input type="hidden" name="status" value={step} />}
-          <input
-            type="search"
-            name="q"
-            defaultValue={query}
-            placeholder="Find by customer"
-            aria-label="Find orders by customer name"
-            className="w-full rounded-full bg-shell/60 px-5 py-3 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell"
-          />
-        </form>
-        {/* A plain link, so the book prints itself with no script. */}
-        <a href="/admin/export/orders.csv" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
-          CSV for the accountant
-        </a>
-        <button data-tour-start="orders" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
-          Learn this room
-        </button>
       </div>
 
-      {/* Filter by step: one surface, so the URL remembers without a chip wall. */}
-      <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="order-steps">
+      <div className="mt-8 flex flex-wrap items-center gap-5 sm:gap-6" data-tour="orders">
         <OrderFilterSheet current={activeFilters} />
         {activeLabels.length > 0 && (
           <p className="text-[14px] leading-relaxed text-dusk">
@@ -116,6 +88,13 @@ export default async function OrdersPage({
             </Link>
           </p>
         )}
+        {/* A plain link, so the book prints itself with no script. */}
+        <a href="/admin/export/orders.csv" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
+          CSV for the accountant
+        </a>
+        <button data-tour-start="orders" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
+          Learn this room
+        </button>
       </div>
 
       {steps.map((st) => {

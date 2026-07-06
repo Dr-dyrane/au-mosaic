@@ -4,19 +4,17 @@ import { getDb, schema } from "@/db";
 import EnquiryRow from "./EnquiryRow";
 import Pager from "../Pager";
 import Teach from "../Teach";
+import CustomerFilterSheet from "./CustomerFilterSheet";
+import { activeCustomerFilterLabels } from "./customer-filter-model";
 
 const PER_PAGE = 24;
 const ENQ_PER_PAGE = 12;
 
 /* Everyone he sells to, one search away. Cards lead with the name and
    the number he will tap next, newest people first, A to Z one tap
-   away. Search is a plain GET form, so it answers on the weakest
-   connection before any script arrives. */
+   away. The search surface lives with the shell so the list stays calm. */
 
 export const dynamic = "force-dynamic";
-
-const field =
-  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
 type Params = { q?: string; page?: string; enq?: string; sort?: string };
 
@@ -42,6 +40,7 @@ export default async function CustomersPage({
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
   const enqPage = Math.max(1, parseInt(params.enq ?? "1", 10) || 1);
   const sort = params.sort === "name" ? "name" : "newest";
+  const filterLabels = activeCustomerFilterLabels({ q, sort });
 
   const db = getDb();
   const [freshRow] = await db
@@ -85,8 +84,6 @@ export default async function CustomersPage({
 
   return (
     <main>
-      {/* Title left, the one gold right; the phone wraps it back
-          under the thumb. */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
           <p className="eyebrow">People</p>
@@ -96,42 +93,21 @@ export default async function CustomersPage({
             {total > 0 && ` ${total} ${total === 1 ? "person" : "people"} in the book.`}
           </p>
         </div>
-        <Link href="/admin/customers/new" className="btn-gold admin-page-action shrink-0" data-tour="people-new">
-          New customer
-        </Link>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center gap-4" data-tour="people">
-        <form action="/admin/customers" method="get" className="min-w-0 flex-1 basis-64" data-tour="people-search">
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Search name or phone"
-            aria-label="Search name or phone"
-            className={field}
-          />
-        </form>
+      <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="people">
+        <CustomerFilterSheet current={{ q: q || undefined, sort }} />
         <button data-tour-start="people" className="link-hair hidden shrink-0 text-dusk text-[12px] sm:inline-flex">
           Learn this room
         </button>
-      </div>
-
-      {/* Two ways to hold the list: as it grew, or as the alphabet
-          holds it. Links, so the URL remembers. */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link
-          href={makeHref(params, { sort: undefined, page: undefined })}
-          className={`chip-solid ${sort === "newest" ? "is-on" : ""}`}
-        >
-          Newest
-        </Link>
-        <Link
-          href={makeHref(params, { sort: "name", page: undefined })}
-          className={`chip-solid ${sort === "name" ? "is-on" : ""}`}
-        >
-          A to Z
-        </Link>
+        {filterLabels.length > 0 && (
+          <p className="text-[14px] leading-relaxed text-dusk">
+            {filterLabels.join(" / ")}
+            <Link href="/admin/customers" className="link-hair ml-4 text-[12px] text-dusk">
+              Clear
+            </Link>
+          </p>
+        )}
       </div>
 
       {/* The site's WhatsApp taps land here until they are cleared.

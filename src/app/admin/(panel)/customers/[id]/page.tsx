@@ -6,7 +6,6 @@ import { naira, waChat } from "@/lib/backoffice";
 import CustomerForm from "./CustomerForm";
 import SalesMotions from "./SalesMotions";
 import Back from "../../Back";
-import { IconShare } from "../../icons";
 import { Touch } from "../../touched";
 
 /* The customer record: who they are, what they ordered, what is still
@@ -81,9 +80,37 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
 
   const billedBy = new Map(billedRows.map((r) => [r.orderId, r.billed]));
   const paidBy = new Map(paidRows.map((r) => [r.orderId, r.paid]));
+  const totalOwed = orders.reduce((sum, order) => {
+    const balance = (billedBy.get(order.id) ?? 0) - (paidBy.get(order.id) ?? 0);
+    return sum + Math.max(balance, 0);
+  }, 0);
+  const latestOrder = orders[0];
+  const deliveryOrder = orders.find((order) => (
+    order.status !== "delivered" && order.status !== "settled"
+  ));
+  const shellActions = [
+    customer.phone
+      ? { href: waChat(customer.phone), label: "WhatsApp", external: true }
+      : null,
+    totalOwed > 0 ? { href: "/admin/debts", label: "Owed" } : null,
+    deliveryOrder
+      ? { href: `/admin/deliveries/new?order=${deliveryOrder.id}`, label: "Delivery" }
+      : null,
+    latestOrder ? { href: `/admin/invoice/${latestOrder.id}`, label: "The invoice" } : null,
+  ].filter((action): action is { href: string; label: string; external?: boolean } => Boolean(action));
 
   return (
     <main>
+      {shellActions.map((action) => (
+        <span
+          key={`${action.href}-${action.label}`}
+          hidden
+          data-admin-context-action
+          data-href={action.href}
+          data-label={action.label}
+          data-external={action.external ? "true" : undefined}
+        />
+      ))}
       <Back href="/admin/customers" label="All customers" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/customers/${id}`} label={customer.name} room="Customers" />
@@ -91,17 +118,6 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         <p className="mt-2 text-[12px] uppercase tracking-[0.14em] text-mist">
           {customer.area}
         </p>
-      )}
-      {customer.phone && (
-        <a
-          href={waChat(customer.phone)}
-          target="_blank"
-          rel="noreferrer"
-          className="link-hair mt-4 text-dusk text-[12px]"
-        >
-          <IconShare className="h-3.5 w-3.5" />
-          WhatsApp them
-        </a>
       )}
 
       {/* The desk pairs the person with their history: details on

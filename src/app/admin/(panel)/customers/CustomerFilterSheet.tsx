@@ -6,12 +6,12 @@ import AdminSheet from "@/components/AdminSheet";
 import { useAdminSurface } from "@/components/admin-surface-router";
 import { buzz } from "@/lib/backoffice";
 import { IconClose, IconFilter } from "../icons";
-import { OPEN_STEPS, STATUS_LABEL } from "./pipeline";
 import {
-  activeOrderFilterLabels,
-  orderFilterHref,
-  type OrderFilters,
-} from "./order-filter-model";
+  activeCustomerFilterLabels,
+  cleanCustomerSort,
+  customerFilterHref,
+  type CustomerFilters,
+} from "./customer-filter-model";
 
 const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
@@ -49,22 +49,24 @@ function SearchForm({
   onPick,
   idPrefix,
 }: {
-  current: OrderFilters;
+  current: CustomerFilters;
   onPick: () => void;
   idPrefix: string;
 }) {
+  const sort = cleanCustomerSort(current.sort);
+
   function submit(event: FormEvent<HTMLFormElement>) {
     buzz(3);
     const q = new FormData(event.currentTarget).get("q")?.toString().trim();
-    if (!q && !current.status) {
+    if (!q && sort === "newest") {
       event.preventDefault();
-      window.location.href = "/admin/orders";
+      window.location.href = "/admin/customers";
     }
     onPick();
   }
 
   return (
-    <form action="/admin/orders" method="GET" onSubmit={submit} className="px-2">
+    <form action="/admin/customers" method="GET" onSubmit={submit} className="px-2">
       <label htmlFor={`${idPrefix}-q`} className="eyebrow mb-2.5 block">
         Search
       </label>
@@ -73,11 +75,11 @@ function SearchForm({
         type="search"
         name="q"
         defaultValue={current.q ?? ""}
-        placeholder="Customer name"
-        aria-label="Find orders by customer name"
+        placeholder="Name or phone"
+        aria-label="Search customers by name or phone"
         className={field}
       />
-      {current.status && <input type="hidden" name="status" value={current.status} />}
+      {sort === "name" && <input type="hidden" name="sort" value="name" />}
       <button
         type="submit"
         className="admin-glass-control mt-3 flex min-h-12 items-center rounded-[18px] px-5 text-[14px] text-ink active:scale-[0.98]"
@@ -93,40 +95,37 @@ function FilterBody({
   onPick,
   idPrefix,
 }: {
-  current: OrderFilters;
+  current: CustomerFilters;
   onPick: () => void;
   idPrefix: string;
 }) {
+  const sort = cleanCustomerSort(current.sort);
+
   return (
     <>
       <SearchForm current={current} onPick={onPick} idPrefix={idPrefix} />
-      <div className="mt-5 grid gap-1">
-        <Row
-          onPick={onPick}
-          href={orderFilterHref(current, { status: undefined })}
-          on={!current.status}
-        >
-          All open
-        </Row>
-      </div>
-      <p className="eyebrow mt-5 px-2">Step</p>
+      <p className="eyebrow mt-5 px-2">Order</p>
       <div className="mt-3 grid gap-1">
-        {OPEN_STEPS.map((s) => (
-          <Row
-            key={s}
-            onPick={onPick}
-            href={orderFilterHref(current, { status: current.status === s ? undefined : s })}
-            on={current.status === s}
-          >
-            {STATUS_LABEL[s]}
-          </Row>
-        ))}
+        <Row
+          href={customerFilterHref(current, { sort: undefined })}
+          on={sort === "newest"}
+          onPick={onPick}
+        >
+          Newest
+        </Row>
+        <Row
+          href={customerFilterHref(current, { sort: "name" })}
+          on={sort === "name"}
+          onPick={onPick}
+        >
+          A to Z
+        </Row>
       </div>
       {current.q && (
         <>
           <p className="eyebrow mt-5 px-2">Search</p>
           <div className="mt-3 grid gap-1">
-            <Row onPick={onPick} href={orderFilterHref(current, { q: undefined })} on>
+            <Row href={customerFilterHref(current, { q: undefined })} on onPick={onPick}>
               Clear {current.q}
             </Row>
           </div>
@@ -136,25 +135,26 @@ function FilterBody({
   );
 }
 
-export function OrderFilterPanel({
+export function CustomerFilterPanel({
   current,
   onPick,
   onClose,
   id,
   showHeader = true,
 }: {
-  current: OrderFilters;
+  current: CustomerFilters;
   onPick: () => void;
   onClose: () => void;
   id?: string;
   showHeader?: boolean;
 }) {
-  const active = activeOrderFilterLabels(current);
+  const active = activeCustomerFilterLabels(current);
+
   return (
-    <div id={id} data-tour="order-filter-panel">
+    <div id={id} data-tour="customer-filter-panel">
       {showHeader && (
         <div className="flex items-center justify-between px-2">
-          <p className="eyebrow">Filter</p>
+          <p className="eyebrow">Find people</p>
           <button
             onClick={onClose}
             aria-label="Close filter"
@@ -167,23 +167,27 @@ export function OrderFilterPanel({
       {active.length > 0 && (
         <div className={`${showHeader ? "mt-2" : ""} flex items-center justify-between gap-4 px-2`}>
           <p className="text-[14px] leading-relaxed text-dusk">{active.join(" / ")}</p>
-          <Link href="/admin/orders" onClick={onPick} className="link-hair shrink-0 text-[12px] text-dusk">
+          <Link
+            href="/admin/customers"
+            onClick={onPick}
+            className="link-hair shrink-0 text-[12px] text-dusk"
+          >
             Clear
           </Link>
         </div>
       )}
       <div className={showHeader || active.length > 0 ? "mt-4" : ""}>
-        <FilterBody current={current} onPick={onPick} idPrefix={id ?? "order-filter"} />
+        <FilterBody current={current} onPick={onPick} idPrefix={id ?? "customer-filter"} />
       </div>
     </div>
   );
 }
 
-export default function OrderFilterSheet({ current }: { current: OrderFilters }) {
-  const active = activeOrderFilterLabels(current).length;
+export default function CustomerFilterSheet({ current }: { current: CustomerFilters }) {
+  const active = activeCustomerFilterLabels(current).length;
   const surface = useAdminSurface(
-    { kind: "order-filter", current },
-    { id: "order-filter-panel" }
+    { kind: "customer-filter", current },
+    { id: "customer-filter-panel" }
   );
 
   return (
@@ -193,7 +197,7 @@ export default function OrderFilterSheet({ current }: { current: OrderFilters })
         className={`chip-solid ${active > 0 ? "is-on" : ""}`}
         aria-controls={surface.triggerProps["aria-controls"]}
         aria-expanded={surface.triggerProps["aria-expanded"]}
-        data-tour="order-filter-open"
+        data-tour="customer-filter-open"
       >
         <IconFilter className="h-3.5 w-3.5" />
         Filter{active > 0 ? ` / ${active}` : ""}
@@ -201,11 +205,11 @@ export default function OrderFilterSheet({ current }: { current: OrderFilters })
       <AdminSheet
         open={surface.sheetOpen}
         onOpenChange={surface.setSheetOpen}
-        title="Filter"
-        id="order-filter-panel"
+        title="Find people"
+        id="customer-filter-panel"
         compactOnly
       >
-        <OrderFilterPanel
+        <CustomerFilterPanel
           current={current}
           onPick={surface.closeSheet}
           onClose={surface.closeSheet}

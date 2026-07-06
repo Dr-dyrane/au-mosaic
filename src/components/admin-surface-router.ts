@@ -9,7 +9,9 @@ import {
 import {
   clearAdminContextPanel,
   type ContextPieceOption,
+  type CustomerFilterContext,
   getAdminContextPanel,
+  showCustomerFilterPanel,
   showMediaFilterPanel,
   showOrderFilterPanel,
   showOrderPaymentPanel,
@@ -49,6 +51,9 @@ function showAdminSurface(request: AdminSurfaceRequest) {
       break;
     case "order-filter":
       showOrderFilterPanel(request.current);
+      break;
+    case "customer-filter":
+      showCustomerFilterPanel(request.current);
       break;
     case "media-create":
       showMediaCreatePanel(request.pieces);
@@ -92,6 +97,13 @@ function sameOrderFilterContext(a: OrderFilterContext, b: OrderFilterContext) {
   return a.status === b.status && a.q === b.q;
 }
 
+function sameCustomerFilterContext(
+  a: CustomerFilterContext,
+  b: CustomerFilterContext
+) {
+  return a.q === b.q && a.sort === b.sort;
+}
+
 function samePieceOptions(a: ContextPieceOption[], b: ContextPieceOption[]) {
   return (
     a.length === b.length &&
@@ -127,6 +139,9 @@ function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest
     case "order-filter":
       if (panel.kind !== "order-filter") return false;
       return sameOrderFilterContext(panel.current, request.current);
+    case "customer-filter":
+      if (panel.kind !== "customer-filter") return false;
+      return sameCustomerFilterContext(panel.current, request.current);
     case "media-create":
       if (panel.kind !== "media-create") return false;
       return samePieceOptions(panel.pieces, request.pieces);

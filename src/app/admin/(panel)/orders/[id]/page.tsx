@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
@@ -24,6 +23,12 @@ type ShellAction = {
   href: string;
   label: string;
   room: "owed" | "deliveries" | "orders";
+  external?: boolean;
+  intent?: AdminActionIntent;
+};
+type ShellContextAction = {
+  href: string;
+  label: string;
   external?: boolean;
   intent?: AdminActionIntent;
 };
@@ -123,6 +128,23 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               external: true,
             }
           : { href: `/admin/invoice/${order.id}`, label: "The invoice", room: "orders" };
+  const contextActions = [
+    { href: `/admin/customers/${customer.id}`, label: "Their record" },
+    { href: `/admin/invoice/${order.id}`, label: "The invoice" },
+    customer.phone
+      ? { href: `/admin/compose?kind=quote&order=${order.id}`, label: "Send quote", external: true }
+      : null,
+    customer.phone
+      ? { href: `/admin/compose?kind=receipt&order=${order.id}`, label: "Send receipt", external: true }
+      : null,
+    returnOptions.length > 0
+      ? {
+          href: `/admin/orders/${order.id}#order-return`,
+          label: "Record a return",
+          intent: ADMIN_ACTION_INTENTS.orderReturn,
+        }
+      : null,
+  ].flatMap((action): ShellContextAction[] => (action ? [action] : []));
 
   return (
     <main>
@@ -135,6 +157,17 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         data-external={navAction.external ? "true" : undefined}
         data-intent={navAction.intent}
       />
+      {contextActions.map((action) => (
+        <span
+          key={`${action.href}-${action.label}`}
+          hidden
+          data-admin-context-action
+          data-href={action.href}
+          data-label={action.label}
+          data-external={action.external ? "true" : undefined}
+          data-intent={action.intent}
+        />
+      ))}
       <Back href="/admin/orders" label="All orders" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/orders/${id}`} label={`${customer.name}'s order`} room="Orders" />
@@ -144,36 +177,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       {order.note && (
         <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">{order.note}</p>
       )}
-      <div className="mt-5 flex flex-wrap items-center gap-6">
-        <Link href={`/admin/customers/${customer.id}`} className="link-hair text-dusk text-[12px]">
-          Their record
-        </Link>
-        <Link href={`/admin/invoice/${order.id}`} className="link-hair text-dusk text-[12px]">
-          The invoice
-        </Link>
-        {/* Compose from the book: the message reads the order fresh
-            on the way out, and WhatsApp opens with it written. */}
-        {customer.phone && (
-          <>
-            <a
-              href={`/admin/compose?kind=quote&order=${order.id}`}
-              target="_blank"
-              rel="noreferrer"
-              className="link-hair text-dusk text-[12px]"
-            >
-              Send the quote
-            </a>
-            <a
-              href={`/admin/compose?kind=receipt&order=${order.id}`}
-              target="_blank"
-              rel="noreferrer"
-              className="link-hair text-dusk text-[12px]"
-            >
-              Send the receipt
-            </a>
-          </>
-        )}
-      </div>
 
       {/* The desk sees the two losses face each other: lines on the
           left, payments on the right, law 6 side by side. The phone
@@ -289,16 +292,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               )}
             </div>
           )}
-          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
-            <OrderPaymentAction
-              orderId={order.id}
-              showTrigger
-              className="link-hair hidden text-dusk text-[12px] xl:inline-flex"
-            />
-            {returnOptions.length > 0 && (
-              <OrderReturnAction orderId={order.id} lines={returnOptions} showTrigger />
-            )}
-          </div>
+          <OrderPaymentAction orderId={order.id} />
+          {returnOptions.length > 0 && (
+            <OrderReturnAction orderId={order.id} lines={returnOptions} />
+          )}
         </section>
       </div>
     </main>

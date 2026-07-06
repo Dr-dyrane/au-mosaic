@@ -93,9 +93,26 @@ export default async function DebtsPage() {
       new Date(a.orders[0].createdAt).getTime() - new Date(b.orders[0].createdAt).getTime()
   );
   const grand = debtors.reduce((total, d) => total + d.total, 0);
+  const oldestWithPhone = debtors.find((d) => d.phone);
+  const oldestReminder = oldestWithPhone
+    ? waChat(
+        oldestWithPhone.phone,
+        `Good day ${oldestWithPhone.name}. A gentle reminder from AU Mosaic on a balance of ${naira(oldestWithPhone.total)}. Thank you.`
+      )
+    : null;
 
   return (
     <main>
+      {oldestReminder && (
+        <span
+          hidden
+          data-admin-action
+          data-href={oldestReminder}
+          data-label="Remind oldest"
+          data-room="owed"
+          data-external="true"
+        />
+      )}
       <p className="eyebrow">The ledger</p>
       <h1 className="font-serif text-display-section mt-3" data-tour="debts">Who owes what.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
@@ -110,7 +127,7 @@ export default async function DebtsPage() {
           <p className="mt-2 text-[14px] text-dusk">owed across everyone</p>
           <a
             href="/admin/export/debts.csv"
-            className="link-hair mt-4 inline-block text-dusk text-[12px]"
+            className="link-hair mt-4 hidden text-dusk text-[12px] sm:inline-block"
           >
             CSV for the accountant
           </a>
@@ -124,8 +141,6 @@ export default async function DebtsPage() {
               <p className="font-serif text-[20px]">{d.name}</p>
               <p className="font-serif text-[20px]">{naira(d.total)}</p>
             </div>
-            {/* The oldest debt wears the room's one gold: the decision
-                is made before the eye finishes the page. */}
             {d.phone && (
               <a
                 href={waChat(
@@ -134,9 +149,9 @@ export default async function DebtsPage() {
                 )}
                 target="_blank"
                 rel="noopener"
-                className={i === 0 ? "btn-gold mt-4 inline-flex" : "link-hair mt-2 text-[12px] text-dusk"}
+                className="link-hair mt-2 text-[12px] text-dusk"
               >
-                {i === 0 ? "Send the oldest reminder" : "WhatsApp them"}
+                {i === 0 ? "Oldest reminder" : "WhatsApp them"}
               </a>
             )}
             <div className="mt-5 grid gap-3">

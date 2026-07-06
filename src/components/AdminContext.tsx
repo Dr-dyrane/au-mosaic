@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AdminPulse } from "@/lib/admin-pulse";
@@ -27,6 +27,7 @@ import { MediaFilterPanel } from "@/app/admin/(panel)/media/MediaFilterSheet";
 import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
 import { OrderFilterPanel } from "@/app/admin/(panel)/orders/OrderFilterSheet";
+import { CustomerFilterPanel } from "@/app/admin/(panel)/customers/CustomerFilterSheet";
 import AddPaymentForm from "@/app/admin/(panel)/orders/[id]/AddPaymentForm";
 import AddReturnForm from "@/app/admin/(panel)/orders/[id]/AddReturnForm";
 
@@ -102,7 +103,7 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
           { label: "Fresh enquiries", value: String(pulse.freshEnquiries), href: "/admin/customers" },
           { label: "People owing", value: String(pulse.owingCustomers), href: "/admin/debts" },
         ],
-        actions: [{ label: "New customer", href: "/admin/customers/new" }],
+        actions: [{ label: "Add customer", href: "/admin/customers/new" }],
       };
     case "owed":
       return {
@@ -218,15 +219,73 @@ function contextActionsFor(
   pathname: string,
   ctx: ContextModel,
   pageAction: AdminPageAction | null,
-  routeAction: AdminPageAction
+  routeAction: AdminPageAction,
+  extraActions: Action[] = []
 ) {
   if (pageAction && (pathname === "/admin/share" || pathname.startsWith("/admin/ranges"))) {
     return [pageAction];
   }
   if (/^\/admin\/(orders|customers|pieces)\/(?!new$)[^/]+/.test(pathname)) {
-    return [pageAction ?? routeAction];
+    return uniqueActions([pageAction ?? routeAction, ...extraActions]);
   }
   return ctx.actions;
+}
+
+function uniqueActions(actions: Action[]) {
+  const seen = new Set<string>();
+  return actions.filter((action) => {
+    const key = `${action.href}:${action.label}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function contextActionFromDom(el: HTMLElement): Action | null {
+  const href = el.dataset.href;
+  const label = el.dataset.label;
+  if (!href || !label) return null;
+  return {
+    href,
+    label,
+    external: el.dataset.external === "true",
+    tour: el.dataset.tour,
+    intent: el.dataset.intent as AdminActionIntent | undefined,
+  };
+}
+
+function adminContextActionsFromDom() {
+  return uniqueActions(
+    Array.from(document.querySelectorAll<HTMLElement>("[data-admin-context-action]"))
+      .map(contextActionFromDom)
+      .filter((action): action is Action => Boolean(action))
+  );
+}
+
+function useAdminContextActions(pathname: string) {
+  const [actions, setActions] = useState<Action[]>([]);
+
+  useEffect(() => {
+    const sync = () => setActions(adminContextActionsFromDom());
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: [
+        "data-admin-context-action",
+        "data-href",
+        "data-label",
+        "data-external",
+        "data-tour",
+        "data-intent",
+      ],
+    });
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  return actions;
 }
 
 function ContextBody({
@@ -291,7 +350,8 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
   const ctx = contextFor(pathname, pulse);
   const pageAction = useAdminPageAction(pathname);
   const routeAction = adminRouteActionFor(pathname, pulse.owingCustomers);
-  const actions = contextActionsFor(pathname, ctx, pageAction, routeAction);
+  const extraActions = useAdminContextActions(pathname);
+  const actions = contextActionsFor(pathname, ctx, pageAction, routeAction, extraActions);
   if (pathname === "/admin") return null;
   return (
     <details className="admin-context glass liquid-glass mb-8 rounded-[28px] px-5 py-4 xl:hidden">
@@ -314,11 +374,13 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const ctx = contextFor(pathname, pulse);
   const pageAction = useAdminPageAction(pathname);
   const routeAction = adminRouteActionFor(pathname, pulse.owingCustomers);
-  const actions = contextActionsFor(pathname, ctx, pageAction, routeAction);
+  const extraActions = useAdminContextActions(pathname);
+  const actions = contextActionsFor(pathname, ctx, pageAction, routeAction, extraActions);
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
   const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
   const mediaFilter = panel?.kind === "media-filter" ? panel.current : null;
   const orderFilter = panel?.kind === "order-filter" ? panel.current : null;
+  const customerFilter = panel?.kind === "customer-filter" ? panel.current : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
   const mediaBatch = panel?.kind === "media-batch";
   const orderPayment = panel?.kind === "order-payment" ? panel : null;
@@ -329,10 +391,22 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
     if (mediaFilter && pathname !== "/admin/media") clearAdminContextPanel();
     if (orderFilter && pathname !== "/admin/orders") clearAdminContextPanel();
+    if (customerFilter && pathname !== "/admin/customers") clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
     if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
     if ((orderPayment || orderReturn) && !orderRecord) clearAdminContextPanel();
-  }, [pathname, stockFilter, mediaFilter, orderFilter, mediaCreate, mediaBatch, orderPayment, orderReturn, orderRecord]);
+  }, [
+    pathname,
+    stockFilter,
+    mediaFilter,
+    orderFilter,
+    customerFilter,
+    mediaCreate,
+    mediaBatch,
+    orderPayment,
+    orderReturn,
+    orderRecord,
+  ]);
 
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
@@ -357,6 +431,13 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
             <OrderFilterPanel
               id="order-filter-panel"
               current={orderFilter}
+              onPick={clearAdminContextPanel}
+              onClose={clearAdminContextPanel}
+            />
+          ) : customerFilter ? (
+            <CustomerFilterPanel
+              id="customer-filter-panel"
+              current={customerFilter}
               onPick={clearAdminContextPanel}
               onClose={clearAdminContextPanel}
             />
