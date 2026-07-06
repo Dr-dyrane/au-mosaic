@@ -97,7 +97,7 @@ export const PROJECTS: Project[] = [
     scope: ["Interior mosaic", "Feature wall", "Grazing light"],
     materials: ["stone-mosaic", "solid-colour-glass"],
     story:
-      "A living-room wall run floor to ceiling in split-face stone mosaic — warm greys and umber, grazed by hidden light so the surface changes as the day does. The one wall the room is built around.",
+      "A living-room wall run floor to ceiling in split-face stone mosaic, warm greys and umber, grazed by hidden light so the surface changes as the day does. The one wall the room is built around.",
     cover: PROJECT.stoneWall,
     coverDay: PROJECT.stoneWallDay,
     images: [
@@ -113,7 +113,7 @@ export const PROJECTS: Project[] = [
     scope: ["Interior mosaic", "Bath surround", "Lit niche"],
     materials: ["hexagon-marble", "silver-crystal-mosaic"],
     story:
-      "A freestanding bath against a wall of white hexagon marble, a lit niche for oil and candle, brass at the tap. Cool where the hammam is warm — built for the long, quiet end of the day.",
+      "A freestanding bath against a wall of white hexagon marble, a lit niche for oil and candle, brass at the tap. Cool where the hammam is warm, built for the long, quiet end of the day.",
     cover: PROJECT.marbleBath,
     coverDay: PROJECT.marbleBathDay,
     images: [

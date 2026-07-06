@@ -10,12 +10,16 @@ import {
   clearAdminContextPanel,
   type ContextPieceOption,
   getAdminContextPanel,
+  showMediaFilterPanel,
+  showOrderFilterPanel,
   showOrderPaymentPanel,
   showOrderReturnPanel,
   showMediaBatchPanel,
   showMediaCreatePanel,
   showStockFilterPanel,
   type ContextReturnLine,
+  type MediaFilterContext,
+  type OrderFilterContext,
   type StockFilterContext,
   subscribeAdminContextPanel,
   type AdminContextPanel,
@@ -40,6 +44,12 @@ function showAdminSurface(request: AdminSurfaceRequest) {
     case "stock-filter":
       showStockFilterPanel(request.current);
       break;
+    case "media-filter":
+      showMediaFilterPanel(request.current);
+      break;
+    case "order-filter":
+      showOrderFilterPanel(request.current);
+      break;
     case "media-create":
       showMediaCreatePanel(request.pieces);
       break;
@@ -63,6 +73,23 @@ function sameStockFilterContext(a: StockFilterContext, b: StockFilterContext) {
     a.app === b.app &&
     a.sort === b.sort
   );
+}
+
+function sameMediaFilterContext(a: MediaFilterContext, b: MediaFilterContext) {
+  return (
+    a.status === b.status &&
+    a.role === b.role &&
+    a.batch === b.batch &&
+    a.totals?.all === b.totals?.all &&
+    a.totals?.draft === b.totals?.draft &&
+    a.totals?.approved === b.totals?.approved &&
+    a.totals?.wired === b.totals?.wired &&
+    a.totals?.archived === b.totals?.archived
+  );
+}
+
+function sameOrderFilterContext(a: OrderFilterContext, b: OrderFilterContext) {
+  return a.status === b.status && a.q === b.q;
 }
 
 function samePieceOptions(a: ContextPieceOption[], b: ContextPieceOption[]) {
@@ -94,6 +121,12 @@ function sameAdminSurface(panel: AdminContextPanel, request: AdminSurfaceRequest
     case "stock-filter":
       if (panel.kind !== "stock-filter") return false;
       return sameStockFilterContext(panel.current, request.current);
+    case "media-filter":
+      if (panel.kind !== "media-filter") return false;
+      return sameMediaFilterContext(panel.current, request.current);
+    case "order-filter":
+      if (panel.kind !== "order-filter") return false;
+      return sameOrderFilterContext(panel.current, request.current);
     case "media-create":
       if (panel.kind !== "media-create") return false;
       return samePieceOptions(panel.pieces, request.pieces);

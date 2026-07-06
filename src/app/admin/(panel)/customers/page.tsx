@@ -112,7 +112,7 @@ export default async function CustomersPage({
             className={field}
           />
         </form>
-        <button data-tour-start="people" className="link-hair shrink-0 text-dusk text-[12px]">
+        <button data-tour-start="people" className="link-hair hidden shrink-0 text-dusk text-[12px] sm:inline-flex">
           Learn this room
         </button>
       </div>
@@ -184,7 +184,7 @@ export default async function CustomersPage({
                 {c.name}
               </p>
               <p className="mt-2 text-[14px] text-dusk">
-                {[c.phone, c.area].filter(Boolean).join(" · ") || "No phone yet"}
+                {[c.phone, c.area].filter(Boolean).join(" / ") || "No phone yet"}
               </p>
             </Link>
           ))}

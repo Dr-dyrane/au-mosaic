@@ -212,7 +212,7 @@ export const LAGOS_SCENES: { src: string; place: string; line: string; alt: stri
   },
 ];
 
-/* The Atelier, 2026-07-05: the craft at its height — glass, stone, and metal
+/* The Atelier, 2026-07-05: the craft at its height in glass, stone, and metal
    set the old way. Aspiration, not portfolio; the tradition we work in.
    Portrait, single-sun. Home: /atelier. */
 export const ATELIER = {
@@ -287,7 +287,7 @@ export const HOW_STEPS: { night: string; day: string; step: string; title: strin
   },
 ];
 
-/* Interiors, 2026-07-05: mosaic as the room's one great surface — feature
+/* Interiors, 2026-07-05: mosaic as the room's one great surface: feature
    walls, baths, floors. Aspiration, the tradition applied. Single-sun.
    Home: /interiors. */
 export const INTERIORS = {

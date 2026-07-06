@@ -23,7 +23,7 @@ export default function AtelierPage() {
       <PageHero
         eyebrow="The Atelier"
         title="The oldest art, in glass and water."
-        sub="Mosaic is a picture built one tessera at a time — a craft older than the cities it decorates. This is the tradition we work in."
+        sub="Mosaic is a picture built one tessera at a time, a craft older than the cities it decorates. This is the tradition we work in."
         image={ATELIER.atrium}
         alt="A columned atrium with a deep blue glass-mosaic pool lit by warm arched light"
         cta={{ href: waDesign(), label: "Design with us" }}
@@ -32,8 +32,8 @@ export default function AtelierPage() {
       <Section eyebrow="The craft" title="Patience, made permanent.">
         <div className="max-w-2xl space-y-6 text-[16px] leading-relaxed text-dusk">
           <p>
-            A mosaic is not printed or poured. It is set — tessera by tessera,
-            colour by colour — until a surface holds light the way water does.
+            A mosaic is not printed or poured. It is set, tessera by tessera,
+            colour by colour, until a surface holds light the way water does.
             The method is old; the patience is the whole art.
           </p>
           <p>
@@ -42,7 +42,7 @@ export default function AtelierPage() {
             room they sit in.
           </p>
           <p>
-            The scenes here are the ambition, not a portfolio — what the material
+            The scenes here are the ambition, not a portfolio: what the material
             can become when it is given room. Bring us your space, and we will
             tell you honestly what it can hold.
           </p>
@@ -76,7 +76,7 @@ export default function AtelierPage() {
       <Section
         eyebrow="Begin"
         title="A pool is a long conversation."
-        sub="The best ones start with a picture and a measurement. Send us both, and we will meet you in the middle — in glass, stone, and water."
+        sub="The best ones start with a picture and a measurement. Send us both, and we will meet you in the middle, in glass, stone, and water."
       >
         <CtaRow href={waDesign()} label="Design with us" secondary={{ href: "/pools", label: "Pool construction" }} />
       </Section>

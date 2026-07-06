@@ -102,8 +102,7 @@ export default async function InsightsPage({
         case when o.created_at > now() - interval '30 days' then 'Under a month'
              when o.created_at > now() - interval '60 days' then 'One to two months'
              else 'Older than two months' end as bucket,
-        coalesce((select sum(i.given_price_kobo * i.quantity) from order_items i where i.order_id = o.id), 0)
-          - coalesce((select sum(p.amount_kobo) from payments p where p.order_id = o.id), 0) as balance
+        coalesce((select sum(i.given_price_kobo * i.quantity) from order_items i where i.order_id = o.id), 0) - coalesce((select sum(p.amount_kobo) from payments p where p.order_id = o.id), 0) as balance
       from orders o where o.status not in ('enquiry','settled')
     ) t where balance > 0 group by bucket order by min(case bucket
       when 'Under a month' then 1 when 'One to two months' then 2 else 3 end)`);
@@ -301,7 +300,7 @@ export default async function InsightsPage({
               <div key={b.bucket} className="flex items-center justify-between gap-4">
                 <span className="text-[14px] text-ink">{b.bucket}</span>
                 <span className="text-[14px] text-dusk">
-                  {b.n} {b.n === 1 ? "order" : "orders"} · {naira(Number(b.owed))}
+                  {b.n} {b.n === 1 ? "order" : "orders"} / {naira(Number(b.owed))}
                 </span>
               </div>
             ))}

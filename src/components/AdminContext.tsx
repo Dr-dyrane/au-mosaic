@@ -23,8 +23,10 @@ import {
   subscribeAdminContextPanel,
 } from "@/components/admin-context-panel-store";
 import { StockFilterPanel } from "@/app/admin/(panel)/pieces/FilterSheet";
+import { MediaFilterPanel } from "@/app/admin/(panel)/media/MediaFilterSheet";
 import { MediaBatchPanel } from "@/app/admin/(panel)/media/MediaBatchActions";
 import { MediaCreateForm } from "@/app/admin/(panel)/media/MediaForms";
+import { OrderFilterPanel } from "@/app/admin/(panel)/orders/OrderFilterSheet";
 import AddPaymentForm from "@/app/admin/(panel)/orders/[id]/AddPaymentForm";
 import AddReturnForm from "@/app/admin/(panel)/orders/[id]/AddReturnForm";
 
@@ -315,6 +317,8 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const actions = contextActionsFor(pathname, ctx, pageAction, routeAction);
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);
   const stockFilter = panel?.kind === "stock-filter" ? panel.current : null;
+  const mediaFilter = panel?.kind === "media-filter" ? panel.current : null;
+  const orderFilter = panel?.kind === "order-filter" ? panel.current : null;
   const mediaCreate = panel?.kind === "media-create" ? panel : null;
   const mediaBatch = panel?.kind === "media-batch";
   const orderPayment = panel?.kind === "order-payment" ? panel : null;
@@ -323,10 +327,12 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
 
   useEffect(() => {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
+    if (mediaFilter && pathname !== "/admin/media") clearAdminContextPanel();
+    if (orderFilter && pathname !== "/admin/orders") clearAdminContextPanel();
     if (mediaCreate && pathname !== "/admin/media") clearAdminContextPanel();
     if (mediaBatch && pathname !== "/admin/media") clearAdminContextPanel();
     if ((orderPayment || orderReturn) && !orderRecord) clearAdminContextPanel();
-  }, [pathname, stockFilter, mediaCreate, mediaBatch, orderPayment, orderReturn, orderRecord]);
+  }, [pathname, stockFilter, mediaFilter, orderFilter, mediaCreate, mediaBatch, orderPayment, orderReturn, orderRecord]);
 
   return (
     <aside className="admin-context hidden xl:sticky xl:top-0 xl:block xl:h-svh xl:overflow-y-auto xl:py-6">
@@ -336,6 +342,21 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
             <StockFilterPanel
               id="stock-filter-panel"
               current={stockFilter}
+              onPick={clearAdminContextPanel}
+              onClose={clearAdminContextPanel}
+            />
+          ) : mediaFilter ? (
+            <MediaFilterPanel
+              id="media-filter-panel"
+              current={mediaFilter}
+              totals={mediaFilter.totals}
+              onPick={clearAdminContextPanel}
+              onClose={clearAdminContextPanel}
+            />
+          ) : orderFilter ? (
+            <OrderFilterPanel
+              id="order-filter-panel"
+              current={orderFilter}
               onPick={clearAdminContextPanel}
               onClose={clearAdminContextPanel}
             />

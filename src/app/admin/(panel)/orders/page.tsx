@@ -3,6 +3,8 @@ import { and, count, desc, eq, ilike, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
 import { OPEN_STEPS, STATUS_LABEL, fmtDate } from "./pipeline";
+import OrderFilterSheet from "./OrderFilterSheet";
+import { activeOrderFilterLabels } from "./order-filter-model";
 
 /* The order book, open at today. Orders group by where they stand on
    the line, and every card carries two truths: what was billed and
@@ -21,6 +23,11 @@ export default async function OrdersPage({
   const query = (q ?? "").trim();
   const step = OPEN_STEPS.find((s) => s === status);
   const steps = step ? [step] : OPEN_STEPS;
+  const activeFilters = {
+    status: step,
+    q: query || undefined,
+  };
+  const activeLabels = activeOrderFilterLabels(activeFilters);
 
   const open = await db
     .select({ order: schema.orders, customerName: schema.customers.name })
@@ -75,10 +82,11 @@ export default async function OrdersPage({
           New order
         </Link>
       </div>
-      <div className="mt-8 flex flex-wrap items-center gap-6" data-tour="orders">
+      <div className="mt-8 flex flex-wrap items-center gap-5 sm:gap-6" data-tour="orders">
         {/* No-JS search, the customers-room way: type a name, press
             Enter. */}
         <form method="GET" className="w-full max-w-xs">
+          {step && <input type="hidden" name="status" value={step} />}
           <input
             type="search"
             name="q"
@@ -89,31 +97,25 @@ export default async function OrdersPage({
           />
         </form>
         {/* A plain link, so the book prints itself with no script. */}
-        <a href="/admin/export/orders.csv" className="link-hair text-dusk text-[12px]">
+        <a href="/admin/export/orders.csv" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
           CSV for the accountant
         </a>
-        <button data-tour-start="orders" className="link-hair text-dusk text-[12px]">
+        <button data-tour-start="orders" className="link-hair hidden text-dusk text-[12px] sm:inline-flex">
           Learn this room
         </button>
       </div>
 
-      {/* Filter by step: links, so the URL remembers the view. */}
-      <div className="mt-6 flex flex-wrap gap-2" data-tour="order-steps">
-        <Link
-          href={query ? `/admin/orders?q=${encodeURIComponent(query)}` : "/admin/orders"}
-          className={`chip-solid ${!step ? "is-on" : ""}`}
-        >
-          All open
-        </Link>
-        {OPEN_STEPS.map((s) => (
-          <Link
-            key={s}
-            href={`/admin/orders?status=${s}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-            className={`chip-solid ${step === s ? "is-on" : ""}`}
-          >
-            {STATUS_LABEL[s]}
-          </Link>
-        ))}
+      {/* Filter by step: one surface, so the URL remembers without a chip wall. */}
+      <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="order-steps">
+        <OrderFilterSheet current={activeFilters} />
+        {activeLabels.length > 0 && (
+          <p className="text-[14px] leading-relaxed text-dusk">
+            Showing <span className="text-ink">{activeLabels.join(" / ")}</span>
+            <Link href="/admin/orders" className="link-hair ml-4 text-dusk text-[12px]">
+              Clear
+            </Link>
+          </p>
+        )}
       </div>
 
       {steps.map((st) => {
@@ -153,7 +155,7 @@ export default async function OrdersPage({
                     )}
                     {gap > 0 && (
                       <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
-                        Discount given · {naira(gap)} below list
+                        Discount given / {naira(gap)} below list
                       </p>
                     )}
                   </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import AdminSheet from "@/components/AdminSheet";
 import { buzz } from "@/lib/backoffice";
 import { useAdminSurface } from "@/components/admin-surface-router";
@@ -31,7 +32,7 @@ function Row({
   on: boolean;
   onPick: () => void;
   tour?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <Link
@@ -151,7 +152,7 @@ export function StockFilterPanel({
       {active.length > 0 && (
         <div className={`${showHeader ? "mt-2" : ""} flex items-center justify-between gap-4 px-2`}>
           <p className="text-[14px] leading-relaxed text-dusk">
-            {active.join(" · ")}
+            {active.join(" / ")}
           </p>
           <Link
             href="/admin/pieces"
@@ -186,7 +187,7 @@ export default function FilterSheet({ current }: { current: StockFilters }) {
         data-tour="stock-filter-open"
       >
         <IconFilter className="h-3.5 w-3.5" />
-        Filter{active > 0 ? ` · ${active}` : ""}
+        Filter{active > 0 ? ` / ${active}` : ""}
       </button>
       <AdminSheet
         open={surface.sheetOpen}

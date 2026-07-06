@@ -23,7 +23,7 @@ export default function HowWeWorkPage() {
       <PageHero
         eyebrow="The way it goes"
         title="How we work."
-        sub="From the sample wall to the running pool — the order, and the honesty, of a job done well."
+        sub="From the sample wall to the running pool, the order and honesty of a job done well."
         image={HOW.library.night}
         imageLight={HOW.library.day}
         alt="A wall of glass-mosaic sample boards and open sample trays on a stone counter"
@@ -59,7 +59,7 @@ export default function HowWeWorkPage() {
       <Section
         eyebrow="Begin"
         title="Send a picture and a size."
-        sub="That is all it takes to start. We will tell you what the space can hold, what it needs, and what it costs — honestly, per job."
+        sub="That is all it takes to start. We will tell you what the space can hold, what it needs, and what it costs, honestly, per job."
       >
         <CtaRow href={waStart()} label="Start on WhatsApp" secondary={{ href: "/pool-materials", label: "The materials" }} />
       </Section>

@@ -6,6 +6,24 @@ export type StockFilterContext = {
   sort?: string;
 };
 
+export type MediaFilterContext = {
+  status?: string;
+  role?: string;
+  batch?: string;
+  totals?: {
+    all: number;
+    draft: number;
+    approved: number;
+    wired: number;
+    archived: number;
+  };
+};
+
+export type OrderFilterContext = {
+  status?: string;
+  q?: string;
+};
+
 export type ContextPieceOption = {
   slug: string;
   name: string;
@@ -23,6 +41,14 @@ export type AdminContextPanel =
   | {
       kind: "stock-filter";
       current: StockFilterContext;
+    }
+  | {
+      kind: "media-filter";
+      current: MediaFilterContext;
+    }
+  | {
+      kind: "order-filter";
+      current: OrderFilterContext;
     }
   | {
       kind: "media-create";
@@ -60,6 +86,16 @@ export function getAdminContextPanel() {
 
 export function showStockFilterPanel(current: StockFilterContext) {
   panel = { kind: "stock-filter", current };
+  emit();
+}
+
+export function showMediaFilterPanel(current: MediaFilterContext) {
+  panel = { kind: "media-filter", current };
+  emit();
+}
+
+export function showOrderFilterPanel(current: OrderFilterContext) {
+  panel = { kind: "order-filter", current };
   emit();
 }
 

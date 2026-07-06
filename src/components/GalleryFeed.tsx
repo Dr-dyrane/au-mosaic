@@ -5,10 +5,10 @@ import InfiniteList from "./InfiniteList";
 import ThemeImage from "./ThemeImage";
 import type { GalleryItem } from "@/lib/gallery";
 
-/* The public gallery, Instagram-Explore style: a tight, un-captioned grid the
-   reader falls down. The full feed is static and known at build, so pagination
-   is client-side — a small pause lets the skeletons breathe before the next
-   batch lands, the way Explore does. Each frame links home to its page. */
+/* The public gallery mirrors the media room: large frames, useful captions,
+   and one clear next place to go. The full feed is static and known at build,
+   so pagination is client-side. A small pause lets the skeletons breathe
+   before the next batch lands. */
 
 const PAGE = 12;
 
@@ -23,27 +23,47 @@ export default function GalleryFeed({ items }: { items: GalleryItem[] }) {
       initial={items.slice(0, PAGE)}
       initialDone={items.length <= PAGE}
       loadMore={loadMore}
-      skeletonCount={6}
-      className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4"
+      skeletonCount={3}
+      className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3"
       renderItem={(item) => (
         <Link
           key={item.src}
           href={item.href}
-          className="group relative block aspect-square overflow-hidden rounded-[10px] bg-shell sm:rounded-[20px]"
+          className="group block"
         >
-          <ThemeImage
-            dark={item.src}
-            light={item.srcDay}
-            alt={item.alt}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="media-lux object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-          />
-          <div className="scrim-card pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <span className="panel block overflow-hidden p-0">
+            <span className="relative block aspect-[4/5] overflow-hidden rounded-[26px]">
+              <ThemeImage
+                dark={item.src}
+                light={item.srcDay}
+                alt={item.alt}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1279px) 50vw, 33vw"
+                className="media-lux object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+              />
+              <span className="scrim-card pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            </span>
+          </span>
+          <span className="mt-4 block px-1">
+            <span className="eyebrow block text-gold">{item.label}</span>
+            <span className="font-serif mt-2 block text-[20px] leading-tight text-ink transition-colors duration-300 group-hover:text-gold">
+              {item.title}
+            </span>
+            <span className="mt-2 block text-[14px] leading-relaxed text-dusk">
+              {item.line}
+            </span>
+            <span className="link-hair mt-4 inline-flex text-dusk text-[12px]">
+              {item.action}
+            </span>
+          </span>
         </Link>
       )}
       renderSkeleton={(index) => (
-        <div key={`sk-${index}`} className="skel aspect-square rounded-[10px] sm:rounded-[20px]" />
+        <div key={`sk-${index}`} className="grid gap-4">
+          <div className="skel aspect-[4/5] rounded-[26px]" />
+          <div className="skel h-5 w-1/2 rounded-full" />
+          <div className="skel h-4 w-3/4 rounded-full" />
+        </div>
       )}
     />
   );

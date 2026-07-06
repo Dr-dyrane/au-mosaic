@@ -32,18 +32,18 @@ export default function LagosPage() {
       <Section eyebrow="Since 2016" title="From Agric Market, Orile.">
         <div className="max-w-2xl space-y-6 text-[16px] leading-relaxed text-dusk">
           <p>
-            AU Mosaic grew up at Agric Market, Orile — where Lagos comes to
+            AU Mosaic grew up at Agric Market, Orile, where Lagos comes to
             build. Since 2016 the work has kept one habit: choose the tile you
             would want in your own home, and stand behind it.
           </p>
           <p>
             We supply mosaic for pools, baths, and walls, and carry the water&apos;s
-            hardware beside it — the pumps, the filters, the fittings. One place,
+            hardware beside it: the pumps, the filters, the fittings. One place,
             one responsibility, from the sample board to the running pool.
           </p>
           <p>
             This is a Lagos house, and it dresses in Lagos light. The same tile
-            reads one way at noon and another at dusk — so the window keeps two
+            reads one way at noon and another at dusk, so the window keeps two
             suns, and the brand keeps the gold the city already wears.
           </p>
         </div>

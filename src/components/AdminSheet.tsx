@@ -1,6 +1,7 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
+import type { ReactNode } from "react";
 import { IconClose } from "@/app/admin/(panel)/icons";
 
 export default function AdminSheet({
@@ -17,7 +18,7 @@ export default function AdminSheet({
   onOpenChange: (open: boolean) => void;
   title: string;
   description?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   id?: string;
   compactOnly?: boolean;
   role?: "dialog" | "alertdialog";

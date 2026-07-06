@@ -112,7 +112,7 @@ export default async function SharePage({
           <p className="eyebrow">The book knows them</p>
           <p className="font-serif mt-3 text-[26px]">{match.name}</p>
           <p className="mt-2 text-[14px] text-dusk">
-            {[match.phone, match.area].filter(Boolean).join(" · ")}
+            {[match.phone, match.area].filter(Boolean).join(" / ")}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-6">
             <Link href={`/admin/orders/new?customer=${match.id}`} className="btn-gold admin-page-action">

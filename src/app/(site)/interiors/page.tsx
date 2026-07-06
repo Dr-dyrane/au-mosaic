@@ -6,7 +6,7 @@ import { CtaRow, PageHero, Section } from "@/components/ui";
 import Reveal from "@/components/Reveal";
 
 const description =
-  "Mosaic as the room's one great surface — feature walls, baths, and floors in glass, stone, and metal.";
+  "Mosaic as the room's one great surface: feature walls, baths, and floors in glass, stone, and metal.";
 export const metadata: Metadata = {
   title: "Interiors",
   description,
@@ -32,7 +32,7 @@ export default function InteriorsPage() {
       <Section eyebrow="The surface" title="Not a border. The room.">
         <div className="max-w-2xl space-y-6 text-[16px] leading-relaxed text-dusk">
           <p>
-            A single tile is a detail. A mosaic wall is a decision — a whole
+            A single tile is a detail. A mosaic wall is a decision, a whole
             surface that catches the light and moves with it, the way water does.
           </p>
           <p>
@@ -70,7 +70,7 @@ export default function InteriorsPage() {
       <Section
         eyebrow="Begin"
         title="Send the wall you want to change."
-        sub="A photo and a rough size is enough. We will tell you what mosaic can do with it — and what it costs, per job."
+        sub="A photo and a rough size is enough. We will tell you what mosaic can do with it, and what it costs, per job."
       >
         <CtaRow href={waWall()} label="Design a wall" secondary={{ href: "/mosaic-tiles", label: "The ranges" }} />
       </Section>

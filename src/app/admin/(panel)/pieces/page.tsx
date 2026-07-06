@@ -7,7 +7,6 @@ import {
   APPLICATION_FILTERS,
   activeStockFilterLabels,
   cleanSort,
-  makeStockHref,
   type StockFilters,
 } from "./stock-filters";
 
@@ -120,7 +119,7 @@ export default async function PiecesPage({
           New piece
         </Link>
       </div>
-      <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
+      <div className="mt-7 hidden flex-wrap items-center gap-x-8 gap-y-4 sm:flex" data-tour="stockroom">
         <Link href="/admin/ranges" className="link-hair text-dusk text-[12px]">
           The ranges
         </Link>
@@ -144,26 +143,13 @@ export default async function PiecesPage({
         </section>
       )}
 
-      {/* Quick filters stay visible; the long-tail facets live inside
-          Filter. Links, so the URL remembers. */}
+      {/* Filters live in one surface. Links inside it keep the URL honest. */}
       <div className="mt-5 flex flex-wrap items-center gap-2" data-tour="stock-filters">
-        <Link href={makeStockHref(filters, { family: undefined })} className={`chip-solid ${!filters.family ? "is-on" : ""}`}>
-          All
-        </Link>
-        <Link href={makeStockHref(filters, { family: "mosaic" })} className={`chip-solid ${filters.family === "mosaic" ? "is-on" : ""}`}>
-          Tiles
-        </Link>
-        <Link href={makeStockHref(filters, { family: "pool" })} className={`chip-solid ${filters.family === "pool" ? "is-on" : ""}`}>
-          Materials
-        </Link>
-        <Link href={makeStockHref(filters, { low: filters.low ? undefined : "1" })} className={`chip-solid ${filters.low ? "is-on" : ""}`}>
-          Running low
-        </Link>
         <FilterSheet current={filters} />
       </div>
       {activeLabels.length > 0 && (
         <p className="mt-3 text-[14px] leading-relaxed text-dusk" data-tour="stock-active-filters">
-          Showing <span className="text-ink">{activeLabels.join(" · ")}</span>
+          Showing <span className="text-ink">{activeLabels.join(" / ")}</span>
           <Link href="/admin/pieces" className="link-hair ml-4 text-dusk text-[12px]">
             Clear
           </Link>

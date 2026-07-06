@@ -6,51 +6,18 @@ import MediaGrid from "./MediaGrid";
 import MediaBatchAction from "./MediaBatchActions";
 import { MediaCreateAction } from "./MediaForms";
 import { loadMoreMediaRows, type MediaListFilters, type MediaListRow } from "./actions";
+import MediaFilterSheet from "./MediaFilterSheet";
+import {
+  ROLES,
+  STATUSES,
+  activeMediaFilterLabels,
+  type MediaFilterTotals,
+  type MediaFilters,
+} from "./media-filter-model";
 
 export const dynamic = "force-dynamic";
 
-type MediaFilters = {
-  status?: string;
-  role?: string;
-  batch?: string;
-};
-
-const STATUSES = ["draft", "approved", "wired", "archived"] as const;
-const ROLES = ["card", "applied", "window", "proof", "contact_sheet"] as const;
 const MEDIA_PAGE_SIZE = 24;
-
-const STATUS_LABELS: Record<(typeof STATUSES)[number], string> = {
-  draft: "Draft",
-  approved: "Approved",
-  wired: "Live",
-  archived: "Archived",
-};
-
-const ROLE_LABELS: Record<(typeof ROLES)[number], string> = {
-  card: "Product display",
-  applied: "Room example",
-  window: "Window scene",
-  proof: "Showroom photo",
-  contact_sheet: "Review sheet",
-};
-
-function labelStatus(v: string) {
-  return STATUS_LABELS[v as (typeof STATUSES)[number]] ?? v.replace(/_/g, " ");
-}
-
-function labelRole(v: string) {
-  return ROLE_LABELS[v as (typeof ROLES)[number]] ?? v.replace(/_/g, " ");
-}
-
-function href(current: MediaFilters, patch: Partial<MediaFilters>) {
-  const next = new URLSearchParams();
-  const merged = { ...current, ...patch };
-  for (const [key, value] of Object.entries(merged)) {
-    if (value) next.set(key, value);
-  }
-  const qs = next.toString();
-  return qs ? `/admin/media?${qs}` : "/admin/media";
-}
 
 function asMediaListRow(row: {
   asset: typeof schema.mediaAssets.$inferSelect;
@@ -91,11 +58,12 @@ export default async function MediaPage({
   let initialDone = true;
   let pieces: { slug: string; name: string }[] = [];
   let quiet = false;
-  let totals = {
+  let totals: MediaFilterTotals = {
     all: 0,
     draft: 0,
     approved: 0,
     wired: 0,
+    archived: 0,
   };
   try {
     const base = getDb()
@@ -121,15 +89,16 @@ export default async function MediaPage({
         draft: sql<number>`sum(case when ${schema.mediaAssets.status} = 'draft' then 1 else 0 end)::int`,
         approved: sql<number>`sum(case when ${schema.mediaAssets.status} = 'approved' then 1 else 0 end)::int`,
         wired: sql<number>`sum(case when ${schema.mediaAssets.status} = 'wired' then 1 else 0 end)::int`,
+        archived: sql<number>`sum(case when ${schema.mediaAssets.status} = 'archived' then 1 else 0 end)::int`,
       })
       .from(schema.mediaAssets);
-    const tallyQuery = where.length > 0 ? tallyBase.where(and(...where)) : tallyBase;
-    const [tally] = await tallyQuery;
+    const [tally] = await tallyBase;
     totals = {
       all: Number(tally?.all ?? 0),
       draft: Number(tally?.draft ?? 0),
       approved: Number(tally?.approved ?? 0),
       wired: Number(tally?.wired ?? 0),
+      archived: Number(tally?.archived ?? 0),
     };
   } catch {
     quiet = true;
@@ -140,6 +109,7 @@ export default async function MediaPage({
       .from(schema.pieces)
       .orderBy(asc(schema.pieces.name));
   } catch {}
+  const activeLabels = activeMediaFilterLabels(activeFilters);
 
   return (
     <main>
@@ -167,48 +137,43 @@ export default async function MediaPage({
             photos appear on the website.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+        <div className="hidden flex-wrap items-center gap-x-6 gap-y-4 sm:flex">
           <Link href="/admin/pieces" className="link-hair text-dusk text-[12px]">
             The stockroom
           </Link>
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center gap-2">
-        <Link href={href(filters, { status: undefined, role: undefined, batch: undefined })} className={`chip-solid ${!status && !role && !batch ? "is-on" : ""}`}>
-          All {totals.all}
-        </Link>
-        {STATUSES.map((s) => (
-          <Link key={s} href={href(filters, { status: status === s ? undefined : s })} className={`chip-solid ${status === s ? "is-on" : ""}`}>
-            {labelStatus(s)}
-          </Link>
-        ))}
-        <span aria-hidden className="mx-1.5" />
-        {ROLES.map((r) => (
-          <Link key={r} href={href(filters, { role: role === r ? undefined : r })} className={`chip-solid ${role === r ? "is-on" : ""}`}>
-            {labelRole(r)}
-          </Link>
-        ))}
-        <span aria-hidden className="mx-1.5" />
-        <Link href={href(filters, { batch: batch ? undefined : "batch-08" })} className={`chip-solid ${batch ? "is-on" : ""}`}>
-          Prepared set
-        </Link>
-      </div>
+      {!quiet && (
+        <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="media-filters">
+          <MediaFilterSheet current={activeFilters} totals={totals} />
+          {activeLabels.length > 0 && (
+            <p className="text-[14px] leading-relaxed text-dusk">
+              Showing <span className="text-ink">{activeLabels.join(" / ")}</span>
+              <Link href="/admin/media" className="link-hair ml-4 text-dusk text-[12px]">
+                Clear
+              </Link>
+            </p>
+          )}
+        </div>
+      )}
 
-      <div className="mt-6 grid gap-5 sm:grid-cols-3">
-        <div className="panel">
-          <p className="eyebrow">Draft</p>
-          <p className="font-serif mt-3 text-[26px] leading-none">{totals.draft}</p>
+      {!quiet && (
+        <div className="mt-6 hidden gap-5 xl:grid xl:grid-cols-3">
+          <div className="panel">
+            <p className="eyebrow">Draft</p>
+            <p className="font-serif mt-3 text-[26px] leading-none">{totals.draft}</p>
+          </div>
+          <div className="panel">
+            <p className="eyebrow">Approved</p>
+            <p className="font-serif mt-3 text-[26px] leading-none">{totals.approved}</p>
+          </div>
+          <div className="panel">
+            <p className="eyebrow">Live</p>
+            <p className="font-serif mt-3 text-[26px] leading-none">{totals.wired}</p>
+          </div>
         </div>
-        <div className="panel">
-          <p className="eyebrow">Approved</p>
-          <p className="font-serif mt-3 text-[26px] leading-none">{totals.approved}</p>
-        </div>
-        <div className="panel">
-          <p className="eyebrow">Live</p>
-          <p className="font-serif mt-3 text-[26px] leading-none">{totals.wired}</p>
-        </div>
-      </div>
+      )}
 
       {quiet && (
         <div className="panel mt-10 max-w-md">
