@@ -40,13 +40,7 @@ export default function GalleryFeed({ items }: { items: GalleryItem[] }) {
               sizes="(max-width: 640px) 100vw, (max-width: 1279px) 50vw, 33vw"
               className="media-lux object-cover transition-transform duration-500 group-hover:scale-[1.035]"
             />
-            <span className="scrim-card pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-300 group-hover:opacity-95" />
-            <span
-              aria-hidden
-              className="liquid-glass absolute bottom-5 right-5 inline-flex h-11 items-center rounded-full px-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-ink transition-transform duration-300 group-hover:-translate-y-1"
-            >
-              <span>View</span>
-            </span>
+            <span className="scrim-card pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-70 group-focus-visible:opacity-70" />
           </span>
           <span className="mt-5 block px-5 sm:px-1">
             <span className="eyebrow block text-gold">{item.label}</span>
