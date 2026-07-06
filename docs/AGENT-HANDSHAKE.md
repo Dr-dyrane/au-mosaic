@@ -16,6 +16,19 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Visualizer surface prep lane - done
+
+Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake. The
+visualizer now prepares the selected surface before drawing the new mosaic:
+Primer is default for customer photos with old tile or busy floor texture, Blur
+keeps broad room light while softening old grout, and Original stays available.
+Prep and the light pass are clipped to the four-stone surface, so the room
+outside remains real and press-and-hold still shows the untouched photo.
+Browser checked `/visualizer` on desktop and at 390 by 844: prep controls
+visible, Primer selected, and no horizontal overflow. Lint, TypeScript,
+theme-check, diff-check, glyph scan, and the Next 16.2.10 build, 56 routes,
+passed.
+
 ## 2026-07-06 - CODEX - Visualizer autosnap engine lane - done
 
 Closed the first Find surface pass in `src/components/Visualizer.tsx`: uploads

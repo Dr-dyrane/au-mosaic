@@ -21,6 +21,7 @@ import { waProduct } from "@/lib/wa";
 type Pt = { x: number; y: number };
 type SurfaceId = "pool" | "wall" | "backsplash" | "shower" | "floor";
 type LoadSource = "upload" | "sample" | "default" | "camera";
+type PrepMode = "primer" | "blur" | "none";
 type CameraCapture = new (track: MediaStreamTrack) => {
   takePhoto?: () => Promise<Blob>;
 };
@@ -104,6 +105,71 @@ function makePattern(colors: string[], tile: number, groutLight: boolean) {
 }
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+function clipQuad(ctx: CanvasRenderingContext2D, q: Pt[]) {
+  ctx.beginPath();
+  ctx.moveTo(q[0].x, q[0].y);
+  for (let i = 1; i < q.length; i += 1) ctx.lineTo(q[i].x, q[i].y);
+  ctx.closePath();
+  ctx.clip();
+}
+
+function pointInQuad(point: Pt, q: Pt[]) {
+  let inside = false;
+  for (let i = 0, j = q.length - 1; i < q.length; j = i, i += 1) {
+    const a = q[i];
+    const b = q[j];
+    const crosses = a.y > point.y !== b.y > point.y;
+    if (crosses) {
+      const x = ((b.x - a.x) * (point.y - a.y)) / (b.y - a.y) + a.x;
+      if (point.x < x) inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function sampleQuadColor(source: CanvasRenderingContext2D, q: Pt[], width: number, height: number) {
+  const left = clamp(Math.floor(Math.min(...q.map((p) => p.x))), 0, width - 1);
+  const right = clamp(Math.ceil(Math.max(...q.map((p) => p.x))), left + 1, width);
+  const top = clamp(Math.floor(Math.min(...q.map((p) => p.y))), 0, height - 1);
+  const bottom = clamp(Math.ceil(Math.max(...q.map((p) => p.y))), top + 1, height);
+  let pixels: Uint8ClampedArray;
+  try {
+    pixels = source.getImageData(left, top, right - left, bottom - top).data;
+  } catch {
+    return "rgba(214, 206, 190, 0.78)";
+  }
+  const step = Math.max(8, Math.floor(Math.min(right - left, bottom - top) / 32));
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let count = 0;
+  for (let y = 0; y < bottom - top; y += step) {
+    for (let x = 0; x < right - left; x += step) {
+      if (!pointInQuad({ x: left + x, y: top + y }, q)) continue;
+      const i = (y * (right - left) + x) * 4;
+      r += pixels[i];
+      g += pixels[i + 1];
+      b += pixels[i + 2];
+      count += 1;
+    }
+  }
+  if (!count) return "rgba(214, 206, 190, 0.78)";
+  return `rgba(${Math.round(r / count)}, ${Math.round(g / count)}, ${Math.round(b / count)}, 0.78)`;
+}
+
+function drawBlurredPhoto(
+  ctx: CanvasRenderingContext2D,
+  photo: HTMLImageElement,
+  width: number,
+  height: number,
+  blur = 18
+) {
+  const pad = Math.max(18, Math.round(Math.max(width, height) * 0.02));
+  ctx.filter = `blur(${blur}px) saturate(0.82)`;
+  ctx.drawImage(photo, -pad, -pad, width + pad * 2, height + pad * 2);
+  ctx.filter = "none";
+}
 
 function detectSurfaceQuad(image: HTMLImageElement, surface: SurfaceId): SnapResult | null {
   const sourceW = image.naturalWidth || image.width;
@@ -366,6 +432,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const b = readStore().blend;
     return typeof b === "number" ? b : 0.85;
   });
+  const [prepMode, setPrepMode] = useState<PrepMode>(() => {
+    const p = readStore().prepMode;
+    return p === "none" || p === "blur" || p === "primer" ? p : "primer";
+  });
   const [groutLight, setGroutLight] = useState(() => {
     const g = readStore().groutLight;
     return typeof g === "boolean" ? g : true;
@@ -526,12 +596,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       try {
         localStorage.setItem(
           STORE_KEY,
-          JSON.stringify({ quad, tileSize, blend, groutLight, pieceSlug })
+          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug })
         );
       } catch {}
     }, 600);
     return () => clearTimeout(id);
-  }, [photo, quad, tileSize, blend, groutLight, pieceSlug]);
+  }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug]);
 
   const onFile = (f: File | undefined) => {
     if (!f) return;
@@ -600,11 +670,29 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const orig = document.createElement("canvas");
     orig.width = W;
     orig.height = Hh;
-    orig.getContext("2d")!.drawImage(photo, 0, 0, W, Hh);
+    const origCtx = orig.getContext("2d")!;
+    origCtx.drawImage(photo, 0, 0, W, Hh);
     originalRef.current = orig;
 
     const q = quad.map((p) => ({ x: p.x * W, y: p.y * Hh }));
     const pattern = makePattern(piece.colors || ["#3aa9d6"], tileSize, groutLight);
+
+    if (prepMode !== "none") {
+      ctx.save();
+      clipQuad(ctx, q);
+      if (prepMode === "blur") {
+        drawBlurredPhoto(ctx, photo, W, Hh, 22);
+        ctx.fillStyle = "rgba(214, 206, 190, 0.08)";
+        ctx.fillRect(0, 0, W, Hh);
+      } else {
+        ctx.globalAlpha = 0.28;
+        drawBlurredPhoto(ctx, photo, W, Hh, 20);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = sampleQuadColor(origCtx, q, W, Hh);
+        ctx.fillRect(0, 0, W, Hh);
+      }
+      ctx.restore();
+    }
 
     const overlay = document.createElement("canvas");
     overlay.width = W;
@@ -629,12 +717,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     ctx.globalAlpha = blend;
     ctx.globalCompositeOperation = "multiply";
     ctx.drawImage(overlay, 0, 0);
+    ctx.restore();
+
+    ctx.save();
+    clipQuad(ctx, q);
     ctx.globalCompositeOperation = "soft-light";
-    ctx.globalAlpha = blend * 0.5;
-    ctx.drawImage(photo, 0, 0, W, Hh);
+    ctx.globalAlpha = blend * (prepMode === "none" ? 0.5 : 0.24);
+    if (prepMode === "none") {
+      ctx.drawImage(photo, 0, 0, W, Hh);
+    } else {
+      drawBlurredPhoto(ctx, photo, W, Hh, 12);
+    }
     ctx.restore();
     setTick((t) => t + 1);
-  }, [photo, quad, piece, tileSize, blend, groutLight]);
+  }, [photo, quad, piece, tileSize, blend, prepMode, groutLight]);
 
   useEffect(() => {
     render();
@@ -938,7 +1034,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             ))}
           </div>
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <div className="panel">
               <p className="eyebrow">Tile size</p>
               <input
@@ -968,6 +1064,33 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 className="mt-4 w-full accent-[#c2a15c]"
                 aria-label="Blend"
               />
+            </div>
+            <div className="panel">
+              <p className="eyebrow">Prep surface</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {([
+                  ["primer", "Primer"],
+                  ["blur", "Blur"],
+                  ["none", "Original"],
+                ] as Array<[PrepMode, string]>).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-pressed={prepMode === mode}
+                    onClick={() => {
+                      setPrepMode(mode);
+                      buzz(3);
+                      track("viz_prep", { mode });
+                    }}
+                    className={`rounded-full px-4 py-2 text-[12px] font-semibold transition-all duration-300 active:scale-95 ${
+                      prepMode === mode ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-3 text-[12px] leading-relaxed text-mist">Primer hides old tile.</p>
             </div>
             <div className="panel flex items-center justify-between gap-4">
               <p className="eyebrow">Grout</p>
