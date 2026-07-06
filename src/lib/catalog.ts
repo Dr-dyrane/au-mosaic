@@ -3,8 +3,10 @@ import { unstable_cache } from "next/cache";
 import { getDb, schema } from "@/db";
 import { healSchema } from "@/db/heal";
 import {
+  BUYING_STEPS,
   MOSAIC_RANGES,
   POOL_MATERIALS,
+  POOL_SERVICES,
   PIECES,
   pieceBySlug,
   type Piece,
@@ -243,6 +245,14 @@ export async function getMosaicRanges(): Promise<ProductGroup[]> {
 export async function getPoolMaterials(): Promise<ProductGroup[]> {
   const book = await bookOrNull();
   return book ? groupsOf(book, "pool") : POOL_MATERIALS;
+}
+
+export async function getPoolServices() {
+  return POOL_SERVICES;
+}
+
+export async function getBuyingSteps() {
+  return BUYING_STEPS;
 }
 
 export async function getPieces(): Promise<Piece[]> {
