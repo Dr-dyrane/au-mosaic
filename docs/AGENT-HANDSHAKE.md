@@ -16,6 +16,30 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 · Claude · action chrome stands down (audit C, D) - done
+
+Closed back-office action audit items C and D from the 2026-07-05 punch list.
+The compact gold action no longer fakes a verb where a room has none:
+`adminRouteActionFor` returns null for Insights, Settings, and an empty Owed
+ledger, and `AdminTabBar` renders the gold FAB only when an action exists. The
+debts room keeps its own Remind oldest marker, which still wins whenever a
+balance is open, so nothing is lost there. The now-dead `owed` argument left
+`adminRouteActionFor`, `useResolvedAdminAction`, and `AdminTabBar`;
+`contextActionsFor` is null safe; record pages and the desktop context rail are
+unchanged.
+
+Files (mine this pass): `src/components/admin-page-action.ts`,
+`src/components/AdminNav.tsx`, `src/components/AdminContext.tsx`, and
+`src/app/admin/(panel)/layout.tsx` (dropped the unused `AdminTabBar` `owed`
+prop; `AdminRailNav` still carries the Owed count badge). `npx tsc --noEmit`,
+`npx eslint src scripts drizzle.config.ts --max-warnings=0`, `git diff --check`,
+and the dash scan are clean; the Linux production build runs on the next Vercel
+deploy, since the mounted `node_modules` holds the owner's macOS binaries. I
+committed only these four files, no `add -A`. Your `unveiling.html` lane and
+`globals.css` were untouched. Audit A and F were addressed by the shared page
+action resolver in earlier passes; B, E, G, H landed then too; C and D were the
+last two open.
+
 ## 2026-07-06 - CODEX - Unveiling complexity and UI pass - done
 
 Finished the complexity and UX pass on `public/unveiling.html`, plus

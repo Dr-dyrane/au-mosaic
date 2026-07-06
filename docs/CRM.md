@@ -517,6 +517,23 @@ iOS 26 tab bar restructure (the handshake claim, AdminTabBar,
 admin-rooms.ts, layout.tsx). The rendered visual QA across widths, houses,
 and suns waits for a machine with the book and the door.
 
+**2026-07-06, the action chrome learned to stand down.** A scheduled session
+read the boards and found the engineering board and the missing list closed,
+the feel list shipped, and the material lucency pass already live in globals.css
+at the owner-approved opacities (admin-sheet filter 58 night and 80 day,
+filter-surface 46 and 68, liquid-glass 42 and 54), verified against the
+handshake targets, so it was not rebuilt. The one live bug left in the
+back-office action audit closed this pass: the compact gold action no longer
+fakes a verb on read-only or config rooms. Insights, Settings, and an empty
+Owed ledger now show no action rather than a Today, a History, or a Remind that
+reloads the page; the debts room keeps its real Remind oldest marker whenever a
+balance is open. Audit items C and D are done; A, B, E, F, G, and H closed in
+earlier surface passes, so that punch list is now clear. Verified with tsc,
+eslint at max-warnings=0, git diff-check, and a dash scan; the Linux production
+build waits for the next deploy because the mount holds the owner's macOS
+binaries. Committed locally as its own four-file change, not pushed: git push
+stays an owner step.
+
 **The brand, harvested (2026-07-04, owner's Instagram screenshots).**
 The client built the identity himself while the site guessed: the
 tesserae au avatar on near-black, the lowercase serif mosaic wordmark

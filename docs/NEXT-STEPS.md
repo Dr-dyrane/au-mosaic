@@ -8,6 +8,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Gap | Resolution |
 |---|---|
+| Action chrome verbs | The compact gold action stands down on Insights, Settings, and an empty Owed ledger instead of faking a Today or History that only navigates, or a Remind that reloads the page. Closes back-office action audit items C and D; the debts room keeps its real Remind oldest action whenever a balance is open. |
 | Root layout crash fallback | `src/app/global-error.tsx` now gives the whole app a maison fallback with Try again and WhatsApp. |
 | Stale db:push owner errand | `docs/CRM.md` and `docs/SAAS-QA.md` now say schema healing carries staff, audit, push, media, and card slots. |
 | Stale brand tasks | `docs/BRAND.md` now records that the homepage category bridge and grouped contact channels already shipped. |

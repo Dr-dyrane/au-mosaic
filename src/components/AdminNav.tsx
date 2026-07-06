@@ -117,11 +117,11 @@ export function AdminRailNav({ owed = 0 }: { owed?: number }) {
   );
 }
 
-export function AdminTabBar({ owed = 0 }: { owed?: number }) {
+export function AdminTabBar() {
   const pathname = usePathname();
   const isActive = useActive();
   const compact = useChromeCompact();
-  const action = useResolvedAdminAction(pathname, owed);
+  const action = useResolvedAdminAction(pathname);
 
   return (
     <>
@@ -150,23 +150,25 @@ export function AdminTabBar({ owed = 0 }: { owed?: number }) {
             );
           })}
         </nav>
-        <Link
-          href={action.href}
-          target={action.external ? "_blank" : undefined}
-          rel={action.external ? "noreferrer" : undefined}
-          onClick={(event) => {
-            if (!action.intent) return;
-            if (!isPlainAdminClick(event)) return;
-            event.preventDefault();
-            dispatchAdminActionIntent(action.intent, action);
-          }}
-          aria-label={action.label}
-          title={action.label}
-          data-tour={action.tour}
-          className="btn-gold admin-fab pointer-events-auto shadow-lift"
-        >
-          <ActionGlyph action={action} />
-        </Link>
+        {action && (
+          <Link
+            href={action.href}
+            target={action.external ? "_blank" : undefined}
+            rel={action.external ? "noreferrer" : undefined}
+            onClick={(event) => {
+              if (!action.intent) return;
+              if (!isPlainAdminClick(event)) return;
+              event.preventDefault();
+              dispatchAdminActionIntent(action.intent, action);
+            }}
+            aria-label={action.label}
+            title={action.label}
+            data-tour={action.tour}
+            className="btn-gold admin-fab pointer-events-auto shadow-lift"
+          >
+            <ActionGlyph action={action} />
+          </Link>
+        )}
       </div>
     </>
   );

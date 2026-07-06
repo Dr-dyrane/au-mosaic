@@ -222,14 +222,15 @@ function contextActionsFor(
   pathname: string,
   ctx: ContextModel,
   pageAction: AdminPageAction | null,
-  routeAction: AdminPageAction,
+  routeAction: AdminPageAction | null,
   extraActions: Action[] = []
 ) {
   if (pageAction && (pathname === "/admin/share" || pathname.startsWith("/admin/ranges"))) {
     return [pageAction];
   }
   if (/^\/admin\/(orders|customers|pieces)\/(?!new$)[^/]+/.test(pathname)) {
-    return uniqueActions([pageAction ?? routeAction, ...extraActions]);
+    const primary = pageAction ?? routeAction;
+    return uniqueActions(primary ? [primary, ...extraActions] : extraActions);
   }
   return ctx.actions;
 }
@@ -352,7 +353,7 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
   const pathname = usePathname();
   const ctx = contextFor(pathname, pulse);
   const pageAction = useAdminPageAction(pathname);
-  const routeAction = adminRouteActionFor(pathname, pulse.owingCustomers);
+  const routeAction = adminRouteActionFor(pathname);
   const extraActions = useAdminContextActions(pathname);
   const actions = contextActionsFor(pathname, ctx, pageAction, routeAction, extraActions);
   if (pathname === "/admin") return null;
@@ -376,7 +377,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const pathname = usePathname();
   const ctx = contextFor(pathname, pulse);
   const pageAction = useAdminPageAction(pathname);
-  const routeAction = adminRouteActionFor(pathname, pulse.owingCustomers);
+  const routeAction = adminRouteActionFor(pathname);
   const extraActions = useAdminContextActions(pathname);
   const actions = contextActionsFor(pathname, ctx, pageAction, routeAction, extraActions);
   const panel = useSyncExternalStore(subscribeAdminContextPanel, getAdminContextPanel, () => null);

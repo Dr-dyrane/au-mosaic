@@ -97,7 +97,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </footer>
       </section>
       <AdminContextRail pulse={pulse} />
-      <AdminTabBar owed={owed} />
+      <AdminTabBar />
       <Tour />
     </div>
   );

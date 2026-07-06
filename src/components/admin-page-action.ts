@@ -25,7 +25,7 @@ export function adminRoomById(id: AdminRoomId) {
   return ADMIN_ROOMS.find((room) => room.id === id) ?? ADMIN_ROOMS[0];
 }
 
-export function adminRouteActionFor(pathname: string, owed: number): AdminPageAction {
+export function adminRouteActionFor(pathname: string): AdminPageAction | null {
   const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
   const orderMatch = new RegExp(`^/admin/orders/(${uuid})$`, "i").exec(pathname);
   if (orderMatch) {
@@ -62,7 +62,10 @@ export function adminRouteActionFor(pathname: string, owed: number): AdminPageAc
     case "people":
       return { href: "/admin/customers/new", label: "Add customer", room: adminRoomById("people"), tour: "people-new" };
     case "owed":
-      return { href: "/admin/debts", label: owed > 0 ? "Remind" : "Orders", room: adminRoomById("owed") };
+      // The debts room publishes its own action, Remind oldest, whenever a
+      // balance is open. An empty ledger needs none, so the action stands
+      // down here instead of self-linking back to the page he is on.
+      return null;
     case "deliveries":
       return { href: "/admin/deliveries/new", label: "New delivery", room: adminRoomById("deliveries") };
     case "photos":
@@ -73,9 +76,12 @@ export function adminRouteActionFor(pathname: string, owed: number): AdminPageAc
         intent: ADMIN_ACTION_INTENTS.mediaCreate,
       };
     case "insights":
-      return { href: "/admin", label: "Today", room: adminRoomById("home") };
+      // Insights reads the house; it does not act. No gold verb to fake.
+      return null;
     case "settings":
-      return { href: "/admin/settings/history", label: "History", room: adminRoomById("settings") };
+      // Settings is a config room. History is a place to visit, not the
+      // room's one action, so the action stands down rather than wear a verb.
+      return null;
   }
 }
 
@@ -123,8 +129,8 @@ export function useAdminPageAction(pathname: string) {
   return pageAction;
 }
 
-export function useResolvedAdminAction(pathname: string, owed: number) {
+export function useResolvedAdminAction(pathname: string) {
   const pageAction = useAdminPageAction(pathname);
-  const routeAction = useMemo(() => adminRouteActionFor(pathname, owed), [pathname, owed]);
+  const routeAction = useMemo(() => adminRouteActionFor(pathname), [pathname]);
   return pageAction ?? routeAction;
 }
