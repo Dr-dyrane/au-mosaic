@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { VISUALIZER_SAMPLE } from "@/lib/images";
+import { VISUALIZER_CONTEXTS, VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { waProduct } from "@/lib/wa";
@@ -14,11 +14,12 @@ import { waProduct } from "@/lib/wa";
    The Apple details: a loupe magnifies under your finger while you
    place a stone, press and hold the photo to see the original, the
    render shimmers alive when it changes, sliders tick in the hand
-   where the platform allows, and the session is remembered so your
-   pool is still tiled tomorrow. Ends where every path in this house
-   ends: WhatsApp. No libraries; the homography is forty lines. */
+   where the platform allows, and the surface modes move the same tile
+   from pool to wall to floor. Ends where every path in this house ends:
+   WhatsApp. No libraries; the homography is forty lines. */
 
 type Pt = { x: number; y: number };
+type SurfaceId = "pool" | "wall" | "backsplash" | "shower" | "floor";
 
 function homography(q: Pt[]) {
   const [p0, p1, p2, p3] = q;
@@ -105,13 +106,68 @@ const SAMPLE_POOL_QUAD: Pt[] = [
   { x: 0.31, y: 0.43 }, { x: 0.63, y: 0.43 }, { x: 0.77, y: 0.73 }, { x: 0.14, y: 0.73 },
 ];
 
+const SURFACES: Record<SurfaceId, { label: string; line: string; quad: Pt[]; tileSize: number }> = {
+  pool: {
+    label: "Pool floor",
+    line: "For shells and waterlines.",
+    quad: SAMPLE_POOL_QUAD,
+    tileSize: 26,
+  },
+  wall: {
+    label: "Feature wall",
+    line: "For rooms and murals.",
+    quad: [
+      { x: 0.22, y: 0.18 }, { x: 0.78, y: 0.18 }, { x: 0.78, y: 0.84 }, { x: 0.22, y: 0.84 },
+    ],
+    tileSize: 22,
+  },
+  backsplash: {
+    label: "Backsplash",
+    line: "For kitchens and sinks.",
+    quad: [
+      { x: 0.06, y: 0.34 }, { x: 0.94, y: 0.34 }, { x: 0.94, y: 0.68 }, { x: 0.06, y: 0.68 },
+    ],
+    tileSize: 18,
+  },
+  shower: {
+    label: "Shower wall",
+    line: "For baths and wet rooms.",
+    quad: [
+      { x: 0.25, y: 0.15 }, { x: 0.82, y: 0.15 }, { x: 0.82, y: 0.86 }, { x: 0.25, y: 0.86 },
+    ],
+    tileSize: 20,
+  },
+  floor: {
+    label: "Room floor",
+    line: "For large surfaces.",
+    quad: [
+      { x: 0.14, y: 0.53 }, { x: 0.86, y: 0.53 }, { x: 0.98, y: 0.97 }, { x: 0.02, y: 0.97 },
+    ],
+    tileSize: 24,
+  },
+};
+
+const CONTEXTS: Array<{
+  id: SurfaceId;
+  label: string;
+  src: string;
+  piece: string;
+}> = [
+  { id: "pool", label: "Empty pool", src: VISUALIZER_SAMPLE.pool.src, piece: "classic-pool-blues" },
+  { id: "wall", label: "Blank wall", src: VISUALIZER_CONTEXTS.featureWall.src, piece: "gold-metallic-accents" },
+  { id: "backsplash", label: "Kitchen", src: VISUALIZER_CONTEXTS.backsplash.src, piece: "aqua-turquoise-blends" },
+  { id: "shower", label: "Shower", src: VISUALIZER_CONTEXTS.showerWall.src, piece: "black-mosaic" },
+  { id: "floor", label: "Open floor", src: VISUALIZER_CONTEXTS.roomFloor.src, piece: "stone-mosaic" },
+];
+
+const DEFAULT_PIECE = "classic-pool-blues";
 const STORE_KEY = "aumosaic.viz";
 const buzz = (ms = 4) => {
   try { navigator.vibrate?.(ms); } catch {}
 };
 
-/* Yesterday's session, if the browser kept it. Safe on the server:
-   the pre-photo DOM is identical either way. */
+/* Saved controls, if the browser kept them. Safe on the server:
+   the first rendered photo is still the house's empty pool. */
 function readStore(): Record<string, unknown> {
   if (typeof window === "undefined") return {};
   try {
@@ -126,12 +182,13 @@ function readStore(): Record<string, unknown> {
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const [pieceSlug, setPieceSlug] = useState(() => {
     if (pieces.some((p) => p.slug === initialPiece)) return initialPiece as string;
-    const saved = readStore().pieceSlug as string | undefined;
-    if (saved && pieces.some((p) => p.slug === saved)) return saved;
+    const starter = pieces.find((p) => p.slug === DEFAULT_PIECE);
+    if (starter) return starter.slug;
     return pieces[0].slug;
   });
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
   const [quad, setQuad] = useState<Pt[]>(() => (readStore().quad as Pt[]) || DEFAULT_QUAD);
+  const [surface, setSurface] = useState<SurfaceId>("pool");
   const [tileSize, setTileSize] = useState(() => (readStore().tileSize as number) || 26);
   const [blend, setBlend] = useState(() => {
     const b = readStore().blend;
@@ -187,7 +244,28 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const onFile = (f: File | undefined) => {
     if (!f) return;
-    loadImage(URL.createObjectURL(f), "upload");
+    loadImage(URL.createObjectURL(f), "upload", SURFACES[surface].quad);
+  };
+
+  const fitSurface = (id: SurfaceId) => {
+    const next = SURFACES[id];
+    setSurface(id);
+    setQuad(next.quad);
+    setTileSize(next.tileSize);
+    buzz(4);
+    track("viz_surface", { surface: id });
+  };
+
+  const loadContext = (id: SurfaceId) => {
+    const context = CONTEXTS.find((item) => item.id === id);
+    if (!context) return;
+    const next = SURFACES[id];
+    setSurface(id);
+    setTileSize(next.tileSize);
+    if (pieces.some((p) => p.slug === context.piece)) setPieceSlug(context.piece);
+    loadImage(context.src, "sample", next.quad);
+    buzz(6);
+    track("viz_context", { surface: id });
   };
 
   const render = useCallback(() => {
@@ -334,7 +412,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             <p className="eyebrow">Step one</p>
             <p className="font-serif mt-2 text-[20px]">Your space, one photo.</p>
             <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-dusk">
-              A pool, a wall, a floor. Straight on works best.
+              The empty pool is ready. Choose your own photo anytime.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-6">
@@ -342,9 +420,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               Choose a photo
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
             </label>
-            <button onClick={() => loadImage(VISUALIZER_SAMPLE.pool.src, "sample", SAMPLE_POOL_QUAD)} className="link-hair text-dusk">
-              Try the sample pool
-            </button>
           </div>
         </div>
       )}
@@ -440,6 +515,40 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
             Drag the stones to your surface · press and hold to compare
           </p>
+
+          <div className="mt-7">
+            <p className="eyebrow">Surface fit</p>
+            <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
+              {(Object.entries(SURFACES) as Array<[SurfaceId, (typeof SURFACES)[SurfaceId]]>).map(([id, item]) => (
+                <button
+                  key={id}
+                  onClick={() => fitSurface(id)}
+                  aria-pressed={surface === id}
+                  className={`shrink-0 rounded-full px-5 py-3 text-left transition-all duration-300 active:scale-95 ${
+                    surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
+                  }`}
+                >
+                  <span className="block text-[12px] font-semibold uppercase tracking-[0.18em]">{item.label}</span>
+                  <span className="mt-1 block text-[12px] normal-case tracking-normal text-mist">{item.line}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <p className="eyebrow">Start from</p>
+            <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
+              {CONTEXTS.map((context) => (
+                <button
+                  key={context.id}
+                  onClick={() => loadContext(context.id)}
+                  className="shrink-0 rounded-full bg-shell/40 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk transition-all duration-300 hover:bg-shell/60 active:scale-95"
+                >
+                  {context.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* The pieces: a borderless rail. The chosen chip rises, it is
               never outlined. Padding absorbs the scale so nothing clips,

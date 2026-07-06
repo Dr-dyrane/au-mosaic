@@ -297,6 +297,25 @@ export const VISUALIZER_SAMPLE = {
   },
 };
 
+export const VISUALIZER_CONTEXTS = {
+  featureWall: {
+    src: "/media/visualizer-feature-wall.jpg",
+    alt: "A blank living room feature wall before mosaic tile installation",
+  },
+  backsplash: {
+    src: "/media/visualizer-backsplash.jpg",
+    alt: "A kitchen backsplash before mosaic tile installation",
+  },
+  showerWall: {
+    src: "/media/visualizer-shower-wall.jpg",
+    alt: "A blank shower wall before mosaic tile installation",
+  },
+  roomFloor: {
+    src: "/media/visualizer-room-floor.jpg",
+    alt: "An empty room floor before mosaic tile installation",
+  },
+};
+
 /* Interiors, 2026-07-05: mosaic as the room's one great surface: feature
    walls, baths, floors. Aspiration, the tradition applied. Single-sun.
    Home: /interiors. */

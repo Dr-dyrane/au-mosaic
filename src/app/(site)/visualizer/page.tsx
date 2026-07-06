@@ -5,7 +5,7 @@ import { getPieces } from "@/lib/catalog";
 export const metadata: Metadata = {
   title: "Mosaic tile visualizer",
   description:
-    "Upload a photo of your pool or wall and see any AU Mosaic colourway laid onto it, in your own light.",
+    "Try AU Mosaic colourways on a pool, wall, backsplash, shower, or floor, in your own light.",
 };
 
 type Search = Promise<{ piece?: string }>;
@@ -19,8 +19,8 @@ export default async function VisualizerPage({ searchParams }: { searchParams: S
         <p className="eyebrow">The visualizer</p>
         <h1 className="font-serif text-display-page mt-4 max-w-2xl">See it in your space.</h1>
         <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
-          One photo of your pool or wall. Any colourway from stock, laid in
-          your own light. Send the result, get a quote.
+          A pool, wall, backsplash, shower, or floor. Any colourway from
+          stock, laid in your own light. Send the result, get a quote.
         </p>
       </section>
       <div className="py-14">
