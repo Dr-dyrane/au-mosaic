@@ -3,7 +3,7 @@ import Visualizer from "@/components/Visualizer";
 import { getPieces } from "@/lib/catalog";
 
 export const metadata: Metadata = {
-  title: "Mosaic tile visualizer",
+  title: "See it in your space",
   description:
     "Try AU Mosaic colourways on a pool, wall, backsplash, shower, or floor, in your own light.",
 };
@@ -16,7 +16,7 @@ export default async function VisualizerPage({ searchParams }: { searchParams: S
   return (
     <>
       <section className="mx-auto max-w-6xl px-5 pt-36 sm:px-8 sm:pt-44">
-        <p className="eyebrow">The visualizer</p>
+        <p className="eyebrow">Visualizer</p>
         <h1 className="font-serif text-display-page mt-4 max-w-2xl">See it in your space.</h1>
         <p className="mt-5 max-w-md text-[16px] leading-relaxed text-dusk">
           A pool, wall, backsplash, shower, or floor. Any colourway from

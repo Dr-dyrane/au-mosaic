@@ -35,6 +35,7 @@ export const SITE = {
 /* One word each, the Apple way. Inside a mosaic house, Tiles needs
    no chaperone. */
 export const NAV = [
+  { href: "/visualizer", label: "Visualizer" },
   { href: "/mosaic-tiles", label: "Tiles" },
   { href: "/pool-materials", label: "Materials" },
   { href: "/pools", label: "Pools" },
@@ -52,6 +53,5 @@ export const EXPLORE = [
   { href: "/interiors", label: "Interiors" },
   { href: "/how-we-work", label: "How we work" },
   { href: "/projects", label: "Projects" },
-  { href: "/visualizer", label: "See it in your space" },
   { href: "/journal", label: "The journal" },
 ];

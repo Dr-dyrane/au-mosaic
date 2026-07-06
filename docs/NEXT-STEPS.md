@@ -39,8 +39,9 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Record context adapters | Let order, customer, piece, media, and delivery records feed their own live facts into the context rail without duplicating the page. |
-| 2 | Room density sweep | Tune each room inside the new shell for its archetype: glance, ledger, record, form, read-only, config, and bridge. |
+| 1 | Visualizer engine | Make Find surface suggest the tile area from a customer photo or live camera still. Start with quad detection, then test MediaPipe interactive segmentation or a custom surface model if geometry is not enough. Manual stones stay as the correction layer. |
+| 2 | Record context adapters | Let order, customer, piece, media, and delivery records feed their own live facts into the context rail without duplicating the page. |
+| 3 | Room density sweep | Tune each room inside the new shell for its archetype: glance, ledger, record, form, read-only, config, and bridge. |
 
 ## Standing decisions
 

@@ -16,6 +16,20 @@ note. Newest on top.
 
 ---
 
+## 2026-07-06 - CODEX - Visualizer northstar lane - done
+
+Closed the public site visualizer lane for Nonso's northstar pass. Files in
+hand were `src/lib/site.ts`, `src/components/Footer.tsx`,
+`src/app/(site)/page.tsx`, `src/app/(site)/visualizer/page.tsx`,
+`src/components/Visualizer.tsx`, `docs/NEXT-STEPS.md`, `docs/QA.md`, and this
+handshake. Scope: make Visualizer the first primary nav item, place See it in
+your space early on the home page, keep the page title customer-facing, add a
+camera capture lane, and document the next true surface-detection engine.
+Browser checked Visualizer desktop, home desktop, home phone, phone menu, and
+the 1024 header edge. `npx tsc --noEmit`, `npx eslint src --max-warnings=0`,
+`python3 scripts/theme-check.py`, `git diff --check`, dash scan, and the Next
+build on 16.2.10, 56 routes, passed.
+
 ## 2026-07-06 · Claude · action chrome stands down (audit C, D) - done
 
 Closed back-office action audit items C and D from the 2026-07-05 punch list.

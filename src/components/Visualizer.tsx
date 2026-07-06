@@ -20,6 +20,10 @@ import { waProduct } from "@/lib/wa";
 
 type Pt = { x: number; y: number };
 type SurfaceId = "pool" | "wall" | "backsplash" | "shower" | "floor";
+type LoadSource = "upload" | "sample" | "default" | "camera";
+type CameraCapture = new (track: MediaStreamTrack) => {
+  takePhoto?: () => Promise<Blob>;
+};
 
 function homography(q: Pt[]) {
   const [p0, p1, p2, p3] = q;
@@ -201,16 +205,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [holding, setHolding] = useState(false);
   const [tick, setTick] = useState(0);
   const [loupe, setLoupe] = useState<Pt | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
   const originalRef = useRef<HTMLCanvasElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragging = useRef<number | null>(null);
   const restored = useRef(false);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
 
-  const loadImage = useCallback((src: string, from: "upload" | "sample" | "default", nextQuad?: Pt[]) => {
+  const loadImage = useCallback((src: string, from: LoadSource, nextQuad?: Pt[]) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
@@ -221,6 +229,70 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     img.src = src;
   }, []);
 
+  const stopCamera = useCallback(() => {
+    cameraStream?.getTracks().forEach((track) => track.stop());
+    setCameraStream(null);
+    setCameraOpen(false);
+  }, [cameraStream]);
+
+  const openCamera = async () => {
+    setCameraError(null);
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraError("Camera needs a secure browser. Choose a photo instead.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+      });
+      setCameraStream(stream);
+      setCameraOpen(true);
+      buzz(6);
+      track("viz_camera_open", {});
+    } catch {
+      setCameraError("Camera did not open. Choose a photo instead.");
+    }
+  };
+
+  const snapCamera = async () => {
+    const video = videoRef.current;
+    if (!video || !cameraStream) return;
+    const trackRef = cameraStream.getVideoTracks()[0];
+    const ImageCaptureCtor = (window as unknown as { ImageCapture?: CameraCapture }).ImageCapture;
+    if (trackRef && ImageCaptureCtor) {
+      try {
+        const capture = new ImageCaptureCtor(trackRef);
+        if (capture.takePhoto) {
+          const blob = await capture.takePhoto();
+          loadImage(URL.createObjectURL(blob), "camera", SURFACES[surface].quad);
+          track("viz_camera_snap", { method: "photo" });
+          stopCamera();
+          return;
+        }
+      } catch {}
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) loadImage(URL.createObjectURL(blob), "camera", SURFACES[surface].quad);
+        else loadImage(canvas.toDataURL("image/jpeg", 0.92), "camera", SURFACES[surface].quad);
+        track("viz_camera_snap", { method: "canvas" });
+        stopCamera();
+      },
+      "image/jpeg",
+      0.92
+    );
+  };
+
   /* The feature opens on its own before-state. User photos are chosen,
      not silently restored, so the first view always makes sense. */
   useEffect(() => {
@@ -228,6 +300,22 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     restored.current = true;
     loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD);
   }, [loadImage]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !cameraStream) return;
+    video.srcObject = cameraStream;
+    void video.play().catch(() => {
+      setCameraError("Camera preview did not start. Choose a photo instead.");
+    });
+    return () => {
+      video.srcObject = null;
+    };
+  }, [cameraStream]);
+
+  useEffect(() => () => {
+    cameraStream?.getTracks().forEach((track) => track.stop());
+  }, [cameraStream]);
 
   useEffect(() => {
     if (!photo) return;
@@ -420,6 +508,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               Choose a photo
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
             </label>
+            <button type="button" onClick={openCamera} className="link-hair text-dusk">
+              Use camera
+            </button>
           </div>
         </div>
       )}
@@ -515,6 +606,37 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
             Drag the stones to your surface · press and hold to compare
           </p>
+
+          {cameraOpen && (
+            <div className="panel mt-7">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="eyebrow">Live camera</p>
+                  <p className="font-serif mt-3 text-[20px]">Snap your space.</p>
+                  <p className="mt-2 max-w-sm text-[14px] leading-relaxed text-dusk">
+                    Point at the surface, take one still, then fit the stones.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-6">
+                  <button type="button" onClick={snapCamera} className="btn-gold">
+                    Snap photo
+                  </button>
+                  <button type="button" onClick={stopCamera} className="link-hair text-dusk">
+                    Close camera
+                  </button>
+                </div>
+              </div>
+              <video
+                ref={videoRef}
+                muted
+                playsInline
+                autoPlay
+                className="mt-7 aspect-[4/3] w-full rounded-[22px] bg-sand object-cover"
+              />
+            </div>
+          )}
+
+          {cameraError && <p className="mt-4 text-[14px] leading-relaxed text-dusk">{cameraError}</p>}
 
           <div className="mt-7">
             <p className="eyebrow">Surface fit</p>
@@ -636,6 +758,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               New photo
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
             </label>
+            <button type="button" onClick={openCamera} className="link-hair text-dusk">
+              Use camera
+            </button>
           </div>
         </>
       )}

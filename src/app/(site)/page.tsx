@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { getAppliedPromises, getMosaicRanges, getProjects } from "@/lib/catalog";
-import { DAY, ENVIRONMENTS, OWN } from "@/lib/images";
+import { DAY, ENVIRONMENTS, OWN, VISUALIZER_SAMPLE } from "@/lib/images";
 import { waPool, waQuote } from "@/lib/wa";
 import Reveal from "@/components/Reveal";
 import Proof from "@/components/Proof";
@@ -50,7 +50,7 @@ export default async function Home() {
           light={DAY.heroDusk}
           alt="A villa over an infinity pool of aquamarine mosaic"
           fill
-          priority
+          fetchPriority="high"
           quality={90}
           sizes="100vw"
           className="kenburns media-lux object-cover"
@@ -66,16 +66,79 @@ export default async function Home() {
                 Mosaic for pools, walls, and rooms people remember.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-8">
-                <a href={waQuote()} target="_blank" rel="noopener" data-wa="hero" className="btn-gold">
+                <Link href="/visualizer" className="btn-gold">
+                  Try the visualizer
+                </Link>
+                <a href={waQuote()} target="_blank" rel="noopener" data-wa="hero" className="link-hair scene-link">
                   Begin a project
                 </a>
-                <Link href="/mosaic-tiles" className="link-hair scene-link">
-                  View the collection
-                </Link>
               </div>
             </Reveal>
           </div>
         </SceneFrame>
+      </section>
+
+      {/* Northstar: the feature customers should meet first. */}
+      <section className="px-2 py-24 sm:px-6 sm:py-32">
+        <div className="mx-auto max-w-[1400px] rounded-[28px] bg-shell/70 sm:rounded-[40px]">
+          <div className="mx-auto grid max-w-6xl gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-center">
+            <Reveal>
+              <p className="eyebrow">Visualizer</p>
+              <h2 className="font-serif text-display-section mt-4 max-w-xl">
+                See it in your space.
+              </h2>
+              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-dusk">
+                Start with a pool, a wall, a kitchen, a shower, or your own photo.
+                Try the tile before the quote.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-8">
+                <Link href="/visualizer" className="btn-gold">
+                  Open the visualizer
+                </Link>
+                <Link href="/mosaic-tiles" className="link-hair text-dusk">
+                  Choose a tile
+                </Link>
+              </div>
+              <div className="mt-10 grid max-w-md grid-cols-3 gap-5">
+                <div>
+                  <p className="eyebrow">One</p>
+                  <p className="mt-2 text-[14px] leading-relaxed text-dusk">Pick a space.</p>
+                </div>
+                <div>
+                  <p className="eyebrow">Two</p>
+                  <p className="mt-2 text-[14px] leading-relaxed text-dusk">Lay the tile.</p>
+                </div>
+                <div>
+                  <p className="eyebrow">Three</p>
+                  <p className="mt-2 text-[14px] leading-relaxed text-dusk">Send it in.</p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={120} className="-mx-5 sm:mx-0">
+              <Link href="/visualizer" className="group block">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-none sm:rounded-[26px] lg:aspect-[16/11]">
+                  <ThemeImage
+                    dark={VISUALIZER_SAMPLE.pool.dark}
+                    light={VISUALIZER_SAMPLE.pool.light}
+                    alt={VISUALIZER_SAMPLE.pool.alt}
+                    fill
+                    quality={90}
+                    sizes="(max-width: 640px) 100vw, 56vw"
+                    className="img-glide media-lux object-cover"
+                  />
+                  <div className="scrim-card pointer-events-none absolute inset-0" />
+                  <div className="absolute inset-x-0 bottom-0 p-7 sm:p-8">
+                    <p className="eyebrow scene-eyebrow">Empty pool</p>
+                    <p className="font-serif scene-title mt-2 max-w-sm text-[26px] leading-snug">
+                      Try the colour before water hides the decision.
+                    </p>
+                    <span className="link-hair scene-link cap-reveal mt-5">Start here</span>
+                  </div>
+                </div>
+              </Link>
+            </Reveal>
+          </div>
+        </div>
       </section>
 
       {/* Environments: the dream first */}
