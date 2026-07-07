@@ -83,7 +83,7 @@ export default async function SharePage({
         </div>
       )}
 
-      <div className="mt-6 max-w-md">
+      <div className="mt-6 max-w-md xl:max-w-none">
         <ReadChat
           initialText={shared}
           matchedCustomer={match ? { id: match.id, name: match.name } : null}

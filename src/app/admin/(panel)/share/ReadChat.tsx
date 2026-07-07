@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { draftFromIntake } from "./draft-actions";
 import type { DraftState } from "./draft-types";
 import ReviewDraft from "./ReviewDraft";
@@ -9,8 +9,9 @@ import { keepValues } from "../keep";
 import { buzz } from "@/lib/backoffice";
 
 /* The intake. Paste the chat or add the exported file, tap once, and
-   the book reads it into a draft to check. The pasted words survive a
-   failed read, the house rule for forms. */
+   the book reads it into a draft. On a wide screen the draft stands
+   beside the intake; on the phone it rises as a sheet. The pasted words
+   survive a failed read, the house rule for forms. */
 
 const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
@@ -26,17 +27,21 @@ export default function ReadChat({
   suggestedPhone?: string;
 }) {
   const [state, action, pending] = useActionState<DraftState, FormData>(draftFromIntake, null);
+  const [dismissed, setDismissed] = useState(false);
+  const submit = keepValues(action);
 
-  if (state?.draft && state.draft.lines.length > 0) {
-    return <ReviewDraft draft={state.draft} matchedCustomer={matchedCustomer} suggestedPhone={suggestedPhone} />;
-  }
-
-  return (
-    <form onSubmit={keepValues(action)} className="panel grid gap-5">
+  const intake = (
+    <form
+      onSubmit={(e) => {
+        setDismissed(false);
+        submit(e);
+      }}
+      className="panel grid gap-5"
+    >
       <div>
         <p className="font-serif text-[20px]">Read a chat</p>
         <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-          Paste the conversation, or add the file WhatsApp saved. The book reads what they want to buy; you check it.
+          Paste it, or add the file WhatsApp saved. The book reads what they want; you check it.
         </p>
       </div>
       <div>
@@ -70,4 +75,20 @@ export default function ReadChat({
       </div>
     </form>
   );
+
+  if (state?.draft && state.draft.lines.length > 0 && !dismissed) {
+    return (
+      <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] xl:items-start xl:gap-8">
+        {intake}
+        <ReviewDraft
+          draft={state.draft}
+          matchedCustomer={matchedCustomer}
+          suggestedPhone={suggestedPhone}
+          onClose={() => setDismissed(true)}
+        />
+      </div>
+    );
+  }
+
+  return intake;
 }
