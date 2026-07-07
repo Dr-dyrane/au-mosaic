@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
    not configured or does not answer, it steps aside quietly and the
    numbers below carry the room. */
 
-type Read = { headline: string; detail: string; moves: string[] };
+type Read = { headline: string; signals: string[]; moves: string[] };
 type State =
   | { phase: "loading" }
   | { phase: "ready"; read: Read }
@@ -42,8 +42,19 @@ export default function InsightsRead({ months }: { months: number }) {
       ) : (
         <>
           <h2 className="font-serif text-[26px] leading-[1.15] mt-3">{state.read.headline}</h2>
-          {state.read.detail && (
-            <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-dusk">{state.read.detail}</p>
+          {state.read.signals.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-[13px] text-dusk">
+              {state.read.signals.map((s, i) => (
+                <span key={i} className="flex items-center gap-2.5">
+                  {i > 0 && (
+                    <span className="text-mist" aria-hidden>
+                      &middot;
+                    </span>
+                  )}
+                  <span>{s}</span>
+                </span>
+              ))}
+            </div>
           )}
           {state.read.moves.length > 0 && (
             <div className="mt-5 grid gap-2.5">

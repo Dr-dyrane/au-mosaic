@@ -12,7 +12,7 @@ import { naira } from "@/lib/backoffice";
 
 export const dynamic = "force-dynamic";
 
-type Read = { headline: string; detail: string; moves: string[] };
+type Read = { headline: string; signals: string[]; moves: string[] };
 
 function facts(d: InsightsData): string {
   const lines: string[] = [];
@@ -59,19 +59,27 @@ function facts(d: InsightsData): string {
 
 const SYSTEM =
   "You are the analyst for a Lagos mosaic-tile and pool business back office. You are given the shop's own numbers. " +
-  "Write a very short read for the owner, who reads little. Rules you must not break: use only the numbers given; " +
-  "never invent or estimate a figure that is not there; if something is zero or unknown, say so plainly. Money is " +
-  "Nigerian naira. Keep it terse and concrete. The headline names the single most important thing in one line. The " +
-  "detail is two or three sentences that explain what the numbers are doing. The moves are two or three short " +
-  "imperatives, each tied to a number the owner can act on, for example chase the oldest debt, watch the discount on " +
-  "the top seller, or reorder a named low piece. Do not use em dashes anywhere. Do not recommend anything the numbers " +
-  "do not support. You are advising, not acting; never claim to have done anything.";
+  "Write a glanceable read for the owner, who scans and does not read. Rules you must not break: use only the numbers " +
+  "given; never invent or estimate a figure that is not there; if something is zero or unknown, say so plainly. Money " +
+  "is Nigerian naira, and large amounts may be shortened, for example 626k or 1.5m, since the exact figures sit in the " +
+  "charts below. Be Apple terse. The headline is one short line naming the single most important thing, under about " +
+  "eight words, no full stop needed. The signals are two to four glanceable fragments, each a single fact or change in " +
+  "a few words, not a sentence and with no filler, for example 'July up 234%', 'Owed 626k, all under a month', or " +
+  "'Leak near 4%'. The moves are two or three short imperatives, each under about seven words and tied to a number, " +
+  "for example 'Chase the two fresh debts' or 'Watch the discount on the top seller'. Do not use em dashes anywhere. " +
+  "Recommend nothing the numbers do not support. You are advising, not acting; never claim to have done anything.";
 
 const SCHEMA = {
   type: "object",
   properties: {
-    headline: { type: "string", description: "One line, the single most important thing." },
-    detail: { type: "string", description: "Two or three sentences interpreting the numbers." },
+    headline: { type: "string", description: "One short line, the single most important thing, under about eight words." },
+    signals: {
+      type: "array",
+      description: "Two to four glanceable fragments, each a fact or change in a few words, not a sentence.",
+      items: { type: "string" },
+      minItems: 1,
+      maxItems: 4,
+    },
     moves: {
       type: "array",
       description: "Two or three short imperative moves, each tied to a number.",
@@ -80,7 +88,7 @@ const SCHEMA = {
       maxItems: 3,
     },
   },
-  required: ["headline", "detail", "moves"],
+  required: ["headline", "signals", "moves"],
 } as const;
 
 export async function GET(req: Request) {
@@ -101,9 +109,14 @@ export async function GET(req: Request) {
       schema: SCHEMA as unknown as Record<string, unknown>,
       maxTokens: 600,
     });
-    const moves = Array.isArray(read.moves) ? read.moves.filter((m) => typeof m === "string" && m.trim()).slice(0, 3) : [];
+    const signals = Array.isArray(read.signals)
+      ? read.signals.filter((s) => typeof s === "string" && s.trim()).slice(0, 4)
+      : [];
+    const moves = Array.isArray(read.moves)
+      ? read.moves.filter((m) => typeof m === "string" && m.trim()).slice(0, 3)
+      : [];
     return Response.json(
-      { ok: true, read: { headline: read.headline ?? "", detail: read.detail ?? "", moves } },
+      { ok: true, read: { headline: read.headline ?? "", signals, moves } },
       { status: 200 }
     );
   } catch {
