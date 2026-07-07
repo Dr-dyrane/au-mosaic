@@ -16,6 +16,15 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Settings bento balance lane - done
+
+Closed `src/app/admin/(panel)/settings/page.tsx`, `docs/QA.md`, and this
+handshake for a small Settings layout pass. The owner spotted the desktop bento
+as unbalanced after the live/demo toggle landed. Facts and the key rack now
+compose the top bento, live/demo completes the key column, and morning plus
+history/welcome sit as a balanced lower row. No new admin primitives, no schema
+work, no data write.
+
 ## 2026-07-07 - CODEX - Backroom demo mode lane - done
 
 Closed the open work left in the tree after the CRM hardening commits landed

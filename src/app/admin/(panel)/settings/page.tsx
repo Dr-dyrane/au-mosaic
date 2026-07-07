@@ -37,6 +37,7 @@ export default async function SettingsPage() {
   } catch {
     staffRows = null;
   }
+  const isOwner = who?.role === "owner";
 
   return (
     <main>
@@ -45,87 +46,108 @@ export default async function SettingsPage() {
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         Number, hours, address.
       </p>
-      {/* The desk gets two columns; the phone keeps its single file.
-          The facts lead on the left, the quieter panels stack right. */}
-      <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">
-        <SettingsForm values={values} />
+      <div className="mt-10 grid gap-8">
+        <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)]">
+          <SettingsForm values={values} />
 
-        <div className="grid gap-8">
-      {who?.role === "owner" && (
-        <div className="panel">
-          <p className="font-serif text-[20px]">The keys to the door</p>
-          <Teach>
-            <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-              Named keys for the people who help.
-            </p>
-          </Teach>
-          {staffRows === null ? (
-            <p className="mt-4 text-[14px] leading-relaxed text-dusk">
-              Not ready yet. Turn on staff keys.
-            </p>
-          ) : (
-            <>
-              {staffRows.length > 0 && (
-                <div className="mt-4">
-                  {staffRows.map((s) => (
-                    <KeyRow key={s.id} id={s.id} name={s.name} active={s.active} />
-                  ))}
-                </div>
-              )}
-              <AddStaffForm />
-            </>
+          <div className="grid gap-8">
+            {isOwner && (
+              <div className="panel">
+                <p className="font-serif text-[20px]">The keys to the door</p>
+                <Teach>
+                  <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                    Named keys for the people who help.
+                  </p>
+                </Teach>
+                {staffRows === null ? (
+                  <p className="mt-4 text-[14px] leading-relaxed text-dusk">
+                    Not ready yet. Turn on staff keys.
+                  </p>
+                ) : (
+                  <>
+                    {staffRows.length > 0 && (
+                      <div className="mt-4">
+                        {staffRows.map((s) => (
+                          <KeyRow key={s.id} id={s.id} name={s.name} active={s.active} />
+                        ))}
+                      </div>
+                    )}
+                    <AddStaffForm />
+                  </>
+                )}
+                <p className="mt-6 text-[14px] leading-relaxed text-dusk">
+                  Your master key stays with you.
+                </p>
+              </div>
+            )}
+
+            {isOwner && (
+              <div className="panel">
+                <p className="font-serif text-[20px]">Live or demo</p>
+                <Teach>
+                  <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                    Show sample data for a walkthrough, or keep the book real.
+                  </p>
+                </Teach>
+                <DataModeToggle mode={values.data_mode === "demo" ? "demo" : "live"} />
+              </div>
+            )}
+
+            {!isOwner && (
+              <div className="panel">
+                <p className="font-serif text-[20px]">The morning tap</p>
+                <Teach>
+                  <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                    The glance, on your phone each morning.
+                  </p>
+                </Teach>
+                <NotifyToggle />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid items-start gap-8 lg:grid-cols-2">
+          {isOwner && (
+            <div className="panel h-full">
+              <p className="font-serif text-[20px]">The morning tap</p>
+              <Teach>
+                <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                  The glance, on your phone each morning.
+                </p>
+              </Teach>
+              <NotifyToggle />
+            </div>
           )}
-          <p className="mt-6 text-[14px] leading-relaxed text-dusk">
-            Your master key stays with you.
-          </p>
-        </div>
-      )}
 
-      {who?.role === "owner" && (
-        <div className="panel">
-          <p className="font-serif text-[20px]">Live or demo</p>
-          <Teach>
-            <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-              Show sample data for a walkthrough, or keep the book real.
-            </p>
-          </Teach>
-          <DataModeToggle mode={values.data_mode === "demo" ? "demo" : "live"} />
-        </div>
-      )}
+          <div className="panel h-full">
+            <div className="grid gap-8 2xl:grid-cols-2">
+              <div>
+                <p className="font-serif text-[20px]">The book&apos;s history</p>
+                <Teach>
+                  <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                    Who did what, and when.
+                  </p>
+                </Teach>
+                <Link
+                  href="/admin/settings/history"
+                  className="link-hair mt-4 inline-block text-dusk text-[12px]"
+                >
+                  Read the history
+                </Link>
+              </div>
 
-      <div className="panel">
-        <p className="font-serif text-[20px]">The morning tap</p>
-        <Teach>
-          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            The glance, on your phone each morning.
-          </p>
-        </Teach>
-        <NotifyToggle />
-      </div>
+              <div>
+                <p className="font-serif text-[20px]">The welcome</p>
+                <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                  Show the welcome again on this device.
+                </p>
+                <TourReset />
+              </div>
+            </div>
+          </div>
 
-      <div className="panel">
-        <p className="font-serif text-[20px]">The book&apos;s history</p>
-        <Teach>
-          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Who did what, and when.
-          </p>
-        </Teach>
-        <Link
-          href="/admin/settings/history"
-          className="link-hair mt-4 inline-block text-dusk text-[12px]"
-        >
-          Read the history
-        </Link>
-      </div>
-
-      <OutboxReview />
-      <div className="panel">
-        <p className="font-serif text-[20px]">The welcome</p>
-        <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-          Show the welcome again on this device.
-        </p>
-        <TourReset />
-      </div>
+          <OutboxReview />
         </div>
       </div>
     </main>
