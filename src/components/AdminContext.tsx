@@ -145,11 +145,11 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "insights":
       return {
         eyebrow: "Insights",
-        title: "Read the pattern, then act.",
-        line: "Pace, leak, stock, and debts are useful only when they change the next move.",
+        title: "Signals first.",
+        line: "Pace. Debt. Leak. Stock.",
         metrics: [
-          { label: "Outstanding", value: money(pulse.outstandingKobo), href: "/admin/debts" },
-          { label: "Warnings", value: String(pulse.lowStock), href: "/admin/pieces" },
+          { label: "Owed", value: money(pulse.outstandingKobo), href: "/admin/debts" },
+          { label: "Stock", value: String(pulse.lowStock), href: "/admin/pieces" },
         ],
         actions: [{ label: "Today", href: "/admin" }],
       };

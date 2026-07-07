@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { naira } from "@/lib/backoffice";
 import { computeInsights, resolveWindow, INSIGHTS_WINDOWS } from "@/lib/insights";
-import { StatTile, Meter, RankBars, AgingBar, Funnel } from "./charts";
+import { AgingBar, DotGrid, Funnel, Meter, MiniBars, RankBars, RingGauge, SignalTile } from "./charts";
 import TrendChart from "./TrendChart";
 import InsightsRead from "./InsightsRead";
 
@@ -32,97 +32,114 @@ export default async function InsightsPage({
   const { months: monthsRaw } = await searchParams;
   const win = resolveWindow(monthsRaw);
   const d = await computeInsights(win.months);
+  const trendPoints = d.months.map((m) => ({ label: m.label, value: m.billed }));
+  const recentBars = d.months.slice(-6).map((m) => m.billed);
+  const periodBilled = d.months.reduce((sum, m) => sum + m.billed, 0);
+  const lastPoint = d.months[d.months.length - 1] ?? null;
+  const topPiece = d.pieces[0] ?? null;
+  const leakPct = d.billedAll > 0 ? Math.round((d.leakTotal / d.billedAll) * 100) : 0;
+  const debtMax = Math.max(1, d.owedTotal, Math.round(d.billedAll * 0.2));
+  const leakMax = Math.max(1, Math.round(d.billedAll * 0.1), d.leakTotal);
+  const cashWatch = d.owedTotal > 0 || d.leakWatch;
 
   return (
     <main>
-      <div className="flex gap-2">
-        <Link href="/admin" className="chip-solid">
-          Today
-        </Link>
-        <span className="chip-solid is-on">Insights</span>
-      </div>
-      <h1 className="font-serif text-display-section mt-8">What the book says.</h1>
-      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">The business, not the traffic.</p>
+      <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="flex gap-2">
+            <Link href="/admin" className="chip-solid">
+              Today
+            </Link>
+            <span className="chip-solid is-on">Insights</span>
+          </div>
+          <p className="eyebrow mt-8">The book</p>
+          <h1 className="font-serif text-display-section mt-3">The business at a glance.</h1>
+          <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">Data first. Words only where they help.</p>
+        </div>
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        {INSIGHTS_WINDOWS.map((w) => (
-          <Link
-            key={w.months}
-            href={w.months === 6 ? "/admin/insights" : `/admin/insights?months=${w.months}`}
-            className={`chip-solid ${win.months === w.months ? "is-on" : ""}`}
+        <div className="flex flex-wrap gap-2">
+          {INSIGHTS_WINDOWS.map((w) => (
+            <Link
+              key={w.months}
+              href={w.months === 6 ? "/admin/insights" : `/admin/insights?months=${w.months}`}
+              className={`chip-solid ${win.months === w.months ? "is-on" : ""}`}
+            >
+              {w.label}
+            </Link>
+          ))}
+        </div>
+      </header>
+
+      <section className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+        <div className="panel">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="eyebrow">Billed pace</p>
+              <p className="font-serif mt-3 text-[26px] leading-none tabular-nums">
+                {d.pace > 0 ? naira(d.pace) : lastPoint ? naira(lastPoint.billed) : naira(0)}
+              </p>
+              {d.delta !== null && d.lastFullLabel ? (
+                <p className="mt-2 text-[12px] text-dusk">
+                  {d.lastFullLabel}: {Math.abs(d.delta)}% {d.delta >= 0 ? "up" : "down"}
+                </p>
+              ) : null}
+            </div>
+            {d.delta !== null && <State watch={d.delta < 0} />}
+          </div>
+          <div className="mt-7">
+            <TrendChart points={trendPoints} projection={d.pace > 0 ? d.pace : null} height={220} />
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <SignalTile href="/admin/orders" label="Billed" value={naira(periodBilled)} note={win.label}>
+            <MiniBars values={recentBars} label="Recent billed months" />
+          </SignalTile>
+          <SignalTile
+            href="/admin/debts"
+            label="Outstanding"
+            value={naira(d.owedTotal)}
+            note={d.owedTotal > 0 ? (d.oldestDebt ? "old money present" : "young balances") : "clear"}
+            watch={d.oldestDebt}
           >
-            {w.label}
-          </Link>
-        ))}
-      </div>
+            <Meter value={d.owedTotal} max={debtMax} />
+          </SignalTile>
+          <SignalTile
+            href="/admin/orders"
+            label="Leak"
+            value={naira(d.leakTotal)}
+            note={d.billedAll > 0 ? `${leakPct}% of billed` : "no billing yet"}
+            watch={d.leakWatch}
+          >
+            <Meter value={d.leakTotal} max={leakMax} />
+          </SignalTile>
+          <SignalTile
+            href="/admin/pieces"
+            label="Low stock"
+            value={String(d.lowStock.length)}
+            note={d.lowStock.length > 0 ? "needs reorder eye" : "calm"}
+            watch={d.lowStock.length > 0}
+          >
+            <DotGrid count={d.lowStock.length} label="Low stock items" />
+          </SignalTile>
+        </div>
+      </section>
 
-      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatTile
-          href="/admin/orders"
-          label="On pace"
-          value={naira(d.pace)}
-          sub={
-            d.delta !== null && d.lastFullLabel
-              ? `${d.lastFullLabel} ${d.delta >= 0 ? "up" : "down"} ${Math.abs(d.delta)}%`
-              : "this month"
-          }
-        />
-        <StatTile
-          href="/admin/debts"
-          label="Outstanding"
-          value={naira(d.owedTotal)}
-          sub={d.owedTotal > 0 ? (d.oldestDebt ? "some over two months" : "all under two months") : "nobody owes"}
-        />
-        <StatTile
-          href="/admin/orders"
-          label="Discount leak"
-          value={naira(d.leakTotal)}
-          sub={d.billedAll > 0 ? `${Math.round((d.leakTotal / d.billedAll) * 100)}% of billed` : "no billing yet"}
-        />
-        <StatTile
-          href="/admin/pieces"
-          label="Low stock"
-          value={String(d.lowStock.length)}
-          sub={d.lowStock.length > 0 ? "at or below reorder" : "shelves calm"}
-        />
-      </div>
-
-      <div className="mt-8">
+      <div className="mt-5">
         <InsightsRead key={win.months} months={win.months} />
       </div>
 
-      <section className="panel mt-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="font-serif text-[20px]">Billed, month by month</p>
-          {d.delta !== null && <State watch={d.delta < 0} />}
-        </div>
-        {d.months.length < 2 ? (
-          <p className="mt-3 text-[14px] leading-relaxed text-dusk">The first order draws the first line.</p>
-        ) : (
-          <div className="mt-6">
-            <TrendChart
-              points={d.months.map((m) => ({ label: m.label, value: m.billed }))}
-              projection={d.pace > 0 ? d.pace : null}
-            />
-          </div>
-        )}
-        {d.delta !== null && d.lastFullLabel && (
-          <p className="mt-5 text-[14px] leading-relaxed text-dusk">
-            {d.lastFullLabel} came in {Math.abs(d.delta)}% {d.delta >= 0 ? "up on" : "below"} the month before.
-          </p>
-        )}
-        {d.pace > 0 && (
-          <p className="mt-1.5 text-[14px] leading-relaxed text-gold">
-            If the pace holds: {naira(d.pace)} this month.
-          </p>
-        )}
-      </section>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid gap-5 xl:grid-cols-2">
         <section className="panel">
-          <p className="font-serif text-[20px]">What sells the house</p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="eyebrow">Revenue mix</p>
+              <p className="font-serif mt-3 text-[20px]">What sells the house</p>
+            </div>
+            {topPiece ? <span className="chip-solid">{topPiece.name}</span> : null}
+          </div>
           {d.pieces.length === 0 ? (
-            <p className="mt-3 text-[14px] leading-relaxed text-dusk">Order lines will rank the pieces here.</p>
+            <p className="mt-5 text-[14px] leading-relaxed text-dusk">Order lines will rank the pieces here.</p>
           ) : (
             <div className="mt-6">
               <RankBars rows={d.pieces.map((p) => ({ label: p.name, value: p.revenue }))} formatValue={naira} />
@@ -132,70 +149,63 @@ export default async function InsightsPage({
 
         <section className="panel">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-serif text-[20px]">The discount leak</p>
-            {d.billedAll > 0 && <State watch={d.leakWatch} />}
+            <div>
+              <p className="eyebrow">Cash risk</p>
+              <p className="font-serif mt-3 text-[20px]">Debt and discount</p>
+            </div>
+            <State watch={cashWatch} />
           </div>
-          <p className="font-serif mt-4 text-[26px] tabular-nums">{naira(d.leakTotal)}</p>
-          {d.billedAll > 0 && <Meter value={d.leakTotal} max={d.billedAll * 0.1} />}
-          {d.billedAll > 0 && (
-            <p className="mt-2 text-[12px] text-mist">Full bar is the watch line, a tenth of billed.</p>
-          )}
-          <p className="mt-3 text-[14px] leading-relaxed text-dusk">
-            Given below list, all time. If this number grows faster than billed, the price list is a
-            suggestion, and suggestions cost money.
-          </p>
-        </section>
-
-        <section className="panel">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-serif text-[20px]">How old the debts are</p>
-            <State watch={d.oldestDebt} />
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <div>
+              <p className="eyebrow">Outstanding</p>
+              <p className="font-serif mt-3 text-[26px] leading-none tabular-nums">{naira(d.owedTotal)}</p>
+            </div>
+            <div>
+              <p className="eyebrow">Discount leak</p>
+              <p className="font-serif mt-3 text-[26px] leading-none tabular-nums">{naira(d.leakTotal)}</p>
+            </div>
           </div>
           {d.buckets.length === 0 ? (
-            <p className="mt-3 text-[14px] leading-relaxed text-dusk">Nobody owes the house today.</p>
+            <p className="mt-6 text-[14px] leading-relaxed text-dusk">Nobody owes the house today.</p>
           ) : (
             <div className="mt-6">
               <AgingBar buckets={d.buckets} formatValue={naira} />
             </div>
           )}
-          <Link href="/admin/debts" className="link-hair mt-5 inline-block text-dusk text-[12px]">
-            Who owes what
-          </Link>
-        </section>
-
-        <section className="panel">
-          <p className="font-serif text-[20px]">Where the taps come from</p>
-          {d.taps.length === 0 ? (
-            <p className="mt-3 text-[14px] leading-relaxed text-dusk">
-              WhatsApp taps on the site will land here by source.
-            </p>
-          ) : (
+          {d.billedAll > 0 ? (
             <div className="mt-6">
-              <RankBars
-                rows={d.taps.map((t) => ({ label: t.source, value: t.n }))}
-                formatValue={(n) => n.toLocaleString()}
-              />
+              <p className="eyebrow">Leak against watch line</p>
+              <Meter value={d.leakTotal} max={leakMax} />
             </div>
-          )}
+          ) : null}
+          <div className="mt-5 flex flex-wrap gap-4">
+            <Link href="/admin/debts" className="link-hair text-dusk text-[12px]">
+              Who owes what
+            </Link>
+            <Link href="/admin/orders" className="link-hair text-dusk text-[12px]">
+              Orders
+            </Link>
+          </div>
         </section>
 
         <section className="panel">
-          <p className="font-serif text-[20px]">From tap to settled</p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="eyebrow">Conversion</p>
+              <p className="font-serif mt-3 text-[20px]">Tap to settled</p>
+            </div>
+          </div>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <RingGauge label="enquiry to customer" value={d.convRate} />
+            <RingGauge label="billed to settled" value={d.settleRate} />
+          </div>
           {d.funnel.every((f) => f.n === 0) ? (
-            <p className="mt-3 text-[14px] leading-relaxed text-dusk">
-              The funnel draws itself as the site&apos;s taps arrive.
-            </p>
+            <p className="mt-6 text-[14px] leading-relaxed text-dusk">The funnel draws itself as taps arrive.</p>
           ) : (
             <>
               <div className="mt-6">
                 <Funnel stages={d.funnel} formatCount={(n) => n.toLocaleString()} />
               </div>
-              {(d.convRate !== null || d.settleRate !== null) && (
-                <p className="mt-4 text-[14px] leading-relaxed text-dusk">
-                  {d.convRate !== null && `${d.convRate}% of enquiries became customers. `}
-                  {d.settleRate !== null && `${d.settleRate}% of billed orders are settled.`}
-                </p>
-              )}
               {!d.sessionsKnown && (
                 <p className="mt-1.5 text-[14px] leading-relaxed text-mist">
                   People counting starts with the next house update.
@@ -207,27 +217,46 @@ export default async function InsightsPage({
 
         <section className="panel">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-serif text-[20px]">Stock pressure</p>
+            <div>
+              <p className="eyebrow">Attention</p>
+              <p className="font-serif mt-3 text-[20px]">Stock and taps</p>
+            </div>
             <State watch={d.lowStock.length > 0} />
           </div>
-          {d.lowStock.length === 0 ? (
-            <p className="mt-3 text-[14px] leading-relaxed text-dusk">
-              Nothing is running low. The shelves are calm.
-            </p>
-          ) : (
-            <div className="mt-5 grid gap-2.5">
-              {d.lowStock.map((s) => (
-                <div key={s.slug} className="flex items-center justify-between gap-4">
-                  <Link href={`/admin/pieces/${s.slug}`} className="link-hair text-dusk text-[12px]">
-                    {s.name}
-                  </Link>
-                  <span className="text-[12px] uppercase tracking-[0.14em] text-gold">
-                    {s.qty} {s.unit} left
-                  </span>
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            <div>
+              <p className="eyebrow">Low stock</p>
+              {d.lowStock.length === 0 ? (
+                <p className="mt-3 text-[14px] leading-relaxed text-dusk">Shelves calm.</p>
+              ) : (
+                <div className="mt-4 grid gap-2.5">
+                  {d.lowStock.slice(0, 5).map((s) => (
+                    <div key={s.slug} className="flex items-center justify-between gap-4">
+                      <Link href={`/admin/pieces/${s.slug}`} className="link-hair text-dusk text-[12px]">
+                        {s.name}
+                      </Link>
+                      <span className="text-[12px] uppercase tracking-[0.14em] text-gold">
+                        {s.qty} {s.unit}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
+            <div>
+              <p className="eyebrow">Tap sources</p>
+              {d.taps.length === 0 ? (
+                <p className="mt-3 text-[14px] leading-relaxed text-dusk">Waiting for site taps.</p>
+              ) : (
+                <div className="mt-4">
+                  <RankBars
+                    rows={d.taps.map((t) => ({ label: t.source, value: t.n }))}
+                    formatValue={(n) => n.toLocaleString()}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </section>
       </div>
     </main>

@@ -14,9 +14,10 @@ export type TrendPoint = { label: string; value: number };
 export type TrendChartProps = {
   points: TrendPoint[];
   projection?: number | null;
+  height?: number;
 };
 
-export default function TrendChart({ points, projection }: TrendChartProps) {
+export default function TrendChart({ points, projection, height = 176 }: TrendChartProps) {
   const [hover, setHover] = useState<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -73,7 +74,7 @@ export default function TrendChart({ points, projection }: TrendChartProps) {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           width="100%"
-          height="176"
+          height={height}
           preserveAspectRatio="none"
           role="img"
           aria-label="Billed over time"
@@ -123,7 +124,7 @@ export default function TrendChart({ points, projection }: TrendChartProps) {
               style={{ left: `${Math.min(88, Math.max(12, hx))}%` }}
             >
               <span className="block text-[11px] uppercase tracking-[0.14em] text-mist">{points[hover].label}</span>
-              <span className="block text-[13px] tabular-nums text-ink">{naira(points[hover].value)}</span>
+              <span className="block text-[14px] tabular-nums text-ink">{naira(points[hover].value)}</span>
             </span>
           </>
         )}

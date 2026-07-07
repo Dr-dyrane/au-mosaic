@@ -16,6 +16,19 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Insights data visualization lane - done
+
+Closed `src/app/admin/(panel)/insights/*`, `src/components/AdminContext.tsx`,
+`docs/QA.md`, and this handshake for an Insights room pass. The room now
+reads as an instrument panel: billed trend first, signal tiles, mini bars,
+meters, dot pressure, ring gauges, ranked revenue and tap bars, debt aging,
+and a compact AI read after paint. The Insights context rail now says
+`Signals first.` and shows only Owed, Stock, and Today. In-app browser
+checked local `/admin/insights` at desktop 1280 by 720 and phone 390 by
+844 with no horizontal overflow. TypeScript, eslint with zero warnings,
+theme check, `git diff --check`, dash scan, and `npx next build` on
+Next 16.2.10, 57 routes, passed.
+
 ## 2026-07-07 - CODEX - Demo story seed lane - done
 
 Closed `scripts/demo-seed.ts`, `docs/QA.md`, and this handshake for a

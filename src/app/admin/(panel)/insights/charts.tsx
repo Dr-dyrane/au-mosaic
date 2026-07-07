@@ -6,37 +6,129 @@
    needs a hover, lives in its own client file. */
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-export type StatTileProps = { label: string; value: string; sub?: string; href?: string };
+export type SignalTileProps = {
+  label: string;
+  value: string;
+  note?: string;
+  href?: string;
+  watch?: boolean;
+  children?: ReactNode;
+};
 
-/* A headline number, led with, and a doorway when it has somewhere to
-   go. The figure is the hero in serif; the label sits above it small,
-   the read below quiet. A linked tile carries a quiet chevron that warms
-   on hover, and the whole tile is the tap target. */
-export function StatTile({ label, value, sub, href }: StatTileProps) {
+/* Compact instrument tile. It leads with one number and lets a tiny
+   visual carry the second read, so the first scan is data before prose. */
+export function SignalTile({ label, value, note, href, watch = false, children }: SignalTileProps) {
   const body = (
     <>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-3">
         <p className="eyebrow">{label}</p>
-        {href ? (
-          <span
-            className="text-[13px] text-mist transition-colors duration-300 group-hover:text-gold"
-            aria-hidden
-          >
-            &rsaquo;
-          </span>
-        ) : null}
+        <span
+          className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+            watch ? "bg-gold/15 text-gold" : "bg-shell/55 text-mist"
+          }`}
+        >
+          {watch ? "Watch" : "Steady"}
+        </span>
       </div>
-      <p className="font-serif text-[26px] leading-none tabular-nums mt-2.5">{value}</p>
-      {sub ? <p className="mt-2 text-[12px] leading-relaxed text-dusk">{sub}</p> : null}
+      <p className="font-serif mt-3 text-[26px] leading-none tabular-nums">{value}</p>
+      {children ? <div className="mt-4">{children}</div> : null}
+      {note ? <p className="mt-3 text-[12px] leading-relaxed text-dusk">{note}</p> : null}
     </>
   );
+
   return href ? (
-    <Link href={href} className="panel group block">
+    <Link href={href} className="panel group block transition-transform duration-300 active:scale-[0.99]">
       {body}
     </Link>
   ) : (
     <div className="panel">{body}</div>
+  );
+}
+
+export type MiniBarsProps = {
+  values: number[];
+  label: string;
+};
+
+/* Tiny column trend for at-a-glance cards. The exact figures live in
+   nearby text or the main chart; this only gives the eye direction. */
+export function MiniBars({ values, label }: MiniBarsProps) {
+  if (values.length === 0) return <span className="block h-12 rounded-full bg-shell/45" aria-hidden />;
+  const max = Math.max(1, ...values);
+
+  return (
+    <div className="flex h-12 items-end gap-1.5" aria-label={label} role="img">
+      {values.map((value, i) => {
+        const height = Math.max(12, Math.round((value / max) * 48));
+        return (
+          <span
+            key={`${value}-${i}`}
+            className="block flex-1 rounded-full bg-gold/75"
+            style={{ height }}
+            aria-hidden
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+export type RingGaugeProps = {
+  label: string;
+  value: number | null;
+};
+
+/* Small circular rate read. One ring, one percentage, one label. */
+export function RingGauge({ label, value }: RingGaugeProps) {
+  const pct = Math.max(0, Math.min(100, value ?? 0));
+  const dash = `${pct} ${100 - pct}`;
+
+  return (
+    <div className="flex items-center gap-4" role="img" aria-label={`${label}: ${pct}%`}>
+      <svg viewBox="0 0 42 42" className="h-16 w-16 shrink-0 -rotate-90" aria-hidden>
+        <circle cx="21" cy="21" r="16" fill="none" stroke="var(--color-shell)" strokeWidth="6" opacity="0.7" />
+        <circle
+          cx="21"
+          cy="21"
+          r="16"
+          fill="none"
+          stroke="var(--color-gold)"
+          strokeWidth="6"
+          strokeDasharray={dash}
+          strokeLinecap="round"
+          pathLength="100"
+        />
+      </svg>
+      <div>
+        <p className="font-serif text-[26px] leading-none tabular-nums">{pct}%</p>
+        <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-mist">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+export type DotGridProps = {
+  count: number;
+  max?: number;
+  label: string;
+};
+
+/* Inventory pressure as a small dot field. It is deliberately simple:
+   each lit dot is one item needing the owner's eye. */
+export function DotGrid({ count, max = 8, label }: DotGridProps) {
+  const total = Math.max(max, count, 1);
+  return (
+    <div className="flex flex-wrap gap-1.5" role="img" aria-label={label}>
+      {Array.from({ length: total }).map((_, i) => (
+        <span
+          key={i}
+          className={`h-2.5 w-2.5 rounded-full ${i < count ? "bg-gold" : "bg-shell/60"}`}
+          aria-hidden
+        />
+      ))}
+    </div>
   );
 }
 

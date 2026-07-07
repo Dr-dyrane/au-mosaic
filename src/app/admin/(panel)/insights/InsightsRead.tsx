@@ -36,29 +36,26 @@ export default function InsightsRead({ months }: { months: number }) {
 
   return (
     <section className="panel">
-      <p className="eyebrow">The read</p>
+      <p className="eyebrow">Read</p>
       {state.phase === "loading" ? (
         <p className="mt-3 text-[14px] leading-relaxed text-dusk">Reading the pattern...</p>
       ) : (
-        <>
-          <h2 className="font-serif text-[26px] leading-[1.15] mt-3">{state.read.headline}</h2>
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)] lg:items-start">
+          <div>
+            <h2 className="font-serif mt-3 text-[20px] leading-[1.2]">{state.read.headline}</h2>
+          </div>
           {state.read.signals.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-[13px] text-dusk">
-              {state.read.signals.map((s, i) => (
-                <span key={i} className="flex items-center gap-2.5">
-                  {i > 0 && (
-                    <span className="text-mist" aria-hidden>
-                      &middot;
-                    </span>
-                  )}
-                  <span>{s}</span>
+            <div className="flex flex-wrap gap-2">
+              {state.read.signals.slice(0, 3).map((s, i) => (
+                <span key={i} className="rounded-full bg-shell/55 px-3 py-2 text-[12px] leading-tight text-dusk">
+                  {s}
                 </span>
               ))}
             </div>
           )}
           {state.read.moves.length > 0 && (
-            <div className="mt-5 grid gap-2.5">
-              {state.read.moves.map((m, i) => (
+            <div className="lg:col-span-2 grid gap-2.5 sm:grid-cols-2">
+              {state.read.moves.slice(0, 2).map((m, i) => (
                 <p key={i} className="flex items-start gap-3 text-[14px] leading-relaxed text-ink">
                   <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-gold" aria-hidden />
                   {m}
@@ -66,7 +63,7 @@ export default function InsightsRead({ months }: { months: number }) {
               ))}
             </div>
           )}
-        </>
+        </div>
       )}
     </section>
   );
