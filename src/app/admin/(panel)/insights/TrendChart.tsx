@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { naira } from "@/lib/backoffice";
 
 /* The billed trend, with detail on demand. The area and line fill the
    width as one stretched SVG; the crosshair, the point dot, and the top
@@ -13,10 +14,9 @@ export type TrendPoint = { label: string; value: number };
 export type TrendChartProps = {
   points: TrendPoint[];
   projection?: number | null;
-  formatValue: (n: number) => string;
 };
 
-export default function TrendChart({ points, projection, formatValue }: TrendChartProps) {
+export default function TrendChart({ points, projection }: TrendChartProps) {
   const [hover, setHover] = useState<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -123,7 +123,7 @@ export default function TrendChart({ points, projection, formatValue }: TrendCha
               style={{ left: `${Math.min(88, Math.max(12, hx))}%` }}
             >
               <span className="block text-[11px] uppercase tracking-[0.14em] text-mist">{points[hover].label}</span>
-              <span className="block text-[13px] tabular-nums text-ink">{formatValue(points[hover].value)}</span>
+              <span className="block text-[13px] tabular-nums text-ink">{naira(points[hover].value)}</span>
             </span>
           </>
         )}

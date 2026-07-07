@@ -99,7 +99,6 @@ export default async function InsightsPage({
             <TrendChart
               points={d.months.map((m) => ({ label: m.label, value: m.billed }))}
               projection={d.pace > 0 ? d.pace : null}
-              formatValue={naira}
             />
           </div>
         )}
