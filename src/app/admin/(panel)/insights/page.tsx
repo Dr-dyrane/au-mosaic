@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { naira } from "@/lib/backoffice";
 import { computeInsights, resolveWindow, INSIGHTS_WINDOWS } from "@/lib/insights";
-import { TrendArea, RankBars, AgingBar, Funnel } from "./charts";
+import { StatTile, Meter, RankBars, AgingBar, Funnel } from "./charts";
+import TrendChart from "./TrendChart";
 import InsightsRead from "./InsightsRead";
 
 /* The numbers that decide, read as pictures and then in words. Read-only
@@ -55,6 +56,33 @@ export default async function InsightsPage({
         ))}
       </div>
 
+      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatTile
+          label="On pace"
+          value={naira(d.pace)}
+          sub={
+            d.delta !== null && d.lastFullLabel
+              ? `${d.lastFullLabel} ${d.delta >= 0 ? "up" : "down"} ${Math.abs(d.delta)}%`
+              : "this month"
+          }
+        />
+        <StatTile
+          label="Outstanding"
+          value={naira(d.owedTotal)}
+          sub={d.owedTotal > 0 ? (d.oldestDebt ? "some over two months" : "all under two months") : "nobody owes"}
+        />
+        <StatTile
+          label="Discount leak"
+          value={naira(d.leakTotal)}
+          sub={d.billedAll > 0 ? `${Math.round((d.leakTotal / d.billedAll) * 100)}% of billed` : "no billing yet"}
+        />
+        <StatTile
+          label="Low stock"
+          value={String(d.lowStock.length)}
+          sub={d.lowStock.length > 0 ? "at or below reorder" : "shelves calm"}
+        />
+      </div>
+
       <div className="mt-8">
         <InsightsRead key={win.months} months={win.months} />
       </div>
@@ -68,9 +96,10 @@ export default async function InsightsPage({
           <p className="mt-3 text-[14px] leading-relaxed text-dusk">The first order draws the first line.</p>
         ) : (
           <div className="mt-6">
-            <TrendArea
+            <TrendChart
               points={d.months.map((m) => ({ label: m.label, value: m.billed }))}
               projection={d.pace > 0 ? d.pace : null}
+              formatValue={naira}
             />
           </div>
         )}
@@ -104,7 +133,11 @@ export default async function InsightsPage({
             {d.billedAll > 0 && <State watch={d.leakWatch} />}
           </div>
           <p className="font-serif mt-4 text-[26px] tabular-nums">{naira(d.leakTotal)}</p>
-          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+          {d.billedAll > 0 && <Meter value={d.leakTotal} max={d.billedAll * 0.1} />}
+          {d.billedAll > 0 && (
+            <p className="mt-2 text-[12px] text-mist">Full bar is the watch line, a tenth of billed.</p>
+          )}
+          <p className="mt-3 text-[14px] leading-relaxed text-dusk">
             Given below list, all time. If this number grows faster than billed, the price list is a
             suggestion, and suggestions cost money.
           </p>
