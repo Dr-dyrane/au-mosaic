@@ -16,6 +16,18 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Demo story seed lane - done
+
+Closed `scripts/demo-seed.ts`, `docs/QA.md`, and this handshake for a
+scenario-depth pass on demo mode. The seed still avoids fake stock, fake
+pieces, and fake media, but now tells owner-ready CRM stories: visualizer lead,
+pool quote, out-for-delivery balance, old delivered debt, return line, custom
+mural deposit, pool materials quote, and settled showroom selection. Dry run:
+28 sample customers, 61 orders across 13 months, 85 payments, 38 deliveries
+with pending, out, and delivered states, 33 enquiries with piece links and
+anonymous sessions, 17 sales motions across every kind, 98 catalogue-linked
+order lines, one return line, and ₦9,184,000 owing. No database writes.
+
 ## 2026-07-07 - CODEX - Settings bento balance lane - done
 
 Closed `src/app/admin/(panel)/settings/page.tsx`, `docs/QA.md`, and this

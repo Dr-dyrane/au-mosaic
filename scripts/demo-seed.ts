@@ -48,18 +48,87 @@ const round1000 = (n: number) => Math.max(1000, Math.round(n / 1000) * 1000);
 const DEMO_NOTE = "DEMO sample, safe to remove";
 const DEMO_SOURCE = "demo";
 
-type Line = { description: string; quantity: number; list: number; given: number };
+const PIECE = {
+  classicPoolBlues: "classic-pool-blues",
+  aquaBlends: "aqua-turquoise-blends",
+  deepMidnight: "deep-midnight-blends",
+  patternedBorders: "patterned-pool-borders",
+  plainBlue: "plain-blue-small-seed",
+  mixedBlue: "mixed-blue-big-seed",
+  solidGlass: "solid-colour-glass",
+  gradientBlends: "mixed-gradient-blends",
+  goldAccents: "gold-metallic-accents",
+  tinySeedGold: "tiny-seed-gold",
+  silverCrystal: "silver-crystal-mosaic",
+  plainWhite: "plain-white-mosaic",
+  blackMosaic: "black-mosaic",
+  greenMosaic: "green-mosaic",
+  orangeMosaic: "orange-mosaic",
+  patternPicture: "pattern-picture-mosaics",
+  customMurals: "custom-murals",
+  stoneMosaic: "stone-mosaic",
+  hexagonMarble: "hexagon-marble",
+  containerOrders: "container-project-orders",
+  customColours: "custom-colours-sizes",
+} as const;
+
+type KnownPieceSlug = (typeof PIECE)[keyof typeof PIECE];
+type Line = {
+  description: string;
+  quantity: number;
+  list: number;
+  given: number;
+  pieceSlug?: KnownPieceSlug;
+  returnFor?: number;
+};
 type Payment = { amount: number; method: string; note: string; paidAt: Date };
-type Delivery = { address: string; status: "pending" | "delivered"; scheduledFor?: Date; deliveredAt?: Date };
+type Delivery = {
+  address: string;
+  status: "pending" | "out" | "delivered";
+  scheduledFor?: Date;
+  deliveredAt?: Date;
+  driver?: string;
+};
 
 /* A single order line; given sits a little under list so the discount
    leak always has something to show. */
-const L = (description: string, quantity: number, list: number, given: number): Line => ({
+const L = (
+  description: string,
+  quantity: number,
+  list: number,
+  given: number,
+  pieceSlug?: KnownPieceSlug,
+): Line => ({
   description,
   quantity,
   list,
   given,
+  pieceSlug,
 });
+
+const RETURN = (
+  returnFor: number,
+  description: string,
+  quantity: number,
+  list: number,
+  given: number,
+  pieceSlug?: KnownPieceSlug,
+): Line => ({
+  description,
+  quantity: -Math.abs(quantity),
+  list,
+  given,
+  pieceSlug,
+  returnFor,
+});
+
+const billedNaira = (lines: Line[]) => lines.reduce((sum, line) => sum + line.given * line.quantity, 0);
+const paid = (lines: Line[], ratio: number, method: string, note: string, paidAt: Date): Payment[] => [
+  { amount: round1000(billedNaira(lines) * ratio), method, note, paidAt },
+];
+const paidFull = (lines: Line[], method: string, note: string, paidAt: Date): Payment[] => [
+  { amount: billedNaira(lines), method, note, paidAt },
+];
 
 /* A year of sample customers: Nigerian names across the Lagos areas he
    sells into, every name prefixed "Sample ·", every phone a placeholder.
@@ -101,11 +170,13 @@ type CustomerKey = (typeof CUSTOMERS)[number]["key"];
 
 type OrderPlan = {
   customer: CustomerKey;
-  status: "quoted" | "deposit" | "delivered" | "settled";
+  status: "enquiry" | "quoted" | "deposit" | "delivered" | "settled";
   createdAt: Date;
   lines: Line[];
   payments: Payment[];
   delivery?: Delivery;
+  note?: string;
+  scenario?: string;
 };
 
 const keys = CUSTOMERS.map((c) => c.key);
@@ -132,9 +203,18 @@ const addressFor = (i: number, area: string) => `${(i % 40) + 1} ${STREETS[i % S
 const D = {
   blues: "Classic pool blues, 300x300 sheet",
   aqua: "Aqua glass mosaic, 300x300 sheet",
+  midnight: "Deep midnight mosaic, 300x300 sheet",
   gold: "Gold and silver mosaic, 300x300 sheet",
+  tinyGold: "Tiny seed gold mosaic, 300x300 sheet",
+  silver: "Silver crystal mosaic, 300x300 sheet",
   emerald: "Emerald green mosaic, 300x300 sheet",
+  orange: "Orange accent mosaic, 300x300 sheet",
+  black: "Black mosaic, 300x300 sheet",
   pearl: "Pearl white mosaic, 300x300 sheet",
+  solidGlass: "Solid colour glass mosaic, 300x300 sheet",
+  stone: "Stone mosaic, 300x300 sheet",
+  mural: "Pattern and picture mosaic panel",
+  customMural: "Custom mural panel",
   copingW: "White pool coping, per metre",
   copingG: "Grey pool coping, per metre",
   groutG: "Grey grout, 20kg bag",
@@ -145,20 +225,24 @@ const D = {
 };
 
 const BASKETS: Line[][] = [
-  [L(D.blues, 40, 5500, 4750), L(D.copingW, 18, 4000, 3500), L(D.groutG, 4, 9000, 8500)],
-  [L(D.gold, 12, 12000, 11000), L(D.adhesive, 3, 7500, 7000)],
-  [L(D.aqua, 60, 6500, 6000), L(D.waterlineB, 22, 5000, 4500)],
-  [L(D.emerald, 30, 9000, 8200), L(D.copingG, 16, 4200, 3700), L(D.groutW, 3, 9500, 8900)],
-  [L(D.pearl, 24, 8000, 7300), L(D.adhesive, 4, 7500, 7000), L(D.groutG, 3, 9000, 8500)],
-  [L(D.blues, 50, 5500, 4800), L(D.waterlineB, 26, 5000, 4600), L(D.copingW, 20, 4000, 3600)],
-  [L(D.waterlineG, 18, 5200, 4700), L(D.aqua, 36, 6500, 6100), L(D.adhesive, 3, 7500, 7000)],
-  [L(D.gold, 10, 12000, 11200), L(D.pearl, 20, 8000, 7400), L(D.groutW, 4, 9500, 8900)],
+  [L(D.blues, 40, 5500, 4750, PIECE.classicPoolBlues), L(D.copingW, 18, 4000, 3500), L(D.groutG, 4, 9000, 8500)],
+  [L(D.gold, 12, 12000, 11000, PIECE.goldAccents), L(D.adhesive, 3, 7500, 7000)],
+  [L(D.aqua, 60, 6500, 6000, PIECE.aquaBlends), L(D.waterlineB, 22, 5000, 4500, PIECE.patternedBorders)],
+  [L(D.emerald, 30, 9000, 8200, PIECE.greenMosaic), L(D.copingG, 16, 4200, 3700), L(D.groutW, 3, 9500, 8900)],
+  [L(D.pearl, 24, 8000, 7300, PIECE.plainWhite), L(D.adhesive, 4, 7500, 7000), L(D.groutG, 3, 9000, 8500)],
+  [L(D.blues, 50, 5500, 4800, PIECE.classicPoolBlues), L(D.waterlineB, 26, 5000, 4600, PIECE.patternedBorders), L(D.copingW, 20, 4000, 3600)],
+  [L(D.waterlineG, 18, 5200, 4700, PIECE.gradientBlends), L(D.aqua, 36, 6500, 6100, PIECE.aquaBlends), L(D.adhesive, 3, 7500, 7000)],
+  [L(D.gold, 10, 12000, 11200, PIECE.goldAccents), L(D.pearl, 20, 8000, 7400, PIECE.plainWhite), L(D.groutW, 4, 9500, 8900)],
+  [L(D.black, 28, 8500, 7900, PIECE.blackMosaic), L(D.silver, 12, 13000, 11900, PIECE.silverCrystal), L(D.adhesive, 4, 7500, 7000)],
+  [L(D.mural, 1, 450000, 420000, PIECE.patternPicture), L(D.tinyGold, 8, 12500, 11600, PIECE.tinySeedGold)],
+  [L(D.stone, 22, 9500, 8800, PIECE.stoneMosaic), L(D.orange, 10, 8500, 7800, PIECE.orangeMosaic), L(D.groutW, 2, 9500, 9000)],
 ];
 
 /* Status by age: the newest are quotes and fresh deposits, the middle is
    part-paid and handed over, the old are mostly settled with a few
    delivered and the odd stale quote that never converted. */
 function pickStatus(ago: number, i: number): OrderPlan["status"] {
+  if (ago <= 5 && i % 5 === 0) return "enquiry";
   if (ago <= 25) return i % 2 === 0 ? "quoted" : "deposit";
   if (ago <= 60) return i % 3 === 0 ? "quoted" : "deposit";
   if (ago <= 120) return i % 4 === 0 ? "deposit" : i % 4 === 1 ? "delivered" : "settled";
@@ -172,7 +256,7 @@ function pickStatus(ago: number, i: number): OrderPlan["status"] {
    (split into deposit plus balance on the big ones), deposit is part paid
    and still owing, quoted has nothing against it yet. */
 function buildPayments(status: OrderPlan["status"], billed: number, ago: number, i: number): Payment[] {
-  if (status === "quoted") return [];
+  if (status === "enquiry" || status === "quoted") return [];
   const at = (back: number) => daysAgo(Math.max(0, ago - back));
   if (status === "deposit") {
     if (i % 3 === 0) {
@@ -208,6 +292,9 @@ function buildDelivery(status: OrderPlan["status"], ago: number, i: number, area
     return { address: addressFor(i, area), status: "delivered", deliveredAt: daysAgo(Math.max(1, ago - 4)) };
   }
   if (status === "deposit" && ago <= 95) {
+    if (ago <= 12 && i % 4 === 1) {
+      return { address: addressFor(i, area), status: "out", scheduledFor: daysAgo(0), driver: "Yusuf" };
+    }
     return { address: addressFor(i, area), status: "pending", scheduledFor: daysAhead(3 + (i % 9)) };
   }
   return undefined;
@@ -227,7 +314,7 @@ function buildOrders(): OrderPlan[] {
       const status = pickStatus(ago, i);
       const basket = BASKETS[i % BASKETS.length];
       const lines = basket.map((l, j) =>
-        L(l.description, l.quantity + (j === 0 ? (i % 4) * 3 : 0), l.list, l.given),
+        L(l.description, l.quantity + (j === 0 ? (i % 4) * 3 : 0), l.list, l.given, l.pieceSlug),
       );
       const billed = lines.reduce((s, l) => s + l.given * l.quantity, 0);
       const payments = buildPayments(status, billed, ago, i);
@@ -239,13 +326,135 @@ function buildOrders(): OrderPlan[] {
   return out;
 }
 
-const ORDERS: OrderPlan[] = buildOrders();
+const scenarioNote = (text: string) => `${DEMO_NOTE}: ${text}`;
+
+const SCENARIO_ORDERS: OrderPlan[] = (() => {
+  const freshVisualizer = [L(D.blues, 32, 5500, 4950, PIECE.classicPoolBlues)];
+  const emptyPoolQuote = [
+    L(D.blues, 95, 5500, 4800, PIECE.classicPoolBlues),
+    L(D.waterlineB, 34, 5000, 4550, PIECE.patternedBorders),
+    L(D.copingW, 28, 4000, 3650),
+    L("Pool light niche", 4, 28000, 26000),
+  ];
+  const deliveryOut = [
+    L(D.aqua, 72, 6500, 6025, PIECE.aquaBlends),
+    L(D.waterlineG, 24, 5200, 4700, PIECE.gradientBlends),
+    L(D.adhesive, 8, 7500, 7100),
+  ];
+  const deliveredOwing = [
+    L(D.midnight, 84, 7200, 6600, PIECE.deepMidnight),
+    L(D.copingG, 30, 4200, 3800),
+    L("Pool filter tank", 1, 210000, 198000),
+  ];
+  const returnedSheets = [
+    L(D.solidGlass, 42, 7800, 7200, PIECE.solidGlass),
+    RETURN(0, "Returned solid glass sheets", 5, 7800, 7200, PIECE.solidGlass),
+  ];
+  const muralDeposit = [
+    L(D.customMural, 1, 650000, 610000, PIECE.customMurals),
+    L(D.tinyGold, 14, 12500, 11600, PIECE.tinySeedGold),
+  ];
+  const materialsList = [
+    L("Pool pump, 1.5hp", 1, 185000, 174000),
+    L("Sand filter tank", 1, 210000, 198000),
+    L("Skimmer and return fittings", 4, 28000, 26000),
+    L("Pool test kit and startup chemicals", 1, 95000, 88000),
+  ];
+  const showroomGold = [
+    L(D.gold, 18, 12000, 11200, PIECE.goldAccents),
+    L(D.silver, 10, 13000, 12100, PIECE.silverCrystal),
+    L(D.adhesive, 5, 7500, 7100),
+  ];
+
+  return [
+    {
+      customer: "funke",
+      status: "enquiry",
+      createdAt: daysAgo(0),
+      lines: freshVisualizer,
+      payments: [],
+      note: scenarioNote("visualizer photo arrived, waiting for a quote."),
+      scenario: "fresh visualizer lead",
+    },
+    {
+      customer: "adaeze",
+      status: "quoted",
+      createdAt: daysAgo(1),
+      lines: emptyPoolQuote,
+      payments: [],
+      note: scenarioNote("empty pool quote with tile, coping, waterline, and light niche."),
+      scenario: "pool quote from measurements",
+    },
+    {
+      customer: "chibuzo",
+      status: "deposit",
+      createdAt: daysAgo(4),
+      lines: deliveryOut,
+      payments: paid(deliveryOut, 0.55, "transfer", "Deposit before dispatch", daysAgo(3)),
+      delivery: { address: addressFor(41, "Ikeja GRA"), status: "out", scheduledFor: daysAgo(0), driver: "Yusuf" },
+      note: scenarioNote("delivery is out today with balance still open."),
+      scenario: "out-for-delivery balance",
+    },
+    {
+      customer: "gbenga",
+      status: "delivered",
+      createdAt: daysAgo(43),
+      lines: deliveredOwing,
+      payments: paid(deliveredOwing, 0.42, "transfer", "Deposit and first part payment", daysAgo(39)),
+      delivery: { address: addressFor(42, "Banana Island"), status: "delivered", deliveredAt: daysAgo(21), driver: "Victor" },
+      note: scenarioNote("delivered pool materials with an old balance."),
+      scenario: "delivered but still owing",
+    },
+    {
+      customer: "nkechi",
+      status: "settled",
+      createdAt: daysAgo(19),
+      lines: returnedSheets,
+      payments: paidFull(returnedSheets, "transfer", "Settled after return", daysAgo(17)),
+      delivery: { address: addressFor(43, "Egbeda"), status: "delivered", deliveredAt: daysAgo(16), driver: "Sani" },
+      note: scenarioNote("return line kept as history, not erased."),
+      scenario: "return without erasing the sale",
+    },
+    {
+      customer: "kemi",
+      status: "deposit",
+      createdAt: daysAgo(8),
+      lines: muralDeposit,
+      payments: paid(muralDeposit, 0.35, "transfer", "Custom mural deposit", daysAgo(7)),
+      note: scenarioNote("custom art deposit, samples due before final sheet count."),
+      scenario: "custom mural deposit",
+    },
+    {
+      customer: "musa",
+      status: "quoted",
+      createdAt: daysAgo(3),
+      lines: materialsList,
+      payments: [],
+      note: scenarioNote("pool materials list prepared from WhatsApp message."),
+      scenario: "materials list quote",
+    },
+    {
+      customer: "obinna",
+      status: "settled",
+      createdAt: daysAgo(33),
+      lines: showroomGold,
+      payments: paidFull(showroomGold, "cash", "Paid after showroom visit", daysAgo(31)),
+      delivery: { address: addressFor(44, "Oniru"), status: "delivered", deliveredAt: daysAgo(29), driver: "Kunle" },
+      note: scenarioNote("showroom gold and silver selection paid in full."),
+      scenario: "showroom selection settled",
+    },
+  ];
+})();
+
+const ORDERS: OrderPlan[] = [...buildOrders(), ...SCENARIO_ORDERS];
 
 type EnquiryRow = {
   customer: CustomerKey | null;
   message: string;
-  status: "new" | "replied" | "converted";
+  status: "new" | "replied" | "converted" | "closed";
   createdAt: Date;
+  pieceSlug?: KnownPieceSlug;
+  sessionId?: string;
 };
 
 const ENQUIRY_MESSAGES = [
@@ -263,22 +472,83 @@ const ENQUIRY_MESSAGES = [
   "Followed up on an old quote from last quarter.",
 ];
 
+const ENQUIRY_PIECES: KnownPieceSlug[] = [
+  PIECE.classicPoolBlues,
+  PIECE.aquaBlends,
+  PIECE.patternedBorders,
+  PIECE.goldAccents,
+  PIECE.solidGlass,
+  PIECE.customMurals,
+  PIECE.plainWhite,
+  PIECE.greenMosaic,
+  PIECE.deepMidnight,
+  PIECE.containerOrders,
+];
+
+const STORY_ENQUIRIES: EnquiryRow[] = [
+  {
+    customer: null,
+    message: "Visualizer upload from an empty pool shell. Wants Classic pool blues in the photo.",
+    status: "new",
+    createdAt: daysAgo(0),
+    pieceSlug: PIECE.classicPoolBlues,
+    sessionId: "demo-visualizer-pool-shell",
+  },
+  {
+    customer: "kemi",
+    message: "Asked for sacred-heart style custom artwork and a gold border sample.",
+    status: "replied",
+    createdAt: daysAgo(1),
+    pieceSlug: PIECE.customMurals,
+  },
+  {
+    customer: null,
+    message: "Kitchen backsplash visitor opened aqua mosaic, then asked for sample photos.",
+    status: "new",
+    createdAt: daysAgo(2),
+    pieceSlug: PIECE.aquaBlends,
+    sessionId: "demo-kitchen-backsplash",
+  },
+  {
+    customer: "musa",
+    message: "Sent a pool equipment list and asked for a full quote before site visit.",
+    status: "converted",
+    createdAt: daysAgo(4),
+    pieceSlug: PIECE.containerOrders,
+  },
+  {
+    customer: null,
+    message: "Looked at black mosaic for a shower wall, no name left yet.",
+    status: "closed",
+    createdAt: daysAgo(18),
+    pieceSlug: PIECE.blackMosaic,
+    sessionId: "demo-shower-black",
+  },
+];
+
 /* Enquiries across the whole year, every status represented, roughly a
    third anonymous from the site beacon and the rest tied to a customer. */
 function buildEnquiries(): EnquiryRow[] {
   const out: EnquiryRow[] = [];
-  const total = 20;
+  const total = 28;
   for (let i = 0; i < total; i++) {
     const ago = Math.round(2 + (i * (350 - 2)) / (total - 1));
     const customer = i % 3 === 0 ? null : keys[(i * 5) % keys.length];
     const status: EnquiryRow["status"] =
-      i % 4 === 0 ? "new" : i % 4 === 2 ? "converted" : "replied";
-    out.push({ customer, message: ENQUIRY_MESSAGES[i % ENQUIRY_MESSAGES.length], status, createdAt: daysAgo(ago) });
+      i % 7 === 0 ? "closed" : i % 4 === 0 ? "new" : i % 4 === 2 ? "converted" : "replied";
+    out.push({
+      customer,
+      message: ENQUIRY_MESSAGES[i % ENQUIRY_MESSAGES.length],
+      status,
+      createdAt: daysAgo(ago),
+      pieceSlug: ENQUIRY_PIECES[i % ENQUIRY_PIECES.length],
+      sessionId: customer ? undefined : `demo-session-${String(i + 1).padStart(2, "0")}`,
+    });
   }
   return out;
 }
 
-const ENQUIRIES: EnquiryRow[] = buildEnquiries();
+const ENQUIRIES: EnquiryRow[] = [...STORY_ENQUIRIES, ...buildEnquiries()];
 
 type MotionRow = {
   customer: CustomerKey;
@@ -286,6 +556,7 @@ type MotionRow = {
   status: "open" | "done";
   scheduledFor?: Date;
   completedAt?: Date;
+  note?: string;
 };
 
 const MOTION_KINDS: MotionRow["kind"][] = [
@@ -294,6 +565,44 @@ const MOTION_KINDS: MotionRow["kind"][] = [
   "site_sample_visit",
   "pool_size_quote",
   "materials_list",
+];
+
+const STORY_MOTIONS: MotionRow[] = [
+  {
+    customer: "funke",
+    kind: "pool_size_quote",
+    status: "open",
+    scheduledFor: daysAhead(1),
+    note: scenarioNote("send quote from visualizer pool dimensions."),
+  },
+  {
+    customer: "kemi",
+    kind: "sample_pictures",
+    status: "open",
+    scheduledFor: daysAhead(0),
+    note: scenarioNote("send custom mural and tiny seed gold sample photos."),
+  },
+  {
+    customer: "adaeze",
+    kind: "site_sample_visit",
+    status: "open",
+    scheduledFor: daysAhead(2),
+    note: scenarioNote("take pool blue samples to the site before deposit."),
+  },
+  {
+    customer: "obinna",
+    kind: "showroom_visit",
+    status: "done",
+    completedAt: daysAgo(32),
+    note: scenarioNote("gold and silver picked in the showroom."),
+  },
+  {
+    customer: "musa",
+    kind: "materials_list",
+    status: "done",
+    completedAt: daysAgo(3),
+    note: scenarioNote("materials list converted to a quote."),
+  },
 ];
 
 /* Sales motions: half still open with a date coming up, half done and
@@ -313,7 +622,7 @@ function buildMotions(): MotionRow[] {
   return out;
 }
 
-const MOTIONS: MotionRow[] = buildMotions();
+const MOTIONS: MotionRow[] = [...STORY_MOTIONS, ...buildMotions()];
 
 type Db = ReturnType<typeof drizzle>;
 
@@ -329,6 +638,9 @@ async function clearDemo(db: Db) {
 
 async function seedDemo(db: Db) {
   await clearDemo(db);
+  const pieceRows = await db.select({ slug: schema.pieces.slug }).from(schema.pieces);
+  const pieceSlugs = new Set(pieceRows.map((p) => p.slug));
+  const piece = (slug?: KnownPieceSlug) => (slug && pieceSlugs.has(slug) ? slug : null);
 
   const ids = {} as Record<CustomerKey, string>;
   for (const c of CUSTOMERS) {
@@ -342,17 +654,28 @@ async function seedDemo(db: Db) {
   for (const o of ORDERS) {
     const [order] = await db
       .insert(schema.orders)
-      .values({ customerId: ids[o.customer], status: o.status, note: DEMO_NOTE, createdAt: o.createdAt, updatedAt: o.createdAt })
+      .values({
+        customerId: ids[o.customer],
+        status: o.status,
+        note: o.note ?? DEMO_NOTE,
+        createdAt: o.createdAt,
+        updatedAt: o.createdAt,
+      })
       .returning({ id: schema.orders.id });
 
+    const itemIds: string[] = [];
     for (const l of o.lines) {
-      await db.insert(schema.orderItems).values({
+      const returnForItemId = typeof l.returnFor === "number" ? itemIds[l.returnFor] ?? null : null;
+      const [item] = await db.insert(schema.orderItems).values({
         orderId: order.id,
+        pieceSlug: piece(l.pieceSlug),
         description: l.description,
         quantity: l.quantity,
         listPriceKobo: naira(l.list),
         givenPriceKobo: naira(l.given),
-      });
+        returnForItemId,
+      }).returning({ id: schema.orderItems.id });
+      itemIds.push(item.id);
     }
     for (const p of o.payments) {
       await db.insert(schema.payments).values({
@@ -368,6 +691,7 @@ async function seedDemo(db: Db) {
         orderId: order.id,
         address: o.delivery.address,
         status: o.delivery.status,
+        driver: o.delivery.driver ?? "",
         scheduledFor: o.delivery.scheduledFor ? isoDate(o.delivery.scheduledFor) : null,
         deliveredAt: o.delivery.deliveredAt ?? null,
         note: DEMO_NOTE,
@@ -378,9 +702,11 @@ async function seedDemo(db: Db) {
   for (const e of ENQUIRIES) {
     await db.insert(schema.enquiries).values({
       customerId: e.customer ? ids[e.customer] : null,
+      pieceSlug: piece(e.pieceSlug),
       source: DEMO_SOURCE,
       message: e.message,
       status: e.status,
+      sessionId: e.sessionId ?? null,
       createdAt: e.createdAt,
     });
   }
@@ -390,7 +716,7 @@ async function seedDemo(db: Db) {
       customerId: ids[m.customer],
       kind: m.kind,
       status: m.status,
-      note: DEMO_NOTE,
+      note: m.note ?? DEMO_NOTE,
       scheduledFor: m.scheduledFor ? isoDate(m.scheduledFor) : null,
       completedAt: m.completedAt ?? null,
     });
@@ -409,7 +735,10 @@ function printPlan() {
   let totalPaid = 0;
   let paymentRows = 0;
   let deliveriesPending = 0;
+  let deliveriesOut = 0;
   let deliveriesDelivered = 0;
+  let linkedOrderLines = 0;
+  let returnLines = 0;
   for (const o of ORDERS) {
     const billed = o.lines.reduce((s, l) => s + naira(l.given) * l.quantity, 0);
     const paid = o.payments.reduce((s, p) => s + naira(p.amount), 0);
@@ -419,29 +748,42 @@ function printPlan() {
     byStatus[o.status] = (byStatus[o.status] ?? 0) + 1;
     const month = isoDate(o.createdAt).slice(0, 7);
     byMonth[month] = (byMonth[month] ?? 0) + 1;
+    linkedOrderLines += o.lines.filter((l) => l.pieceSlug).length;
+    returnLines += o.lines.filter((l) => typeof l.returnFor === "number").length;
     if (o.delivery?.status === "pending") deliveriesPending++;
+    if (o.delivery?.status === "out") deliveriesOut++;
     if (o.delivery?.status === "delivered") deliveriesDelivered++;
   }
 
   console.log(`\nOrders: ${ORDERS.length}`);
-  const statusLine = ["quoted", "deposit", "delivered", "settled"]
+  const statusLine = ["enquiry", "quoted", "deposit", "delivered", "settled"]
     .map((s) => `${s} ${byStatus[s] ?? 0}`)
     .join(", ");
   console.log(`  by status: ${statusLine}`);
   const months = Object.keys(byMonth).sort();
   console.log(`  across ${months.length} months: ${months.map((m) => `${m.slice(2)} ${byMonth[m]}`).join(", ")}`);
+  console.log(`  linked catalogue lines: ${linkedOrderLines}`);
+  console.log(`  return lines: ${returnLines}`);
+  console.log(`  named scenarios: ${SCENARIO_ORDERS.map((o) => o.scenario).filter(Boolean).join(", ")}`);
 
   const enqByStatus: Record<string, number> = {};
   for (const e of ENQUIRIES) enqByStatus[e.status] = (enqByStatus[e.status] ?? 0) + 1;
   const enqTied = ENQUIRIES.filter((e) => e.customer).length;
+  const enqWithPiece = ENQUIRIES.filter((e) => e.pieceSlug).length;
+  const enqSessions = ENQUIRIES.filter((e) => e.sessionId).length;
   const motOpen = MOTIONS.filter((m) => m.status === "open").length;
+  const motByKind: Record<string, number> = {};
+  for (const m of MOTIONS) motByKind[m.kind] = (motByKind[m.kind] ?? 0) + 1;
 
   console.log(`\nPayments: ${paymentRows}`);
-  console.log(`Deliveries: ${deliveriesPending + deliveriesDelivered}  (pending ${deliveriesPending}, delivered ${deliveriesDelivered})`);
   console.log(
-    `Enquiries: ${ENQUIRIES.length}  (new ${enqByStatus["new"] ?? 0}, replied ${enqByStatus["replied"] ?? 0}, converted ${enqByStatus["converted"] ?? 0}; ${enqTied} tied, ${ENQUIRIES.length - enqTied} anonymous)`,
+    `Deliveries: ${deliveriesPending + deliveriesOut + deliveriesDelivered}  (pending ${deliveriesPending}, out ${deliveriesOut}, delivered ${deliveriesDelivered})`,
+  );
+  console.log(
+    `Enquiries: ${ENQUIRIES.length}  (new ${enqByStatus["new"] ?? 0}, replied ${enqByStatus["replied"] ?? 0}, converted ${enqByStatus["converted"] ?? 0}, closed ${enqByStatus["closed"] ?? 0}; ${enqTied} tied, ${ENQUIRIES.length - enqTied} anonymous, ${enqWithPiece} piece-linked, ${enqSessions} sessions)`,
   );
   console.log(`Sales motions: ${MOTIONS.length}  (open ${motOpen}, done ${MOTIONS.length - motOpen})`);
+  console.log(`  by kind: ${MOTION_KINDS.map((k) => `${k} ${motByKind[k] ?? 0}`).join(", ")}`);
 
   console.log(`\nTotals: billed ${money(totalBilled)}, paid ${money(totalPaid)}, owing ${money(totalBilled - totalPaid)}`);
   console.log(`\nEvery row tagged. Remove with: npm run demo:clear`);
