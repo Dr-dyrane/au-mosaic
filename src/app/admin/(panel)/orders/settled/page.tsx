@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { count, desc, eq, sql } from "drizzle-orm";
+import { count, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira } from "@/lib/backoffice";
 import { fmtDate } from "../pipeline";
@@ -38,22 +38,31 @@ export default async function SettledOrdersPage({
     .limit(PER_PAGE)
     .offset((page - 1) * PER_PAGE);
 
-  const lineSums = await db
-    .select({
-      orderId: schema.orderItems.orderId,
-      billed: sql<number>`sum(${schema.orderItems.givenPriceKobo} * ${schema.orderItems.quantity})`,
-      gap: sql<number>`sum(case when ${schema.orderItems.givenPriceKobo} < ${schema.orderItems.listPriceKobo} then (${schema.orderItems.listPriceKobo} - ${schema.orderItems.givenPriceKobo}) * ${schema.orderItems.quantity} else 0 end)`,
-    })
-    .from(schema.orderItems)
-    .groupBy(schema.orderItems.orderId);
+  /* Only sum the orders on this page, so the scan stays the size of the
+     page and not the whole book. */
+  const ids = rows.map((r) => r.order.id);
+  const lineSums = ids.length
+    ? await db
+        .select({
+          orderId: schema.orderItems.orderId,
+          billed: sql<number>`sum(${schema.orderItems.givenPriceKobo} * ${schema.orderItems.quantity})`,
+          gap: sql<number>`sum(case when ${schema.orderItems.givenPriceKobo} < ${schema.orderItems.listPriceKobo} then (${schema.orderItems.listPriceKobo} - ${schema.orderItems.givenPriceKobo}) * ${schema.orderItems.quantity} else 0 end)`,
+        })
+        .from(schema.orderItems)
+        .where(inArray(schema.orderItems.orderId, ids))
+        .groupBy(schema.orderItems.orderId)
+    : [];
 
-  const paySums = await db
-    .select({
-      orderId: schema.payments.orderId,
-      paid: sql<number>`sum(${schema.payments.amountKobo})`,
-    })
-    .from(schema.payments)
-    .groupBy(schema.payments.orderId);
+  const paySums = ids.length
+    ? await db
+        .select({
+          orderId: schema.payments.orderId,
+          paid: sql<number>`sum(${schema.payments.amountKobo})`,
+        })
+        .from(schema.payments)
+        .where(inArray(schema.payments.orderId, ids))
+        .groupBy(schema.payments.orderId)
+    : [];
 
   const billedBy = new Map<string, number>(lineSums.map((r) => [r.orderId, Number(r.billed)]));
   const gapBy = new Map<string, number>(lineSums.map((r) => [r.orderId, Number(r.gap)]));

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, count, desc, eq, ilike, isNotNull, isNull, ne, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { OPEN_STEPS, STATUS_LABEL } from "./pipeline";
 import OrderFilterSheet from "./OrderFilterSheet";
@@ -39,22 +39,31 @@ export default async function OrdersPage({
     .where(and(...conds))
     .orderBy(desc(schema.orders.createdAt));
 
-  const lineSums = await db
-    .select({
-      orderId: schema.orderItems.orderId,
-      billed: sql<number>`sum(${schema.orderItems.givenPriceKobo} * ${schema.orderItems.quantity})`,
-      gap: sql<number>`sum(case when ${schema.orderItems.givenPriceKobo} < ${schema.orderItems.listPriceKobo} then (${schema.orderItems.listPriceKobo} - ${schema.orderItems.givenPriceKobo}) * ${schema.orderItems.quantity} else 0 end)`,
-    })
-    .from(schema.orderItems)
-    .groupBy(schema.orderItems.orderId);
+  /* Sum only the orders shown, so the scan is the size of the open book,
+     never the whole ledger of order lines. */
+  const openIds = open.map((o) => o.order.id);
+  const lineSums = openIds.length
+    ? await db
+        .select({
+          orderId: schema.orderItems.orderId,
+          billed: sql<number>`sum(${schema.orderItems.givenPriceKobo} * ${schema.orderItems.quantity})`,
+          gap: sql<number>`sum(case when ${schema.orderItems.givenPriceKobo} < ${schema.orderItems.listPriceKobo} then (${schema.orderItems.listPriceKobo} - ${schema.orderItems.givenPriceKobo}) * ${schema.orderItems.quantity} else 0 end)`,
+        })
+        .from(schema.orderItems)
+        .where(inArray(schema.orderItems.orderId, openIds))
+        .groupBy(schema.orderItems.orderId)
+    : [];
 
-  const paySums = await db
-    .select({
-      orderId: schema.payments.orderId,
-      paid: sql<number>`sum(${schema.payments.amountKobo})`,
-    })
-    .from(schema.payments)
-    .groupBy(schema.payments.orderId);
+  const paySums = openIds.length
+    ? await db
+        .select({
+          orderId: schema.payments.orderId,
+          paid: sql<number>`sum(${schema.payments.amountKobo})`,
+        })
+        .from(schema.payments)
+        .where(inArray(schema.payments.orderId, openIds))
+        .groupBy(schema.payments.orderId)
+    : [];
 
   const [settled] = await db
     .select({ n: count() })
