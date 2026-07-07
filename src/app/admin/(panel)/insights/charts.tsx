@@ -5,17 +5,38 @@
    palettes and both night and day. Bars are divs; the trend, which
    needs a hover, lives in its own client file. */
 
-export type StatTileProps = { label: string; value: string; sub?: string };
+import Link from "next/link";
 
-/* A headline number, led with. The figure is the hero in serif; the
-   label sits above it small, the read below it quiet. */
-export function StatTile({ label, value, sub }: StatTileProps) {
-  return (
-    <div className="panel">
-      <p className="eyebrow">{label}</p>
+export type StatTileProps = { label: string; value: string; sub?: string; href?: string };
+
+/* A headline number, led with, and a doorway when it has somewhere to
+   go. The figure is the hero in serif; the label sits above it small,
+   the read below quiet. A linked tile carries a quiet chevron that warms
+   on hover, and the whole tile is the tap target. */
+export function StatTile({ label, value, sub, href }: StatTileProps) {
+  const body = (
+    <>
+      <div className="flex items-center justify-between gap-2">
+        <p className="eyebrow">{label}</p>
+        {href ? (
+          <span
+            className="text-[13px] text-mist transition-colors duration-300 group-hover:text-gold"
+            aria-hidden
+          >
+            &rsaquo;
+          </span>
+        ) : null}
+      </div>
       <p className="font-serif text-[26px] leading-none tabular-nums mt-2.5">{value}</p>
       {sub ? <p className="mt-2 text-[12px] leading-relaxed text-dusk">{sub}</p> : null}
-    </div>
+    </>
+  );
+  return href ? (
+    <Link href={href} className="panel group block">
+      {body}
+    </Link>
+  ) : (
+    <div className="panel">{body}</div>
   );
 }
 

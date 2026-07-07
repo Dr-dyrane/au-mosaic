@@ -58,6 +58,7 @@ export default async function InsightsPage({
 
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile
+          href="/admin/orders"
           label="On pace"
           value={naira(d.pace)}
           sub={
@@ -67,16 +68,19 @@ export default async function InsightsPage({
           }
         />
         <StatTile
+          href="/admin/debts"
           label="Outstanding"
           value={naira(d.owedTotal)}
           sub={d.owedTotal > 0 ? (d.oldestDebt ? "some over two months" : "all under two months") : "nobody owes"}
         />
         <StatTile
+          href="/admin/orders"
           label="Discount leak"
           value={naira(d.leakTotal)}
           sub={d.billedAll > 0 ? `${Math.round((d.leakTotal / d.billedAll) * 100)}% of billed` : "no billing yet"}
         />
         <StatTile
+          href="/admin/pieces"
           label="Low stock"
           value={String(d.lowStock.length)}
           sub={d.lowStock.length > 0 ? "at or below reorder" : "shelves calm"}
