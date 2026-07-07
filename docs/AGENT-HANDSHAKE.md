@@ -16,6 +16,23 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Visualizer fit confidence lane - done
+
+Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake for
+the visualizer fit flow. The curated empty-pool starter now loads as an accepted
+fit, so Add another surface is visible before Find surface. Find surface keeps
+an already accepted quad when the detector finds a materially different edge,
+then offers Use detected fit as the optional machine guess. Manual drag and
+keyboard nudges also mark the active surface ready. I did not touch the open
+admin production lane or dirty admin files. Local Playwright checked
+`/visualizer` at 1280 by 800 with a cleared store: Add another surface was
+visible before Find surface; after Find surface, the four corner coordinates
+stayed unchanged, Use detected fit appeared, Add another surface stayed visible,
+and the status read `Found another edge. Current fit kept.` `npx tsc --noEmit`,
+`npx eslint src --max-warnings=0`, `python3 scripts/theme-check.py`,
+`git diff --check`, dash scan, and `npx next build` on Next 16.2.10, 57 routes,
+passed.
+
 ## 2026-07-06 - CODEX - Footer and compact nav restraint lane - done
 
 Closed `src/components/Header.tsx`, `src/components/Footer.tsx`,
