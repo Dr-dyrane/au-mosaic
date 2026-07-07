@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminSw from "@/components/AdminSw";
+import OfflineMirror from "@/components/OfflineMirror";
 
 /* The whole /admin tree, login included, wears app clothes: its own
    manifest and service worker scoped to /admin, a real installable
@@ -19,6 +20,7 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
   return (
     <>
       <AdminSw />
+      <OfflineMirror />
       {children}
     </>
   );

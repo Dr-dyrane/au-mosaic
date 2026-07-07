@@ -7,6 +7,7 @@ import AddStaffForm from "./AddStaffForm";
 import KeyRow from "./KeyRow";
 import NotifyToggle from "./NotifyToggle";
 import TourReset from "./TourReset";
+import OutboxReview from "@/components/OutboxReview";
 import Teach from "../Teach";
 
 /* The facts of the house, and the keys to its door. Today the site
@@ -104,6 +105,7 @@ export default async function SettingsPage() {
         </Link>
       </div>
 
+      <OutboxReview />
       <div className="panel">
         <p className="font-serif text-[20px]">The welcome</p>
         <p className="mt-2 text-[14px] leading-relaxed text-dusk">

@@ -8,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -265,8 +266,12 @@ export const payments = pgTable(
     method: text("method").notNull().default("transfer"),
     note: text("note").notNull().default(""),
     paidAt: timestamp("paid_at", { withTimezone: true }).notNull().defaultNow(),
+    clientOpId: text("client_op_id"),
   },
-  (t) => [index("payments_order_idx").on(t.orderId)]
+  (t) => [
+    index("payments_order_idx").on(t.orderId),
+    uniqueIndex("payments_client_op_id_uidx").on(t.clientOpId),
+  ]
 );
 
 export const deliveries = pgTable(

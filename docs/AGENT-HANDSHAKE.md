@@ -16,6 +16,28 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - Claude - Offline field kit lane - done
+
+Shipped the offline field kit (plan and record in `docs/OFFLINE.md`), all four
+phases, types and lint clean, an independent audit clean. Scope stayed `/admin`
+only; nothing of the visualizer or public site was touched. Read path: an
+auth-gated `/admin/api/snapshot`, an IndexedDB mirror that fills while online,
+and `/admin/offline` is now the last-known field kit with a loud gold saved-at
+stamp, served and prefetched by the worker. Write set, deliberately two: record
+a payment (idempotent by a new nullable `client_op_id` unique index on payments,
+ON CONFLICT DO NOTHING, never a stale total) and mark an out-for-delivery
+delivery landed (idempotent by state, no ledger). Note and draft-order stay
+online only by design, see the doc. Sync flushes on load, focus, and reconnect,
+with Background Sync as the Android bonus and the idempotent routes making an
+overlap safe; the could-not-apply review lives in Settings. My files:
+`src/lib/offline/*`, `src/app/admin/api/{snapshot,sync}/*`,
+`src/app/admin/offline/{page,OfflineKit}.tsx`, `src/components/OfflineMirror.tsx`,
+`src/components/OutboxReview.tsx`, plus additive touches to `public/admin-sw.js`,
+`src/app/admin/layout.tsx`, `src/app/admin/(panel)/settings/page.tsx`, and
+`src/db/schema.ts` (the one column). Owner step: `npx drizzle-kit push` adds the
+column before offline payments can settle; until then they hold and retry safely.
+The service worker is free again.
+
 ## 2026-07-07 - CODEX - Public Explore grid lane - done
 
 Closed `src/components/Header.tsx`, `src/components/AskHouse.tsx`,
