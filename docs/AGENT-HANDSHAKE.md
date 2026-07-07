@@ -22,8 +22,10 @@ Closed `src/app/admin/(panel)/settings/page.tsx`, `docs/QA.md`, and this
 handshake for a small Settings layout pass. The owner spotted the desktop bento
 as unbalanced after the live/demo toggle landed. Facts and the key rack now
 compose the top bento, live/demo completes the key column, and morning plus
-history/welcome sit as a balanced lower row. No new admin primitives, no schema
-work, no data write.
+history/welcome sit as a balanced lower row. `NotifyToggle` also now hydrates
+from one neutral phone-check state before it reads browser notification
+support, clearing the local dev issue badge in Settings. No new admin
+primitives, no schema work, no data write.
 
 ## 2026-07-07 - CODEX - Backroom demo mode lane - done
 

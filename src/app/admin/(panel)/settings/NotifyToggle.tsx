@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { dropPushSubscription, savePushSubscription, type SaveState } from "./actions";
 import Sentence from "../Sentence";
 import Teach from "../Teach";
@@ -51,15 +51,31 @@ function b64ToBytes(b64: string) {
 
 export default function NotifyToggle() {
   const on = useSyncExternalStore(subscribe, snapshot, serverSnapshot) === "1";
+  const [capability, setCapability] = useState<"checking" | "supported" | "unsupported">(
+    "checking",
+  );
   const [busy, setBusy] = useState(false);
   const [state, setState] = useState<SaveState>(null);
   const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
-  const supported =
-    typeof window !== "undefined" &&
-    "serviceWorker" in navigator &&
-    "PushManager" in window &&
-    "Notification" in window;
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      setCapability(
+        "serviceWorker" in navigator && "PushManager" in window && "Notification" in window
+          ? "supported"
+          : "unsupported",
+      );
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  if (capability === "checking") {
+    return (
+      <p className="mt-4 text-[14px] leading-relaxed text-dusk">
+        Checking this phone.
+      </p>
+    );
+  }
 
   async function turnOn() {
     if (!pub) return;
@@ -118,7 +134,7 @@ export default function NotifyToggle() {
     }
   }
 
-  if (!supported) {
+  if (capability === "unsupported") {
     return (
       <p className="mt-4 text-[14px] leading-relaxed text-dusk">
         This browser cannot carry notifications. On iPhone, install the
