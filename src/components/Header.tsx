@@ -40,6 +40,15 @@ export default function Header() {
     return () => document.removeEventListener("pointerdown", onDown);
   }, [askOpen, explore]);
 
+  useEffect(() => {
+    if (!explore || askOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExplorePath(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [askOpen, explore]);
+
   /* While the mobile menu is open, lock the page so the panel scrolls, not
      the page behind it. */
   useEffect(() => {
@@ -64,7 +73,13 @@ export default function Header() {
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
-      <div className="pointer-events-auto relative">
+      <div
+        ref={exploreRef}
+        className="pointer-events-auto relative"
+        onMouseLeave={() => {
+          if (!askOpen) setExplorePath(null);
+        }}
+      >
         <div
           className={`glass flex items-center rounded-full transition-all duration-500 ${
             scrolled ? "gap-4 px-4 py-2" : "gap-5 px-5 py-2.5"
@@ -82,6 +97,7 @@ export default function Header() {
                 key={n.href}
                 href={n.href}
                 aria-current={isActive(n.href) ? "page" : undefined}
+                onMouseEnter={() => setExplorePath(null)}
                 className={`whitespace-nowrap py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
                   isActive(n.href) ? "text-gold" : "text-dusk hover:text-ink"
                 }`}
@@ -93,20 +109,17 @@ export default function Header() {
             {/* The one Explore door: the bar reads five at rest; the editorial
                 rooms open on hover or tap, dismiss on an outside tap. */}
             <div
-              ref={exploreRef}
               className="relative"
               onMouseEnter={() => setExplorePath(pathname)}
-              onMouseLeave={() => {
-                if (!askOpen) setExplorePath(null);
-              }}
             >
               <button
                 type="button"
                 onClick={() => setExplorePath(explore ? null : pathname)}
                 aria-expanded={explore}
-                aria-haspopup="menu"
+                aria-haspopup="true"
+                aria-controls="site-explore-tray"
                 className={`flex items-center gap-1.5 whitespace-nowrap py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
-                  explore ? "text-ink" : "text-dusk hover:text-ink"
+                  explore ? "text-ink" : activeExplore ? "text-gold" : "text-dusk hover:text-ink"
                 }`}
               >
                 Explore
@@ -114,35 +127,6 @@ export default function Header() {
                   <path d="M2.5 4 5 6.5 7.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
-              <div className={`absolute right-0 top-full pt-4 transition-opacity duration-300 ${explore ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}>
-                <div
-                  role="menu"
-                  className={`glass w-60 rounded-[24px] p-2.5 transition-transform duration-300 ${explore ? "translate-y-0" : "-translate-y-1"}`}
-                >
-                  {EXPLORE.map((e) => (
-                    <Link
-                      key={e.href}
-                      href={e.href}
-                      role="menuitem"
-                      aria-current={isActive(e.href) ? "page" : undefined}
-                      onClick={() => setExplorePath(null)}
-                      className={`block rounded-[16px] px-4 py-2.5 text-[13px] transition-colors duration-200 hover:bg-shell/60 ${
-                        isActive(e.href) ? "text-gold" : "text-dusk hover:text-ink"
-                      }`}
-                    >
-                      {e.label}
-                    </Link>
-                  ))}
-                  <AskHouse
-                    trigger="menu"
-                    label="Ask the house"
-                    onOpenChange={(next) => {
-                      setAskOpen(next);
-                      if (!next) setExplorePath(null);
-                    }}
-                  />
-                </div>
-              </div>
             </div>
           </nav>
 
@@ -174,6 +158,42 @@ export default function Header() {
               )}
             </svg>
           </button>
+        </div>
+
+        <div
+          className={`absolute left-1/2 top-full hidden w-[min(calc(100vw-2rem),1180px)] -translate-x-1/2 pt-3 transition-opacity duration-300 lg:block ${
+            explore ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
+        >
+          <nav
+            id="site-explore-tray"
+            aria-label="Explore"
+            className={`glass flex flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-[28px] px-6 py-4 transition-transform duration-300 ${
+              explore ? "translate-y-0 scale-100" : "-translate-y-1 scale-[0.985]"
+            }`}
+          >
+            {EXPLORE.map((e) => (
+              <Link
+                key={e.href}
+                href={e.href}
+                aria-current={isActive(e.href) ? "page" : undefined}
+                onClick={() => setExplorePath(null)}
+                className={`link-hair whitespace-nowrap ${
+                  isActive(e.href) ? "text-gold" : "text-dusk hover:text-ink"
+                }`}
+              >
+                {e.label}
+              </Link>
+            ))}
+            <AskHouse
+              label="Ask"
+              className="text-dusk"
+              onOpenChange={(next) => {
+                setAskOpen(next);
+                if (!next) setExplorePath(null);
+              }}
+            />
+          </nav>
         </div>
 
         {open && (

@@ -16,6 +16,17 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Public Explore tray lane - done
+
+Closed `src/components/Header.tsx`, `docs/QA.md`, and this handshake for the
+public Explore menu refinement. Desktop and wide tablet Explore now opens as a
+horizontal glass tray below the island nav instead of a vertical dropdown. The
+phone drill-in stays intact. I did not touch admin files or the dirty migration
+file. Bundled Playwright checked `/visualizer`: 1280 by 900 rendered one row in
+an 1180px tray below the 882px island; 1024 by 768 wrapped into two calm rows;
+390 by 844 kept the compact Explore drill-in and hid the wide tray. No viewport
+overflow appeared.
+
 ## 2026-07-07 - CODEX - Visualizer fit confidence lane - done
 
 Closed `src/components/Visualizer.tsx`, `docs/QA.md`, and this handshake for
