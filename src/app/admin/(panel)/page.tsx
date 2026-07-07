@@ -3,6 +3,7 @@ import { readAdminPulse } from "@/lib/admin-pulse";
 import RefreshLine from "./RefreshLine";
 import { TourOffer } from "./Tour";
 import { LastTouched } from "./touched";
+import { computeAttention } from "@/lib/attention";
 
 /* The morning glance: five numbers that used to live on paper.
    Force-dynamic because a back office is never stale; the queries run
@@ -32,7 +33,7 @@ async function pulse() {
 }
 
 export default async function AdminHome() {
-  const p = await pulse();
+  const [p, attention] = await Promise.all([pulse(), computeAttention()]);
   return (
     <main>
       {/* Home wears two faces: today, and the longer story. */}
@@ -62,6 +63,17 @@ export default async function AdminHome() {
           still zeros; it may sit above them. The trail serves the
           returning hand, so it waits below the pulse. */}
       <TourOffer />
+
+      {attention.length > 0 && (
+        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2.5">
+          <span className="eyebrow">Needs your eye</span>
+          {attention.map((a) => (
+            <Link key={a.key} href={a.href} className="link-hair text-[14px] text-dusk">
+              {a.text}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {!p.ok && (
         <div className="panel mt-10 max-w-md">

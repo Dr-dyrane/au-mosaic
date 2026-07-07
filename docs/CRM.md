@@ -56,9 +56,12 @@ CRM; the CRM is the gallery's back room.
 7. Same skin, same laws. Maison tokens, the type ramp, no borders,
    concentric geometry, both suns, all four houses. Walking from the
    gallery into the back room of the same building.
-8. Nothing is ever lost. No hard deletes anywhere. Pieces go off the
-   site; records archive. A man moving off paper must never fear the
-   machine ate his book. An audit trail arrives when staff do.
+8. Nothing is lost by accident. Archive is the default and reversible:
+   pieces go off the site, records step aside and return. Permanent
+   delete exists, but only behind a consequence confirmation that names
+   the exact rows, and the audit signs both the archive and the delete.
+   A man moving off paper must never fear the machine ate his book, so
+   removal is always deliberate, never a slip.
 9. Speed is the luxury. Saves answer instantly and in words. Money is
    integer kobo, so arithmetic is exact. Every open shows fresh truth.
 10. One source of truth, eventually. The seam flips, the flagship
@@ -533,6 +536,22 @@ eslint at max-warnings=0, git diff-check, and a dash scan; the Linux production
 build waits for the next deploy because the mount holds the owner's macOS
 binaries. Committed locally as its own four-file change, not pushed: git push
 stays an owner step.
+
+**2026-07-07, the benchmark and the open board.** The owner asked how the back
+office measures against the top enterprise SaaS and CRM standard. The full
+comparison lives in `docs/CRM-BENCHMARK.md`; two rulings come out of it and
+belong here. Scope ruling: the back office is single-tenant by construction, a
+tool for one shop, not a product sold to many, so the enterprise platform layer
+is refused as category mismatch, not deferred, no multi-tenancy, no SSO or SAML
+or SCIM, no SOC 2 certification, no per-record RBAC, no public API marketplace.
+It stops being re-litigated. What still applies to a single-business tool and is
+genuinely owed is the open board, ranked: P1, an attention surface, the due and
+overdue that needs his eye today on the glance and in the digest, plus customer
+dedupe on a matching phone; P2, backup the book beyond the two CSVs, and a thin
+test and monitoring layer, since two crashes reached production past type-check
+and lint; P3, a unified customer timeline, an NDPR-lite forget-customer action,
+and `CLAUDE_API_KEY` into `.env.example`. Law 8 above was corrected in the same
+pass; it had gone stale against the code that now allows a guarded delete.
 
 **The brand, harvested (2026-07-04, owner's Instagram screenshots).**
 The client built the identity himself while the site guessed: the
