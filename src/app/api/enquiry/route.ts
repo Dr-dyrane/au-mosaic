@@ -39,9 +39,19 @@ export async function POST(req: Request) {
       pieceSlug = piece?.slug ?? null;
     }
 
-    await getDb()
-      .insert(schema.enquiries)
-      .values({ source, pieceSlug, sessionId, message: path ? `Tapped on ${path}` : "" });
+    /* The lead itself. Write it; if the book jams, retry once. If the
+       second pass fails too, leave one line in the log and still answer
+       204: a real lead must not vanish without a trace. */
+    const row = { source, pieceSlug, sessionId, message: path ? `Tapped on ${path}` : "" };
+    try {
+      await getDb().insert(schema.enquiries).values(row);
+    } catch {
+      try {
+        await getDb().insert(schema.enquiries).values(row);
+      } catch (err) {
+        console.error("enquiry insert failed after retry", err);
+      }
+    }
   } catch {
     /* The book missed one; the customer still reached WhatsApp. */
   }

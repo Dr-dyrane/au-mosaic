@@ -1,5 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { safeEqual } from "@/lib/admin-auth";
 import { sendPush } from "@/lib/push";
 import { computeAttention } from "@/lib/attention";
 
@@ -14,7 +15,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
-  if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
+  const auth = req.headers.get("authorization") ?? "";
+  if (!secret || !safeEqual(auth, `Bearer ${secret}`)) {
     return new Response(null, { status: 401 });
   }
 

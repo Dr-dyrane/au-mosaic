@@ -40,3 +40,29 @@ export async function countRecent(action: string, minutes: number): Promise<numb
     return 0;
   }
 }
+
+/* How often one caller did a thing lately, for a per-caller brake.
+   Returns null when it cannot count, so the caller can rest the door
+   closed instead of open: a hiccup must not become a free pass. */
+export async function countRecentFrom(
+  action: string,
+  source: string,
+  minutes: number
+): Promise<number | null> {
+  try {
+    const mins = Math.max(1, Math.trunc(minutes));
+    const [row] = await getDb()
+      .select({ n: count() })
+      .from(schema.auditLog)
+      .where(
+        and(
+          eq(schema.auditLog.action, action),
+          eq(schema.auditLog.subject, source),
+          gt(schema.auditLog.at, sql`now() - ${sql.raw(`interval '${mins} minutes'`)}`)
+        )
+      );
+    return row?.n ?? 0;
+  } catch {
+    return null;
+  }
+}

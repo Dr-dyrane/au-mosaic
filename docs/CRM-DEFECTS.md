@@ -7,6 +7,27 @@ register with the fix and, where relevant, a flag for a decision or a migration
 the owner runs. The capability benchmark said little was missing; this says
 several things are wrong inside what exists. Both are true.
 
+## Status, 2026-07-07
+
+Two batches shipped. Nothing on this register is now unaddressed except the
+deferred items named below, which are product decisions, not bugs.
+
+- Fixed and live (batch one, correctness and safety): C1, H1, H2, H3, H4, H5,
+  H6, M1, M2, M6, M7. The two migrations (bigint money, phone index) rode the
+  heal channel and self-applied on deploy; no push errand.
+- Fixed and live (batch two, hardening): M4 (login brake now per caller and
+  fails closed), M5 (visualizer endpoint rate-limited per caller and globally,
+  in memory), M8 (a failed enquiry retries once and logs the miss), and the
+  low-tier caps (upper bounds on quantity and amount) and the timing-safe cron
+  compare.
+- Partly fixed: M3. The Insights top-pieces and leak scans are now windowed so
+  they cannot grow without bound. Deferred: the snapshot's every-line load and
+  the Debts and Orders all-time grouping, which want pagination, a product
+  decision, not a hotfix.
+- Deferred lows: sunset the legacy two-part owner cookie, a lint note for the
+  rowsOf convention, and a retry for a missed audit line on a real payment.
+  None is load-bearing.
+
 ## Critical
 
 ### C1. Deleting a customer silently destroys their whole money history

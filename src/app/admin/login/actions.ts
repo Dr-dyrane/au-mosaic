@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { createHash } from "node:crypto";
+import { headers } from "next/headers";
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import {
@@ -10,17 +12,33 @@ import {
   hashStaffKey,
   setSession,
 } from "@/lib/admin-auth";
-import { countRecent, logAction } from "@/lib/audit";
+import { countRecentFrom, logAction } from "@/lib/audit";
 
 /* The door tries the master key first, then the staff table. Every
-   refusal is written down, and eight refusals in ten minutes rest
-   the door awhile. If the history table has not landed yet, the
-   door stays kind and simply cannot count. */
+   refusal is written down under the caller's mark, and eight from one
+   caller in ten minutes rest the door for that caller only. If the
+   count cannot be read, the door rests closed, so a hiccup is never a
+   free pass. */
 
 const REFUSED = "was refused at the door";
 
+/* Who is knocking, as a short hash of their address, so the door can
+   count one caller's tries without keeping the address itself. Vercel
+   sets the forwarded-for; the leftmost hop is the real caller. */
+async function callerTag(): Promise<string> {
+  const h = await headers();
+  /* Prefer the platform-set real ip, which a caller cannot spoof; fall
+     back to the leftmost forwarded hop, then to a shared bucket. */
+  const real = h.get("x-real-ip")?.trim();
+  const fwd = h.get("x-forwarded-for")?.split(",")[0].trim();
+  const ip = real || fwd || "unknown";
+  return createHash("sha256").update(ip).digest("hex").slice(0, 16);
+}
+
 export async function login(_prev: { error: string } | null, form: FormData) {
-  if ((await countRecent(REFUSED, 10)) >= 8) {
+  const tag = await callerTag();
+  const refusals = await countRecentFrom(REFUSED, tag, 10);
+  if (refusals === null || refusals >= 8) {
     return { error: "The door rests a moment. Try again shortly." };
   }
 
@@ -51,7 +69,7 @@ export async function login(_prev: { error: string } | null, form: FormData) {
     redirect("/admin");
   }
 
-  await logAction(REFUSED, "", "", "someone");
+  await logAction(REFUSED, tag, "", "someone");
   return { error: "That is not the key to this house." };
 }
 

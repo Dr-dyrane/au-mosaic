@@ -24,7 +24,11 @@ function sign(payload: string) {
   return createHmac("sha256", secret()).update(payload).digest("hex");
 }
 
-function safeEqual(a: string, b: string) {
+/* Constant-time string compare: hash both sides to a fixed length
+   first, so a mismatched length cannot throw and the timing tells
+   nothing. Shared so the door, the cookie, and the cron all read the
+   one rule. */
+export function safeEqual(a: string, b: string) {
   const ha = createHash("sha256").update(a).digest();
   const hb = createHash("sha256").update(b).digest();
   return timingSafeEqual(ha, hb);

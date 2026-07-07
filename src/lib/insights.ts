@@ -59,18 +59,25 @@ export async function computeInsights(months: number): Promise<InsightsData> {
     where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}
     group by 2 order by 2`);
 
+  /* Top pieces and the leak read the same window as the trend, both
+     for one honest frame and so the scan cannot grow without bound as
+     the book fills. The interval is whitelist, never raw input. */
   const topPieces = await db.execute(sql`
     select coalesce(p.name, i.description, 'Custom work') as name,
            sum(i.given_price_kobo * i.quantity)::bigint as revenue
     from order_items i
+    join orders o on o.id = i.order_id
     left join pieces p on p.slug = i.piece_slug
+    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}
     group by 1 order by 2 desc limit 5`);
 
   const leak = await db.execute(sql`
     select coalesce(sum(case when i.given_price_kobo < i.list_price_kobo
              then (i.list_price_kobo - i.given_price_kobo) * i.quantity else 0 end), 0)::bigint as total,
            coalesce(sum(i.given_price_kobo * i.quantity), 0)::bigint as billed
-    from order_items i`);
+    from order_items i
+    join orders o on o.id = i.order_id
+    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}`);
 
   const aging = await db.execute(sql`
     select bucket, count(*)::int as n, sum(balance)::bigint as owed from (

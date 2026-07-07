@@ -20,6 +20,12 @@ export type SaveState = { ok: boolean; message: string } | null;
 const METHODS = ["transfer", "cash", "POS"] as const;
 const RETURN_SETTLEMENTS = ["credit", "refund"] as const;
 
+/* Sane ceilings so a typo cannot store an absurd number or push a line
+   total past what the arithmetic can safely hold. A single line over
+   these is a mistake, not a pool job. */
+const MAX_QUANTITY = 100_000;
+const MAX_KOBO = 100_000_000 * 100;
+
 function refresh(orderId: string) {
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/orders");
@@ -217,6 +223,13 @@ export async function addLine(_prev: SaveState, form: FormData): Promise<SaveSta
   const givenRaw = String(form.get("givenPrice") ?? "").trim();
   const givenPriceKobo = givenRaw ? parseNaira(givenRaw) : listPriceKobo;
 
+  if (quantity > MAX_QUANTITY) {
+    return { ok: false, message: "That is too many for one line. Split it." };
+  }
+  if (listPriceKobo > MAX_KOBO || givenPriceKobo > MAX_KOBO) {
+    return { ok: false, message: "That price looks too large. Check it." };
+  }
+
   const db = getDb();
   try {
     await db.insert(schema.orderItems).values({
@@ -400,6 +413,7 @@ export async function addPayment(_prev: SaveState, form: FormData): Promise<Save
 
   const amountKobo = parseNaira(String(form.get("amount") ?? ""));
   if (amountKobo <= 0) return { ok: false, message: "The payment needs an amount." };
+  if (amountKobo > MAX_KOBO) return { ok: false, message: "That amount looks too large. Check it." };
 
   const method = String(form.get("method") ?? "");
   if (!(METHODS as readonly string[]).includes(method)) {
