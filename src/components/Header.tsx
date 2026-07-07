@@ -17,6 +17,8 @@ const subscribe = (fn: () => void) => {
   return () => window.removeEventListener("scroll", fn);
 };
 const getScrolled = () => window.scrollY > 24;
+const exploreTrayItem =
+  "flex min-h-12 items-center justify-center rounded-full bg-shell/35 px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 hover:bg-shell/55 hover:text-ink";
 
 export default function Header() {
   const [openPath, setOpenPath] = useState<string | null>(null);
@@ -161,14 +163,14 @@ export default function Header() {
         </div>
 
         <div
-          className={`absolute left-1/2 top-full hidden w-[min(calc(100vw-2rem),1180px)] -translate-x-1/2 pt-3 transition-opacity duration-300 lg:block ${
+          className={`absolute left-1/2 top-full hidden w-[min(calc(100vw-2rem),760px)] -translate-x-1/2 pt-3 transition-opacity duration-300 lg:block ${
             explore ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
           }`}
         >
           <nav
             id="site-explore-tray"
             aria-label="Explore"
-            className={`glass flex flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-[28px] px-6 py-4 transition-transform duration-300 ${
+            className={`glass grid grid-cols-3 gap-3 rounded-[28px] p-3 transition-transform duration-300 ${
               explore ? "translate-y-0 scale-100" : "-translate-y-1 scale-[0.985]"
             }`}
           >
@@ -178,16 +180,16 @@ export default function Header() {
                 href={e.href}
                 aria-current={isActive(e.href) ? "page" : undefined}
                 onClick={() => setExplorePath(null)}
-                className={`link-hair whitespace-nowrap ${
-                  isActive(e.href) ? "text-gold" : "text-dusk hover:text-ink"
+                className={`${exploreTrayItem} ${
+                  isActive(e.href) ? "bg-shell/55 text-gold" : "text-dusk"
                 }`}
               >
                 {e.label}
               </Link>
             ))}
             <AskHouse
+              trigger="tray"
               label="Ask"
-              className="text-dusk"
               onOpenChange={(next) => {
                 setAskOpen(next);
                 if (!next) setExplorePath(null);

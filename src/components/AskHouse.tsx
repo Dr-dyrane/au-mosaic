@@ -13,7 +13,7 @@ import {
 } from "@/lib/ask-house";
 import { wa } from "@/lib/wa";
 
-type AskHouseTrigger = "chip" | "menu" | "mobile";
+type AskHouseTrigger = "chip" | "menu" | "mobile" | "tray";
 
 type AskHouseProps = {
   trigger?: AskHouseTrigger;
@@ -37,6 +37,13 @@ function triggerClass(trigger: AskHouseTrigger, className?: string) {
 
   if (trigger === "mobile") {
     return classes("block w-full py-2 text-left text-[16px] text-dusk transition-colors duration-300 hover:text-ink", className);
+  }
+
+  if (trigger === "tray") {
+    return classes(
+      "flex min-h-12 w-full items-center justify-center rounded-full bg-shell/35 px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk transition-colors duration-300 hover:bg-shell/55 hover:text-ink",
+      className
+    );
   }
 
   return classes("link-hair text-dusk", className);

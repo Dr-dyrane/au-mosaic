@@ -16,6 +16,17 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Public Explore grid lane - done
+
+Closed `src/components/Header.tsx`, `src/components/AskHouse.tsx`,
+`docs/QA.md`, and this handshake for the owner-requested Explore tray
+refinement. Desktop and wide tablet Explore now renders as a composed 3 by 3
+glass tray with equal capsule cells, including Ask as the ninth item. The
+compact phone drill-in stays unchanged. I did not touch the open production
+lane files. Bundled Playwright checked `/visualizer`: 1280 by 900 and 1024 by
+768 both rendered 3 rows, 3 columns, 237 by 48 cells, and no viewport overflow;
+390 by 844 kept the wide tray hidden and the compact Explore drill-in active.
+
 ## 2026-07-07 - CODEX - Public Explore tray lane - done
 
 Closed `src/components/Header.tsx`, `docs/QA.md`, and this handshake for the
