@@ -20,6 +20,7 @@ git history: their decisions shipped, their prompts moved to the kit.
 | client/VIDEO-SCRIPT.md | The 3-minute walkthrough script, word for word, for the WhatsApp video. |
 | client/IMAGE-PROMPTS.md | The camera. House DNA block, still and film prompts, daylight twins, the eye gate. The owner generates; nothing ships ungated. |
 | client/PRODUCT-IMAGE-LEDGER.md | The product-image ledger. Instagram product truth, generated draft batches, image verdicts, and rollback notes. |
+| client/DIGITAL-PLATFORM-VALUATION.md | The valuation memo. What the public window and backroom are worth, how to defend it, and what evidence to collect next. |
 
 ## The culture, in five rules
 

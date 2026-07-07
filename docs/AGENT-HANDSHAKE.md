@@ -16,6 +16,15 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Digital platform valuation lane - done
+
+Closed `docs/client/DIGITAL-PLATFORM-VALUATION.md`, `docs/README.md`,
+`docs/QA.md`, and this handshake for the owner-facing value memo. The
+memo values only the digital platform, not Nonso's physical business,
+and explains replacement cost, income benefit, market substitute logic,
+accounting treatment, risks, and the 90-day evidence plan. It uses repo
+facts from the current build and external valuation/accounting references.
+
 ## 2026-07-07 - Claude - Insights data-viz redesign - done
 
 Reworked the Insights room into a data-driven page with a grounded AI read.
