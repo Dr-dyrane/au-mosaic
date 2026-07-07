@@ -10,6 +10,12 @@ import { cookies } from "next/headers";
 
 const COOKIE = "aumosaic_admin";
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
+/* Every fresh token now carries a version, so the older unversioned
+   formats can be sunset once they age out: the legacy two-part owner
+   cookie and the first unversioned named token. Both still verify for
+   now, so this signs nobody out; a later cutover can require v2 and drop
+   them once thirty days have turned every session over. */
+const TOKEN_VERSION = 2;
 
 export type Who = { id: string | null; name: string; role: "owner" | "staff" };
 export const OWNER: Who = { id: null, name: "The owner", role: "owner" };
@@ -59,7 +65,7 @@ export function hashStaffKey(key: string) {
 
 export function makeToken(who: Who = OWNER) {
   const exp = String(Date.now() + THIRTY_DAYS * 1000);
-  const w = b64(JSON.stringify(who));
+  const w = b64(JSON.stringify({ ...who, v: TOKEN_VERSION }));
   return `${exp}.${w}.${sign(`${exp}.${w}`)}`;
 }
 

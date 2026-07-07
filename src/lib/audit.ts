@@ -10,12 +10,24 @@ import { whoAmI } from "./admin-auth";
 export async function logAction(action: string, subject = "", detail = "", who?: string) {
   try {
     const name = who ?? (await whoAmI())?.name ?? "the owner";
-    await getDb().insert(schema.auditLog).values({
+    const values = {
       who: name,
       action: action.slice(0, 80),
       subject: subject.slice(0, 120),
       detail: detail.slice(0, 300),
-    });
+    };
+    /* A missed line must never block the work it records, but a real
+       payment losing its line is a provenance gap, so try once more
+       before giving up and leave a trace in the server log if it still
+       will not land. */
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        await getDb().insert(schema.auditLog).values(values);
+        return;
+      } catch (err) {
+        if (attempt === 1) console.error("audit line failed after retry", action, err);
+      }
+    }
   } catch {}
 }
 

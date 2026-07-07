@@ -60,20 +60,29 @@ export async function GET() {
   /* Billed per order (given price times quantity) and paid per order,
      summed in the database and folded into Maps here. The aggregates
      can arrive as strings from the driver, so Number() every one. */
-  const lineSums = await db
-    .select({
-      orderId: schema.orderItems.orderId,
-      billed: sql<number>`sum(${schema.orderItems.givenPriceKobo} * ${schema.orderItems.quantity})`,
-    })
-    .from(schema.orderItems)
-    .groupBy(schema.orderItems.orderId);
-  const paySums = await db
-    .select({
-      orderId: schema.payments.orderId,
-      paid: sql<number>`sum(${schema.payments.amountKobo})`,
-    })
-    .from(schema.payments)
-    .groupBy(schema.payments.orderId);
+  /* Sum only the open orders captured above, so the field kit's pull is
+     the size of the open book, not every line the ledger has ever held. */
+  const openIds = openRows.map((o) => o.id);
+  const lineSums = openIds.length
+    ? await db
+        .select({
+          orderId: schema.orderItems.orderId,
+          billed: sql<number>`sum(${schema.orderItems.givenPriceKobo} * ${schema.orderItems.quantity})`,
+        })
+        .from(schema.orderItems)
+        .where(inArray(schema.orderItems.orderId, openIds))
+        .groupBy(schema.orderItems.orderId)
+    : [];
+  const paySums = openIds.length
+    ? await db
+        .select({
+          orderId: schema.payments.orderId,
+          paid: sql<number>`sum(${schema.payments.amountKobo})`,
+        })
+        .from(schema.payments)
+        .where(inArray(schema.payments.orderId, openIds))
+        .groupBy(schema.payments.orderId)
+    : [];
 
   const billedBy = new Map<string, number>();
   for (const r of lineSums) billedBy.set(r.orderId, Number(r.billed));
@@ -211,28 +220,28 @@ export async function GET() {
     .where(eq(schema.pieces.published, true))
     .orderBy(asc(schema.pieces.name));
 
-  const priceRows = await db
-    .select({
-      slug: schema.orderItems.pieceSlug,
-      price: schema.orderItems.givenPriceKobo,
-      at: schema.orders.createdAt,
-    })
-    .from(schema.orderItems)
-    .innerJoin(schema.orders, eq(schema.orders.id, schema.orderItems.orderId));
+  /* The last given price per slug, one row each via distinct on, so the
+     catalogue never reads every line the book has ever held into memory.
+     Postgres keeps the newest by order date; JS just folds the result. */
+  const priceRows = rowsOf<{ slug: string; price: number | string }>(
+    await db.execute(sql`
+      select distinct on (i.piece_slug) i.piece_slug as slug, i.given_price_kobo as price
+      from order_items i
+      join orders o on o.id = i.order_id
+      where i.piece_slug is not null
+      order by i.piece_slug, o.created_at desc`)
+  );
 
-  const latestPriceBy = new Map<string, { price: number; at: number }>();
+  const latestPriceBy = new Map<string, number>();
   for (const r of priceRows) {
-    if (!r.slug) continue;
-    const at = r.at instanceof Date ? r.at.getTime() : new Date(String(r.at)).getTime();
-    const seen = latestPriceBy.get(r.slug);
-    if (!seen || at > seen.at) latestPriceBy.set(r.slug, { price: Number(r.price), at });
+    if (r.slug) latestPriceBy.set(r.slug, Number(r.price));
   }
 
   const catalogue: SnapshotCatalogueItem[] = catalogueRows.map((p) => ({
     slug: p.slug,
     name: p.name,
     unit: p.unit,
-    lastGivenPriceKobo: latestPriceBy.get(p.slug)?.price ?? null,
+    lastGivenPriceKobo: latestPriceBy.get(p.slug) ?? null,
   }));
 
   /* Fresh enquiries: the ones still marked new and not archived. The

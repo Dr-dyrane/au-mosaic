@@ -27,6 +27,9 @@ export * as schema from "./schema";
 /* neon-http answers a raw execute() with an object carrying rows;
    the query builder answers with plain arrays. One normaliser,
    owned here, used at every execute call site, so no room ever
-   maps the envelope again. Production taught this the hard way. */
+   maps the envelope again. Production taught this the hard way.
+   Review rule: every db.execute() result passes through rowsOf; a bare
+   index into an execute() result, or reading .rows by hand, is a defect
+   to catch in review, since the shape differs by driver path. */
 export const rowsOf = <T,>(r: unknown): T[] =>
   Array.isArray(r) ? (r as T[]) : ((r as { rows?: T[] }).rows ?? []);
