@@ -16,6 +16,24 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - Claude - Insights data-viz redesign - done
+
+Reworked the Insights room into a data-driven page with a grounded AI read.
+Types and lint clean, an independent design pass clean. The page's inline SQL
+moved into one shared `src/lib/insights.ts` (`computeInsights`), so the charts
+and the AI read the exact same figures. New premium charts in
+`src/app/admin/(panel)/insights/charts.tsx`: an SVG billed-trend area with the
+pace projection drawn as a dotted continuation, ranked revenue and tap bars, a
+segmented debt-aging bar, and a stepped funnel, all coloured from the palette
+tokens so they travel across all six houses and both suns, no new CSS. A new
+auth-gated `src/app/admin/api/insights/route.ts` asks Haiku for a terse read
+plus two or three moves, grounded strictly in the given numbers, never
+inventing a figure, gated by `aiConfigured()` and degrading quietly; the client
+`InsightsRead.tsx` loads it after paint. The page stays read-only, one gold
+action law intact (none), tabular naira, no em dashes. My files only:
+`src/lib/insights.ts`, `src/app/admin/(panel)/insights/{page,charts,InsightsRead}.tsx`,
+`src/app/admin/api/insights/route.ts`. No CODEX files, no globals.css.
+
 ## 2026-07-07 - CODEX - Git playbook lane - done
 
 Closed `docs/GIT.md`, `AGENTS.md`, `CODEX.md`, `docs/README.md`,
