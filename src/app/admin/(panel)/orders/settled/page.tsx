@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { hideDemoByNote, getDataMode } from "@/lib/data-mode";
 import { naira } from "@/lib/backoffice";
 import { fmtDate } from "../pipeline";
 import Pager from "../../Pager";
@@ -20,20 +21,21 @@ export default async function SettledOrdersPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const db = getDb();
+  const mode = await getDataMode();
   const { page: pageRaw } = await searchParams;
   const page = Math.max(1, parseInt(pageRaw ?? "1", 10) || 1);
 
   const [totalRow] = await db
     .select({ n: count() })
     .from(schema.orders)
-    .where(eq(schema.orders.status, "settled"));
+    .where(and(eq(schema.orders.status, "settled"), hideDemoByNote(mode, schema.orders.note)));
   const pages = Math.max(1, Math.ceil(totalRow.n / PER_PAGE));
 
   const rows = await db
     .select({ order: schema.orders, customerName: schema.customers.name })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.customers.id, schema.orders.customerId))
-    .where(eq(schema.orders.status, "settled"))
+    .where(and(eq(schema.orders.status, "settled"), hideDemoByNote(mode, schema.orders.note)))
     .orderBy(desc(schema.orders.updatedAt))
     .limit(PER_PAGE)
     .offset((page - 1) * PER_PAGE);

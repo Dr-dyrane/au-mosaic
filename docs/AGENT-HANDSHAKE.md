@@ -16,6 +16,18 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Backroom demo mode lane - done
+
+Closed the open work left in the tree after the CRM hardening commits landed
+upstream. Synced local `main` to `origin/main`, preserved only the real
+remaining lane, and finished live-or-demo mode for the back office:
+`src/lib/data-mode.ts`, Settings owner toggle, sample-data banner, room
+filters, CSV and snapshot filters, Insights and attention filters, and a
+full-year demo seed. The filter helper now keeps rows with blank notes or
+sources instead of hiding normal data by accident. Demo seed dry run produced
+28 sample customers, 53 orders across 13 months, 78 payments, 34 deliveries,
+20 enquiries, and 12 sales motions without touching the database.
+
 ## 2026-07-07 - CODEX - Digital platform valuation lane - done
 
 Closed `docs/client/DIGITAL-PLATFORM-VALUATION.md`, `docs/README.md`,

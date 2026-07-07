@@ -1,5 +1,6 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { hideDemoByNote, getDataMode } from "@/lib/data-mode";
 import { hasSession } from "@/lib/admin-auth";
 import { csvLine, csvResponse, nairaPlain, ymd } from "../csv";
 
@@ -15,6 +16,7 @@ export async function GET() {
   }
 
   const db = getDb();
+  const mode = await getDataMode();
   const orders = await db
     .select({
       id: schema.orders.id,
@@ -25,6 +27,7 @@ export async function GET() {
     })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.customers.id, schema.orders.customerId))
+    .where(and(hideDemoByNote(mode, schema.orders.note)))
     .orderBy(desc(schema.orders.createdAt));
 
   const lineSums = await db

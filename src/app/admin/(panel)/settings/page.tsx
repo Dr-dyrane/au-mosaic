@@ -6,6 +6,7 @@ import SettingsForm from "./SettingsForm";
 import AddStaffForm from "./AddStaffForm";
 import KeyRow from "./KeyRow";
 import NotifyToggle from "./NotifyToggle";
+import DataModeToggle from "./DataModeToggle";
 import TourReset from "./TourReset";
 import OutboxReview from "@/components/OutboxReview";
 import Teach from "../Teach";
@@ -77,6 +78,18 @@ export default async function SettingsPage() {
           <p className="mt-6 text-[14px] leading-relaxed text-dusk">
             Your master key stays with you.
           </p>
+        </div>
+      )}
+
+      {who?.role === "owner" && (
+        <div className="panel">
+          <p className="font-serif text-[20px]">Live or demo</p>
+          <Teach>
+            <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+              Show sample data for a walkthrough, or keep the book real.
+            </p>
+          </Teach>
+          <DataModeToggle mode={values.data_mode === "demo" ? "demo" : "live"} />
         </div>
       )}
 

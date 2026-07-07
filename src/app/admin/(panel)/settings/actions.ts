@@ -5,6 +5,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession, hashStaffKey, ownerOnly } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
+import { DATA_MODE_KEY } from "@/lib/data-mode";
 
 /* House facts, saved as key and value. Only known keys are written;
    a stranger's form invents nothing. The key rack lives here too:
@@ -144,4 +145,37 @@ export async function setStaffActive(_prev: SaveState, form: FormData): Promise<
   await logAction(to === "on" ? "returned the key to" : "took back the key from", name);
   revalidatePath("/admin/settings");
   return { ok: true, message: to === "on" ? `${name} is back in.` : `${name}'s key no longer turns.` };
+}
+
+/* Live or demo, the whole back office at once. Only the owner flips it,
+   and switching never touches a row: it only changes what the rooms are
+   allowed to show. */
+export async function setDataMode(_prev: SaveState, form: FormData): Promise<SaveState> {
+  const refuse = await ownerOnly();
+  if (refuse) return refuse;
+
+  const to = String(form.get("to") ?? "");
+  if (to !== "live" && to !== "demo") return { ok: false, message: "Pick live or demo." };
+
+  try {
+    await getDb()
+      .insert(schema.settings)
+      .values({ key: DATA_MODE_KEY, value: to })
+      .onConflictDoUpdate({
+        target: schema.settings.key,
+        set: { value: to, updatedAt: sql`now()` },
+      });
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+  await logAction(to === "demo" ? "switched to demo data" : "switched to live data");
+  /* The mode changes what every room shows, so refresh the whole desk. */
+  revalidatePath("/admin", "layout");
+  return {
+    ok: true,
+    message:
+      to === "demo"
+        ? "Demo is on. Samples and real business show together."
+        : "Live only. Samples are hidden.",
+  };
 }

@@ -1,5 +1,6 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { getDb, rowsOf, schema } from "@/db";
+import { getDataMode, hideDemoNoteSql, hideDemoSourceSql } from "@/lib/data-mode";
 
 /* One source of truth for the Insights room. The page renders these
    numbers and the AI read interprets the very same object, so a figure
@@ -49,6 +50,7 @@ export function resolveWindow(monthsRaw: string | undefined): InsightsWindow {
 export async function computeInsights(months: number): Promise<InsightsData> {
   const window = INSIGHTS_WINDOWS.find((w) => w.months === months) ?? INSIGHTS_WINDOWS[1];
   const db = getDb();
+  const mode = await getDataMode();
 
   /* The interval comes from the whitelist, never raw user input. */
   const monthly = await db.execute(sql`
@@ -56,7 +58,7 @@ export async function computeInsights(months: number): Promise<InsightsData> {
            date_trunc('month', o.created_at) as m,
            coalesce(sum(i.given_price_kobo * i.quantity), 0)::bigint as billed
     from orders o join order_items i on i.order_id = o.id
-    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}
+    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}${hideDemoNoteSql(mode, "o")}
     group by 2 order by 2`);
 
   /* Top pieces and the leak read the same window as the trend, both
@@ -68,7 +70,7 @@ export async function computeInsights(months: number): Promise<InsightsData> {
     from order_items i
     join orders o on o.id = i.order_id
     left join pieces p on p.slug = i.piece_slug
-    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}
+    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}${hideDemoNoteSql(mode, "o")}
     group by 1 order by 2 desc limit 5`);
 
   const leak = await db.execute(sql`
@@ -77,7 +79,7 @@ export async function computeInsights(months: number): Promise<InsightsData> {
            coalesce(sum(i.given_price_kobo * i.quantity), 0)::bigint as billed
     from order_items i
     join orders o on o.id = i.order_id
-    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}`);
+    where o.created_at > now() - ${sql.raw(`interval '${window.months} months'`)}${hideDemoNoteSql(mode, "o")}`);
 
   const aging = await db.execute(sql`
     select bucket, count(*)::int as n, sum(balance)::bigint as owed from (
@@ -86,12 +88,13 @@ export async function computeInsights(months: number): Promise<InsightsData> {
              when o.created_at > now() - interval '60 days' then 'One to two months'
              else 'Older than two months' end as bucket,
         coalesce((select sum(i.given_price_kobo * i.quantity) from order_items i where i.order_id = o.id), 0) - coalesce((select sum(p.amount_kobo) from payments p where p.order_id = o.id), 0) as balance
-      from orders o where o.status not in ('enquiry','settled') and o.archived_at is null
+      from orders o where o.status not in ('enquiry','settled') and o.archived_at is null${hideDemoNoteSql(mode, "o")}
     ) t where balance > 0 group by bucket order by min(case bucket
       when 'Under a month' then 1 when 'One to two months' then 2 else 3 end)`);
 
   const sources = await db.execute(sql`
     select source, count(*)::int as n from enquiries
+    where true ${hideDemoSourceSql(mode, "enquiries")}
     group by source order by n desc limit 6`);
 
   /* The funnel, tap to settled. Sessions read the beacon's anonymous
@@ -101,7 +104,7 @@ export async function computeInsights(months: number): Promise<InsightsData> {
   try {
     const s = await db.execute(sql`
       select count(distinct session_id)::int as n from enquiries
-      where session_id is not null and session_id <> ''`);
+      where session_id is not null and session_id <> ''${hideDemoSourceSql(mode, "enquiries")}`);
     sessions = Number(rowsOf<{ n: number }>(s)[0]?.n ?? 0);
   } catch {
     sessions = null;
@@ -109,10 +112,10 @@ export async function computeInsights(months: number): Promise<InsightsData> {
   const enquiryStages = await db.execute(sql`
     select count(*)::int as enquiries,
            count(*) filter (where status = 'converted')::int as converted
-    from enquiries`);
+    from enquiries where true ${hideDemoSourceSql(mode, "enquiries")}`);
   const orderStages = await db.execute(sql`
-    select (select count(distinct order_id) from order_items)::int as billed_n,
-           (select count(*) from orders where status = 'settled')::int as settled_n`);
+    select (select count(distinct oi.order_id) from order_items oi join orders o on o.id = oi.order_id where true ${hideDemoNoteSql(mode, "o")})::int as billed_n,
+           (select count(*) from orders where status = 'settled'${hideDemoNoteSql(mode, "orders")})::int as settled_n`);
 
   const lowStock = await db
     .select({

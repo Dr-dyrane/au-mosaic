@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { and, asc, count, desc, eq, ilike, isNotNull, isNull, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, isNotNull, isNull, or, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { getDataMode, hideDemoByNote, hideDemoBySource } from "@/lib/data-mode";
 import EnquiryRow from "./EnquiryRow";
 import Pager from "../Pager";
 import Teach from "../Teach";
@@ -46,10 +47,11 @@ export default async function CustomersPage({
   const filterLabels = activeCustomerFilterLabels({ q, sort });
 
   const db = getDb();
+  const mode = await getDataMode();
   const [freshRow] = await db
     .select({ n: count() })
     .from(schema.enquiries)
-    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt)));
+    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt), hideDemoBySource(mode, schema.enquiries.source)));
   const freshTotal = freshRow.n;
   const enqPages = Math.max(1, Math.ceil(freshTotal / ENQ_PER_PAGE));
   const fresh = await db
@@ -61,7 +63,7 @@ export default async function CustomersPage({
     .from(schema.enquiries)
     .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.enquiries.pieceSlug))
     .leftJoin(schema.customers, eq(schema.customers.id, schema.enquiries.customerId))
-    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt)))
+    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt), hideDemoBySource(mode, schema.enquiries.source)))
     .orderBy(desc(schema.enquiries.createdAt))
     .limit(ENQ_PER_PAGE)
     .offset((Math.min(enqPage, enqPages) - 1) * ENQ_PER_PAGE);
@@ -70,8 +72,9 @@ export default async function CustomersPage({
   const people = await db
     .select({ id: schema.customers.id, name: schema.customers.name })
     .from(schema.customers)
+    .where(and(hideDemoByNote(mode, schema.customers.note)))
     .orderBy(asc(schema.customers.name));
-  const rosterConds = [
+  const rosterConds: (SQL | undefined)[] = [
     showArchived ? isNotNull(schema.customers.archivedAt) : isNull(schema.customers.archivedAt),
   ];
   if (q) {
@@ -79,6 +82,7 @@ export default async function CustomersPage({
       or(ilike(schema.customers.name, `%${q}%`), ilike(schema.customers.phone, `%${q}%`))!
     );
   }
+  rosterConds.push(hideDemoByNote(mode, schema.customers.note));
   const where = and(...rosterConds);
   const [totalRow] = await db.select({ n: count() }).from(schema.customers).where(where);
   const total = totalRow.n;

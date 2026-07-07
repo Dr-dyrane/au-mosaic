@@ -3,6 +3,7 @@
 import { sql } from "drizzle-orm";
 import { getDb, rowsOf } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
+import { getDataMode, hideDemoNoteSql } from "@/lib/data-mode";
 import type { Batch } from "@/components/InfiniteList";
 import { DEBTORS_PAGE, type Debtor, type OwingOrder } from "./debtors-types";
 
@@ -22,6 +23,7 @@ const LIVE_WHERE = sql`o.status not in ('enquiry','settled') and o.archived_at i
 export async function fetchDebtors(offset: number): Promise<Batch<Debtor>> {
   if (!(await hasSession())) return { items: [], done: true };
   const db = getDb();
+  const mode = await getDataMode();
   const start = Math.max(0, Math.trunc(offset));
 
   /* One page of debtors: total owed and the age of their oldest owing
@@ -36,7 +38,7 @@ export async function fetchDebtors(offset: number): Promise<Batch<Debtor>> {
       with owing as (
         select o.customer_id, o.created_at, greatest(${LIVE_BALANCE}, 0) as bal
         from orders o
-        where ${LIVE_WHERE}
+        where ${LIVE_WHERE}${hideDemoNoteSql(mode, "o")}
       )
       select w.customer_id as id, c.name, c.phone,
              sum(w.bal)::bigint as total
@@ -64,7 +66,7 @@ export async function fetchDebtors(offset: number): Promise<Batch<Debtor>> {
       select o.id, o.customer_id, o.status, o.created_at,
              (${LIVE_BALANCE})::bigint as balance
       from orders o
-      where ${LIVE_WHERE}
+      where ${LIVE_WHERE}${hideDemoNoteSql(mode, "o")}
         and o.customer_id in (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})
       order by o.created_at asc`)
   );
@@ -99,11 +101,12 @@ export async function fetchDebtors(offset: number): Promise<Batch<Debtor>> {
 export async function fetchGrandOwed(): Promise<number> {
   if (!(await hasSession())) return 0;
   const db = getDb();
+  const mode = await getDataMode();
   const row = rowsOf<{ grand: number | string }>(
     await db.execute(sql`
       select coalesce(sum(greatest(${LIVE_BALANCE}, 0)), 0)::bigint as grand
       from orders o
-      where ${LIVE_WHERE}`)
+      where ${LIVE_WHERE}${hideDemoNoteSql(mode, "o")}`)
   )[0];
   return Number(row?.grand ?? 0);
 }

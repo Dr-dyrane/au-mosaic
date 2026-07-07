@@ -1,6 +1,7 @@
 import { getDb, rowsOf, schema } from "@/db";
 import { and, asc, desc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { hasSession } from "@/lib/admin-auth";
+import { hideDemoByNote, hideDemoBySource, hideDemoNoteSql, getDataMode } from "@/lib/data-mode";
 import type {
   Snapshot,
   SnapshotOrder,
@@ -40,6 +41,7 @@ export async function GET() {
   if (!(await hasSession())) return new Response(null, { status: 401 });
 
   const db = getDb();
+  const mode = await getDataMode();
   const capturedAt = new Date().toISOString();
 
   /* Open orders: everything not settled and not archived, with the
@@ -54,7 +56,7 @@ export async function GET() {
     })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.customers.id, schema.orders.customerId))
-    .where(and(ne(schema.orders.status, "settled"), isNull(schema.orders.archivedAt)))
+    .where(and(ne(schema.orders.status, "settled"), isNull(schema.orders.archivedAt), hideDemoByNote(mode, schema.orders.note)))
     .orderBy(desc(schema.orders.createdAt));
 
   /* Billed per order (given price times quantity) and paid per order,
@@ -114,14 +116,14 @@ export async function GET() {
       area: schema.customers.area,
     })
     .from(schema.customers)
-    .where(isNull(schema.customers.archivedAt))
+    .where(and(isNull(schema.customers.archivedAt), hideDemoByNote(mode, schema.customers.note)))
     .orderBy(asc(schema.customers.name));
 
   const balRows = rowsOf<{ customer_id: string; balance: number | string }>(
     await db.execute(sql`
       with active_orders as (
         select id, customer_id from orders
-        where status not in ('enquiry','settled') and archived_at is null
+        where status not in ('enquiry','settled') and archived_at is null${hideDemoNoteSql(mode, "orders")}
       ),
       order_balances as (
         select o.customer_id,
@@ -139,7 +141,7 @@ export async function GET() {
   for (const r of balRows) balanceBy.set(r.customer_id, Number(r.balance));
 
   const lastOrderRows = rowsOf<{ customer_id: string; last: unknown }>(
-    await db.execute(sql`select customer_id, max(created_at) as last from orders group by customer_id`)
+    await db.execute(sql`select customer_id, max(created_at) as last from orders where true ${hideDemoNoteSql(mode, "orders")} group by customer_id`)
   );
   const lastOrderBy = new Map<string, string | null>();
   for (const r of lastOrderRows) lastOrderBy.set(r.customer_id, isoOrNull(r.last));
@@ -168,7 +170,7 @@ export async function GET() {
     .innerJoin(schema.orders, eq(schema.orders.id, schema.deliveries.orderId))
     .innerJoin(schema.customers, eq(schema.customers.id, schema.orders.customerId))
     .where(
-      and(inArray(schema.deliveries.status, ["pending", "out"]), isNull(schema.deliveries.archivedAt))
+      and(inArray(schema.deliveries.status, ["pending", "out"]), isNull(schema.deliveries.archivedAt), hideDemoByNote(mode, schema.deliveries.note))
     )
     .orderBy(asc(schema.deliveries.scheduledFor));
 
@@ -228,7 +230,7 @@ export async function GET() {
       select distinct on (i.piece_slug) i.piece_slug as slug, i.given_price_kobo as price
       from order_items i
       join orders o on o.id = i.order_id
-      where i.piece_slug is not null
+      where i.piece_slug is not null${hideDemoNoteSql(mode, "o")}
       order by i.piece_slug, o.created_at desc`)
   );
 
@@ -256,7 +258,7 @@ export async function GET() {
     })
     .from(schema.enquiries)
     .leftJoin(schema.customers, eq(schema.customers.id, schema.enquiries.customerId))
-    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt)))
+    .where(and(eq(schema.enquiries.status, "new"), isNull(schema.enquiries.archivedAt), hideDemoBySource(mode, schema.enquiries.source)))
     .orderBy(desc(schema.enquiries.createdAt));
 
   const freshEnquiries: SnapshotEnquiry[] = enquiryRows.map((e) => ({

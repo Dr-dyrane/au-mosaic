@@ -1,5 +1,6 @@
 import { and, asc, eq, isNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { hideDemoByNote, getDataMode } from "@/lib/data-mode";
 import { hasSession } from "@/lib/admin-auth";
 import { csvLine, csvResponse, nairaPlain, ymd } from "../csv";
 
@@ -15,6 +16,7 @@ export async function GET() {
   }
 
   const db = getDb();
+  const mode = await getDataMode();
   const liveOrders = await db
     .select({
       id: schema.orders.id,
@@ -25,7 +27,7 @@ export async function GET() {
     })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
-    .where(and(notInArray(schema.orders.status, ["enquiry", "settled"]), isNull(schema.orders.archivedAt)))
+    .where(and(notInArray(schema.orders.status, ["enquiry", "settled"]), isNull(schema.orders.archivedAt), hideDemoByNote(mode, schema.orders.note)))
     .orderBy(asc(schema.orders.createdAt));
 
   const billedRows = await db

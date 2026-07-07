@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { and, asc, count, desc, eq, inArray, isNotNull, isNull, notInArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { hideDemoByNote, getDataMode } from "@/lib/data-mode";
 import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import StatusStep from "./StatusStep";
 import { DeliveryCreateAction } from "./new/NewDeliveryForm";
@@ -41,6 +42,7 @@ export default async function DeliveriesPage({
     : isNull(schema.deliveries.archivedAt);
 
   const db = getDb();
+  const mode = await getDataMode();
   const active = await db
     .select({
       d: schema.deliveries,
@@ -49,13 +51,13 @@ export default async function DeliveriesPage({
     .from(schema.deliveries)
     .innerJoin(schema.orders, eq(schema.deliveries.orderId, schema.orders.id))
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
-    .where(and(inArray(schema.deliveries.status, ["pending", "out"]), liveGate))
+    .where(and(inArray(schema.deliveries.status, ["pending", "out"]), liveGate, hideDemoByNote(mode, schema.deliveries.note)))
     .orderBy(asc(schema.deliveries.scheduledFor));
 
   const [landedRow] = await db
     .select({ n: count() })
     .from(schema.deliveries)
-    .where(and(eq(schema.deliveries.status, "delivered"), liveGate));
+    .where(and(eq(schema.deliveries.status, "delivered"), liveGate, hideDemoByNote(mode, schema.deliveries.note)));
   const landedTotal = landedRow.n;
   const landedPages = Math.max(1, Math.ceil(landedTotal / LANDED_PER_PAGE));
   /* A page past the end walks back to the last one, never a dead end. */
@@ -69,7 +71,7 @@ export default async function DeliveriesPage({
     .from(schema.deliveries)
     .innerJoin(schema.orders, eq(schema.deliveries.orderId, schema.orders.id))
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
-    .where(and(eq(schema.deliveries.status, "delivered"), liveGate))
+    .where(and(eq(schema.deliveries.status, "delivered"), liveGate, hideDemoByNote(mode, schema.deliveries.note)))
     .orderBy(desc(schema.deliveries.deliveredAt))
     .limit(LANDED_PER_PAGE)
     .offset((page - 1) * LANDED_PER_PAGE);

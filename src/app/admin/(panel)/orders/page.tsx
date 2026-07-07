@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { and, count, desc, eq, ilike, inArray, isNotNull, isNull, ne, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, isNotNull, isNull, ne, sql, type SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { hideDemoByNote, getDataMode } from "@/lib/data-mode";
 import { OPEN_STEPS, STATUS_LABEL } from "./pipeline";
 import OrderFilterSheet from "./OrderFilterSheet";
 import { activeOrderFilterLabels } from "./order-filter-model";
@@ -20,6 +21,7 @@ export default async function OrdersPage({
   searchParams: Promise<{ q?: string; status?: string; archived?: string }>;
 }) {
   const db = getDb();
+  const mode = await getDataMode();
   const { q, status, archived } = await searchParams;
   const query = (q ?? "").trim();
   const showArchived = archived === "1";
@@ -28,9 +30,10 @@ export default async function OrdersPage({
   const activeFilters = { status: step, q: query || undefined };
   const activeLabels = activeOrderFilterLabels(activeFilters);
 
-  const conds = [showArchived ? isNotNull(schema.orders.archivedAt) : isNull(schema.orders.archivedAt)];
+  const conds: (SQL | undefined)[] = [showArchived ? isNotNull(schema.orders.archivedAt) : isNull(schema.orders.archivedAt)];
   if (!showArchived) conds.push(ne(schema.orders.status, "settled"));
   if (query) conds.push(ilike(schema.customers.name, `%${query}%`));
+  conds.push(hideDemoByNote(mode, schema.orders.note));
 
   const open = await db
     .select({ order: schema.orders, customerName: schema.customers.name })
@@ -68,7 +71,7 @@ export default async function OrdersPage({
   const [settled] = await db
     .select({ n: count() })
     .from(schema.orders)
-    .where(and(eq(schema.orders.status, "settled"), isNull(schema.orders.archivedAt)));
+    .where(and(eq(schema.orders.status, "settled"), isNull(schema.orders.archivedAt), hideDemoByNote(mode, schema.orders.note)));
 
   const billedBy = new Map<string, number>(lineSums.map((r) => [r.orderId, Number(r.billed)]));
   const gapBy = new Map<string, number>(lineSums.map((r) => [r.orderId, Number(r.gap)]));

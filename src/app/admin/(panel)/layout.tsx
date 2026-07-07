@@ -7,6 +7,7 @@ import { AdminContextRail, AdminMobileContext } from "@/components/AdminContext"
 import PalettePicker from "@/components/PalettePicker";
 import ThemeToggle from "@/components/ThemeToggle";
 import { readAdminPulse } from "@/lib/admin-pulse";
+import { getDataMode } from "@/lib/data-mode";
 import Tour from "./Tour";
 import { hasSession } from "@/lib/admin-auth";
 import { logout } from "../login/actions";
@@ -26,6 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!(await hasSession())) redirect("/admin/login");
   const pulse = await readAdminPulse();
   const owed = pulse.owingCustomers;
+  const mode = await getDataMode();
   return (
     <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-36 tabular-nums sm:px-8 sm:pb-36 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:gap-8 xl:px-8 xl:pb-8">
       <aside className="layer-admin-nav hidden xl:sticky xl:top-0 xl:flex xl:h-svh xl:flex-col xl:overflow-y-auto xl:py-6">
@@ -59,6 +61,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </aside>
       <section className="min-w-0 py-8 xl:py-10">
+        {mode === "demo" && (
+          <div className="panel mb-6 flex items-center gap-3 py-3">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-gold" />
+            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-gold">
+              Demo data on. Samples show beside real business.
+            </p>
+          </div>
+        )}
         <header className="pb-9 xl:hidden">
           <div className="flex items-center justify-between gap-6">
             <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
