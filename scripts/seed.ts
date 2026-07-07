@@ -78,19 +78,21 @@ async function main() {
     }
   }
 
-  /* House facts, seeded once and never overwritten: his edits win. */
+  /* House facts and launch defaults, seeded once and never overwritten:
+     his edits win. */
   const facts: Record<string, string> = {
     whatsapp: SITE.whatsapp,
     phone_display: SITE.phoneDisplay,
     hours: SITE.hours,
     location: SITE.address,
     instagram: SITE.instagram,
+    data_mode: "demo",
   };
   for (const [key, value] of Object.entries(facts)) {
     await db.insert(schema.settings).values({ key, value }).onConflictDoNothing();
   }
 
-  console.log(`Seeded ${rangeCount} ranges, ${pieceCount} pieces, both families, house facts, stock rows ready.`);
+  console.log(`Seeded ${rangeCount} ranges, ${pieceCount} pieces, both families, house facts, launch defaults, stock rows ready.`);
 }
 
 main().then(() => process.exit(0));

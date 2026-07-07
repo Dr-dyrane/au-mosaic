@@ -2,6 +2,7 @@ import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { whoAmI } from "@/lib/admin-auth";
+import { DEFAULT_DATA_MODE } from "@/lib/data-mode";
 import SettingsForm from "./SettingsForm";
 import AddStaffForm from "./AddStaffForm";
 import KeyRow from "./KeyRow";
@@ -89,7 +90,7 @@ export default async function SettingsPage() {
                     Show sample data for a walkthrough, or keep the book real.
                   </p>
                 </Teach>
-                <DataModeToggle mode={values.data_mode === "demo" ? "demo" : "live"} />
+                <DataModeToggle mode={values.data_mode === "live" ? "live" : DEFAULT_DATA_MODE} />
               </div>
             )}
 

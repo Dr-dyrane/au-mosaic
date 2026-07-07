@@ -5,11 +5,11 @@ import { setDataMode, type SaveState } from "./actions";
 import Sentence from "../Sentence";
 import { buzz } from "@/lib/backoffice";
 
-/* Live or demo, the owner's one switch. Live is real business only.
-   Demo lays sample customers and orders beside the real ones, so a fresh
-   book still looks alive for a walkthrough. Switching writes nothing but
-   the mode; the samples are always the demo seed's, tagged and
-   removable. The label speaks the move, not the state. */
+/* Live or demo, the owner's one switch. Demo is the launch default:
+   sample customers and orders sit beside real ones, so a fresh book
+   still feels alive for a walkthrough. Switching writes nothing but
+   the mode; the samples are always tagged and removable. The label
+   speaks the move, not the state. */
 
 export default function DataModeToggle({ mode }: { mode: "live" | "demo" }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(setDataMode, null);
@@ -36,8 +36,8 @@ export default function DataModeToggle({ mode }: { mode: "live" | "demo" }) {
       </div>
       <p className="mt-3 text-[12px] leading-relaxed text-mist">
         {mode === "demo"
-          ? "Demo is on. Sample customers and orders show beside your real ones. Nothing sample is real; a banner marks every room."
-          : "Live only. Your real business, samples hidden. Turn demo on to show a full book to someone."}
+          ? "Demo is the default. Sample customers and orders show beside real ones, with a banner in every room."
+          : "Live only. Samples are hidden until you turn demo back on for a walkthrough."}
       </p>
     </form>
   );

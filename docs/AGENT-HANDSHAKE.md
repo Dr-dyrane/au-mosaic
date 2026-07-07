@@ -16,6 +16,19 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Settings launch defaults lane - done
+
+Closed `src/lib/data-mode.ts`, `src/app/admin/(panel)/settings/*`,
+`scripts/seed.ts`, `docs/QA.md`, and this handshake for the two launch
+defaults Nonso chose. Demo mode now falls back on when `data_mode` is
+missing, Settings reads a missing mode as demo, and the seed inserts
+`data_mode=demo` only for a fresh book. Notify this phone now presents as
+the default phone intent with `Allow this phone`, while still keeping the
+browser permission truth: it only reads on after a real subscription
+exists. TypeScript, eslint with zero warnings, theme check, whitespace
+diff check, dash scan, and `npx next build` on Next 16.2.10, 57 routes,
+passed.
+
 ## 2026-07-07 - CODEX - Insights data visualization lane - done
 
 Closed `src/app/admin/(panel)/insights/*`, `src/components/AdminContext.tsx`,

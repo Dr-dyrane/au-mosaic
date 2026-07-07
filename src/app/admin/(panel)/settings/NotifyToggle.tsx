@@ -9,8 +9,10 @@ import { buzz } from "@/lib/backoffice";
 /* Notify this phone: the device subscribes itself and the book
    remembers the endpoint. One digest each morning plus true
    crossings, never a nag; quieting the phone leaves its row
-   inactive, deleted never. The flag mirroring this device's state
-   lives on the device, where the truth of it lives anyway. */
+   inactive, deleted never. Notify is the launch default by intent,
+   but the browser still has to grant permission. The flag mirroring
+   this device's state lives on the device, where the truth of it lives
+   anyway. */
 
 const FLAG = "aumosaic.push";
 
@@ -68,6 +70,20 @@ export default function NotifyToggle() {
     }, 0);
     return () => window.clearTimeout(id);
   }, []);
+
+  useEffect(() => {
+    if (capability !== "supported" || !pub || on || Notification.permission !== "granted") return;
+    let live = true;
+    navigator.serviceWorker.ready
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((sub) => {
+        if (live && sub) setFlag("1");
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [capability, on, pub]);
 
   if (capability === "checking") {
     return (
@@ -162,15 +178,15 @@ export default function NotifyToggle() {
           aria-pressed={on}
           className="link-hair text-dusk text-[12px] disabled:opacity-60"
         >
-          {busy ? "A moment..." : on ? "Quiet this phone" : "Notify this phone"}
+          {busy ? "A moment..." : on ? "Quiet this phone" : "Allow this phone"}
         </button>
         <Sentence state={state} />
       </div>
       <Teach>
         <p className="mt-3 text-[12px] leading-relaxed text-mist">
-          One digest at eight each morning, plus a tap when a delivery
-          runs a piece low. Nothing else, ever. On iPhone, install the
-          app to the Home Screen first (iOS 16.4 or later).
+          {on
+            ? "Default on. One digest at eight each morning, plus low-stock delivery taps. Nothing else."
+            : "Default on. Allow this phone once, then it gets the morning tap. On iPhone, install the app to the Home Screen first."}
         </p>
       </Teach>
     </div>

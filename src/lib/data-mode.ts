@@ -12,26 +12,27 @@ import { getDb, schema } from "@/db";
    Layered, not separate: in demo mode every room shows demo and real
    together, so a fresh book still looks alive. In live mode the demo
    rows are filtered out, so real business is never mixed with samples.
-   Live is the default, so the house is real until the owner asks to
-   show off. The mode is never user input, so its filters are safe. */
+   Demo is the launch default Nonso chose, so the first walkthrough has
+   a full book. The mode is never user input, so its filters are safe. */
 
 export type DataMode = "live" | "demo";
+export const DEFAULT_DATA_MODE: DataMode = "demo";
 export const DATA_MODE_KEY = "data_mode";
 export const DEMO_NOTE_PREFIX = "DEMO";
 export const DEMO_SOURCE = "demo";
 
 /* Read once per request. A missing row, or a settings table that has not
-   landed yet, reads as live: the safe default never shows samples by
-   surprise. */
+   landed yet, reads as demo: first launch should show the walkthrough
+   book until the owner switches to live only. */
 export const getDataMode = cache(async (): Promise<DataMode> => {
   try {
     const [row] = await getDb()
       .select({ value: schema.settings.value })
       .from(schema.settings)
       .where(eq(schema.settings.key, DATA_MODE_KEY));
-    return row?.value === "demo" ? "demo" : "live";
+    return row?.value === "live" ? "live" : DEFAULT_DATA_MODE;
   } catch {
-    return "live";
+    return DEFAULT_DATA_MODE;
   }
 });
 
