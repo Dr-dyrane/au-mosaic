@@ -30,8 +30,21 @@ export default function AddPaymentForm({
   const ref = useRef<HTMLFormElement>(null);
   const plain = surface === "plain";
 
+  /* A fresh token per payment, written straight to the hidden field and
+     kept off React state so the server's first render and the client
+     agree. A repeated submit keeps the same token, so a lost response
+     never charges the money twice; a success mints the next one. */
   useEffect(() => {
-    if (state?.ok) ref.current?.reset();
+    const el = ref.current?.elements.namedItem("clientOpId");
+    if (el instanceof HTMLInputElement && !el.value) el.value = crypto.randomUUID();
+  }, []);
+
+  useEffect(() => {
+    if (state?.ok) {
+      ref.current?.reset();
+      const el = ref.current?.elements.namedItem("clientOpId");
+      if (el instanceof HTMLInputElement) el.value = crypto.randomUUID();
+    }
   }, [state]);
 
   return (
@@ -44,6 +57,7 @@ export default function AddPaymentForm({
     >
       {!plain && <p className="font-serif text-[20px]">Record a payment</p>}
       <input type="hidden" name="orderId" value={orderId} />
+      <input type="hidden" name="clientOpId" />
       <div className={`grid gap-6 ${plain ? "" : "sm:grid-cols-2"}`}>
         <div>
           <label htmlFor={`${idPrefix}-amount`} className={label}>

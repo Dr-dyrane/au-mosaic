@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { asc, eq, notInArray, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { naira, waChat } from "@/lib/backoffice";
 import Teach from "../Teach";
@@ -44,7 +44,7 @@ export default async function DebtsPage() {
     })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
-    .where(notInArray(schema.orders.status, ["enquiry", "settled"]))
+    .where(and(notInArray(schema.orders.status, ["enquiry", "settled"]), isNull(schema.orders.archivedAt)))
     .orderBy(asc(schema.orders.createdAt));
 
   /* Two grouped sums, stitched in JS. Simple beats clever. */

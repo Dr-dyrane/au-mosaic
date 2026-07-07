@@ -3,7 +3,7 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { hasSession, hashStaffKey, whoAmI } from "@/lib/admin-auth";
+import { hasSession, hashStaffKey, ownerOnly } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
 
 /* House facts, saved as key and value. Only known keys are written;
@@ -44,14 +44,6 @@ export async function saveSettings(_prev: SaveState, form: FormData): Promise<Sa
   updateTag("facts");
   revalidatePath("/", "layout");
   return { ok: true, message: "Saved. The site reads these now." };
-}
-
-/* Only the owner hands out keys. */
-async function ownerOnly(): Promise<SaveState> {
-  const who = await whoAmI();
-  if (!who) return { ok: false, message: "Signed out. Sign in again." };
-  if (who.role !== "owner") return { ok: false, message: "Only the owner hands out keys." };
-  return null;
 }
 
 export async function addStaff(_prev: SaveState, form: FormData): Promise<SaveState> {

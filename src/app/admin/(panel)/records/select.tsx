@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { createContext, useContext, useState, useTransition, type ReactNode } from "react";
-import { archiveRecords, restoreRecords, deleteRecords } from "./actions";
+import { archiveRecords, restoreRecords, deleteRecords, previewDelete, type DeletePreview } from "./actions";
 import type { ArchivableEntity } from "./types";
 import { buzz } from "@/lib/backoffice";
 
@@ -127,10 +127,28 @@ export function SelectableRow({
   );
 }
 
+/* Name the cascade in one calm line, or nothing when there is none to
+   name. "This also removes 4 orders and 9 payments. This cannot be
+   undone." */
+function cascadeSentence(p: DeletePreview | null): string {
+  if (!p) return "";
+  const parts: string[] = [];
+  if (p.orders) parts.push(`${p.orders} ${p.orders === 1 ? "order" : "orders"}`);
+  if (p.payments) parts.push(`${p.payments} ${p.payments === 1 ? "payment" : "payments"}`);
+  if (p.deliveries) parts.push(`${p.deliveries} ${p.deliveries === 1 ? "delivery" : "deliveries"}`);
+  if (parts.length === 0) return "";
+  const joined =
+    parts.length === 1
+      ? parts[0]
+      : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+  return `This also removes ${joined}. This cannot be undone.`;
+}
+
 export function SelectBar() {
   const { entity, archived, selected, clear, toggleMode } = useSelect();
   const [pending, start] = useTransition();
   const [confirm, setConfirm] = useState(false);
+  const [preview, setPreview] = useState<DeletePreview | null>(null);
   const [msg, setMsg] = useState("");
   const ids = [...selected];
   if (ids.length === 0) return null;
@@ -143,11 +161,30 @@ export function SelectBar() {
         clear();
         toggleMode();
         setConfirm(false);
+        setPreview(null);
       } else {
         setMsg(res.message);
       }
     });
   };
+
+  /* Delete asks first: weigh the cascade on the server, then open the
+     confirm with the weight named. A staff key is refused right here,
+     before any door opens. */
+  const askDelete = () => {
+    setMsg("");
+    start(async () => {
+      const res = await previewDelete(entity, ids);
+      if (res.ok) {
+        setPreview(res.counts);
+        setConfirm(true);
+      } else {
+        setMsg(res.message);
+      }
+    });
+  };
+
+  const cascade = cascadeSentence(preview);
 
   return (
     <div className="fixed inset-x-0 bottom-24 z-50 flex justify-center px-4 md:bottom-8">
@@ -179,11 +216,11 @@ export function SelectBar() {
             )}
             <button
               type="button"
-              onClick={() => setConfirm(true)}
+              onClick={askDelete}
               disabled={pending}
               className="link-hair text-[12px] text-gold disabled:opacity-60"
             >
-              Delete
+              {pending ? "Working..." : "Delete"}
             </button>
             <button type="button" onClick={clear} className="link-hair text-[12px] text-mist">
               Clear
@@ -192,6 +229,7 @@ export function SelectBar() {
         ) : (
           <>
             <span className="text-[12px] text-gold">Delete {ids.length} for good?</span>
+            {cascade && <span className="text-[12px] text-dusk">{cascade}</span>}
             <button
               type="button"
               onClick={() => {
@@ -203,7 +241,14 @@ export function SelectBar() {
             >
               {pending ? "Deleting..." : "Yes, delete"}
             </button>
-            <button type="button" onClick={() => setConfirm(false)} className="link-hair text-[12px] text-dusk">
+            <button
+              type="button"
+              onClick={() => {
+                setConfirm(false);
+                setPreview(null);
+              }}
+              className="link-hair text-[12px] text-dusk"
+            >
               Keep
             </button>
           </>

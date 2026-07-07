@@ -30,25 +30,11 @@ export const readAdminPulse = cache(async (): Promise<AdminPulse> => {
         from orders
         where status not in ('enquiry','settled') and archived_at is null
       ),
-      customer_lines as (
+      order_balances as (
         select o.customer_id,
-               coalesce(sum(i.given_price_kobo * i.quantity), 0)::bigint as billed
+               (coalesce((select sum(i.given_price_kobo * i.quantity) from order_items i where i.order_id = o.id), 0)
+                - coalesce((select sum(p.amount_kobo) from payments p where p.order_id = o.id), 0))::bigint as balance
         from active_orders o
-        left join order_items i on i.order_id = o.id
-        group by o.customer_id
-      ),
-      customer_payments as (
-        select o.customer_id,
-               coalesce(sum(p.amount_kobo), 0)::bigint as paid
-        from active_orders o
-        left join payments p on p.order_id = o.id
-        group by o.customer_id
-      ),
-      customer_balances as (
-        select l.customer_id,
-               (l.billed - coalesce(p.paid, 0))::bigint as balance
-        from customer_lines l
-        left join customer_payments p on p.customer_id = l.customer_id
       )
       select
         (select count(*)::int from pieces) as pieces,
@@ -56,14 +42,9 @@ export const readAdminPulse = cache(async (): Promise<AdminPulse> => {
           from stock_levels
           where reorder_at > 0 and quantity_sheets <= reorder_at) as low_stock,
         (select count(*)::int from orders where status <> 'settled' and archived_at is null) as open_orders,
-        greatest(
-          (select coalesce(sum(billed), 0) from customer_lines)
-          -
-          (select coalesce(sum(paid), 0) from customer_payments),
-          0
-        )::bigint as outstanding_kobo,
+        (select coalesce(sum(greatest(balance, 0)), 0) from order_balances)::bigint as outstanding_kobo,
         (select count(*)::int from enquiries where status = 'new' and archived_at is null) as fresh_enquiries,
-        (select count(*)::int from customer_balances where balance > 0) as owing_customers
+        (select count(distinct customer_id)::int from order_balances where balance > 0) as owing_customers
     `);
     const row = rowsOf<{
       pieces?: number | string;

@@ -81,7 +81,13 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
 
   const billedBy = new Map(billedRows.map((r) => [r.orderId, r.billed]));
   const paidBy = new Map(paidRows.map((r) => [r.orderId, r.paid]));
+  /* A debt counts only on a live order: not an enquiry, not settled,
+     not archived. The same rule the Debts room and the glance keep, so
+     the record and the ledger never disagree. */
+  const isDebtOrder = (o: (typeof orders)[number]) =>
+    o.status !== "enquiry" && o.status !== "settled" && !o.archivedAt;
   const totalOwed = orders.reduce((sum, order) => {
+    if (!isDebtOrder(order)) return sum;
     const balance = (billedBy.get(order.id) ?? 0) - (paidBy.get(order.id) ?? 0);
     return sum + Math.max(balance, 0);
   }, 0);
@@ -156,12 +162,14 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-4">
                     <p className="text-[14px]">{naira(billed)} billed</p>
-                    {balance > 0 ? (
+                    {isDebtOrder(o) && balance > 0 ? (
                       <p className="text-[14px] font-semibold text-gold">
                         {naira(balance)} owing
                       </p>
-                    ) : billed > 0 ? (
+                    ) : billed > 0 && balance <= 0 ? (
                       <p className="text-[14px] text-dusk">Paid in full</p>
+                    ) : billed > 0 ? (
+                      <p className="text-[14px] text-dusk">{naira(billed)} quoted</p>
                     ) : (
                       <p className="text-[14px] text-dusk">No lines yet</p>
                     )}

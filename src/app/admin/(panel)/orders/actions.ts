@@ -265,6 +265,7 @@ export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveS
   const db = getDb();
   let detail = "";
   let movedStock = "";
+  let refunded = false;
   try {
     const [source] = await db
       .select({
@@ -302,40 +303,74 @@ export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveS
     const lineName = source.pieceName ?? (source.item.description || "Order item");
     const unit = source.unit ?? "units";
     const returnValueKobo = source.item.givenPriceKobo * quantity;
-    await db.insert(schema.orderItems).values({
-      orderId,
-      pieceSlug: source.item.pieceSlug,
-      description: `Return: ${lineName}${note ? `, ${note}` : ""}`,
-      quantity: -quantity,
-      listPriceKobo: source.item.listPriceKobo,
-      givenPriceKobo: source.item.givenPriceKobo,
-      returnForItemId: itemId,
-    });
 
-    if (settlement === "refund") {
-      await db.insert(schema.payments).values({
+    /* A refund hands back cash, so it can never exceed the cash this
+       order has actually taken. Clamp to net paid; the return line
+       lowers what is owed either way. */
+    const [paidRow] = await db
+      .select({ paid: sql<number>`coalesce(sum(${schema.payments.amountKobo}), 0)` })
+      .from(schema.payments)
+      .where(eq(schema.payments.orderId, orderId));
+    const netPaid = Number(paidRow?.paid ?? 0);
+    const refundKobo =
+      settlement === "refund" ? Math.max(0, Math.min(returnValueKobo, netPaid)) : 0;
+    refunded = refundKobo > 0;
+
+    const stockAfter = Number(source.stockQty ?? 0) + quantity;
+    const movesStock =
+      Boolean(source.item.pieceSlug) && OUT_THE_DOOR.includes(source.orderStatus);
+    if (movesStock) {
+      movedStock = `${lineName}: ${quantity} ${unit} back, ${stockAfter} on hand`;
+    }
+
+    /* One return, one atomic write: the corrected line, its refund, the
+       shelf, and the clock land together or not at all, so a return can
+       never leave the book half-written. */
+    const extraWrites = [
+      ...(refundKobo > 0
+        ? [
+            db.insert(schema.payments).values({
+              orderId,
+              amountKobo: -refundKobo,
+              method: "refund",
+              note: note || `Return: ${lineName}`,
+            }),
+          ]
+        : []),
+      ...(movesStock && source.item.pieceSlug
+        ? [
+            db
+              .update(schema.stockLevels)
+              .set({ quantitySheets: stockAfter, updatedAt: sql`now()` })
+              .where(eq(schema.stockLevels.pieceSlug, source.item.pieceSlug)),
+          ]
+        : []),
+    ];
+
+    await db.batch([
+      db.insert(schema.orderItems).values({
         orderId,
-        amountKobo: -returnValueKobo,
-        method: "refund",
-        note: note || `Return: ${lineName}`,
-      });
-    }
+        pieceSlug: source.item.pieceSlug,
+        description: `Return: ${lineName}${note ? `, ${note}` : ""}`,
+        quantity: -quantity,
+        listPriceKobo: source.item.listPriceKobo,
+        givenPriceKobo: source.item.givenPriceKobo,
+        returnForItemId: itemId,
+      }),
+      ...extraWrites,
+      db
+        .update(schema.orders)
+        .set({ updatedAt: sql`now()` })
+        .where(eq(schema.orders.id, orderId)),
+    ]);
 
-    if (source.item.pieceSlug && OUT_THE_DOOR.includes(source.orderStatus)) {
-      const after = Number(source.stockQty ?? 0) + quantity;
-      await db
-        .update(schema.stockLevels)
-        .set({ quantitySheets: after, updatedAt: sql`now()` })
-        .where(eq(schema.stockLevels.pieceSlug, source.item.pieceSlug));
-      movedStock = `${lineName}: ${quantity} ${unit} back, ${after} on hand`;
-    }
-
-    await db
-      .update(schema.orders)
-      .set({ updatedAt: sql`now()` })
-      .where(eq(schema.orders.id, orderId));
-
-    detail = `${quantity} ${unit} of ${lineName}; ${settlement === "refund" ? "refunded" : "kept as credit"} ${naira(returnValueKobo)}`;
+    const settledPhrase =
+      settlement === "refund"
+        ? refundKobo > 0
+          ? `refunded ${naira(refundKobo)}`
+          : "nothing paid yet, lowered the balance"
+        : `kept as credit ${naira(returnValueKobo)}`;
+    detail = `${quantity} ${unit} of ${lineName}; ${settledPhrase}`;
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
@@ -348,7 +383,12 @@ export async function addReturn(_prev: SaveState, form: FormData): Promise<SaveS
   revalidatePath("/admin/pieces");
   return {
     ok: true,
-    message: settlement === "refund" ? "Returned and refunded." : "Returned. The customer has credit.",
+    message:
+      settlement === "refund"
+        ? refunded
+          ? "Returned and refunded."
+          : "Returned. Nothing was paid yet, so the balance dropped."
+        : "Returned. The customer has credit.",
   };
 }
 
@@ -366,20 +406,39 @@ export async function addPayment(_prev: SaveState, form: FormData): Promise<Save
     return { ok: false, message: "Pick how the money came in." };
   }
 
+  /* A token lets a repeated tap collapse into one payment. Online it
+     rides the same unique index the offline outbox leans on; without a
+     token, nulls never collide and nothing changes. */
+  const clientOpId = String(form.get("clientOpId") ?? "").trim() || null;
+
   const db = getDb();
+  let recorded = true;
   try {
-    await db.insert(schema.payments).values({
-      orderId,
-      amountKobo,
-      method,
-      note: String(form.get("note") ?? "").trim(),
-    });
-    await db
-      .update(schema.orders)
-      .set({ updatedAt: sql`now()` })
-      .where(eq(schema.orders.id, orderId));
+    const inserted = await db
+      .insert(schema.payments)
+      .values({
+        orderId,
+        amountKobo,
+        method,
+        note: String(form.get("note") ?? "").trim(),
+        clientOpId,
+      })
+      .onConflictDoNothing({ target: schema.payments.clientOpId })
+      .returning({ id: schema.payments.id });
+    recorded = inserted.length > 0;
+    if (recorded) {
+      await db
+        .update(schema.orders)
+        .set({ updatedAt: sql`now()` })
+        .where(eq(schema.orders.id, orderId));
+    }
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
+  }
+
+  if (!recorded) {
+    /* The same tap twice is the same money once. */
+    return { ok: true, message: "Payment already recorded." };
   }
 
   await logAction("recorded a payment", `order ${orderId.slice(0, 8)}`, `${naira(amountKobo)} by ${method}`);

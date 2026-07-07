@@ -4,7 +4,12 @@
    both export routes read from here. */
 
 export function csvCell(v: string | number): string {
-  const s = String(v);
+  let s = String(v);
+  /* A leading =, +, -, @, tab, or carriage return is a formula to a
+     spreadsheet, and names and notes reach these files from public
+     and read sources. Mark such a cell as text with one apostrophe
+     before the usual quoting. */
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

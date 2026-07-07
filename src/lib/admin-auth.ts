@@ -114,3 +114,15 @@ export async function hasSession() {
 export async function whoAmI(): Promise<Who | null> {
   return parseToken((await cookies()).get(COOKIE)?.value);
 }
+
+/* Only the owner may pass the destructive doors. Resolves the current
+   holder, returns null when it is the owner so the caller proceeds,
+   otherwise a refusal the caller returns as its own result. Shared so
+   the key rack, the ledger delete, and the history wipe all read the
+   one rule. */
+export async function ownerOnly(): Promise<{ ok: false; message: string } | null> {
+  const who = await whoAmI();
+  if (!who) return { ok: false, message: "Signed out. Sign in again." };
+  if (who.role !== "owner") return { ok: false, message: "Only the owner can do that." };
+  return null;
+}

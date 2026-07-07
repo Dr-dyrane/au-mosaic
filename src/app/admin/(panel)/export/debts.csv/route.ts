@@ -1,4 +1,4 @@
-import { asc, eq, notInArray, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { csvLine, csvResponse, nairaPlain, ymd } from "../csv";
@@ -25,7 +25,7 @@ export async function GET() {
     })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
-    .where(notInArray(schema.orders.status, ["enquiry", "settled"]))
+    .where(and(notInArray(schema.orders.status, ["enquiry", "settled"]), isNull(schema.orders.archivedAt)))
     .orderBy(asc(schema.orders.createdAt));
 
   const billedRows = await db

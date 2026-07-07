@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   date,
   index,
@@ -242,8 +243,8 @@ export const orderItems = pgTable(
     pieceSlug: text("piece_slug").references(() => pieces.slug),
     description: text("description").notNull().default(""),
     quantity: integer("quantity").notNull().default(1),
-    listPriceKobo: integer("list_price_kobo").notNull().default(0),
-    givenPriceKobo: integer("given_price_kobo").notNull().default(0),
+    listPriceKobo: bigint("list_price_kobo", { mode: "number" }).notNull().default(0),
+    givenPriceKobo: bigint("given_price_kobo", { mode: "number" }).notNull().default(0),
     /* A return is a mirrored order line, never an erasure. This points
        back to the line it corrects so the owner cannot return more
        than was sold. */
@@ -262,7 +263,7 @@ export const payments = pgTable(
     orderId: uuid("order_id")
       .notNull()
       .references(() => orders.id, { onDelete: "cascade" }),
-    amountKobo: integer("amount_kobo").notNull(),
+    amountKobo: bigint("amount_kobo", { mode: "number" }).notNull(),
     method: text("method").notNull().default("transfer"),
     note: text("note").notNull().default(""),
     paidAt: timestamp("paid_at", { withTimezone: true }).notNull().defaultNow(),

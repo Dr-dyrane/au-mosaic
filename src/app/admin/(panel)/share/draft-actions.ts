@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { sql } from "drizzle-orm";
+import { isNull, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
-import { parseNaira } from "@/lib/backoffice";
+import { parseNaira, phone234 } from "@/lib/backoffice";
 import { aiConfigured, AiError } from "@/lib/ai/client";
 import { chatToDraft } from "@/lib/ai/chat-to-draft";
 import { loadCatalog, lastGivenPriceKobo } from "@/lib/ai/catalog";
@@ -89,16 +89,35 @@ export async function createOrderFromDraft(
     if (!customerId) {
       const name = payload.newCustomer?.name.trim() ?? "";
       if (!name) return { ok: false, message: "Give the customer a name first." };
-      const [person] = await db
-        .insert(schema.customers)
-        .values({
-          name,
-          phone: payload.newCustomer?.phone.trim() ?? "",
-          area: payload.newCustomer?.area.trim() ?? "",
-        })
-        .returning({ id: schema.customers.id });
-      customerId = person.id;
-      await logAction("added a customer", name);
+      const phone = payload.newCustomer?.phone.trim() ?? "";
+
+      /* Phone is the key: one number, one person. If the line already
+         has a card, hang the order on it instead of opening a second.
+         An empty phone has no key, so it writes a fresh customer. */
+      let matchedId = "";
+      if (phone) {
+        const key = phone234(phone);
+        const live = await db
+          .select({ id: schema.customers.id, phone: schema.customers.phone })
+          .from(schema.customers)
+          .where(isNull(schema.customers.archivedAt));
+        matchedId = live.find((c) => c.phone && phone234(c.phone) === key)?.id ?? "";
+      }
+
+      if (matchedId) {
+        customerId = matchedId;
+      } else {
+        const [person] = await db
+          .insert(schema.customers)
+          .values({
+            name,
+            phone,
+            area: payload.newCustomer?.area.trim() ?? "",
+          })
+          .returning({ id: schema.customers.id });
+        customerId = person.id;
+        await logAction("added a customer", name);
+      }
     }
 
     const [order] = await db

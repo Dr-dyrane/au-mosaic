@@ -179,6 +179,41 @@ const DDL: string[] = [
   )`,
   `CREATE INDEX "sales_motions_customer_idx" ON "sales_motions" USING btree ("customer_id")`,
   `CREATE INDEX "sales_motions_status_idx" ON "sales_motions" USING btree ("status")`,
+  /* 2026-07-07 · archived_at catches up to migration 0011. A fresh
+     database relied on this healer was missing it, which crashed rooms.
+     Idempotent, so an already-healed book is untouched. */
+  `ALTER TABLE "customers" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  `ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  `ALTER TABLE "enquiries" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  `ALTER TABLE "deliveries" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  `ALTER TABLE "media_assets" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  `ALTER TABLE "sales_motions" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  /* 2026-07-07 · the payment idempotency key and its unique index catch
+     up to schema, so even a heal-only fresh database can dedupe a
+     repeated tap. Nulls stay distinct, so an untoken payment still
+     records. */
+  `ALTER TABLE "payments" ADD COLUMN IF NOT EXISTS "client_op_id" text`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "payments_client_op_id_uidx" ON "payments" ("client_op_id")`,
+  /* 2026-07-07 · money widens to bigint so a large pool job cannot
+     overflow int4 and crash the balance queries. Guarded, so the table
+     rewrite runs once and never again. */
+  `DO $$ BEGIN
+     IF (select data_type from information_schema.columns where table_name = 'order_items' and column_name = 'given_price_kobo') = 'integer' THEN
+       ALTER TABLE order_items ALTER COLUMN given_price_kobo TYPE bigint;
+       ALTER TABLE order_items ALTER COLUMN list_price_kobo TYPE bigint;
+     END IF;
+     IF (select data_type from information_schema.columns where table_name = 'payments' and column_name = 'amount_kobo') = 'integer' THEN
+       ALTER TABLE payments ALTER COLUMN amount_kobo TYPE bigint;
+     END IF;
+   END $$`,
+  /* 2026-07-07 · a partial unique index on phone stops duplicate
+     customers, created only when the book is already clean, so a shop
+     with existing twins still boots. The app guard prevents new twins. */
+  `DO $$ BEGIN
+     IF NOT EXISTS (select 1 from (select phone from customers where phone <> '' group by phone having count(*) > 1) t) THEN
+       CREATE UNIQUE INDEX IF NOT EXISTS customers_phone_uidx ON customers (phone) WHERE phone <> '';
+     END IF;
+   END $$`,
 ];
 
 let healed = false;
@@ -206,7 +241,11 @@ export async function healSchema(): Promise<void> {
              to_regclass('public.media_assets') as media_assets,
              to_regclass('public.sales_motions') as sales_motions,
              (select 1 from information_schema.columns
-                where table_name = 'order_items' and column_name = 'return_for_item_id') as returns`);
+                where table_name = 'order_items' and column_name = 'return_for_item_id') as returns,
+             (select 1 from information_schema.columns
+                where table_name = 'orders' and column_name = 'archived_at') as archived,
+             (select 1 from information_schema.columns
+                where table_name = 'payments' and column_name = 'amount_kobo' and data_type = 'bigint') as money_bigint`);
     const row = rowsOf<{
       staff: string | null;
       push: string | null;
@@ -221,6 +260,8 @@ export async function healSchema(): Promise<void> {
       media_assets: string | null;
       sales_motions: string | null;
       returns: number | null;
+      archived: number | null;
+      money_bigint: number | null;
     }>(probe)[0];
     if (
       row?.staff &&
@@ -235,7 +276,9 @@ export async function healSchema(): Promise<void> {
       row?.application_seed &&
       row?.media_assets &&
       row?.sales_motions &&
-      row?.returns
+      row?.returns &&
+      row?.archived &&
+      row?.money_bigint
     ) {
       healed = true;
       return;

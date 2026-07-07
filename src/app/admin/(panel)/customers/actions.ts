@@ -2,10 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq, sql } from "drizzle-orm";
+import { eq, isNull, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { hasSession } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
+import { phone234 } from "@/lib/backoffice";
 import {
   cleanSalesMotionKind,
   cleanSalesMotionStatus,
@@ -34,14 +35,30 @@ export async function createCustomer(_prev: SaveState, form: FormData): Promise<
   const name = text(form, "name");
   if (!name) return { ok: false, message: "The customer needs a name." };
 
+  const phone = text(form, "phone");
   const db = getDb();
   let id = "";
   try {
+    /* Phone is the key: one number, one person. Match the normalised
+       form against the live book before writing, so a second card for
+       the same line never opens. An empty phone has no key to match. */
+    if (phone) {
+      const key = phone234(phone);
+      const live = await db
+        .select({ id: schema.customers.id, name: schema.customers.name, phone: schema.customers.phone })
+        .from(schema.customers)
+        .where(isNull(schema.customers.archivedAt));
+      const match = live.find((c) => c.phone && phone234(c.phone) === key);
+      if (match) {
+        return { ok: false, message: `This number already belongs to ${match.name}. Open their record instead.` };
+      }
+    }
+
     const [row] = await db
       .insert(schema.customers)
       .values({
         name,
-        phone: text(form, "phone"),
+        phone,
         area: text(form, "area"),
         note: text(form, "note"),
       })

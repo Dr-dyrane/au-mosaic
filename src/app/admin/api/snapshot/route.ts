@@ -114,16 +114,16 @@ export async function GET() {
         select id, customer_id from orders
         where status not in ('enquiry','settled') and archived_at is null
       ),
-      lines as (
-        select o.customer_id, coalesce(sum(i.given_price_kobo * i.quantity),0)::bigint as billed
-        from active_orders o left join order_items i on i.order_id = o.id group by o.customer_id
-      ),
-      pays as (
-        select o.customer_id, coalesce(sum(p.amount_kobo),0)::bigint as paid
-        from active_orders o left join payments p on p.order_id = o.id group by o.customer_id
+      order_balances as (
+        select o.customer_id,
+          greatest(
+            coalesce((select sum(i.given_price_kobo * i.quantity) from order_items i where i.order_id = o.id),0)
+            - coalesce((select sum(p.amount_kobo) from payments p where p.order_id = o.id),0),
+          0)::bigint as balance
+        from active_orders o
       )
-      select l.customer_id, (l.billed - coalesce(p.paid,0))::bigint as balance
-      from lines l left join pays p on p.customer_id = l.customer_id
+      select customer_id, coalesce(sum(balance),0)::bigint as balance
+      from order_balances group by customer_id
     `)
   );
   const balanceBy = new Map<string, number>();

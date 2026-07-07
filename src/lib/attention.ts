@@ -36,7 +36,11 @@ export async function computeAttention(): Promise<AttentionItem[]> {
         href: "/admin/debts",
       });
     }
+  } catch {
+    /* One room's fault stays in that room. */
+  }
 
+  try {
     /* Enquiries left new more than three days. */
     const enqRows = rowsOf<{ n: number | string }>(
       await db.execute(sql`
@@ -51,7 +55,11 @@ export async function computeAttention(): Promise<AttentionItem[]> {
         href: "/admin/customers",
       });
     }
+  } catch {
+    /* One room's fault stays in that room. */
+  }
 
+  try {
     /* Deliveries past their scheduled date, not yet landed. */
     const delRows = rowsOf<{ n: number | string }>(
       await db.execute(sql`
@@ -67,7 +75,11 @@ export async function computeAttention(): Promise<AttentionItem[]> {
         href: "/admin/deliveries",
       });
     }
+  } catch {
+    /* One room's fault stays in that room. */
+  }
 
+  try {
     /* Sample motions due today or overdue, still open. */
     const motRows = rowsOf<{ n: number | string }>(
       await db.execute(sql`
@@ -84,8 +96,7 @@ export async function computeAttention(): Promise<AttentionItem[]> {
       });
     }
   } catch {
-    /* A quiet surface beats a loud error; the rooms still tell the truth. */
-    return [];
+    /* One room's fault stays in that room. */
   }
 
   return items;

@@ -3,14 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { lt } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { hasSession } from "@/lib/admin-auth";
+import { ownerOnly } from "@/lib/admin-auth";
+import { logAction } from "@/lib/audit";
 
 /* Clearing the book's history. The record is append-only by law 8, so
    nothing edits a line; but the owner may wipe the whole record for a
-   clean start, or trim everything before a date. Both re-check the
-   session first, because a server action is a public endpoint whatever
-   the UI hides. After a wipe, one line is written so the act of
-   clearing signs its own name. */
+   clean start, or trim everything before a date. Both ask the owner
+   first, because a server action is a public endpoint whatever the UI
+   hides, and a staff key must not erase the ledger's memory. After a
+   wipe, one line is written so the act of clearing signs its own name. */
 
 export type SaveState = { ok: boolean; message: string } | null;
 
@@ -19,7 +20,8 @@ export type SaveState = { ok: boolean; message: string } | null;
    carries a "confirm" value it must read "clear"; a bare submit with no
    confirm field still clears, so a plain button keeps working. */
 export async function clearHistory(_prev: SaveState, form: FormData): Promise<SaveState> {
-  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const refuse = await ownerOnly();
+  if (refuse) return refuse;
 
   const confirm = form.get("confirm");
   if (confirm !== null && String(confirm).trim() !== "clear") {
@@ -32,6 +34,9 @@ export async function clearHistory(_prev: SaveState, form: FormData): Promise<Sa
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  /* Sign the clearing itself, so the first line of the fresh history is
+     the wipe that made it. Written after the delete, it survives. */
+  await logAction("cleared the history");
   revalidatePath("/admin/settings/history");
   return { ok: true, message: "The history is empty." };
 }
@@ -40,7 +45,8 @@ export async function clearHistory(_prev: SaveState, form: FormData): Promise<Sa
    rest. The date is a plain YYYY-MM-DD from the form; anything else is
    refused before a row is touched. */
 export async function clearHistoryBefore(_prev: SaveState, form: FormData): Promise<SaveState> {
-  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+  const refuse = await ownerOnly();
+  if (refuse) return refuse;
 
   const before = String(form.get("before") ?? "").trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(before)) {
@@ -57,6 +63,8 @@ export async function clearHistoryBefore(_prev: SaveState, form: FormData): Prom
     return { ok: false, message: "The database did not answer. Try again." };
   }
 
+  /* Sign the trim, and note the cutoff it kept back to. */
+  await logAction("cleared the history", "", `before ${before}`);
   revalidatePath("/admin/settings/history");
   return { ok: true, message: `Cleared everything before ${before}.` };
 }
