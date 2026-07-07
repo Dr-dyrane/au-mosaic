@@ -1,7 +1,7 @@
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes: APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
 # House rules · The Mosaic Maison
@@ -34,6 +34,8 @@ document map. The short version of the culture:
   a story-telling message.
 - Accessibility floor: WCAG AA measured, focus rings, skip link,
   reduced motion respected by every animation.
+- Git: before any sync, reset, recovery, commit, or push, read
+  `docs/GIT.md`. Do not be timid; be exact.
 
 ## Two hands on one tree
 

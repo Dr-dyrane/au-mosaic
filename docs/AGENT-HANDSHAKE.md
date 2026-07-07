@@ -16,6 +16,15 @@ note. Newest on top.
 
 ---
 
+## 2026-07-07 - CODEX - Git playbook lane - done
+
+Closed `docs/GIT.md`, `AGENTS.md`, `CODEX.md`, `docs/README.md`,
+`docs/QA.md`, and this handshake for the shared git rules. Git recovery
+now has one playbook with clean-tree sync, dirty-tree sorting, stale lock
+checks, exact staging, no broad clean, no force push on `main`, and the
+zsh inline-comment trap called out plainly. Future agents should read
+`docs/GIT.md` before sync, reset, recovery, commit, or push.
+
 ## 2026-07-07 - Claude - Offline field kit lane - done
 
 Shipped the offline field kit (plan and record in `docs/OFFLINE.md`), all four

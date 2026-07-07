@@ -29,6 +29,7 @@ silent, the roots in CRM.md decide.
 6. Another session may be working this tree at the same time. Commit
    only the files you touched, re-read shared docs before editing,
    and never sweep a stranger's work into your commit with add -A.
+   Read docs/GIT.md before git recovery, sync, reset, commit, or push.
 
 The repo is the portfolio piece and the log is the story. Leave both
 better written than you found them.
