@@ -66,6 +66,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [tick, setTick] = useState(0);
   const [loupe, setLoupe] = useState<Pt | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [pendingSnap, setPendingSnap] = useState<PendingSnap | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
@@ -591,6 +592,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     }, "image/png");
   };
 
+  /* A clean look at exactly what downloads or sends: the canvas as a
+     flat image, none of the editing chrome, shown full in a sheet. */
+  const openPreview = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setPreviewUrl(canvas.toDataURL("image/png"));
+    buzz(4);
+    track("viz_preview", {});
+  };
+
   /* The visitor's own colourway, laid over the piece. Null means the
      piece paints itself; the first edit seeds from what is showing. */
   const activeColors = customColors ?? (piece.colors ?? ["#3aa9d6"]);
@@ -797,6 +808,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         </div>
       )}
       {holding && <span className="chip-glass absolute left-1/2 top-4 -translate-x-1/2">Original</span>}
+      {!holding && (
+        <button
+          type="button"
+          onClick={openPreview}
+          aria-label="Preview the result"
+          className="chip-glass absolute right-4 top-4 z-20 font-semibold"
+        >
+          Preview
+        </button>
+      )}
     </div>
   );
 
@@ -923,8 +944,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               <button onClick={share} className="btn-gold" data-wa="visualizer">
                 Send it to the house
               </button>
+              <button onClick={openPreview} className="link-hair text-dusk">
+                Preview
+              </button>
               <button onClick={download} className="link-hair text-dusk">
-                Download the preview
+                Download
               </button>
             </div>
           )}
@@ -938,6 +962,46 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         cameraError={cameraError}
         onCapture={snapCamera}
       />
+
+      <Dialog.Root open={previewUrl !== null} onOpenChange={(open) => !open && setPreviewUrl(null)}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[94] bg-sand/80 backdrop-blur-[18px]" />
+          <Dialog.Content className="fixed inset-0 z-[95] flex flex-col outline-none sm:inset-6 sm:rounded-[28px] sm:bg-shell/80 sm:shadow-lift sm:backdrop-blur-[24px]">
+            <div className="flex items-start justify-between gap-4 px-5 py-4 sm:px-7 sm:py-5">
+              <div>
+                <Dialog.Title className="eyebrow">Preview</Dialog.Title>
+                <Dialog.Description className="mt-1 text-[14px] leading-relaxed text-dusk">
+                  Exactly what downloads or sends.
+                </Dialog.Description>
+              </div>
+              <Dialog.Close
+                aria-label="Close preview"
+                className="-mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-dusk transition-colors duration-300 hover:text-ink"
+              >
+                <IconClose className="h-4 w-4" />
+              </Dialog.Close>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center px-5 pb-4 sm:px-7">
+              {previewUrl && (
+                <div
+                  role="img"
+                  aria-label="Your visualised space"
+                  className="h-full w-full rounded-[18px] bg-contain bg-center bg-no-repeat"
+                  style={{ backgroundImage: `url(${previewUrl})` }}
+                />
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-6 px-5 pb-6 sm:px-7 sm:pb-7">
+              <button onClick={download} className="btn-gold">
+                Download
+              </button>
+              <button onClick={share} className="link-hair text-dusk" data-wa="visualizer-preview">
+                Send it to the house
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }
