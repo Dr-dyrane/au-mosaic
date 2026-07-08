@@ -11,7 +11,7 @@ import { waGeneral } from "@/lib/wa";
    brand green; the room keeps its own light. */
 export default function WhatsAppFloat() {
   const pathname = usePathname();
-  if (pathname.startsWith("/piece/")) return null;
+  if (pathname.startsWith("/piece/") || pathname === "/gallery") return null;
 
   return (
     <a

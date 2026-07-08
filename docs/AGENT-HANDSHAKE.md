@@ -16,6 +16,20 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - CODEX - Archive delete records lane - done
+
+Closed shared archive/delete actions for stock pieces, ranges, and
+photos, plus piece/range schema healing, migration 0012, public
+catalogue filtering, `docs/QA.md`, and this handshake. Stock and range
+archive now join the same select bar as orders, customers, and
+deliveries; permanent stock deletes detach old order lines, enquiries,
+and photo links before removing catalogue rows. Photo deletes clear
+live card slots first. Existing staged gallery search files stayed
+staged and untouched. The dirty visualizer hook refactor was minimally
+repaired only to restore the verification gate. `npx eslint src
+--max-warnings=0`, `git diff --check`, dash scan, and `npx next build`
+on Next 16.2.10 passed.
+
 ## 2026-07-08 - CODEX - Four image stock lane - done
 
 Closed piece image handling, Gold Mosaic image data, generated

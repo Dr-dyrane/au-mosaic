@@ -9,6 +9,7 @@ import {
   cleanSort,
   type StockFilters,
 } from "./stock-filters";
+import { SelectableRow, SelectBar, SelectProvider, SelectToggle } from "../records/select";
 
 /* First colour decides the hue shelf: low saturation is neutral,
    then blue, green, or earth by the wheel. */
@@ -36,12 +37,15 @@ function hueOf(colors: string[] | null): string {
 
 export const dynamic = "force-dynamic";
 
+type StockPageParams = StockFilters & { archived?: string };
+
 export default async function PiecesPage({
   searchParams,
 }: {
-  searchParams: Promise<StockFilters>;
+  searchParams: Promise<StockPageParams>;
 }) {
   const rawFilters = await searchParams;
+  const showArchived = rawFilters.archived === "1";
   const app = APPLICATION_FILTERS.find((a) => a.key === rawFilters.app)?.key;
   const filters = { ...rawFilters, app };
   const db = getDb();
@@ -59,8 +63,12 @@ export default async function PiecesPage({
      the empty state all read from the same list, so they can never
      disagree. */
   const familyOf = new Map(ranges.map((r) => [r.slug, r.family]));
+  const rangeBySlug = new Map(ranges.map((r) => [r.slug, r]));
   const visible = rows.filter(
     (row) =>
+      (showArchived
+        ? Boolean(row.piece.archivedAt)
+        : !row.piece.archivedAt && !rangeBySlug.get(row.piece.rangeSlug)?.archivedAt) &&
       (!filters.family || familyOf.get(row.piece.rangeSlug) === filters.family) &&
       (!filters.low ||
         (row.stock
@@ -88,7 +96,7 @@ export default async function PiecesPage({
   const untouched = rows.filter(
     (r) => (r.stock?.quantitySheets ?? 0) === 0 && (r.stock?.reorderAt ?? 0) === 0
   ).length;
-  const offerStarter = rows.length > 0 && untouched >= Math.ceil(rows.length * 0.8);
+  const offerStarter = !showArchived && rows.length > 0 && untouched >= Math.ceil(rows.length * 0.8);
 
   /* Sorting rearranges inside each range; the shelves themselves
      stay where the shop floor knows them. */
@@ -115,10 +123,12 @@ export default async function PiecesPage({
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
           <p className="eyebrow">Inventory</p>
-          <h1 className="font-serif text-display-section mt-3">The book.</h1>
+          <h1 className="font-serif text-display-section mt-3">
+            {showArchived ? "Archived stock." : "The book."}
+          </h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk" data-tour="drafts">
-            Everything you stock.
-            {rows.filter((r) => !r.piece.published).length > 0 &&
+            {showArchived ? "Set aside. Bring back or remove." : "Everything you stock."}
+            {!showArchived && rows.filter((r) => !r.piece.published).length > 0 &&
               ` ${rows.filter((r) => !r.piece.published).length} off the site.`}
           </p>
         </div>
@@ -126,16 +136,29 @@ export default async function PiecesPage({
           New piece
         </Link>
       </div>
-      <div className="mt-7 hidden flex-wrap items-center gap-x-8 gap-y-4 sm:flex" data-tour="stockroom">
+      <SelectProvider entity="piece" archived={showArchived}>
+      <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
         <Link href="/admin/ranges" className="link-hair text-dusk text-[12px]">
           The ranges
         </Link>
         <Link href="/admin/media" className="link-hair text-dusk text-[12px]">
           Photos
         </Link>
-        <button data-tour-start="stockroom" className="link-hair text-dusk text-[12px]">
+        {!showArchived && (
+          <button data-tour-start="stockroom" className="link-hair text-dusk text-[12px]">
           Learn this room
-        </button>
+          </button>
+        )}
+        <SelectToggle />
+        {showArchived ? (
+          <Link href="/admin/pieces" className="link-hair text-dusk text-[12px]">
+            Back to open
+          </Link>
+        ) : (
+          <Link href="/admin/pieces?archived=1" className="link-hair text-dusk text-[12px]">
+            Archived
+          </Link>
+        )}
       </div>
 
       {offerStarter && (
@@ -149,10 +172,12 @@ export default async function PiecesPage({
       )}
 
       {/* Filters live in one surface. Links inside it keep the URL honest. */}
-      <div className="mt-5 flex flex-wrap items-center gap-2" data-tour="stock-filters">
-        <FilterSheet current={filters} />
-      </div>
-      {activeLabels.length > 0 && (
+      {!showArchived && (
+        <div className="mt-5 flex flex-wrap items-center gap-2" data-tour="stock-filters">
+          <FilterSheet current={filters} />
+        </div>
+      )}
+      {!showArchived && activeLabels.length > 0 && (
         <p className="mt-3 text-[14px] leading-relaxed text-dusk" data-tour="stock-active-filters">
           Showing <span className="text-ink">{activeLabels.join(" / ")}</span>
           <Link href="/admin/pieces" className="link-hair ml-4 text-dusk text-[12px]">
@@ -193,11 +218,11 @@ export default async function PiecesPage({
                         ? piece.applicationTags.slice(0, 3)
                         : [];
                       return (
-                        <Link
+                        <SelectableRow
                           key={piece.slug}
+                          id={piece.slug}
                           href={`/admin/pieces/${piece.slug}`}
-                          data-tour="piece-card"
-                          className="panel group block transition-transform duration-300 active:scale-[0.99]"
+                          dataTour="piece-card"
                         >
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex min-w-0 items-center gap-3">
@@ -234,7 +259,7 @@ export default async function PiecesPage({
                               </span>
                             )}
                           </div>
-                        </Link>
+                        </SelectableRow>
                       );
                     })}
                   </div>
@@ -254,7 +279,28 @@ export default async function PiecesPage({
         </div>
       )}
 
-      {rows.length === 0 && (
+      {showArchived && visible.length === 0 && (
+        <div className="panel mt-10 max-w-md">
+          <p className="font-serif text-[20px]">Nothing archived.</p>
+          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+            Stock you set aside lands here.
+          </p>
+        </div>
+      )}
+
+      {!showArchived && rows.length > 0 && !filtering && visible.length === 0 && (
+        <div className="panel mt-10 max-w-md">
+          <p className="font-serif text-[20px]">No open stock.</p>
+          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+            Everything here is resting in an archive.
+          </p>
+          <Link href="/admin/pieces?archived=1" className="link-hair mt-5 inline-block text-dusk text-[12px]">
+            Open archive
+          </Link>
+        </div>
+      )}
+
+      {!showArchived && rows.length === 0 && (
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">The stockroom is empty.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
@@ -262,6 +308,8 @@ export default async function PiecesPage({
           </p>
         </div>
       )}
+      <SelectBar />
+      </SelectProvider>
     </main>
   );
 }

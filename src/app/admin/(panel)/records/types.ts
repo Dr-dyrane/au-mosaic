@@ -14,7 +14,9 @@ export type ArchivableEntity =
   | "enquiry"
   | "salesMotion"
   | "delivery"
-  | "media";
+  | "media"
+  | "piece"
+  | "range";
 
 /* Every records action answers in the same small shape the rest of the
    admin uses: a flag and a plain sentence for the desk to show. */

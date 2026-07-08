@@ -188,6 +188,8 @@ const DDL: string[] = [
   `ALTER TABLE "deliveries" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
   `ALTER TABLE "media_assets" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
   `ALTER TABLE "sales_motions" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  `ALTER TABLE "pieces" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
+  `ALTER TABLE "ranges" ADD COLUMN IF NOT EXISTS "archived_at" timestamp with time zone`,
   /* 2026-07-07 · the payment idempotency key and its unique index catch
      up to schema, so even a heal-only fresh database can dedupe a
      repeated tap. Nulls stay distinct, so an untoken payment still
@@ -245,6 +247,10 @@ export async function healSchema(): Promise<void> {
              (select 1 from information_schema.columns
                 where table_name = 'orders' and column_name = 'archived_at') as archived,
              (select 1 from information_schema.columns
+                where table_name = 'pieces' and column_name = 'archived_at') as pieces_archived,
+             (select 1 from information_schema.columns
+                where table_name = 'ranges' and column_name = 'archived_at') as ranges_archived,
+             (select 1 from information_schema.columns
                 where table_name = 'payments' and column_name = 'amount_kobo' and data_type = 'bigint') as money_bigint`);
     const row = rowsOf<{
       staff: string | null;
@@ -261,6 +267,8 @@ export async function healSchema(): Promise<void> {
       sales_motions: string | null;
       returns: number | null;
       archived: number | null;
+      pieces_archived: number | null;
+      ranges_archived: number | null;
       money_bigint: number | null;
     }>(probe)[0];
     if (
@@ -278,6 +286,8 @@ export async function healSchema(): Promise<void> {
       row?.sales_motions &&
       row?.returns &&
       row?.archived &&
+      row?.pieces_archived &&
+      row?.ranges_archived &&
       row?.money_bigint
     ) {
       healed = true;

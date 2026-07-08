@@ -6,6 +6,7 @@ import AdminPhotoViewer from "@/components/AdminPhotoViewer";
 import InfiniteList, { type Batch } from "@/components/InfiniteList";
 import { MediaAssetControls, type PieceOption } from "./MediaForms";
 import type { MediaListRow } from "./media-list";
+import { RowCheckbox, useSelect } from "../records/select";
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "Draft",
@@ -81,6 +82,72 @@ function PhotoCard({
   const title = photoTitle(asset);
   const note = photoNote(asset);
   const preview = photoViewSources(asset);
+  const { mode, selected, toggle } = useSelect();
+  const on = selected.has(asset.id);
+  const meta = (
+    <div className="px-5 sm:px-0">
+      <div className="mt-5 flex flex-wrap gap-2">
+        <span className="chip-solid">{labelStatus(asset.status)}</span>
+        <span className="chip-solid">{labelRole(asset.role)}</span>
+        <span className="chip-solid">{labelSun(asset.sun)}</span>
+      </div>
+      <h2 className="font-serif mt-3 text-[20px] leading-snug">{title}</h2>
+      {piece && (
+        mode ? (
+          <p className="mt-2 text-[12px] uppercase tracking-[0.14em] text-dusk">{piece.name}</p>
+        ) : (
+          <Link href={`/admin/pieces/${piece.slug}`} className="link-hair mt-2 inline-block text-dusk text-[12px]">
+            {piece.name}
+          </Link>
+        )
+      )}
+      {note && (
+        <p className="mt-3 text-[14px] leading-relaxed text-mist">{note}</p>
+      )}
+      {!mode && (
+        <MediaAssetControls
+          asset={{
+            id: asset.id,
+            title: asset.title,
+            status: asset.status,
+            role: asset.role,
+            sun: asset.sun,
+            pieceSlug: asset.pieceSlug,
+            notes: asset.notes,
+          }}
+          pieces={pieces}
+        />
+      )}
+    </div>
+  );
+
+  if (mode) {
+    return (
+      <button
+        type="button"
+        onClick={() => toggle(asset.id)}
+        aria-pressed={on}
+        className="group w-full text-left transition-transform duration-300 active:scale-[0.99]"
+      >
+        <div className="flex items-start gap-3">
+          <RowCheckbox id={asset.id} />
+          <div className="min-w-0 flex-1">
+            <div className="photo-slot relative block aspect-[4/5] w-full overflow-hidden rounded-none sm:rounded-[22px]">
+              <Image
+                src={asset.url}
+                alt={title}
+                fill
+                sizes="(max-width: 640px) 100vw, 33vw"
+                className="media-lux object-cover"
+              />
+            </div>
+            {meta}
+          </div>
+        </div>
+      </button>
+    );
+  }
+
   return (
     <article className="group">
       <AdminPhotoViewer
@@ -107,34 +174,7 @@ function PhotoCard({
           className="media-lux object-cover transition-transform duration-700 group-hover:scale-[1.03]"
         />
       </AdminPhotoViewer>
-      <div className="px-5 sm:px-0">
-        <div className="mt-5 flex flex-wrap gap-2">
-          <span className="chip-solid">{labelStatus(asset.status)}</span>
-          <span className="chip-solid">{labelRole(asset.role)}</span>
-          <span className="chip-solid">{labelSun(asset.sun)}</span>
-        </div>
-        <h2 className="font-serif mt-3 text-[20px] leading-snug">{title}</h2>
-        {piece && (
-          <Link href={`/admin/pieces/${piece.slug}`} className="link-hair mt-2 inline-block text-dusk text-[12px]">
-            {piece.name}
-          </Link>
-        )}
-        {note && (
-          <p className="mt-3 text-[14px] leading-relaxed text-mist">{note}</p>
-        )}
-        <MediaAssetControls
-          asset={{
-            id: asset.id,
-            title: asset.title,
-            status: asset.status,
-            role: asset.role,
-            sun: asset.sun,
-            pieceSlug: asset.pieceSlug,
-            notes: asset.notes,
-          }}
-          pieces={pieces}
-        />
-      </div>
+      {meta}
     </article>
   );
 }

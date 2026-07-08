@@ -14,8 +14,6 @@ import { wa } from "@/lib/wa";
    before the next batch lands. */
 
 const PAGE = 24;
-const field =
-  "w-full rounded-full bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
 function IconClose({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -35,9 +33,28 @@ function IconClose({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
+function IconSearch({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3 -4.3" />
+    </svg>
+  );
+}
+
 export default function GalleryFeed({ items }: { items: GalleryItem[] }) {
   const [selected, setSelected] = useState<GalleryItem | null>(null);
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const clean = query.trim().toLowerCase();
   const filtered = useMemo(() => {
     if (!clean) return items;
@@ -65,73 +82,78 @@ export default function GalleryFeed({ items }: { items: GalleryItem[] }) {
 
   return (
     <>
-      <div className="mb-10 max-w-md">
-        <label htmlFor="gallery-search" className="eyebrow mb-3 block">
-          Search gallery
-        </label>
-        <input
-          id="gallery-search"
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Aqua, pool, mural, room"
-          className={field}
-        />
-      </div>
+      {clean && (
+        <div className="mb-10 flex flex-wrap items-center gap-3">
+          <span className="chip-glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] text-dusk">
+            <IconSearch className="h-3.5 w-3.5" />
+            <span className="text-ink">{query}</span>
+            <span className="text-mist">
+              {filtered.length} {filtered.length === 1 ? "frame" : "frames"}
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="link-hair text-[12px] text-dusk"
+          >
+            Clear, show all
+          </button>
+        </div>
+      )}
       {filtered.length === 0 ? (
         <p className="max-w-md text-[14px] leading-relaxed text-dusk">
           Nothing matches that search.
         </p>
       ) : (
-      <InfiniteList
-        key={clean || "all"}
-        initial={filtered.slice(0, PAGE)}
-        initialDone={filtered.length <= PAGE}
-        loadMore={loadMore}
-        skeletonCount={3}
-        className="-mx-5 grid gap-y-12 sm:mx-0 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 xl:grid-cols-3"
-        renderItem={(item) => (
-          <article key={item.src} className="group block min-w-0">
-            <button
-              type="button"
-              aria-label={`Open ${item.alt}`}
-              onClick={() => setSelected(item)}
-              className="relative block aspect-[4/5] w-full overflow-hidden rounded-none text-left sm:rounded-[26px]"
-            >
-              <ThemeImage
-                dark={item.src}
-                light={item.srcDay}
-                alt={item.alt}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1279px) 50vw, 33vw"
-                className="media-lux object-cover transition-transform duration-500 group-hover:scale-[1.035]"
-              />
-              <span className="scrim-card pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-70 group-focus-visible:opacity-70" />
-            </button>
-            <span className="mt-5 block px-5 sm:px-1">
-              <span className="eyebrow block text-gold">{item.label}</span>
-              <span className="font-serif mt-2 block text-[20px] leading-tight text-ink transition-colors duration-300 group-hover:text-gold">
-                {item.title}
+        <InfiniteList
+          key={clean || "all"}
+          initial={filtered.slice(0, PAGE)}
+          initialDone={filtered.length <= PAGE}
+          loadMore={loadMore}
+          skeletonCount={3}
+          className="-mx-5 grid gap-y-12 sm:mx-0 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 xl:grid-cols-3"
+          renderItem={(item) => (
+            <article key={item.src} className="group block min-w-0">
+              <button
+                type="button"
+                aria-label={`Open ${item.alt}`}
+                onClick={() => setSelected(item)}
+                className="relative block aspect-[4/5] w-full overflow-hidden rounded-none text-left sm:rounded-[26px]"
+              >
+                <ThemeImage
+                  dark={item.src}
+                  light={item.srcDay}
+                  alt={item.alt}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1279px) 50vw, 33vw"
+                  className="media-lux object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+                />
+                <span className="scrim-card pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-70 group-focus-visible:opacity-70" />
+              </button>
+              <span className="mt-5 block px-5 sm:px-1">
+                <span className="eyebrow block text-gold">{item.label}</span>
+                <span className="font-serif mt-2 block text-[20px] leading-tight text-ink transition-colors duration-300 group-hover:text-gold">
+                  {item.title}
+                </span>
+                <span className="mt-2 block text-[14px] leading-relaxed text-dusk">
+                  {item.line}
+                </span>
+                <Link href={item.href} className="link-hair mt-4 inline-flex text-dusk text-[12px]">
+                  {item.action}
+                </Link>
               </span>
-              <span className="mt-2 block text-[14px] leading-relaxed text-dusk">
-                {item.line}
-              </span>
-              <Link href={item.href} className="link-hair mt-4 inline-flex text-dusk text-[12px]">
-                {item.action}
-              </Link>
-            </span>
-          </article>
-        )}
-        renderSkeleton={(index) => (
-          <div key={`sk-${index}`} className="grid gap-4">
-            <div className="skel aspect-[4/5] rounded-none sm:rounded-[26px]" />
-            <div className="px-5 sm:px-1">
-              <div className="skel h-5 w-1/2 rounded-full" />
-              <div className="skel mt-3 h-4 w-3/4 rounded-full" />
+            </article>
+          )}
+          renderSkeleton={(index) => (
+            <div key={`sk-${index}`} className="grid gap-4">
+              <div className="skel aspect-[4/5] rounded-none sm:rounded-[26px]" />
+              <div className="px-5 sm:px-1">
+                <div className="skel h-5 w-1/2 rounded-full" />
+                <div className="skel mt-3 h-4 w-3/4 rounded-full" />
+              </div>
             </div>
-          </div>
-        )}
-      />
+          )}
+        />
       )}
       <Dialog.Root open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         {selected && (
@@ -187,6 +209,59 @@ export default function GalleryFeed({ items }: { items: GalleryItem[] }) {
             </Dialog.Content>
           </Dialog.Portal>
         )}
+      </Dialog.Root>
+
+      <button
+        type="button"
+        onClick={() => setSearchOpen(true)}
+        aria-label="Search the gallery"
+        data-gallery-search="float"
+        className="glass group fixed bottom-[calc(24px+env(safe-area-inset-bottom))] right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-ink shadow-lift transition-[transform,color] duration-300 hover:scale-105 hover:text-gold active:scale-95"
+      >
+        <span className="chip-glass pointer-events-none absolute right-full mr-3 hidden translate-x-1 whitespace-nowrap opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 md:inline-flex">
+          Search the gallery
+        </span>
+        <IconSearch className="h-[22px] w-[22px]" />
+        {clean && (
+          <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-gold" aria-hidden />
+        )}
+      </button>
+
+      <Dialog.Root open={searchOpen} onOpenChange={setSearchOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[70] bg-sand/35 backdrop-blur-[10px]" />
+          <Dialog.Content
+            aria-describedby={undefined}
+            className="glass fixed left-1/2 top-[22%] z-[71] w-[min(560px,92vw)] -translate-x-1/2 rounded-[28px] p-6 shadow-lift outline-none sm:top-1/2 sm:-translate-y-1/2"
+          >
+            <Dialog.Title className="eyebrow text-gold">Search the house</Dialog.Title>
+            <div className="relative mt-4">
+              <input
+                autoFocus
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Aqua, pool, mural, room"
+                className="w-full rounded-full bg-shell/60 px-6 py-4 pr-14 text-[16px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300"
+              />
+              {clean && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-mist transition-colors hover:text-ink"
+                >
+                  <IconClose className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <p className="mt-4 text-[14px] leading-relaxed text-dusk">
+              {clean
+                ? `${filtered.length} ${filtered.length === 1 ? "frame" : "frames"} behind the glass.`
+                : "Type to filter the frames behind. Try a colour, a room, or a pool."}
+            </p>
+          </Dialog.Content>
+        </Dialog.Portal>
       </Dialog.Root>
     </>
   );

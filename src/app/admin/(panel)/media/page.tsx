@@ -15,6 +15,7 @@ import {
   type MediaFilterTotals,
   type MediaFilters,
 } from "./media-filter-model";
+import { SelectBar, SelectProvider, SelectToggle } from "../records/select";
 
 export const dynamic = "force-dynamic";
 
@@ -126,37 +127,6 @@ export default async function MediaPage({
         </div>
       </div>
 
-      {!quiet && (
-        <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="media-filters">
-          <MediaFilterSheet current={activeFilters} totals={totals} />
-          {activeLabels.length > 0 && (
-            <p className="text-[14px] leading-relaxed text-dusk">
-              Showing <span className="text-ink">{activeLabels.join(" / ")}</span>
-              <Link href="/admin/media" className="link-hair ml-4 text-dusk text-[12px]">
-                Clear
-              </Link>
-            </p>
-          )}
-        </div>
-      )}
-
-      {!quiet && (
-        <div className="mt-6 hidden gap-5 xl:grid xl:grid-cols-3">
-          <div className="panel">
-            <p className="eyebrow">Draft</p>
-            <p className="font-serif mt-3 text-[26px] leading-none">{totals.draft}</p>
-          </div>
-          <div className="panel">
-            <p className="eyebrow">Approved</p>
-            <p className="font-serif mt-3 text-[26px] leading-none">{totals.approved}</p>
-          </div>
-          <div className="panel">
-            <p className="eyebrow">Live</p>
-            <p className="font-serif mt-3 text-[26px] leading-none">{totals.wired}</p>
-          </div>
-        </div>
-      )}
-
       {quiet && (
         <div className="panel mt-10 max-w-md">
           <p className="font-serif text-[20px]">The photo room is getting ready.</p>
@@ -166,23 +136,67 @@ export default async function MediaPage({
         </div>
       )}
 
-      {!quiet && rows.length === 0 && (
-        <div className="panel mt-10 max-w-md">
-          <p className="font-serif text-[20px]">No photos here yet.</p>
-          <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Add prepared photos to begin.
-          </p>
-        </div>
-      )}
+      {!quiet && (
+        <SelectProvider entity="media" archived={status === "archived"}>
+          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="media-filters">
+            <MediaFilterSheet current={activeFilters} totals={totals} />
+            <SelectToggle />
+            {status === "archived" ? (
+              <Link href="/admin/media" className="link-hair text-dusk text-[12px]">
+                Back to open
+              </Link>
+            ) : (
+              <Link href="/admin/media?status=archived" className="link-hair text-dusk text-[12px]">
+                Archived
+              </Link>
+            )}
+            {activeLabels.length > 0 && (
+              <p className="text-[14px] leading-relaxed text-dusk">
+                Showing <span className="text-ink">{activeLabels.join(" / ")}</span>
+                <Link href="/admin/media" className="link-hair ml-4 text-dusk text-[12px]">
+                  Clear
+                </Link>
+              </p>
+            )}
+          </div>
 
-      {!quiet && rows.length > 0 && (
-        <MediaGrid
-          key={`${status ?? ""}-${role ?? ""}-${batch ?? ""}`}
-          initial={rows}
-          initialDone={initialDone}
-          loadMore={loadMoreMediaRows.bind(null, activeFilters)}
-          pieces={pieces}
-        />
+          <div className="mt-6 hidden gap-5 xl:grid xl:grid-cols-3">
+            <div className="panel">
+              <p className="eyebrow">Draft</p>
+              <p className="font-serif mt-3 text-[26px] leading-none">{totals.draft}</p>
+            </div>
+            <div className="panel">
+              <p className="eyebrow">Approved</p>
+              <p className="font-serif mt-3 text-[26px] leading-none">{totals.approved}</p>
+            </div>
+            <div className="panel">
+              <p className="eyebrow">Live</p>
+              <p className="font-serif mt-3 text-[26px] leading-none">{totals.wired}</p>
+            </div>
+          </div>
+
+          {rows.length === 0 && (
+            <div className="panel mt-10 max-w-md">
+              <p className="font-serif text-[20px]">
+                {status === "archived" ? "Nothing archived." : "No photos here yet."}
+              </p>
+              <p className="mt-2 text-[14px] leading-relaxed text-dusk">
+                {status === "archived" ? "Photos you set aside land here." : "Add prepared photos to begin."}
+              </p>
+            </div>
+          )}
+
+          {rows.length > 0 && (
+          <MediaGrid
+            key={`${status ?? ""}-${role ?? ""}-${batch ?? ""}`}
+            initial={rows}
+            initialDone={initialDone}
+            loadMore={loadMoreMediaRows.bind(null, activeFilters)}
+            pieces={pieces}
+          />
+          )}
+          <SelectBar />
+        </SelectProvider>
       )}
     </main>
   );

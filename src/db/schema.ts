@@ -59,6 +59,7 @@ export const ranges = pgTable("ranges", {
      that build the water around it. */
   family: text("family", { enum: ["mosaic", "pool"] }).notNull().default("mosaic"),
   sort: integer("sort").notNull().default(0),
+  archivedAt: timestamp("archived_at", { withTimezone: true }),
 });
 
 export const pieces = pgTable(
@@ -94,6 +95,7 @@ export const pieces = pgTable(
     sort: integer("sort").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
   },
   (t) => [index("pieces_range_idx").on(t.rangeSlug)]
 );

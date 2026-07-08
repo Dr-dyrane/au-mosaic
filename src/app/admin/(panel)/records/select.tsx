@@ -97,16 +97,22 @@ export function SelectableRow({
   href,
   children,
   className = "panel group block",
+  dataTour,
 }: {
   id: string;
   href: string;
   children: ReactNode;
   className?: string;
+  dataTour?: string;
 }) {
   const { mode, selected, toggle } = useSelect();
   if (!mode) {
     return (
-      <Link href={href} className={`${className} transition-transform duration-300 active:scale-[0.99]`}>
+      <Link
+        href={href}
+        data-tour={dataTour}
+        className={`${className} transition-transform duration-300 active:scale-[0.99]`}
+      >
         {children}
       </Link>
     );
@@ -117,6 +123,7 @@ export function SelectableRow({
       type="button"
       onClick={() => toggle(id)}
       aria-pressed={on}
+      data-tour={dataTour}
       className={`${className} w-full text-left transition-transform duration-300 active:scale-[0.99]`}
     >
       <div className="flex items-start gap-3">
@@ -133,6 +140,11 @@ export function SelectableRow({
 function cascadeSentence(p: DeletePreview | null): string {
   if (!p) return "";
   const parts: string[] = [];
+  if (p.pieces) parts.push(`${p.pieces} ${p.pieces === 1 ? "piece" : "pieces"}`);
+  if (p.stock) parts.push(`${p.stock} ${p.stock === 1 ? "stock row" : "stock rows"}`);
+  if (p.orderLines) parts.push(`${p.orderLines} ${p.orderLines === 1 ? "order line" : "order lines"}`);
+  if (p.enquiries) parts.push(`${p.enquiries} ${p.enquiries === 1 ? "enquiry" : "enquiries"}`);
+  if (p.media) parts.push(`${p.media} ${p.media === 1 ? "photo link" : "photo links"}`);
   if (p.orders) parts.push(`${p.orders} ${p.orders === 1 ? "order" : "orders"}`);
   if (p.payments) parts.push(`${p.payments} ${p.payments === 1 ? "payment" : "payments"}`);
   if (p.deliveries) parts.push(`${p.deliveries} ${p.deliveries === 1 ? "delivery" : "deliveries"}`);
@@ -189,7 +201,7 @@ export function SelectBar() {
   return (
     <div className="fixed inset-x-0 bottom-24 z-50 flex justify-center px-4 md:bottom-8">
       <div className="glass flex flex-wrap items-center justify-center gap-4 rounded-full px-6 py-3">
-        <span className="text-[13px] tabular-nums text-ink">{ids.length} chosen</span>
+        <span className="text-[14px] tabular-nums text-ink">{ids.length} chosen</span>
         {!confirm ? (
           <>
             {archived ? (

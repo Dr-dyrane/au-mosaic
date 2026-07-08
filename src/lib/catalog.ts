@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { getDb, schema } from "@/db";
 import { healSchema } from "@/db/heal";
@@ -98,11 +98,15 @@ const readBook = unstable_cache(
     try {
       await healSchema();
       const db = getDb();
-      const ranges = await db.select().from(schema.ranges).orderBy(asc(schema.ranges.sort));
+      const ranges = await db
+        .select()
+        .from(schema.ranges)
+        .where(isNull(schema.ranges.archivedAt))
+        .orderBy(asc(schema.ranges.sort));
       const pieces = await db
         .select()
         .from(schema.pieces)
-        .where(eq(schema.pieces.published, true))
+        .where(and(eq(schema.pieces.published, true), isNull(schema.pieces.archivedAt)))
         .orderBy(asc(schema.pieces.sort));
       return { ranges, pieces };
     } catch {
