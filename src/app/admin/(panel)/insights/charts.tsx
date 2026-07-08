@@ -157,7 +157,7 @@ export function Meter({ value, max, threshold }: MeterProps) {
   );
 }
 
-export type RankRow = { label: string; value: number; sub?: string };
+export type RankRow = { label: string; value: number; sub?: string; href?: string | null };
 
 export type RankBarsProps = {
   rows: RankRow[];
@@ -178,7 +178,13 @@ export function RankBars({ rows, formatValue }: RankBarsProps) {
         return (
           <div key={`${r.label}-${i}`} className="grid grid-cols-[1fr_auto] items-center gap-3">
             <div className="min-w-0">
-              <p className="truncate text-[14px] text-ink">{r.label}</p>
+              {r.href ? (
+                <Link href={r.href} className="link-hair block truncate text-[14px] text-ink">
+                  {r.label}
+                </Link>
+              ) : (
+                <p className="truncate text-[14px] text-ink">{r.label}</p>
+              )}
               {r.sub ? <p className="text-[12px] text-mist">{r.sub}</p> : null}
               <span className="mt-1.5 block h-2.5 w-full rounded-full bg-shell/50">
                 <span className="block h-2.5 rounded-full bg-gold" style={{ width: `${pct}%` }} />

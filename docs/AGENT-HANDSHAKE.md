@@ -16,6 +16,21 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - CODEX - Tap source return lane - done
+
+Closed `src/lib/tap-return.ts`, `src/components/WaTracker.tsx`,
+`src/components/TapReturn.tsx`, `src/app/(site)/layout.tsx`,
+`src/app/api/enquiry/route.ts`, `src/lib/insights.ts`,
+`src/app/admin/(panel)/insights/{page,charts}.tsx`, `docs/QA.md`,
+and this handshake for return links from the Insights tap-source rows.
+Future WhatsApp taps keep a same-site receipt with source, source index,
+and scroll fallback; the public site follows `wa_src`, `wa_i`, and
+`wa_y` back to the original CTA, focuses it, and marks it briefly.
+Seeded demo rows now say Sample data when no real return path exists.
+`npx eslint src --max-warnings=0`, helper `npx tsx -e`,
+`python3 scripts/theme-check.py`, `git diff --check`, touched-file dash
+scan, and `npx next build` on Next 16.2.10, 57 routes, passed.
+
 ## 2026-07-07 - CODEX - Settings launch defaults lane - done
 
 Closed `src/lib/data-mode.ts`, `src/app/admin/(panel)/settings/*`,

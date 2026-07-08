@@ -250,7 +250,12 @@ export default async function InsightsPage({
               ) : (
                 <div className="mt-4">
                   <RankBars
-                    rows={d.taps.map((t) => ({ label: t.source, value: t.n }))}
+                    rows={d.taps.map((t) => ({
+                      label: t.source,
+                      value: t.n,
+                      href: t.href,
+                      sub: t.path ? `Latest: ${t.path}` : t.source === "demo" ? "Sample data" : undefined,
+                    }))}
                     formatValue={(n) => n.toLocaleString()}
                   />
                 </div>

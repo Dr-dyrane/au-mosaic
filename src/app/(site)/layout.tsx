@@ -2,6 +2,7 @@ import { SITE } from "@/lib/site";
 import { scriptJson } from "@/lib/jsonld";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import TapReturn from "@/components/TapReturn";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 /* The flagship's chrome lives here, not in the root: the island, the
@@ -47,6 +48,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         Skip to content
       </a>
       <Header />
+      <TapReturn />
       <main id="main" className="flex-1">{children}</main>
       <Footer />
       <WhatsAppFloat />

@@ -1,6 +1,7 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { getDb, rowsOf, schema } from "@/db";
 import { getDataMode, hideDemoNoteSql, hideDemoSourceSql } from "@/lib/data-mode";
+import { tapReturnFromMessage } from "@/lib/tap-return";
 
 /* One source of truth for the Insights room. The page renders these
    numbers and the AI read interprets the very same object, so a figure
@@ -18,7 +19,7 @@ export type InsightsWindow = { months: number; label: string };
 export type MonthPoint = { label: string; billed: number };
 export type PieceRevenue = { name: string; revenue: number };
 export type AgingBucket = { bucket: string; n: number; owed: number };
-export type TapSource = { source: string; n: number };
+export type TapSource = { source: string; n: number; path: string | null; href: string | null };
 export type FunnelStage = { label: string; n: number; note: string | null };
 export type LowStockItem = { name: string; slug: string; unit: string; qty: number };
 
@@ -93,7 +94,10 @@ export async function computeInsights(months: number): Promise<InsightsData> {
       when 'Under a month' then 1 when 'One to two months' then 2 else 3 end)`);
 
   const sources = await db.execute(sql`
-    select source, count(*)::int as n from enquiries
+    select source,
+           count(*)::int as n,
+           (array_agg(message order by created_at desc))[1] as message
+    from enquiries
     where true ${hideDemoSourceSql(mode, "enquiries")}
     group by source order by n desc limit 6`);
 
@@ -143,10 +147,15 @@ export async function computeInsights(months: number): Promise<InsightsData> {
     n: Number(b.n),
     owed: Number(b.owed),
   }));
-  const taps = rowsOf<{ source: string; n: number }>(sources).map((t) => ({
-    source: t.source,
-    n: Number(t.n),
-  }));
+  const taps = rowsOf<{ source: string; n: number; message: string }>(sources).map((t) => {
+    const link = tapReturnFromMessage(t.message ?? "");
+    return {
+      source: t.source,
+      n: Number(t.n),
+      path: link.path,
+      href: link.returnPath ?? link.path,
+    };
+  });
   const enq = rowsOf<{ enquiries: number; converted: number }>(enquiryStages)[0];
   const ord = rowsOf<{ billed_n: number; settled_n: number }>(orderStages)[0];
 

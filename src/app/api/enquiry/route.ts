@@ -1,5 +1,6 @@
 import { count, eq, gt, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { buildTapMessage, cleanInternalPath, stripTapReturnParams } from "@/lib/tap-return";
 
 /* The funnel's memory. A WhatsApp tap on the site lands here as a
    beacon and becomes an enquiry in the book: source, page, and the
@@ -13,9 +14,10 @@ import { getDb, schema } from "@/db";
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as { source?: string; path?: string; sid?: string };
+    const body = (await req.json()) as { source?: string; path?: string; returnPath?: string; sid?: string };
     const source = String(body.source ?? "unknown").slice(0, 40);
-    const path = String(body.path ?? "").slice(0, 120);
+    const path = cleanInternalPath(body.path, 120);
+    const returnPath = cleanInternalPath(body.returnPath, 260);
     /* The visitor's own anonymous id, kept only if it reads like one. */
     const sidRaw = String(body.sid ?? "");
     const sessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sidRaw)
@@ -29,7 +31,8 @@ export async function POST(req: Request) {
     if ((recent?.n ?? 0) >= 30) return new Response(null, { status: 204 });
 
     let pieceSlug: string | null = null;
-    const m = path.match(/^\/piece\/([a-z0-9-]{1,80})$/);
+    const piecePath = path ? stripTapReturnParams(path).split(/[?#]/)[0] : "";
+    const m = piecePath.match(/^\/piece\/([a-z0-9-]{1,80})$/);
     if (m) {
       const db = getDb();
       const [piece] = await db
@@ -42,7 +45,7 @@ export async function POST(req: Request) {
     /* The lead itself. Write it; if the book jams, retry once. If the
        second pass fails too, leave one line in the log and still answer
        204: a real lead must not vanish without a trace. */
-    const row = { source, pieceSlug, sessionId, message: path ? `Tapped on ${path}` : "" };
+    const row = { source, pieceSlug, sessionId, message: buildTapMessage(source, path, returnPath) };
     try {
       await getDb().insert(schema.enquiries).values(row);
     } catch {
