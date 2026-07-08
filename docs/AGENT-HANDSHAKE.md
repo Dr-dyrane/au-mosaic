@@ -16,6 +16,13 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - CODEX - Product image and search lane - done
+
+Closed Aqua colour mosaic image correction, public tile and gallery
+search, product-card image CRUD on the piece record, `docs/QA.md`, and
+this handshake. Live data now separates window media from product-card
+media, and the Aqua window slots are back on the owned turquoise frames.
+
 ## 2026-07-08 - CODEX - New range catalogue lane - done
 
 Closed range movement, all-piece public piece routes, piece-photo media

@@ -18,15 +18,19 @@ import Teach from "../../Teach";
 
 function Slot({
   slug,
+  slot,
   which,
   title,
   hint,
+  description,
   current,
 }: {
   slug: string;
+  slot: "window" | "card";
   which: "night" | "day";
   title: string;
   hint: string;
+  description: string;
   current: string | null;
 }) {
   const [upState, upAction, upPending] = useActionState<SaveState, FormData>(uploadPhoto, null);
@@ -74,8 +78,8 @@ function Slot({
           src={current}
           alt={`${title} photograph`}
           title={title}
-          eyebrow="Piece photo"
-          description={which === "night" ? "The dark-mode window photograph." : "The daylight window photograph."}
+          eyebrow={slot === "card" ? "Product card" : "Window photo"}
+          description={description}
           triggerClassName="photo-slot relative mt-3 block aspect-[4/3] w-full overflow-hidden rounded-[18px]"
           unoptimized={!isBlob}
         >
@@ -98,6 +102,7 @@ function Slot({
       )}
       <form ref={upRef} onSubmit={submitUpload} className="mt-4 flex flex-wrap items-center gap-5">
         <input type="hidden" name="slug" value={slug} />
+        <input type="hidden" name="slot" value={slot} />
         <input type="hidden" name="which" value={which} />
         <input
           type="file"
@@ -117,6 +122,7 @@ function Slot({
       {current && (
         <form action={rmAction} className="mt-2.5">
           <input type="hidden" name="slug" value={slug} />
+          <input type="hidden" name="slot" value={slot} />
           <input type="hidden" name="which" value={which} />
           <button type="submit" disabled={rmPending} className="link-hair text-mist text-[12px] disabled:opacity-60">
             {rmPending ? "Taking down..." : "Take it down"}
@@ -184,18 +190,53 @@ function WindowPreview({
   );
 }
 
+function ProductPreview({
+  src,
+  name,
+  sun,
+}: {
+  src: string;
+  name: string;
+  sun: "night" | "day";
+}) {
+  return (
+    <AdminPhotoViewer
+      src={src}
+      alt={`${name}, product card by ${sun}`}
+      title={name}
+      eyebrow={sun === "night" ? "Dark card" : "Light card"}
+      description="The product image used in tile grids and gallery frames."
+      triggerClassName="relative block aspect-[4/5] w-full overflow-hidden rounded-[22px] bg-shell"
+      unoptimized={!src.includes("blob.vercel-storage.com")}
+    >
+      <Image
+        src={src}
+        alt={`${name}, product card by ${sun}`}
+        fill
+        sizes="(max-width: 640px) 100vw, 20rem"
+        className="object-cover"
+        unoptimized={!src.includes("blob.vercel-storage.com")}
+      />
+    </AdminPhotoViewer>
+  );
+}
+
 export default function PhotoPanel({
   slug,
   name,
   line,
   imageNight,
   imageDay,
+  cardImageNight,
+  cardImageDay,
 }: {
   slug: string;
   name: string;
   line: string;
   imageNight: string | null;
   imageDay: string | null;
+  cardImageNight: string | null;
+  cardImageDay: string | null;
 }) {
   return (
     /* On the desk the face keeps the eye while the form scrolls:
@@ -212,21 +253,28 @@ export default function PhotoPanel({
           </p>
         </Teach>
       </div>
-      <div className="grid gap-8 sm:grid-cols-2">
-        <Slot
-          slug={slug}
-          which="night"
-          title="By night"
-          hint="Evening light, lamps on, the drama shot."
-          current={imageNight}
-        />
-        <Slot
-          slug={slug}
-          which="day"
-          title="By day"
-          hint="Morning light, soft shadows, the honest shot."
-          current={imageDay}
-        />
+      <div>
+        <p className="eyebrow">Window photos</p>
+        <div className="mt-3 grid gap-8 sm:grid-cols-2">
+          <Slot
+            slug={slug}
+            slot="window"
+            which="night"
+            title="By night"
+            hint="Evening light, lamps on, the drama shot."
+            description="The dark-mode window photograph."
+            current={imageNight}
+          />
+          <Slot
+            slug={slug}
+            slot="window"
+            which="day"
+            title="By day"
+            hint="Morning light, soft shadows, the honest shot."
+            description="The daylight window photograph."
+            current={imageDay}
+          />
+        </div>
       </div>
       {(imageNight || imageDay) && (
         <div>
@@ -234,6 +282,43 @@ export default function PhotoPanel({
           <div className="mt-3 grid max-w-md gap-5 sm:grid-cols-2">
             {imageNight && <WindowPreview src={imageNight} name={name} line={line} sun="night" />}
             {imageDay && <WindowPreview src={imageDay} name={name} line={line} sun="day" />}
+          </div>
+        </div>
+      )}
+      <div>
+        <p className="eyebrow">Product cards</p>
+        <Teach until="stockroom">
+          <p className="mt-2 max-w-md text-[14px] leading-relaxed text-dusk">
+            These feed the tile grids, product cards, and gallery product frames.
+          </p>
+        </Teach>
+        <div className="mt-3 grid gap-8 sm:grid-cols-2">
+          <Slot
+            slug={slug}
+            slot="card"
+            which="night"
+            title="Dark card"
+            hint="Clean product sheet for dark mode."
+            description="The product card used in dark mode."
+            current={cardImageNight}
+          />
+          <Slot
+            slug={slug}
+            slot="card"
+            which="day"
+            title="Light card"
+            hint="Clean product sheet for light mode."
+            description="The product card used in light mode."
+            current={cardImageDay}
+          />
+        </div>
+      </div>
+      {(cardImageNight || cardImageDay) && (
+        <div>
+          <p className="eyebrow">As the grid wears it</p>
+          <div className="mt-3 grid max-w-md gap-5 sm:grid-cols-2">
+            {cardImageNight && <ProductPreview src={cardImageNight} name={name} sun="night" />}
+            {cardImageDay && <ProductPreview src={cardImageDay} name={name} sun="day" />}
           </div>
         </div>
       )}

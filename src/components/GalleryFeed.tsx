@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import InfiniteList from "./InfiniteList";
 import ThemeImage from "./ThemeImage";
 import type { GalleryItem } from "@/lib/gallery";
@@ -14,6 +14,8 @@ import { wa } from "@/lib/wa";
    before the next batch lands. */
 
 const PAGE = 24;
+const field =
+  "w-full rounded-full bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
 function IconClose({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -35,16 +37,56 @@ function IconClose({ className = "h-4 w-4" }: { className?: string }) {
 
 export default function GalleryFeed({ items }: { items: GalleryItem[] }) {
   const [selected, setSelected] = useState<GalleryItem | null>(null);
+  const [query, setQuery] = useState("");
+  const clean = query.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    if (!clean) return items;
+    return items.filter((item) =>
+      [
+        item.title,
+        item.label,
+        item.line,
+        item.alt,
+        item.action,
+        item.href,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(clean),
+    );
+  }, [clean, items]);
   const loadMore = async (offset: number) => {
     await new Promise((resolve) => setTimeout(resolve, 260));
-    return { items: items.slice(offset, offset + PAGE), done: offset + PAGE >= items.length };
+    return {
+      items: filtered.slice(offset, offset + PAGE),
+      done: offset + PAGE >= filtered.length,
+    };
   };
 
   return (
     <>
+      <div className="mb-10 max-w-md">
+        <label htmlFor="gallery-search" className="eyebrow mb-3 block">
+          Search gallery
+        </label>
+        <input
+          id="gallery-search"
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Aqua, pool, mural, room"
+          className={field}
+        />
+      </div>
+      {filtered.length === 0 ? (
+        <p className="max-w-md text-[14px] leading-relaxed text-dusk">
+          Nothing matches that search.
+        </p>
+      ) : (
       <InfiniteList
-        initial={items.slice(0, PAGE)}
-        initialDone={items.length <= PAGE}
+        key={clean || "all"}
+        initial={filtered.slice(0, PAGE)}
+        initialDone={filtered.length <= PAGE}
         loadMore={loadMore}
         skeletonCount={3}
         className="-mx-5 grid gap-y-12 sm:mx-0 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 xl:grid-cols-3"
@@ -90,6 +132,7 @@ export default function GalleryFeed({ items }: { items: GalleryItem[] }) {
           </div>
         )}
       />
+      )}
       <Dialog.Root open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         {selected && (
           <Dialog.Portal>

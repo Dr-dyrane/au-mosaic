@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { getMosaicRanges } from "@/lib/catalog";
 import { DAY, OWN } from "@/lib/images";
 import { waQuote } from "@/lib/wa";
-import { CtaRow, PageHero, ProductGroupBlock, Section } from "@/components/ui";
+import ProductSearch from "@/components/ProductSearch";
+import { CtaRow, PageHero, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Mosaic tiles in Lagos, Nigeria",
@@ -25,11 +26,7 @@ export default async function MosaicTilesPage() {
       />
 
       <Section title="The ranges">
-        <div className="space-y-14">
-          {ranges.map((g) => (
-            <ProductGroupBlock key={g.id} group={g} />
-          ))}
-        </div>
+        <ProductSearch groups={ranges} />
       </Section>
 
       <Section

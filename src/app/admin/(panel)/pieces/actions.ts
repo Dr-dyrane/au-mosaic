@@ -38,6 +38,43 @@ function toInt(v: FormDataEntryValue | null, fallback = 0) {
   return Number.isFinite(n) && n >= 0 ? n : fallback;
 }
 
+type PhotoSlot = "window" | "card";
+type PhotoSun = "night" | "day";
+
+function photoSlot(value: FormDataEntryValue | null): PhotoSlot | null {
+  const slot = String(value ?? "window");
+  return slot === "window" || slot === "card" ? slot : null;
+}
+
+function photoSet(slot: PhotoSlot, sun: PhotoSun, url: string | null) {
+  if (slot === "card") {
+    return sun === "night"
+      ? { cardImageNight: url, updatedAt: sql`now()` }
+      : { cardImageDay: url, updatedAt: sql`now()` };
+  }
+  return sun === "night"
+    ? { imageNight: url, updatedAt: sql`now()` }
+    : { imageDay: url, updatedAt: sql`now()` };
+}
+
+function photoColumn(slot: PhotoSlot, sun: PhotoSun) {
+  if (slot === "card") return sun === "night" ? schema.pieces.cardImageNight : schema.pieces.cardImageDay;
+  return sun === "night" ? schema.pieces.imageNight : schema.pieces.imageDay;
+}
+
+function photoRole(slot: PhotoSlot) {
+  return slot === "card" ? "card" : "window";
+}
+
+function photoTitle(name: string, slot: PhotoSlot, sun: PhotoSun) {
+  const tone = sun === "night" ? "dark" : "light";
+  return slot === "card" ? `${name} card, ${tone}` : `Window ${name}, ${tone}`;
+}
+
+function photoNotes(slot: PhotoSlot) {
+  return slot === "card" ? "Product card photograph." : "Window photograph.";
+}
+
 /* Photographs go to the house store and their URL into the piece
    record. Night and day are separate slots, same as the flagship
    renders them. Replacing leaves the old file resting in storage on
@@ -45,11 +82,13 @@ function toInt(v: FormDataEntryValue | null, fallback = 0) {
 export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<SaveState> {
   if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
   const slug = String(form.get("slug") ?? "");
-  const which = String(form.get("which") ?? "");
+  const which = String(form.get("which") ?? "") as PhotoSun;
+  const slot = photoSlot(form.get("slot"));
   const file = form.get("photo");
   if (!slug || (which !== "night" && which !== "day")) {
     return { ok: false, message: "Missing piece or slot." };
   }
+  if (!slot) return { ok: false, message: "Choose a real photo slot." };
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, message: "Choose a photograph first." };
   }
@@ -68,7 +107,7 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
   let url: string;
   try {
     const ext = file.type === "image/png" ? "png" : "jpg";
-    const blob = await put(`pieces/${slug}-${which}-${Date.now()}.${ext}`, file, {
+    const blob = await put(`pieces/${slug}-${slot}-${which}-${Date.now()}.${ext}`, file, {
       access: "public",
       addRandomSuffix: false,
     });
@@ -81,11 +120,7 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
     const db = getDb();
     const [piece] = await db
       .update(schema.pieces)
-      .set(
-        which === "night"
-          ? { imageNight: url, updatedAt: sql`now()` }
-          : { imageDay: url, updatedAt: sql`now()` }
-      )
+      .set(photoSet(slot, which, url))
       .where(eq(schema.pieces.slug, slug))
       .returning({ name: schema.pieces.name });
     if (!piece) return { ok: false, message: "That piece is not in the book." };
@@ -93,15 +128,15 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
     try {
       await db.insert(schema.mediaAssets).values({
         url,
-        title: `${piece.name}, ${which}`,
-        batch: "piece-record",
+        title: photoTitle(piece.name, slot, which),
+        batch: slot === "card" ? "piece-card" : "piece-window",
         sun: which,
-        role: "card",
+        role: photoRole(slot),
         status: "wired",
         pieceSlug: slug,
-        notes: "Piece record photograph.",
+        notes: photoNotes(slot),
         source: "Piece record upload.",
-        originalPath: `pieces/${slug}-${which}`,
+        originalPath: `pieces/${slug}-${slot}-${which}`,
       });
     } catch (e) {
       console.error("[photograph] the photo room did not take the URL", e);
@@ -113,6 +148,7 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
   await logAction("put up a photograph", slug, which === "night" ? "the night slot" : "the day slot");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin/pieces");
+  revalidatePath("/admin/media");
   refreshWindow();
   return { ok: true, message: "The photograph is in." };
 }
@@ -120,25 +156,43 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
 export async function removePhoto(_prev: SaveState, form: FormData): Promise<SaveState> {
   if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
   const slug = String(form.get("slug") ?? "");
-  const which = String(form.get("which") ?? "");
+  const which = String(form.get("which") ?? "") as PhotoSun;
+  const slot = photoSlot(form.get("slot"));
   if (!slug || (which !== "night" && which !== "day")) {
     return { ok: false, message: "Missing piece or slot." };
   }
+  if (!slot) return { ok: false, message: "Choose a real photo slot." };
   try {
-    await getDb()
-      .update(schema.pieces)
-      .set(
-        which === "night"
-          ? { imageNight: null, updatedAt: sql`now()` }
-          : { imageDay: null, updatedAt: sql`now()` }
-      )
+    const db = getDb();
+    const [piece] = await db
+      .select({
+        url: photoColumn(slot, which),
+      })
+      .from(schema.pieces)
       .where(eq(schema.pieces.slug, slug));
+    await db
+      .update(schema.pieces)
+      .set(photoSet(slot, which, null))
+      .where(eq(schema.pieces.slug, slug));
+    if (piece?.url) {
+      await db
+        .update(schema.mediaAssets)
+        .set({ status: "archived", archivedAt: sql`now()`, updatedAt: sql`now()` })
+        .where(
+          and(
+            eq(schema.mediaAssets.pieceSlug, slug),
+            eq(schema.mediaAssets.url, piece.url),
+            eq(schema.mediaAssets.role, photoRole(slot))
+          )
+        );
+    }
   } catch {
     return { ok: false, message: "The database did not answer. Try again." };
   }
   await logAction("took down a photograph", slug, which === "night" ? "the night slot" : "the day slot");
   revalidatePath(`/admin/pieces/${slug}`);
   revalidatePath("/admin/pieces");
+  revalidatePath("/admin/media");
   refreshWindow();
   return { ok: true, message: "Taken down. The file stays in the store." };
 }

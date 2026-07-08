@@ -44,6 +44,8 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
         line={piece.line}
         imageNight={piece.imageNight}
         imageDay={piece.imageDay}
+        cardImageNight={piece.cardImageNight}
+        cardImageDay={piece.cardImageDay}
       />
       <PieceForm
         piece={{
