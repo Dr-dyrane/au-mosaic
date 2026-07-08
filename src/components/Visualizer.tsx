@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
-import { IconClose } from "@/app/admin/(panel)/icons";
+import { IconClose, IconAdd } from "@/app/admin/(panel)/icons";
 import { track } from "@vercel/analytics";
 import { VISUALIZER_CONTEXTS, VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
@@ -47,6 +47,7 @@ type SurfaceLayer = {
   blend: number;
   prepMode: PrepMode;
   groutLight: boolean;
+  customColors: string[] | null;
   visible: boolean;
   accepted: boolean;
 };
@@ -244,7 +245,8 @@ function drawSurfaceLayer({
   piece: Piece;
 }) {
   if (!layer.visible) return;
-  const pattern = makePattern(piece.colors || ["#3aa9d6"], layer.tileSize, layer.groutLight);
+  const tileColors = layer.customColors && layer.customColors.length > 0 ? layer.customColors : (piece.colors || ["#3aa9d6"]);
+  const pattern = makePattern(tileColors, layer.tileSize, layer.groutLight);
   const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
 
   if (layer.prepMode !== "none") {
@@ -655,6 +657,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const g = readStore().groutLight;
     return typeof g === "boolean" ? g : true;
   });
+  const [customColors, setCustomColors] = useState<string[] | null>(null);
   const [holding, setHolding] = useState(false);
   const [tick, setTick] = useState(0);
   const [loupe, setLoupe] = useState<Pt | null>(null);
@@ -677,6 +680,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       blend: typeof readStore().blend === "number" ? (readStore().blend as number) : 0.85,
       prepMode: readStore().prepMode === "none" || readStore().prepMode === "blur" ? (readStore().prepMode as PrepMode) : "primer",
       groutLight: typeof readStore().groutLight === "boolean" ? (readStore().groutLight as boolean) : true,
+      customColors: null,
       visible: true,
       accepted: false,
     },
@@ -721,9 +725,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     blend,
     prepMode,
     groutLight,
+    customColors,
     visible: true,
     accepted: hasFittedSurface,
-  }), [activeLayerId, blend, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, surface, tileSize]);
+  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, surface, tileSize]);
 
   const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
     const next = activeLayerSnapshot();
@@ -742,6 +747,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setBlend(layer.blend);
     setPrepMode(layer.prepMode);
     setGroutLight(layer.groutLight);
+    setCustomColors(layer.customColors);
     setHasFittedSurface(layer.accepted);
     setPendingSnap(null);
     setSnapMessage(`${layer.label} selected.`);
@@ -781,6 +787,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       setSurface(targetSurface);
       setTileSize(targetTileSize);
       setPieceSlug(targetPieceSlug);
+      setCustomColors(null);
       setPrepMode(targetPrep);
       if (snapped) {
         setQuad(snapped.quad);
@@ -902,12 +909,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       try {
         localStorage.setItem(
           STORE_KEY,
-          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug, layers: withActiveLayer(layers) })
+          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers: withActiveLayer(layers) })
         );
       } catch {}
     }, 600);
     return () => clearTimeout(id);
-  }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, layers, withActiveLayer]);
+  }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers, withActiveLayer]);
 
   const chooseStarterSurface = (id: SurfaceId) => {
     const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
@@ -916,6 +923,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSurface(id);
     setTileSize(SURFACES[id].tileSize);
     setPieceSlug(nextPieceSlug);
+    setCustomColors(null);
     setPrepMode("primer");
     setQuad(SURFACES[id].quad);
     setPendingSnap(null);
@@ -979,6 +987,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSurface(id);
     setTileSize(next.tileSize);
     setPieceSlug(nextPieceSlug);
+    setCustomColors(null);
     setPrepMode("primer");
     const found = photo ? detectSurfaceQuad(photo, id) : null;
     if (found) {
@@ -1037,6 +1046,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       blend,
       prepMode: "primer",
       groutLight,
+      customColors: null,
       visible: true,
       accepted: false,
     };
@@ -1045,6 +1055,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSurface(nextSurface);
     setQuad(nextLayer.quad);
     setPieceSlug(nextPieceSlug);
+    setCustomColors(null);
     setTileSize(nextLayer.tileSize);
     setPrepMode("primer");
     setHasFittedSurface(false);
@@ -1272,6 +1283,61 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     }, "image/png");
   };
 
+  /* The visitor's own colourway, laid over the piece. Null means the
+     piece paints itself; the first edit seeds from what is showing. */
+  const activeColors = customColors ?? (piece.colors ?? ["#3aa9d6"]);
+  const editColor = (i: number, v: string) =>
+    setCustomColors(activeColors.map((c, j) => (j === i ? v : c)));
+  const addColor = () => {
+    setCustomColors([...activeColors, "#1179a8"]);
+    buzz(3);
+    track("viz_palette", { action: "add" });
+  };
+  const removeColor = (i: number) => {
+    if (activeColors.length <= 1) return;
+    setCustomColors(activeColors.filter((_, j) => j !== i));
+    buzz(3);
+    track("viz_palette", { action: "remove" });
+  };
+
+  const paletteEditor = (
+    <div className="mt-5" data-viz="palette">
+      <p className="eyebrow">Your colours</p>
+      <p className="mt-1.5 text-[12px] leading-relaxed text-mist">
+        Tap a tile to change it, or add your own. Choose a stock colourway above to reset.
+      </p>
+      <div className="mt-3 flex flex-wrap items-start gap-3">
+        {activeColors.map((c, i) => (
+          <span key={i} className="flex flex-col items-center gap-1">
+            <input
+              type="color"
+              value={c}
+              onChange={(e) => editColor(i, e.target.value)}
+              aria-label={`Colour ${i + 1}`}
+              className="color-dot h-11 w-12 cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={() => removeColor(i)}
+              aria-label={`Remove colour ${i + 1}`}
+              className="text-[11px] text-mist transition-colors duration-300 hover:text-ink"
+            >
+              remove
+            </button>
+          </span>
+        ))}
+        <button
+          type="button"
+          onClick={addColor}
+          className="flex h-11 w-12 items-center justify-center rounded-[10px] bg-shell/60 text-dusk transition-colors duration-300 hover:bg-shell hover:text-ink"
+          aria-label="Add a colour"
+        >
+          <IconAdd className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  );
+
   const layerChips = (
     <div className="no-scrollbar -mx-2 flex gap-2 overflow-x-auto px-2 py-2" data-viz="layer-chips">
       {layers.map((layer) => (
@@ -1356,6 +1422,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           key={p.slug}
           onClick={() => {
             setPieceSlug(p.slug);
+            setCustomColors(null);
             buzz(4);
             track("viz_piece", { piece: p.slug });
           }}
@@ -1457,6 +1524,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       <div className="mt-8">
         <p className="eyebrow">Colourway</p>
         <div className="mt-2">{pieceOptions}</div>
+        {paletteEditor}
       </div>
       <div className="mt-8">{lightOptions}</div>
     </>
@@ -1487,7 +1555,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           </span>
           <span className="link-hair text-dusk group-open:text-ink">Swap</span>
         </summary>
-        <div className="mt-5">{pieceOptions}</div>
+        <div className="mt-5">
+          {pieceOptions}
+          {paletteEditor}
+        </div>
       </details>
       <details className={mobileSnippetClass}>
         <summary className={mobileSummaryClass}>
