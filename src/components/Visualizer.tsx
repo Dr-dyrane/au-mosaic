@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
-import { IconClose, IconAdd } from "@/app/admin/(panel)/icons";
+import { IconClose } from "@/app/admin/(panel)/icons";
 import { track } from "@vercel/analytics";
 import { VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
@@ -16,7 +16,6 @@ import {
   SAMPLE_POOL_QUAD,
   SURFACES,
   CONTEXTS,
-  QUICK_SURFACES,
   DEFAULT_PIECE,
   STORE_KEY,
   CORNER_LABELS,
@@ -27,6 +26,14 @@ import {
 import { drawSource, drawSurfaceLayer } from "./visualizer/draw";
 import { detectSurfaceQuad } from "./visualizer/detect";
 import { buzz, pieceSlugForSurface, suggestionText, shouldKeepCurrentFit, readStore } from "./visualizer/helpers";
+import PaletteEditor from "./visualizer/parts/PaletteEditor";
+import PieceOptions from "./visualizer/parts/PieceOptions";
+import SurfaceOptions from "./visualizer/parts/SurfaceOptions";
+import ContextOptions from "./visualizer/parts/ContextOptions";
+import StarterSurface from "./visualizer/parts/StarterSurface";
+import LightOptions from "./visualizer/parts/LightOptions";
+import LayerChips from "./visualizer/parts/LayerChips";
+import CameraDialog from "./visualizer/parts/CameraDialog";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -695,233 +702,47 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     track("viz_palette", { action: "remove" });
   };
 
-  const paletteEditor = (
-    <div className="mt-5" data-viz="palette">
-      <p className="eyebrow">Your colours</p>
-      <p className="mt-1.5 text-[12px] leading-relaxed text-mist">
-        Tap a tile to change it, or add your own. Choose a stock colourway above to reset.
-      </p>
-      <div className="mt-3 flex flex-wrap items-start gap-3">
-        {activeColors.map((c, i) => (
-          <span key={i} className="flex flex-col items-center gap-1">
-            <input
-              type="color"
-              value={c}
-              onChange={(e) => editColor(i, e.target.value)}
-              aria-label={`Colour ${i + 1}`}
-              className="color-dot h-11 w-12 cursor-pointer"
-            />
-            <button
-              type="button"
-              onClick={() => removeColor(i)}
-              aria-label={`Remove colour ${i + 1}`}
-              className="text-[11px] text-mist transition-colors duration-300 hover:text-ink"
-            >
-              remove
-            </button>
-          </span>
-        ))}
-        <button
-          type="button"
-          onClick={addColor}
-          className="flex h-11 w-12 items-center justify-center rounded-[10px] bg-shell/60 text-dusk transition-colors duration-300 hover:bg-shell hover:text-ink"
-          aria-label="Add a colour"
-        >
-          <IconAdd className="h-5 w-5" />
-        </button>
-      </div>
-    </div>
-  );
+  const pickPiece = (slug: string) => {
+    setPieceSlug(slug);
+    setCustomColors(null);
+    buzz(4);
+    track("viz_piece", { piece: slug });
+  };
 
-  const layerChips = (
-    <div className="no-scrollbar -mx-2 flex gap-2 overflow-x-auto px-2 py-2" data-viz="layer-chips">
-      {layers.map((layer) => (
-        <button
-          key={layer.id}
-          type="button"
-          aria-pressed={layer.id === activeLayerId}
-          onClick={() => selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer)}
-          className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.18em] transition-all duration-300 active:scale-95 ${
-            layer.id === activeLayerId ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-          }`}
-        >
-          {layer.id === activeLayerId ? LAYER_LABELS[surface] : layer.label}
-        </button>
-      ))}
-    </div>
-  );
+  const changeTileSize = (value: number) => {
+    setTileSize(value);
+    buzz(2);
+  };
 
-  const starterSurfaceOptions = (
-    <div className="min-w-0">
-      <p className="eyebrow">Surface</p>
-      <div className="no-scrollbar -mx-2 mt-3 flex gap-2 overflow-x-auto px-2 py-1">
-        {QUICK_SURFACES.map((id) => (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={surface === id}
-            onClick={() => chooseStarterSurface(id)}
-            className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.18em] transition-all duration-300 active:scale-95 ${
-              surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-            }`}
-          >
-            {LAYER_LABELS[id]}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  const changeBlend = (value: number) => {
+    setBlend(value);
+    buzz(2);
+  };
 
-  const surfaceOptions = (
-    <div>
-      <p className="eyebrow">Surface fit</p>
-      <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
-        {(Object.entries(SURFACES) as Array<[SurfaceId, (typeof SURFACES)[SurfaceId]]>).map(([id, item]) => (
-          <button
-            key={id}
-            onClick={() => fitSurface(id)}
-            aria-pressed={surface === id}
-            className={`shrink-0 rounded-full px-5 py-3 text-left transition-all duration-300 active:scale-95 ${
-              surface === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-            }`}
-          >
-            <span className="block text-[12px] font-semibold uppercase tracking-[0.18em]">{item.label}</span>
-            <span className="mt-1 block text-[12px] normal-case tracking-normal text-mist">{item.line}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  const changePrepMode = (mode: PrepMode) => {
+    setPrepMode(mode);
+    buzz(3);
+    track("viz_prep", { mode });
+  };
 
-  const contextOptions = (
-    <div className="mt-7">
-      <p className="eyebrow">Start from</p>
-      <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 py-2 sm:-mx-2 sm:px-2">
-        {CONTEXTS.map((context) => (
-          <button
-            key={context.id}
-            onClick={() => loadContext(context.id)}
-            className="shrink-0 rounded-full bg-shell/40 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk transition-all duration-300 hover:bg-shell/60 active:scale-95"
-          >
-            {context.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  const toggleGrout = () => {
+    setGroutLight(!groutLight);
+    buzz(4);
+  };
 
-  const pieceOptions = (
-    <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5 py-3 sm:-mx-2 sm:px-2">
-      {pieces.map((p) => (
-        <button
-          key={p.slug}
-          onClick={() => {
-            setPieceSlug(p.slug);
-            setCustomColors(null);
-            buzz(4);
-            track("viz_piece", { piece: p.slug });
-          }}
-          aria-pressed={p.slug === pieceSlug}
-          title={p.name}
-          className={`flex h-12 shrink-0 items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-95 ${
-            p.slug === pieceSlug ? "scale-[1.04] bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-          }`}
-        >
-          <span className="flex gap-0.5">
-            {(p.colors || []).slice(0, 4).map((c, i) => (
-              <span key={`${c}-${i}`} className="h-4 w-4 rounded-[4px]" style={{ background: c }} />
-            ))}
-          </span>
-          <span className="whitespace-nowrap text-[12px] font-semibold">{p.name}</span>
-        </button>
-      ))}
-    </div>
-  );
-
-  const lightOptions = (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
-      <div className="panel">
-        <p className="eyebrow">Tile size</p>
-        <input
-          type="range"
-          min={14}
-          max={48}
-          value={tileSize}
-          onChange={(e) => {
-            setTileSize(+e.target.value);
-            buzz(2);
-          }}
-          className="mt-4 w-full accent-[#c2a15c]"
-          aria-label="Tile size"
-        />
-      </div>
-      <div className="panel">
-        <p className="eyebrow">Blend with the light</p>
-        <input
-          type="range"
-          min={40}
-          max={100}
-          value={blend * 100}
-          onChange={(e) => {
-            setBlend(+e.target.value / 100);
-            buzz(2);
-          }}
-          className="mt-4 w-full accent-[#c2a15c]"
-          aria-label="Blend"
-        />
-      </div>
-      <div className="panel">
-        <p className="eyebrow">Prep surface</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {([
-            ["primer", "Primer"],
-            ["blur", "Blur"],
-            ["none", "Original"],
-          ] as Array<[PrepMode, string]>).map(([mode, label]) => (
-            <button
-              key={mode}
-              type="button"
-              aria-pressed={prepMode === mode}
-              onClick={() => {
-                setPrepMode(mode);
-                buzz(3);
-                track("viz_prep", { mode });
-              }}
-              className={`rounded-full px-4 py-2 text-[12px] font-semibold transition-all duration-300 active:scale-95 ${
-                prepMode === mode ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <p className="mt-3 text-[12px] leading-relaxed text-mist">Primer hides old tile.</p>
-      </div>
-      <div className="panel flex items-center justify-between gap-4">
-        <p className="eyebrow">Grout</p>
-        <button
-          onClick={() => {
-            setGroutLight(!groutLight);
-            buzz(4);
-          }}
-          className="link-hair text-dusk"
-        >
-          {groutLight ? "Light" : "Dark"}
-        </button>
-      </div>
-    </div>
-  );
+  const selectLayerChip = (layer: SurfaceLayer) =>
+    selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer);
 
   const refineControls = (
     <>
-      {surfaceOptions}
-      {contextOptions}
+      <SurfaceOptions surface={surface} onFit={fitSurface} />
+      <ContextOptions onLoad={loadContext} />
       <div className="mt-8">
         <p className="eyebrow">Colourway</p>
-        <div className="mt-2">{pieceOptions}</div>
-        {paletteEditor}
+        <div className="mt-2"><PieceOptions pieces={pieces} pieceSlug={pieceSlug} onPick={pickPiece} /></div>
+        <PaletteEditor colors={activeColors} onEdit={editColor} onAdd={addColor} onRemove={removeColor} />
       </div>
-      <div className="mt-8">{lightOptions}</div>
+      <div className="mt-8"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} /></div>
     </>
   );
 
@@ -938,8 +759,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           <span className="link-hair text-dusk group-open:text-ink">Choose</span>
         </summary>
         <div className="mt-5">
-          {surfaceOptions}
-          {contextOptions}
+          <SurfaceOptions surface={surface} onFit={fitSurface} />
+          <ContextOptions onLoad={loadContext} />
         </div>
       </details>
       <details className={mobileSnippetClass}>
@@ -951,8 +772,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           <span className="link-hair text-dusk group-open:text-ink">Swap</span>
         </summary>
         <div className="mt-5">
-          {pieceOptions}
-          {paletteEditor}
+          <PieceOptions pieces={pieces} pieceSlug={pieceSlug} onPick={pickPiece} />
+          <PaletteEditor colors={activeColors} onEdit={editColor} onAdd={addColor} onRemove={removeColor} />
         </div>
       </details>
       <details className={mobileSnippetClass}>
@@ -963,7 +784,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           </span>
           <span className="link-hair text-dusk group-open:text-ink">Tune</span>
         </summary>
-        <div className="mt-5">{lightOptions}</div>
+        <div className="mt-5"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} /></div>
       </details>
     </div>
   );
@@ -1084,7 +905,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           </p>
         </div>
         <div className="flex w-full min-w-0 flex-col gap-5 sm:w-auto sm:min-w-[420px]">
-          {starterSurfaceOptions}
+          <StarterSurface surface={surface} onChoose={chooseStarterSurface} />
           <div className="flex flex-wrap items-center gap-6">
             <button
               type="button"
@@ -1136,7 +957,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     Find surface, then drag corners to refine. Press and hold to compare.
                   </p>
                   <div className="mt-4">
-                    {layerChips}
+                    <LayerChips layers={layers} activeLayerId={activeLayerId} surface={surface} onSelect={selectLayerChip} />
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-6">
                     <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
@@ -1204,48 +1025,13 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         </>
       )}
 
-      <Dialog.Root open={cameraOpen} onOpenChange={(open) => !open && stopCamera()}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-[90] bg-sand/80" />
-          <Dialog.Content className="fixed inset-0 z-[91] overflow-hidden bg-sand outline-none">
-            <Dialog.Title className="sr-only">Camera capture</Dialog.Title>
-            <Dialog.Description className="sr-only">
-              Point the camera at the surface, capture a still, then refine the visualizer.
-            </Dialog.Description>
-            <video ref={videoRef} muted playsInline autoPlay className="h-full w-full object-cover" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-4 p-5 sm:p-8">
-              <div className="glass pointer-events-auto max-w-[min(360px,calc(100vw-104px))] px-5 py-4">
-                <p className="eyebrow">Camera</p>
-                <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                  Capture the surface once. We refine it after.
-                </p>
-              </div>
-              <Dialog.Close asChild>
-                <button
-                  type="button"
-                  aria-label="Close camera"
-                  className="glass pointer-events-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors duration-300 hover:text-gold"
-                >
-                  <IconClose className="h-4 w-4" />
-                </button>
-              </Dialog.Close>
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-8">
-              <div className="glass pointer-events-auto mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-5 px-5 py-4 sm:justify-between">
-                <div className="min-w-[180px] flex-1">
-                  <p className="eyebrow">Capture</p>
-                  <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-mist">
-                    {cameraError ?? "Take one still. Then the surface stays editable."}
-                  </p>
-                </div>
-                <button type="button" onClick={snapCamera} className="btn-gold">
-                  Capture photo
-                </button>
-              </div>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+      <CameraDialog
+        open={cameraOpen}
+        onOpenChange={(open) => !open && stopCamera()}
+        videoRef={videoRef}
+        cameraError={cameraError}
+        onCapture={snapCamera}
+      />
     </div>
   );
 }
