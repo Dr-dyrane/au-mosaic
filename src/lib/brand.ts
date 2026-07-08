@@ -9,7 +9,7 @@ export const BRAND_PROFILE = {
   category: "Building Materials",
   position: "No. 1 mosaic tiles in Nigeria",
   showroomAddress:
-    "Shop 17A, Block 7, Agric Market Complex, Odunade Bus Stop, Orile, Lagos",
+    "Shop 17A, Block 7, Agric Market Complex, Odunade Bus Stop, Lagos-Badagry Expressway, Orile, Lagos",
   samplePromise: "Samples, photos, and quotes move through WhatsApp first.",
   profileStats: [
     { value: "96", label: "posts" },
