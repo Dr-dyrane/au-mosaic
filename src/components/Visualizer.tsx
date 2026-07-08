@@ -17,7 +17,6 @@ import {
   SURFACES,
   CONTEXTS,
   DEFAULT_PIECE,
-  STORE_KEY,
   CORNER_LABELS,
   FIRST_LAYER_ID,
   LAYER_LABELS,
@@ -34,6 +33,9 @@ import StarterSurface from "./visualizer/parts/StarterSurface";
 import LightOptions from "./visualizer/parts/LightOptions";
 import LayerChips from "./visualizer/parts/LayerChips";
 import CameraDialog from "./visualizer/parts/CameraDialog";
+import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
+import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
+import { useCamera } from "./visualizer/hooks/useCamera";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -63,9 +65,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [holding, setHolding] = useState(false);
   const [tick, setTick] = useState(0);
   const [loupe, setLoupe] = useState<Pt | null>(null);
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const [cameraError, setCameraError] = useState<string | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [pendingSnap, setPendingSnap] = useState<PendingSnap | null>(null);
@@ -93,7 +92,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const objectUrls = useRef<Set<string>>(new Set());
   const dragging = useRef<number | null>(null);
   const dragFrame = useRef<number | null>(null);
   const dragPoint = useRef<Pt | null>(null);
@@ -105,17 +103,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
   const pieceMap = useMemo(() => new Map(pieces.map((item) => [item.slug, item])), [pieces]);
 
-  const revokeObjectUrl = useCallback((url: string) => {
-    if (!objectUrls.current.has(url)) return;
-    URL.revokeObjectURL(url);
-    objectUrls.current.delete(url);
-  }, []);
-
-  const objectUrl = useCallback((blob: Blob) => {
-    const url = URL.createObjectURL(blob);
-    objectUrls.current.add(url);
-    return url;
-  }, []);
+  const { objectUrl, revokeObjectUrl } = useObjectUrls();
 
   const activeLayerSnapshot = useCallback((): SurfaceLayer => ({
     id: activeLayerId,
@@ -214,63 +202,13 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     img.src = src;
   }, [piece, pieceSlug, pieces, prepMode, revokeObjectUrl, surface]);
 
-  const stopCamera = useCallback(() => {
-    cameraStream?.getTracks().forEach((track) => track.stop());
-    setCameraStream(null);
-    setCameraOpen(false);
-    setCameraError(null);
-    setSnapMessage(null);
-  }, [cameraStream]);
-
-  const openCamera = async () => {
-    setCameraError(null);
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraError("Camera needs a secure browser. Choose a photo instead.");
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      });
-      setCameraStream(stream);
-      setCameraOpen(true);
-      setSnapMessage("Camera ready. Capture once, then refine the still.");
-      buzz(6);
-      track("viz_camera_open", {});
-    } catch {
-      setCameraError("Camera did not open. Choose a photo instead.");
-    }
-  };
-
-  const snapCamera = async () => {
-    const video = videoRef.current;
-    if (!video || !cameraStream) return;
-    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !video.videoWidth || !video.videoHeight) {
-      setCameraError("Camera is warming up. Try again.");
-      return;
-    }
-    setCameraError(null);
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (ctx) ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(
-      (blob) => {
-        if (blob) loadImage(objectUrl(blob), "camera", undefined, surface);
-        else loadImage(canvas.toDataURL("image/jpeg", 0.92), "camera", SURFACES[surface].quad, surface);
-        track("viz_camera_snap", { method: "capture" });
-        stopCamera();
-      },
-      "image/jpeg",
-      0.92
-    );
-  };
+  const { cameraOpen, cameraError, clearCameraError, openCamera, snapCamera, stopCamera } = useCamera({
+    videoRef,
+    objectUrl,
+    setSnapMessage,
+    surface,
+    onCapture: loadImage,
+  });
 
   /* The feature opens on its own before-state. User photos are chosen,
      not silently restored, so the first view always makes sense. */
@@ -280,43 +218,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD, "pool", true);
   }, [loadImage]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !cameraStream) return;
-    video.srcObject = cameraStream;
-    void video.play().catch(() => {
-      setCameraError("Camera preview did not start. Choose a photo instead.");
-    });
-    return () => {
-      video.srcObject = null;
-    };
-  }, [cameraStream]);
-
-  useEffect(() => () => {
-    cameraStream?.getTracks().forEach((track) => track.stop());
-  }, [cameraStream]);
-
-  useEffect(() => () => {
-    objectUrls.current.forEach((url) => URL.revokeObjectURL(url));
-    objectUrls.current.clear();
-  }, []);
-
   useEffect(() => () => {
     if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
   }, []);
 
-  useEffect(() => {
-    if (!photo) return;
-    const id = setTimeout(() => {
-      try {
-        localStorage.setItem(
-          STORE_KEY,
-          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers: withActiveLayer(layers) })
-        );
-      } catch {}
-    }, 600);
-    return () => clearTimeout(id);
-  }, [photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers, withActiveLayer]);
+  usePersistedControls({ photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers, withActiveLayer });
 
   const chooseStarterSurface = (id: SurfaceId) => {
     const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
@@ -337,7 +243,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const onFile = (f: File | undefined) => {
     if (!f) return;
-    setCameraError(null);
+    clearCameraError();
     loadImage(objectUrl(f), "upload", undefined, surface);
   };
 
