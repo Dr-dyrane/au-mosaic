@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { createRange, saveRange, type SaveState } from "./actions";
 import Sentence from "../Sentence";
 import { keepValues } from "../keep";
+import ArchiveButton from "../records/ArchiveButton";
 
 /* One form for a shelf, new or old. The address is minted once and
    shown, never edited; the name can change any day. */
@@ -48,6 +49,7 @@ export default function RangeForm({ range }: Props) {
           {pending ? "Saving..." : range ? "Save the range" : "Create the range"}
         </button>
         <Sentence state={state} />
+        {range && <ArchiveButton entity="range" id={range.slug} label="Archive the range" />}
       </div>
     </form>
   );

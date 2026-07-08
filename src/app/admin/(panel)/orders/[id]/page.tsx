@@ -11,6 +11,7 @@ import { OrderReturnAction } from "./AddReturnForm";
 import Back from "../../Back";
 import Teach from "../../Teach";
 import { Touch } from "../../touched";
+import ArchiveButton from "../../records/ArchiveButton";
 
 /* The order record: one page that holds the whole sale. The steps
    across the top, every line with list beside given, the money
@@ -217,6 +218,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
           <StatusForm orderId={order.id} status={order.status} movements={movements} />
+          <div className="mt-8">
+            <ArchiveButton entity="order" id={order.id} label="Archive the order" />
+          </div>
         </section>
 
         <section data-tour="order-lines">

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveCustomer, type SaveState } from "../actions";
 import Sentence from "../../Sentence";
 import { keepValues } from "../../keep";
+import ArchiveButton from "../../records/ArchiveButton";
 
 /* The same fields he met on the way in, one Save. The action answers
    in a sentence and the record above stays fresh. A failure never
@@ -80,6 +81,7 @@ export default function CustomerForm({ customer }: Props) {
           {pending ? "Saving..." : "Save the customer"}
         </button>
         <Sentence state={state} />
+        <ArchiveButton entity="customer" id={customer.id} label="Archive the customer" />
       </div>
     </form>
   );

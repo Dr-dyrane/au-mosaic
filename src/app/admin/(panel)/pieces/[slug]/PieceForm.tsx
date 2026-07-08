@@ -8,6 +8,7 @@ import { keepValues } from "../../keep";
 import { APPLICATION_TAGS } from "@/lib/application-tags";
 import { buzz } from "@/lib/backoffice";
 import { savePiece, type SaveState } from "../actions";
+import ArchiveButton from "../../records/ArchiveButton";
 
 /* The unsaved guard, both doors: touch the form and the browser asks
    before the tab closes or reloads, and any in-app link asks before
@@ -258,6 +259,7 @@ export default function PieceForm({ piece, ranges, stock }: Props) {
           {pending ? "Saving..." : "Save the piece"}
         </button>
         <Sentence state={state} />
+        <ArchiveButton entity="piece" id={piece.slug} label="Archive the piece" />
       </div>
     </form>
   );
