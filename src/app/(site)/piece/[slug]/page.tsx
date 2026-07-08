@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPiece, getPieces } from "@/lib/catalog";
+import { getAllPieces, getPiece } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
 import { scriptJson } from "@/lib/jsonld";
 import PieceReveal from "@/components/PieceReveal";
@@ -13,7 +13,7 @@ import PieceReveal from "@/components/PieceReveal";
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
-  const pieces = await getPieces();
+  const pieces = await getAllPieces();
   return pieces.map((p) => ({ slug: p.slug }));
 }
 
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function PiecePage({ params }: { params: Params }) {
   const piece = await getPiece((await params).slug);
   if (!piece) notFound();
-  const pieces = await getPieces();
+  const pieces = await getAllPieces();
   const related = pieces
     .filter((p) => p.slug !== piece.slug && p.groupId === piece.groupId)
     .slice(0, 3);

@@ -74,6 +74,13 @@ export default async function PiecesPage({
   const filtering = Boolean(filters.family || filters.low || filters.hue || filters.app);
   const sort = cleanSort(filters.sort);
   const activeLabels = activeStockFilterLabels(filters);
+  const familyTitles: Record<"mosaic" | "pool", string> = {
+    mosaic: "The tiles",
+    pool: "The pool materials",
+  };
+  const tiers = (["mosaic", "pool"] as const)
+    .filter((family) => ranges.some((range) => range.family === family))
+    .map((family) => ({ family, title: familyTitles[family] }));
 
   /* A shop is not handed over empty: while most shelves have never
      been touched (no count, no warn-me-at), the room offers one tap
@@ -154,10 +161,7 @@ export default async function PiecesPage({
         </p>
       )}
 
-      {[
-        { family: "mosaic", title: "The tiles" },
-        { family: "pool", title: "The pool materials" },
-      ].map((tier) => {
+      {tiers.map((tier) => {
         if (filters.family && filters.family !== tier.family) return null;
         const tierRanges = ranges.filter((r) => r.family === tier.family);
         const tierItems = visible.filter(

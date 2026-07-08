@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import PieceForm from "./PieceForm";
 import PhotoPanel from "./PhotoPanel";
@@ -17,6 +17,14 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
     .select()
     .from(schema.stockLevels)
     .where(eq(schema.stockLevels.pieceSlug, slug));
+  const ranges = await db
+    .select({
+      slug: schema.ranges.slug,
+      name: schema.ranges.name,
+      family: schema.ranges.family,
+    })
+    .from(schema.ranges)
+    .orderBy(asc(schema.ranges.sort), asc(schema.ranges.name));
 
   return (
     <main>
@@ -40,6 +48,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
       <PieceForm
         piece={{
           slug: piece.slug,
+          rangeSlug: piece.rangeSlug,
           name: piece.name,
           line: piece.line,
           story: piece.story,
@@ -52,6 +61,7 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
           unit: piece.unit,
           published: piece.published,
         }}
+        ranges={ranges}
         stock={{
           quantitySheets: stock?.quantitySheets ?? 0,
           reorderAt: stock?.reorderAt ?? 0,

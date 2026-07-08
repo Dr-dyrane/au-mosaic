@@ -78,14 +78,34 @@ export async function uploadPhoto(_prev: SaveState, form: FormData): Promise<Sav
     return { ok: false, message: "The file did not upload. Try once more." };
   }
   try {
-    await getDb()
+    const db = getDb();
+    const [piece] = await db
       .update(schema.pieces)
       .set(
         which === "night"
           ? { imageNight: url, updatedAt: sql`now()` }
           : { imageDay: url, updatedAt: sql`now()` }
       )
-      .where(eq(schema.pieces.slug, slug));
+      .where(eq(schema.pieces.slug, slug))
+      .returning({ name: schema.pieces.name });
+    if (!piece) return { ok: false, message: "That piece is not in the book." };
+
+    try {
+      await db.insert(schema.mediaAssets).values({
+        url,
+        title: `${piece.name}, ${which}`,
+        batch: "piece-record",
+        sun: which,
+        role: "card",
+        status: "wired",
+        pieceSlug: slug,
+        notes: "Piece record photograph.",
+        source: "Piece record upload.",
+        originalPath: `pieces/${slug}-${which}`,
+      });
+    } catch (e) {
+      console.error("[photograph] the photo room did not take the URL", e);
+    }
   } catch (e) {
     console.error("[photograph] the book did not take the URL", e);
     return { ok: false, message: "The photograph landed but the book did not take it. Try again." };
@@ -244,16 +264,25 @@ export async function savePiece(_prev: SaveState, form: FormData): Promise<SaveS
 
   const slug = String(form.get("slug") ?? "");
   const name = String(form.get("name") ?? "").trim();
+  const rangeSlug = String(form.get("rangeSlug") ?? "").trim();
   if (!slug) return { ok: false, message: "Missing piece." };
   if (!name) return { ok: false, message: "The piece needs a name." };
+  if (!rangeSlug) return { ok: false, message: "Choose the shelf this piece belongs to." };
 
   const db = getDb();
   const etaRaw = String(form.get("containerEta") ?? "").trim();
 
   try {
+    const [range] = await db
+      .select({ slug: schema.ranges.slug })
+      .from(schema.ranges)
+      .where(eq(schema.ranges.slug, rangeSlug));
+    if (!range) return { ok: false, message: "Choose a real shelf from the book." };
+
     await db
       .update(schema.pieces)
       .set({
+        rangeSlug,
         name,
         line: String(form.get("line") ?? "").trim(),
         story: String(form.get("story") ?? "").trim(),

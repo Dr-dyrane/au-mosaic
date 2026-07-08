@@ -16,6 +16,13 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - CODEX - New range catalogue lane - done
+
+Closed range movement, all-piece public piece routes, piece-photo media
+book wiring, gallery cache refresh, `docs/QA.md`, and this handshake.
+Existing piece photos were backfilled into `media_assets` with guarded
+URL checks, and the stockroom now owns the range correction path.
+
 ## 2026-07-08 - CODEX - Stockroom name correction lane - done
 
 Closed live stockroom data correction, `docs/QA.md`, and this

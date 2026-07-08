@@ -56,6 +56,7 @@ function useUnsavedGuard(saved: boolean) {
 type Props = {
   piece: {
     slug: string;
+    rangeSlug: string;
     name: string;
     line: string;
     story: string;
@@ -68,6 +69,7 @@ type Props = {
     unit: string;
     published: boolean;
   };
+  ranges: { slug: string; name: string; family: "mosaic" | "pool" }[];
   stock: { quantitySheets: number; reorderAt: number; containerEta: string | null };
 };
 
@@ -75,7 +77,7 @@ const field =
   "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 const label = "eyebrow mb-2.5 block";
 
-export default function PieceForm({ piece, stock }: Props) {
+export default function PieceForm({ piece, ranges, stock }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(savePiece, null);
   const markDirty = useUnsavedGuard(!!state?.ok);
 
@@ -88,6 +90,22 @@ export default function PieceForm({ piece, stock }: Props) {
         <div>
           <label htmlFor="name" className={label}>Name</label>
           <input id="name" name="name" defaultValue={piece.name} required className={field} />
+        </div>
+        <div>
+          <label htmlFor="rangeSlug" className={label}>Shelf</label>
+          <select
+            id="rangeSlug"
+            name="rangeSlug"
+            defaultValue={piece.rangeSlug}
+            required
+            className={field}
+          >
+            {ranges.map((range) => (
+              <option key={range.slug} value={range.slug}>
+                {range.name} ({range.family === "mosaic" ? "Mosaic" : "Pool materials"})
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="line" className={label}>One line under the name</label>

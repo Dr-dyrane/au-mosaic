@@ -213,15 +213,17 @@ function groupsOf(book: Book, family: "mosaic" | "pool"): ProductGroup[] {
     .filter((g) => g.items.length > 0);
 }
 
-function piecesOf(book: Book): Piece[] {
-  const mosaic = new Map(
-    book.ranges.filter((r) => r.family === "mosaic").map((r) => [r.slug, r])
+function piecesOf(book: Book, family?: "mosaic" | "pool"): Piece[] {
+  const catalogueRanges = new Map(
+    book.ranges
+      .filter((r) => (family ? r.family === family : true))
+      .map((r) => [r.slug, r])
   );
   return book.pieces
-    .filter((p) => mosaic.has(p.rangeSlug))
+    .filter((p) => catalogueRanges.has(p.rangeSlug))
     .map((p) => ({
       ...toProduct(p),
-      collection: mosaic.get(p.rangeSlug)!.name,
+      collection: catalogueRanges.get(p.rangeSlug)!.name,
       groupId: p.rangeSlug,
     }))
     .map(withCard);
@@ -256,6 +258,11 @@ export async function getBuyingSteps() {
 }
 
 export async function getPieces(): Promise<Piece[]> {
+  const book = await bookOrNull();
+  return book ? piecesOf(book, "mosaic") : PIECES;
+}
+
+export async function getAllPieces(): Promise<Piece[]> {
   const book = await bookOrNull();
   return book ? piecesOf(book) : PIECES;
 }

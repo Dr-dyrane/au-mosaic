@@ -164,7 +164,7 @@ const readPublicGalleryMedia = unstable_cache(
       return [];
     }
   },
-  ["gallery-media"],
+  ["gallery-media-v2"],
   { tags: ["catalog"], revalidate: 3600 }
 );
 
