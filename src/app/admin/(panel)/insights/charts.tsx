@@ -179,7 +179,11 @@ export function RankBars({ rows, formatValue }: RankBarsProps) {
           <div key={`${r.label}-${i}`} className="grid grid-cols-[1fr_auto] items-center gap-3">
             <div className="min-w-0">
               {r.href ? (
-                <Link href={r.href} className="link-hair block truncate text-[14px] text-ink">
+                <Link
+                  href={r.href}
+                  aria-label={`Open ${r.label} source`}
+                  className="block truncate text-[14px] text-ink transition-colors duration-300 hover:text-gold"
+                >
                   {r.label}
                 </Link>
               ) : (

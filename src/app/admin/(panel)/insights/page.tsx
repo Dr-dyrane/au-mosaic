@@ -215,17 +215,16 @@ export default async function InsightsPage({
           )}
         </section>
 
-        <section className="panel">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="eyebrow">Attention</p>
-              <p className="font-serif mt-3 text-[20px]">Stock and taps</p>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section className="panel">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="eyebrow">Attention</p>
+                <p className="font-serif mt-3 text-[20px]">Low stock</p>
+              </div>
+              <State watch={d.lowStock.length > 0} />
             </div>
-            <State watch={d.lowStock.length > 0} />
-          </div>
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div>
-              <p className="eyebrow">Low stock</p>
+            <div className="mt-6">
               {d.lowStock.length === 0 ? (
                 <p className="mt-3 text-[14px] leading-relaxed text-dusk">Shelves calm.</p>
               ) : (
@@ -243,8 +242,17 @@ export default async function InsightsPage({
                 </div>
               )}
             </div>
-            <div>
-              <p className="eyebrow">Tap sources</p>
+          </section>
+
+          <section className="panel">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="eyebrow">Attention</p>
+                <p className="font-serif mt-3 text-[20px]">Tap sources</p>
+              </div>
+              <State watch={false} />
+            </div>
+            <div className="mt-6">
               {d.taps.length === 0 ? (
                 <p className="mt-3 text-[14px] leading-relaxed text-dusk">Waiting for site taps.</p>
               ) : (
@@ -254,15 +262,15 @@ export default async function InsightsPage({
                       label: t.source,
                       value: t.n,
                       href: t.href,
-                      sub: t.path ? `Latest: ${t.path}` : t.source === "demo" ? "Sample data" : undefined,
+                      sub: t.source === "demo" ? "Sample data" : undefined,
                     }))}
                     formatValue={(n) => n.toLocaleString()}
                   />
                 </div>
               )}
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </main>
   );

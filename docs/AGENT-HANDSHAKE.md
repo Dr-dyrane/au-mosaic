@@ -16,6 +16,19 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - CODEX - Tap source polish lane - done
+
+Closed `src/lib/tap-return.ts`, `src/lib/insights.ts`,
+`src/app/admin/(panel)/insights/{page,charts}.tsx`, `docs/QA.md`,
+and this handshake for the owner-requested clean-up. Old page-only tap
+rows now gain source parameters, so `hero` on `/mosaic-tiles` scrolls
+to the page's hero CTA instead of landing flat at the page. Tap-source
+rows no longer expose `Latest:` route text, and Low stock plus Tap
+sources now sit as separate vertical panels. `npx eslint src
+--max-warnings=0`, `python3 scripts/theme-check.py`, `git diff --check`,
+helper `npx tsx -e`, and `npx next build` on Next 16.2.10, 57 routes,
+passed.
+
 ## 2026-07-08 - CODEX - Tap source return lane - done
 
 Closed `src/lib/tap-return.ts`, `src/components/WaTracker.tsx`,

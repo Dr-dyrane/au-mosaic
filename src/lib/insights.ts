@@ -1,7 +1,7 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { getDb, rowsOf, schema } from "@/db";
 import { getDataMode, hideDemoNoteSql, hideDemoSourceSql } from "@/lib/data-mode";
-import { tapReturnFromMessage } from "@/lib/tap-return";
+import { fallbackTapReturn, tapReturnFromMessage } from "@/lib/tap-return";
 
 /* One source of truth for the Insights room. The page renders these
    numbers and the AI read interprets the very same object, so a figure
@@ -153,7 +153,7 @@ export async function computeInsights(months: number): Promise<InsightsData> {
       source: t.source,
       n: Number(t.n),
       path: link.path,
-      href: link.returnPath ?? link.path,
+      href: link.returnPath ?? fallbackTapReturn(link.path, t.source),
     };
   });
   const enq = rowsOf<{ enquiries: number; converted: number }>(enquiryStages)[0];

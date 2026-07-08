@@ -36,6 +36,11 @@ export function withTapReturnParams(path: string, source: string, index: number,
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
+export function fallbackTapReturn(path: string | null, source: string): string | null {
+  if (!path) return null;
+  return withTapReturnParams(path, source, 0, 0);
+}
+
 export function buildTapMessage(source: string, path: string | null, returnPath: string | null): string {
   const cleanPath = path ? stripTapReturnParams(path) : null;
   if (cleanPath && returnPath) return `Tapped from ${source} on ${cleanPath}. Return: ${returnPath}`;
