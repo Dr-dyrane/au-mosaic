@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { getDataMode, hideDemoByNote } from "@/lib/data-mode";
 import NewOrderForm from "./NewOrderForm";
 import Back from "../../Back";
 
@@ -17,9 +18,11 @@ export default async function NewOrderPage({
 }) {
   const { customer } = await searchParams;
   const db = getDb();
+  const mode = await getDataMode();
   const customers = await db
     .select({ id: schema.customers.id, name: schema.customers.name })
     .from(schema.customers)
+    .where(hideDemoByNote(mode, schema.customers.note))
     .orderBy(asc(schema.customers.name));
 
   /* The share bridge may walk in with a person already chosen; the

@@ -84,7 +84,7 @@ export default async function DeliveriesPage({
     })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
-    .where(notInArray(schema.orders.status, ["enquiry", "settled"]))
+    .where(and(notInArray(schema.orders.status, ["enquiry", "settled"]), hideDemoByNote(mode, schema.orders.note)))
     .orderBy(desc(schema.orders.createdAt));
   const deliveryOrders = openOrders.map((o) => ({
     id: o.id,

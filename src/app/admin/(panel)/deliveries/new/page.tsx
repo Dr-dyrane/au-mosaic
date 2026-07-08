@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { desc, eq, notInArray } from "drizzle-orm";
+import { and, desc, eq, notInArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { getDataMode, hideDemoByNote } from "@/lib/data-mode";
 import NewDeliveryForm from "./NewDeliveryForm";
 
 /* A delivery starts from an order, never from thin air. This page
@@ -27,6 +28,7 @@ export default async function NewDeliveryPage({
   const { order: orderRaw } = await searchParams;
   const selectedOrder = orderRaw && UUID.test(orderRaw) ? orderRaw : undefined;
   const db = getDb();
+  const mode = await getDataMode();
   const openOrders = await db
     .select({
       id: schema.orders.id,
@@ -35,7 +37,7 @@ export default async function NewDeliveryPage({
     })
     .from(schema.orders)
     .innerJoin(schema.customers, eq(schema.orders.customerId, schema.customers.id))
-    .where(notInArray(schema.orders.status, ["enquiry", "settled"]))
+    .where(and(notInArray(schema.orders.status, ["enquiry", "settled"]), hideDemoByNote(mode, schema.orders.note)))
     .orderBy(desc(schema.orders.createdAt));
 
   return (
