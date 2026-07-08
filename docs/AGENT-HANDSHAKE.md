@@ -16,6 +16,18 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - CODEX - Four image stock lane - done
+
+Closed piece image handling, Gold Mosaic image data, generated
+application imagery, product/window fallbacks, `docs/QA.md`, and this
+handshake. The owner-supplied gold sheet now has product day and night
+assets, the generated application scenes have window day and night
+assets, and the public piece reveal falls back to a deterministic tile
+sheet when any stock record is still missing a public image. Cache keys
+were bumped so the live book and gallery read the corrected four slots
+on the next deployment. `npx eslint src --max-warnings=0` and `npx next
+build` on Next 16.2.10, 57 routes, passed.
+
 ## 2026-07-08 - CODEX - Product image and search lane - done
 
 Closed Aqua colour mosaic image correction, public tile and gallery

@@ -109,7 +109,7 @@ const readBook = unstable_cache(
       return { ranges: [], pieces: [] };
     }
   },
-  ["catalog-book"],
+  ["catalog-book-v2"],
   { tags: ["catalog"], revalidate: 3600 }
 );
 

@@ -5,6 +5,7 @@ import ThemeImage from "@/components/ThemeImage";
 import SceneFrame, { SceneVars } from "@/components/SceneFrame";
 import Reveal from "@/components/Reveal";
 import PieceBar from "@/components/PieceBar";
+import { TileSheet } from "@/components/Mosaic";
 import { ProductCard } from "@/components/ui";
 
 /* Item 12, generalised. Every piece page is a four-act reveal now, the
@@ -36,6 +37,7 @@ type RevealPiece = {
 };
 
 type Dream = { night: string; day?: string; line: string; alt: string };
+type VisualSlot = { night?: string; day?: string };
 
 const DREAM_BY_SLUG: Record<string, Dream> = {
   "tiny-seed-gold": { night: OWN.metallicRoom, day: DAY.metallicRoom, line: "The gold takes the room, and holds the evening in it.", alt: "The gold room at evening" },
@@ -146,12 +148,63 @@ const GENERIC_COPY: Copy = {
   materialBody: "Cut and set by hand, each tessera catches the light on its own, so the surface breathes instead of lying flat.",
 };
 
+const FALLBACK_COLORS = ["#c2a15c", "#d9b64a", "#8f7434", "#f7e7ae"];
+
 /* Two image types per tile, rendered both. The product simple (the shop card)
    is the object under the spotlight; the applied mosaic (the piece's own
    cinematic scene) becomes the dream. Where a piece has no product card, its
    own image is the object and the dream is a family window frame. */
-function objectOf(p: RevealPiece): { night: string; day?: string } {
-  return p.card ? { night: p.card, day: p.cardLight } : { night: p.image ?? "", day: p.imageLight };
+function objectOf(p: RevealPiece): VisualSlot {
+  return p.card ? { night: p.card, day: p.cardLight } : { night: p.image, day: p.imageLight };
+}
+
+function PieceVisual({
+  night,
+  day,
+  alt,
+  colors,
+  className = "",
+  priority,
+  quality,
+  sizes,
+}: VisualSlot & {
+  alt: string;
+  colors?: string[];
+  className?: string;
+  priority?: boolean;
+  quality?: number;
+  sizes?: string;
+}) {
+  if (night) {
+    return (
+      <ThemeImage
+        dark={night}
+        light={day}
+        alt={alt}
+        fill
+        priority={priority}
+        quality={quality}
+        sizes={sizes}
+        className={className}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="absolute inset-0"
+      role={alt ? "img" : undefined}
+      aria-label={alt || undefined}
+      aria-hidden={alt ? undefined : true}
+    >
+      <TileSheet
+        colors={colors?.length ? colors : FALLBACK_COLORS}
+        rows={10}
+        cols={8}
+        className={`h-full w-full ${className}`}
+      />
+    </div>
+  );
 }
 
 const SHOP_NOTES = [
@@ -174,8 +227,8 @@ export default function PieceReveal({ piece, related = [] }: { piece: RevealPiec
      un-carded piece keeps its own hero photo, which already carries the light. */
   const stageImg = piece.card ? piece.cardLight ?? obj.night : obj.night;
   const gallery = [
-    { eyebrow: "Product", title: "The sheet", dark: obj.night, light: obj.day, alt: piece.name },
-    { eyebrow: "Applied", title: "The room", dark: dream.night, light: dream.day, alt: dream.alt },
+    { eyebrow: "Product", title: "The sheet", night: obj.night, day: obj.day, alt: piece.name, colors: piece.colors },
+    { eyebrow: "Applied", title: "The room", night: dream.night, day: dream.day, alt: dream.alt, colors: piece.colors },
   ];
   const tradeFacts = [
     ...(piece.variants?.length ? [{ label: "Type", value: piece.variants.join(" · ") }] : []),
@@ -191,14 +244,14 @@ export default function PieceReveal({ piece, related = [] }: { piece: RevealPiec
         <div className="vignette pointer-events-none absolute inset-0 z-[1]" />
         <Reveal>
           <div className="reveal-artwork">
-            <ThemeImage
-              dark={stageImg}
+            <PieceVisual
+              night={stageImg}
               alt={piece.name}
-              fill
               priority
               quality={90}
               sizes="(max-width: 640px) 78vw, 520px"
               className="kenburns media-lux object-cover"
+              colors={piece.colors}
             />
           </div>
         </Reveal>
@@ -229,13 +282,14 @@ export default function PieceReveal({ piece, related = [] }: { piece: RevealPiec
       {/* ACT TWO. THE MATERIAL. Close enough to touch; light walks the tesserae. */}
       <section className="reveal-stage relative flex min-h-svh items-end overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
-          <ThemeImage
-            dark={obj.night}
+          <PieceVisual
+            night={obj.night}
+            day={obj.day}
             alt=""
-            fill
             quality={90}
             sizes="100vw"
             className="reveal-macro-img media-lux object-cover"
+            colors={piece.colors}
           />
         </div>
         <div className="scrim-hero pointer-events-none absolute inset-0 z-[1]" />
@@ -286,14 +340,14 @@ export default function PieceReveal({ piece, related = [] }: { piece: RevealPiec
         <div className="grid items-center gap-10 md:grid-cols-[0.9fr_1.1fr]">
           <Reveal>
             <div className="reveal-counter-thumb mx-auto w-full max-w-[320px] md:max-w-none">
-              <ThemeImage
-                dark={obj.night}
-                light={obj.day}
+              <PieceVisual
+                night={obj.night}
+                day={obj.day}
                 alt={piece.name}
-                fill
                 quality={90}
                 sizes="(max-width: 768px) 78vw, 420px"
                 className="media-lux object-cover"
+                colors={piece.colors}
               />
             </div>
           </Reveal>
@@ -353,14 +407,14 @@ export default function PieceReveal({ piece, related = [] }: { piece: RevealPiec
               <Reveal key={frame.eyebrow}>
                 <figure className="group">
                   <div className="relative aspect-[4/5] overflow-hidden rounded-[26px] bg-shell">
-                    <ThemeImage
-                      dark={frame.dark}
-                      light={frame.light}
+                    <PieceVisual
+                      night={frame.night}
+                      day={frame.day}
                       alt={frame.alt}
-                      fill
                       quality={90}
                       sizes="(max-width: 640px) 100vw, 42vw"
                       className="img-glide media-lux object-cover"
+                      colors={frame.colors}
                     />
                   </div>
                   <figcaption className="mt-5">
