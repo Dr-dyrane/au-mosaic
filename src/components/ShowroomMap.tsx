@@ -29,7 +29,10 @@ export default function ShowroomMap({ compact = false, className }: ShowroomMapP
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sand/0 via-sand/20 to-sand/70" />
       <div className="glass absolute inset-x-4 bottom-4 flex flex-col gap-4 rounded-[24px] px-4 py-4 sm:inset-x-5 sm:bottom-5 sm:flex-row sm:items-end sm:justify-between">
-        <p className="max-w-xl text-[14px] leading-relaxed text-ink">{SHOWROOM_MAP.address}</p>
+        <div className="max-w-xl">
+          <p className="text-[14px] font-semibold text-ink">{SHOWROOM_MAP.mapName}</p>
+          <p className="mt-0.5 text-[14px] leading-relaxed text-dusk">{SHOWROOM_MAP.address}</p>
+        </div>
         <a
           href={SHOWROOM_MAP.directionsUrl}
           target="_blank"
