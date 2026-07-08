@@ -16,6 +16,16 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - CODEX - Stockroom name correction lane - done
+
+Closed live stockroom data correction, `docs/QA.md`, and this
+handshake. Recent history showed `aqua-turquoise-blends` was saved as
+`Gold colour mosaic` while its slug, shade, line, finish, and catalogue
+source all identified it as `Aqua colour mosaic`. Applied a guarded
+one-row production correction, wrote a history line as Codex, left the
+stock edit intact at 120 sheets with warn-at 24, and verified no piece
+remains named `Gold colour mosaic`.
+
 ## 2026-07-08 - CODEX - Tap source polish lane - done
 
 Closed `src/lib/tap-return.ts`, `src/lib/insights.ts`,
