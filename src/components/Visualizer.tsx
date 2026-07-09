@@ -608,7 +608,46 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         img.onload = () => {
           setSamMask(img);
           setHasFittedSurface(true);
-          setSnapMessage("Surface found. Send it, or drag the corners to adjust.");
+          /* Sit the four corners on the box of the shape SAM found, so
+             the tiles cover it and the corners are ready to drag onto the
+             surface's near and far edges for perspective. */
+          try {
+            const mc = document.createElement("canvas");
+            mc.width = img.naturalWidth;
+            mc.height = img.naturalHeight;
+            const mx = mc.getContext("2d");
+            if (mx && mc.width > 0 && mc.height > 0) {
+              mx.drawImage(img, 0, 0);
+              const d = mx.getImageData(0, 0, mc.width, mc.height).data;
+              let minX = mc.width, minY = mc.height, maxX = 0, maxY = 0, found = false;
+              for (let yy = 0; yy < mc.height; yy += 2) {
+                for (let xx = 0; xx < mc.width; xx += 2) {
+                  if (d[(yy * mc.width + xx) * 4 + 3] > 12) {
+                    found = true;
+                    if (xx < minX) minX = xx;
+                    if (xx > maxX) maxX = xx;
+                    if (yy < minY) minY = yy;
+                    if (yy > maxY) maxY = yy;
+                  }
+                }
+              }
+              if (found && maxX > minX && maxY > minY) {
+                const x0 = clamp(minX / mc.width, 0.02, 0.98);
+                const y0 = clamp(minY / mc.height, 0.02, 0.98);
+                const x1 = clamp(maxX / mc.width, 0.02, 0.98);
+                const y1 = clamp(maxY / mc.height, 0.02, 0.98);
+                setQuad([
+                  { x: x0, y: y0 },
+                  { x: x1, y: y0 },
+                  { x: x1, y: y1 },
+                  { x: x0, y: y1 },
+                ]);
+              }
+            }
+          } catch {
+            /* leave the current corners */
+          }
+          setSnapMessage("Surface found. Drag the corners to set the angle.");
           buzz(8);
         };
         img.onerror = () => setSnapMessage("Could not read the surface. Drag the corners instead.");

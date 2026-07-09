@@ -160,12 +160,12 @@ function drawSurfaceLayer({
   if (!layer.visible) return;
   const tileColors = layer.customColors && layer.customColors.length > 0 ? layer.customColors : (piece.colors || ["#3aa9d6"]);
   const pattern = makePattern(tileColors, layer.tileSize, layer.groutLight);
-  /* Without a mask the four-corner quad frames the tiles, as always. With
-     a segmentation mask the tiles fill the whole frame and the mask decides
-     where they show, so the shape follows the surface exactly. */
-  const q = mask
-    ? [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: width, y: height }, { x: 0, y: height }]
-    : layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
+  /* The four-corner quad always frames the tiles and sets their
+     perspective, so dragging it lays them onto a receding surface. A
+     segmentation mask, when present, then clips the tiles to the exact
+     surface shape the model found. Shape from the mask, angle from the
+     corners. */
+  const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
 
   if (layer.prepMode !== "none" && !mask) {
     ctx.save();
