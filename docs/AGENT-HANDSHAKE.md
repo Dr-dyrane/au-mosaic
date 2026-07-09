@@ -16,6 +16,26 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Stranded board restored - done
+
+Found the closed benchmark board on no deployed line: the 07-08 reset
+to origin during the visualizer strip-back left f29add1 through
+8c0ca15 only on codex/local-main-rescue-20260708-git-clog while main
+and origin moved on with the visualizer. Restored all seven commits'
+content onto main by hand as b5a2761: wholesale takes where main had
+not moved since the fork, hand-merges in docs/QA.md (six benchmark
+rows re-inserted verbatim, before the rail row), this handshake (the
+07-08 Benchmark board entry restored verbatim below), and the customer
+page, where the record-context fact markers now sit beside the story
+strip, the fold, and the forget door. Cherry-pick itself cannot run in
+this workspace: the mount refuses unlink, so any multi-step index
+operation dies on its own lock; renames are the only safe lock dance.
+Types, lint, git diff check, dash scan, and all twenty restored tests
+are green. Main is two commits ahead of origin and not pushed, per the
+no-build posture. The rescue branch stays as the origin of record and
+still carries stash 7037739 (gallery float search before main sync),
+unread; read it before retiring the branch.
+
 ## 2026-07-09 - Claude - Record context adapters lane - done
 
 Closed NEXT-STEPS build-next 3: record pages feed their own live facts

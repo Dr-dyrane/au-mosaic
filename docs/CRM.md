@@ -579,6 +579,28 @@ env template. No schema changed, so nothing rides the heal channel.
 The Linux production build waits for the deploy as before; tsc, the
 room lints, the dash scan, and the twenty tests gate the pass.
 
+**2026-07-09, the rail learns the record, and the board comes home.**
+A scheduled session closed NEXT-STEPS build-next 3 as 114a3aa: order,
+customer, piece, and photo records now publish their vitals through
+hidden fact markers, the same mechanic as the shell's context actions,
+and the context rail and phone disclosure show them in place of the
+room pulse while a record is open; deliveries keep no record page, so
+the set is complete. The same session found the closed benchmark board
+on no deployed line: the 2026-07-08 reset to origin during the
+visualizer strip-back had stranded f29add1 through 8c0ca15 on
+codex/local-main-rescue-20260708-git-clog while main and origin moved
+on with the visualizer. All seven commits' content was restored onto
+main by hand as b5a2761, ledger rows and handshake records verbatim,
+because the mount refuses the unlink that cherry-pick's index dance
+needs; wholesale takes where main had not moved, hand-merges in QA.md,
+the handshake, and the customer page, where the fact markers now sit
+beside the story strip. Types, lint, git diff check, the dash scan,
+and all twenty tests are green in the sandbox. Nothing pushed, per the
+no-build posture. Two notes for the next hand: stash 7037739 (gallery
+float search before main sync) still sits unread on the rescue branch,
+and the stale .git lock files answer only to renames here, never
+unlinks, so single-index-write git commands are the only safe kind.
+
 **The brand, harvested (2026-07-04, owner's Instagram screenshots).**
 The client built the identity himself while the site guessed: the
 tesserae au avatar on near-black, the lowercase serif mosaic wordmark
