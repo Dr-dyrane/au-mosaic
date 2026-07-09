@@ -66,6 +66,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [loupe, setLoupe] = useState<Pt | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [waterOn, setWaterOn] = useState(true);
   const [samBeta, setSamBeta] = useState(false);
   const [samBusy, setSamBusy] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
@@ -378,10 +379,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         layer,
         piece: layerPiece,
         mask: layer.id === activeLayerId ? samMask : null,
+        water: layer.surface === "pool" && waterOn,
+        finish: dragging.current === null,
       });
     });
     setTick((t) => t + 1);
-  }, [activeLayerId, layers, photo, piece, pieceMap, samMask, withActiveLayer]);
+  }, [activeLayerId, layers, photo, piece, pieceMap, samMask, waterOn, withActiveLayer]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(render);
@@ -737,7 +740,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         <div className="mt-2"><PieceOptions pieces={pieces} pieceSlug={pieceSlug} onPick={pickPiece} /></div>
         <PaletteEditor colors={activeColors} onEdit={editColor} onAdd={addColor} onRemove={removeColor} />
       </div>
-      <div className="mt-8"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} /></div>
+      <div className="mt-8"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} showWater={surface === "pool"} waterOn={waterOn} onWaterToggle={() => setWaterOn((v) => !v)} /></div>
     </>
   );
 
@@ -779,7 +782,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           </span>
           <span className="link-hair text-dusk group-open:text-ink">Tune</span>
         </summary>
-        <div className="mt-5"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} /></div>
+        <div className="mt-5"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} showWater={surface === "pool"} waterOn={waterOn} onWaterToggle={() => setWaterOn((v) => !v)} /></div>
       </details>
     </div>
   );

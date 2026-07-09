@@ -66,6 +66,152 @@ function clipQuad(ctx: CanvasRenderingContext2D, q: Pt[]) {
   ctx.clip();
 }
 
+function fillQuadPath(ctx: CanvasRenderingContext2D, q: Pt[]) {
+  ctx.beginPath();
+  ctx.moveTo(q[0].x, q[0].y);
+  for (let i = 1; i < q.length; i += 1) ctx.lineTo(q[i].x, q[i].y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/* The finishing pass. Once the tiles are laid, we settle them into the
+   photo's own light with a few thin veils, each one cut to the surface so
+   nothing spills past its edge. Shape from the mask when we have it, the
+   four corner quad otherwise. Every veil is translucent, so the real tile
+   colour still reads through; we are grounding the mosaic in the light,
+   not repainting it. Water adds a tinted deep end, a bright lip at the
+   near edge, and a still dapple of caustics. */
+function finishSurface(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  q: Pt[],
+  mask: CanvasImageSource | null,
+  water: boolean
+) {
+  const region = document.createElement("canvas");
+  region.width = width;
+  region.height = height;
+  const rx = region.getContext("2d");
+  if (!rx) return;
+  rx.fillStyle = "#000";
+  if (mask) {
+    try {
+      rx.drawImage(mask, 0, 0, width, height);
+    } catch {
+      fillQuadPath(rx, q);
+    }
+  } else {
+    fillQuadPath(rx, q);
+  }
+
+  const near = { x: (q[2].x + q[3].x) / 2, y: (q[2].y + q[3].y) / 2 };
+  const far = { x: (q[0].x + q[1].x) / 2, y: (q[0].y + q[1].y) / 2 };
+  const span = Math.hypot(width, height);
+
+  const stamp = (
+    paint: (fx: CanvasRenderingContext2D) => void,
+    blend: GlobalCompositeOperation,
+    alpha: number
+  ) => {
+    const f = document.createElement("canvas");
+    f.width = width;
+    f.height = height;
+    const fx = f.getContext("2d");
+    if (!fx) return;
+    paint(fx);
+    fx.globalCompositeOperation = "destination-in";
+    fx.drawImage(region, 0, 0);
+    fx.globalCompositeOperation = "source-over";
+    ctx.save();
+    ctx.globalCompositeOperation = blend;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(f, 0, 0);
+    ctx.restore();
+  };
+
+  /* Depth: the surface falls into shadow as it runs from the eye, harder
+     under water where the deep end goes dark. */
+  stamp((fx) => {
+    const g = fx.createLinearGradient(near.x, near.y, far.x, far.y);
+    g.addColorStop(0, "rgba(10,12,16,0)");
+    g.addColorStop(1, water ? "rgba(4,18,26,0.62)" : "rgba(12,14,18,0.4)");
+    fx.fillStyle = g;
+    fx.fillRect(0, 0, width, height);
+  }, "multiply", 1);
+
+  /* Seat: a soft dark rim just inside the edge, so the mosaic sits into
+     the recess instead of floating on the photo. */
+  stamp((fx) => {
+    fx.fillStyle = "rgba(0,0,0,0.6)";
+    fx.fillRect(0, 0, width, height);
+    fx.globalCompositeOperation = "destination-out";
+    fx.filter = `blur(${Math.max(4, Math.round(span * 0.012))}px)`;
+    fx.drawImage(region, 0, 0);
+    fx.filter = "none";
+    fx.globalCompositeOperation = "source-over";
+  }, "multiply", 0.5);
+
+  /* Gloss: one soft band of light across the glass, cool over water,
+     warm-white on a dry wall. */
+  stamp((fx) => {
+    const g = fx.createLinearGradient(q[0].x, q[0].y, q[2].x, q[2].y);
+    g.addColorStop(0, "rgba(255,255,255,0)");
+    g.addColorStop(0.46, "rgba(255,255,255,0.08)");
+    g.addColorStop(0.5, water ? "rgba(216,240,255,0.24)" : "rgba(255,255,255,0.16)");
+    g.addColorStop(0.54, "rgba(255,255,255,0.08)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    fx.fillStyle = g;
+    fx.fillRect(0, 0, width, height);
+  }, "screen", 0.7);
+
+  if (!water) return;
+
+  /* Water tint, deepening with the floor. */
+  stamp((fx) => {
+    const g = fx.createLinearGradient(near.x, near.y, far.x, far.y);
+    g.addColorStop(0, "rgba(44,124,150,0.16)");
+    g.addColorStop(1, "rgba(16,68,98,0.34)");
+    fx.fillStyle = g;
+    fx.fillRect(0, 0, width, height);
+  }, "overlay", 0.9);
+
+  /* Waterline: a bright lip where the near edge meets the surface. */
+  stamp((fx) => {
+    const g = fx.createLinearGradient(near.x, near.y, far.x, far.y);
+    g.addColorStop(0, "rgba(206,242,255,0)");
+    g.addColorStop(0.06, "rgba(212,246,255,0.5)");
+    g.addColorStop(0.15, "rgba(206,242,255,0)");
+    fx.fillStyle = g;
+    fx.fillRect(0, 0, width, height);
+  }, "screen", 0.7);
+
+  /* Caustics: a still, repeatable dapple, no randomness so the same photo
+     settles the same way each render. */
+  stamp((fx) => {
+    const xs = q.map((p) => p.x);
+    const ys = q.map((p) => p.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const w = Math.max(1, maxX - minX);
+    const h = Math.max(1, maxY - minY);
+    for (let i = 0; i < 30; i += 1) {
+      const cx = minX + (((i * 97) % 100) / 100) * w;
+      const cy = minY + (((i * 53) % 100) / 100) * h;
+      const rad = w * 0.03 * (0.5 + ((i * 29) % 100) / 100);
+      const g = fx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+      g.addColorStop(0, "rgba(232,250,255,0.5)");
+      g.addColorStop(1, "rgba(232,250,255,0)");
+      fx.fillStyle = g;
+      fx.beginPath();
+      fx.arc(cx, cy, rad, 0, Math.PI * 2);
+      fx.fill();
+    }
+  }, "screen", 0.45);
+}
+
 function sampleQuadColor(source: CanvasRenderingContext2D, q: Pt[], width: number, height: number) {
   const left = clamp(Math.floor(Math.min(...q.map((p) => p.x))), 0, width - 1);
   const right = clamp(Math.ceil(Math.max(...q.map((p) => p.x))), left + 1, width);
@@ -145,6 +291,8 @@ function drawSurfaceLayer({
   layer,
   piece,
   mask,
+  water,
+  finish,
 }: {
   ctx: CanvasRenderingContext2D;
   origCtx: CanvasRenderingContext2D;
@@ -156,6 +304,8 @@ function drawSurfaceLayer({
   layer: SurfaceLayer;
   piece: Piece;
   mask?: CanvasImageSource | null;
+  water?: boolean;
+  finish?: boolean;
 }) {
   if (!layer.visible) return;
   const tileColors = layer.customColors && layer.customColors.length > 0 ? layer.customColors : (piece.colors || ["#3aa9d6"]);
@@ -235,6 +385,10 @@ function drawSurfaceLayer({
     }
     ctx.restore();
   }
+
+  /* Settle the laid tiles into the photo's light. Skipped mid-drag so the
+     corners stay quick; it lands the moment the corner is let go. */
+  if (finish !== false) finishSurface(ctx, width, height, q, mask ?? null, Boolean(water));
 }
 
 export { drawTriangle, makePattern, clipQuad, sampleQuadColor, drawBlurredPhoto, drawSource, drawSurfaceLayer };

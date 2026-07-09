@@ -11,6 +11,9 @@ interface Props {
   onBlend: (value: number) => void;
   onPrepMode: (mode: PrepMode) => void;
   onGroutToggle: () => void;
+  showWater?: boolean;
+  waterOn?: boolean;
+  onWaterToggle?: () => void;
 }
 
 export default function LightOptions({
@@ -22,6 +25,9 @@ export default function LightOptions({
   onBlend,
   onPrepMode,
   onGroutToggle,
+  showWater = false,
+  waterOn = false,
+  onWaterToggle,
 }: Props) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
@@ -81,6 +87,24 @@ export default function LightOptions({
           {groutLight ? "Light" : "Dark"}
         </button>
       </div>
+      {showWater && (
+        <div className="panel flex items-center justify-between gap-4">
+          <div>
+            <p className="eyebrow">Water</p>
+            <p className="mt-1 text-[12px] leading-relaxed text-mist">
+              {waterOn ? "Filled: waterline and depth." : "Dry: tile as laid."}
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-pressed={waterOn}
+            onClick={onWaterToggle}
+            className="link-hair text-dusk"
+          >
+            {waterOn ? "Filled" : "Dry"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
