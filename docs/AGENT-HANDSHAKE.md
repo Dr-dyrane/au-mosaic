@@ -16,6 +16,32 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - Claude - Visualizer studio stage 1 lane - done
+
+Opened the studio visualizer build (plan in `docs/VISUALIZER-STUDIO.md`,
+hybrid: real tiles now, AI assists later) and shipped stage 1, the hand
+tools, no AI and no network. The four-corner quad now sets perspective
+only. A new freeform extent decides where the mosaic shows, so a cut-off
+or L-return wall works, and paint-out shapes punch the light and the
+chair back in front of the tiles. This answers Nonso's covered
+obstructions and inaccurate rectangle with no model. My files:
+`docs/VISUALIZER-STUDIO.md`, this handshake,
+`src/components/visualizer/{types,geometry,draw}.ts`, and
+`src/components/Visualizer.tsx`. types gains `extent` and `occlude` on
+`SurfaceLayer`; geometry gains `simplifyPath` (Ramer-Douglas-Peucker);
+draw clips prep, mosaic, and soft-light to the extent minus the holes
+with an even-odd path, keeping the quad for the homography; the
+orchestrator adds a Corners, Paint surface, Paint out tool toggle, a
+finger trace with a shapes overlay, Clear shape, and resets the shape on
+new photo, surface, starter, and layer. Backward compatible: a null
+extent falls back to the old rectangle, so every prior visualizer lane
+still renders as before. `npx tsc --noEmit` and `npx eslint` on the
+touched files at zero warnings are clean, the dash and arrow scan is
+clean, and a node check of `simplifyPath` verified an 81-point trace
+reduces to the four corners with the ends kept. A real device pass on
+the paint gesture is still owed. Stages 2 to 4 (segmentation, depth,
+relight) wait on the compute-home decision in the doc.
+
 ## 2026-07-08 - CODEX - Archive delete records lane - done
 
 Closed shared archive/delete actions for stock pieces, ranges, and

@@ -66,6 +66,25 @@ function clipQuad(ctx: CanvasRenderingContext2D, q: Pt[]) {
   ctx.clip();
 }
 
+function tracePoly(ctx: CanvasRenderingContext2D, pts: Pt[]) {
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.closePath();
+}
+
+/* Clip to the surface extent with the obstructions punched out. One
+   path holds the outer shape and every hole; the even-odd rule leaves
+   the inside of the extent minus the inside of each hole, so the
+   mosaic lands on the wall and never on the light or the chair. */
+function clipRegion(ctx: CanvasRenderingContext2D, outer: Pt[], holes: Pt[][]) {
+  ctx.beginPath();
+  tracePoly(ctx, outer);
+  for (const hole of holes) {
+    if (hole.length >= 3) tracePoly(ctx, hole);
+  }
+  ctx.clip("evenodd");
+}
+
 function sampleQuadColor(source: CanvasRenderingContext2D, q: Pt[], width: number, height: number) {
   const left = clamp(Math.floor(Math.min(...q.map((p) => p.x))), 0, width - 1);
   const right = clamp(Math.ceil(Math.max(...q.map((p) => p.x))), left + 1, width);
@@ -160,9 +179,18 @@ function drawSurfaceLayer({
   const pattern = makePattern(tileColors, layer.tileSize, layer.groutLight);
   const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
 
+  /* Perspective comes from the quad; extent decides where the mosaic
+     shows. Null extent falls back to the quad, the old rectangle. The
+     paint-out shapes become holes in the same clip. */
+  const extentPts = layer.extent && layer.extent.length >= 3 ? layer.extent : layer.quad;
+  const region = extentPts.map((p) => ({ x: p.x * width, y: p.y * height }));
+  const holes = (layer.occlude ?? [])
+    .filter((hole) => hole.length >= 3)
+    .map((hole) => hole.map((p) => ({ x: p.x * width, y: p.y * height })));
+
   if (layer.prepMode !== "none") {
     ctx.save();
-    clipQuad(ctx, q);
+    clipRegion(ctx, region, holes);
     if (layer.prepMode === "blur") {
       drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 22, false);
       ctx.fillStyle = "rgba(214, 206, 190, 0.08)";
@@ -198,13 +226,14 @@ function drawSurfaceLayer({
   }
 
   ctx.save();
+  clipRegion(ctx, region, holes);
   ctx.globalAlpha = layer.blend;
   ctx.globalCompositeOperation = "multiply";
   ctx.drawImage(overlay, 0, 0);
   ctx.restore();
 
   ctx.save();
-  clipQuad(ctx, q);
+  clipRegion(ctx, region, holes);
   ctx.globalCompositeOperation = "soft-light";
   ctx.globalAlpha = layer.blend * (layer.prepMode === "none" ? 0.5 : 0.24);
   if (layer.prepMode === "none") {

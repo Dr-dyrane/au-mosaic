@@ -19,6 +19,14 @@ export type SurfaceLayer = {
   label: string;
   surface: SurfaceId;
   quad: Pt[];
+  /* The four-corner quad above sets the perspective, how the tiles
+     recede. Extent is where the mosaic actually shows: a freeform
+     polygon painted by hand, any shape, so a cut-off or an L-return
+     works. Null means use the quad, the old rectangle behaviour.
+     Occlude holds what sits in front, the light and the chair, painted
+     out so the mosaic stays behind them. */
+  extent: Pt[] | null;
+  occlude: Pt[][];
   pieceSlug: string;
   tileSize: number;
   blend: number;
