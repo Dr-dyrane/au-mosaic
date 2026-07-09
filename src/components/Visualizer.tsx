@@ -31,6 +31,7 @@ import ContextOptions from "./visualizer/parts/ContextOptions";
 import StarterSurface from "./visualizer/parts/StarterSurface";
 import LightOptions from "./visualizer/parts/LightOptions";
 import LayerChips from "./visualizer/parts/LayerChips";
+import RefinePanel from "./visualizer/parts/RefinePanel";
 import CameraDialog from "./visualizer/parts/CameraDialog";
 import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
@@ -871,59 +872,55 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     </>
   );
 
-  const mobileSnippetClass = "group rounded-[26px] bg-shell/45 px-5 py-4 shadow-lift";
-  const mobileSummaryClass = "flex cursor-pointer list-none items-center justify-between gap-4 [&::-webkit-details-marker]:hidden";
-  const mobileRefineSnippets = (
-    <div className="mt-6 space-y-3 md:hidden" data-viz="mobile-snippets">
-      <details className={mobileSnippetClass}>
-        <summary className={mobileSummaryClass}>
-          <span>
-            <span className="eyebrow block">Surface</span>
-            <span className="mt-1 block font-serif text-[20px]">{SURFACES[surface].label}</span>
-          </span>
-          <span className="link-hair text-dusk group-open:text-ink">Choose</span>
-        </summary>
-        <div className="mt-5">
+  const prepLabel = prepMode === "primer" ? "Primer" : prepMode === "blur" ? "Blur" : "Original";
+  const finishSummary = `${prepLabel}, ${groutLight ? "light" : "dark"} grout${surface === "pool" ? `, ${waterOn ? "filled" : "dry"}` : ""}`;
+
+  const refineSections = [
+    {
+      key: "surface",
+      eyebrow: "Surface",
+      value: SURFACES[surface].label,
+      action: "Choose",
+      body: (
+        <>
           <SurfaceOptions surface={surface} onFit={fitSurface} />
           <ContextOptions onLoad={loadContext} />
-        </div>
-      </details>
-      <details className={mobileSnippetClass}>
-        <summary className={mobileSummaryClass}>
-          <span>
-            <span className="eyebrow block">Colourway</span>
-            <span className="mt-1 block font-serif text-[20px]">{piece.name}</span>
-          </span>
-          <span className="link-hair text-dusk group-open:text-ink">Swap</span>
-        </summary>
-        <div className="mt-5">
+        </>
+      ),
+    },
+    {
+      key: "colour",
+      eyebrow: "Colourway",
+      value: piece.name,
+      action: "Swap",
+      body: (
+        <>
           <PieceOptions pieces={pieces} pieceSlug={pieceSlug} onPick={pickPiece} />
           <PaletteEditor colors={activeColors} onEdit={editColor} onAdd={addColor} onRemove={removeColor} />
-        </div>
-      </details>
-      <details className={mobileSnippetClass}>
-        <summary className={mobileSummaryClass}>
-          <span>
-            <span className="eyebrow block">Finish</span>
-            <span className="mt-1 block font-serif text-[20px]">{prepMode === "primer" ? "Primer" : prepMode === "blur" ? "Blur" : "Original"}</span>
-          </span>
-          <span className="link-hair text-dusk group-open:text-ink">Tune</span>
-        </summary>
-        <div className="mt-5"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} showWater={surface === "pool"} waterOn={waterOn} onWaterToggle={() => setWaterOn((v) => !v)} /></div>
-      </details>
-    </div>
-  );
+        </>
+      ),
+    },
+    {
+      key: "finish",
+      eyebrow: "Finish",
+      value: finishSummary,
+      action: "Tune",
+      body: (
+        <LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} showWater={surface === "pool"} waterOn={waterOn} onWaterToggle={() => setWaterOn((v) => !v)} />
+      ),
+    },
+  ];
 
   const exposedRefinement = (
-    <aside className="hidden min-w-0 md:block lg:sticky lg:top-28" data-viz="exposed-refinement">
+    <aside className="min-w-0 lg:sticky lg:top-28" data-viz="refine-panel">
       <div className="mb-6">
         <p className="eyebrow">Refine</p>
         <p className="font-serif mt-2 text-[26px]">Make the surface yours.</p>
         <p className="mt-2 max-w-sm text-[14px] leading-relaxed text-dusk">
-          Surface, colour, light, grout.
+          One decision at a time.
         </p>
       </div>
-      {refineControls}
+      <RefinePanel sections={refineSections} defaultOpen="surface" />
     </aside>
   );
 
@@ -1178,7 +1175,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 </div>
                 {exposedRefinement}
               </div>
-              {mobileRefineSnippets}
             </>
           )}
 
