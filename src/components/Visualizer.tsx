@@ -607,9 +607,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         img.onload = () => {
           setSamMask(img);
           setHasFittedSurface(true);
-          /* Sit the four corners on the box of the shape SAM found, so
-             the tiles cover it and the corners are ready to drag onto the
-             surface's near and far edges for perspective. */
+          /* Fit the four corners to the shape's own extreme corners, not
+             its bounding box. A floor comes back as a receding trapezoid,
+             so the tiles take its perspective on their own and slant into
+             depth; a wall stays roughly square. The mask still clips the
+             exact shape, so an approximate plane is safe. */
           try {
             const mc = document.createElement("canvas");
             mc.width = img.naturalWidth;
@@ -618,35 +620,35 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             if (mx && mc.width > 0 && mc.height > 0) {
               mx.drawImage(img, 0, 0);
               const d = mx.getImageData(0, 0, mc.width, mc.height).data;
-              let minX = mc.width, minY = mc.height, maxX = 0, maxY = 0, found = false;
+              let tl = { x: 0, y: 0 }, tr = { x: 0, y: 0 }, br = { x: 0, y: 0 }, bl = { x: 0, y: 0 };
+              let tlV = Infinity, brV = -Infinity, trV = -Infinity, blV = Infinity;
+              let found = false;
               for (let yy = 0; yy < mc.height; yy += 2) {
                 for (let xx = 0; xx < mc.width; xx += 2) {
                   if (d[(yy * mc.width + xx) * 4 + 3] > 12) {
                     found = true;
-                    if (xx < minX) minX = xx;
-                    if (xx > maxX) maxX = xx;
-                    if (yy < minY) minY = yy;
-                    if (yy > maxY) maxY = yy;
+                    const s = xx + yy;
+                    const df = xx - yy;
+                    if (s < tlV) { tlV = s; tl = { x: xx, y: yy }; }
+                    if (s > brV) { brV = s; br = { x: xx, y: yy }; }
+                    if (df > trV) { trV = df; tr = { x: xx, y: yy }; }
+                    if (df < blV) { blV = df; bl = { x: xx, y: yy }; }
                   }
                 }
               }
-              if (found && maxX > minX && maxY > minY) {
-                const x0 = clamp(minX / mc.width, 0.02, 0.98);
-                const y0 = clamp(minY / mc.height, 0.02, 0.98);
-                const x1 = clamp(maxX / mc.width, 0.02, 0.98);
-                const y1 = clamp(maxY / mc.height, 0.02, 0.98);
-                setQuad([
-                  { x: x0, y: y0 },
-                  { x: x1, y: y0 },
-                  { x: x1, y: y1 },
-                  { x: x0, y: y1 },
-                ]);
+              if (found) {
+                const norm = (p: { x: number; y: number }) => ({
+                  x: clamp(p.x / mc.width, 0.02, 0.98),
+                  y: clamp(p.y / mc.height, 0.02, 0.98),
+                });
+                const cornerQuad = [norm(tl), norm(tr), norm(br), norm(bl)];
+                if (isValidQuad(cornerQuad)) setQuad(cornerQuad);
               }
             }
           } catch {
             /* leave the current corners */
           }
-          setSnapMessage("Surface found. Drag the corners to set the angle.");
+          setSnapMessage("Surface found and angled. Nudge a corner to refine.");
           buzz(8);
         };
         img.onerror = () => setSnapMessage("Could not read the surface. Drag the corners instead.");
