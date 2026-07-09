@@ -2,7 +2,6 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { KeyboardEvent } from "react";
 import { IconClose } from "@/app/admin/(panel)/icons";
 import { track } from "@vercel/analytics";
 import { VISUALIZER_SAMPLE } from "@/lib/images";
@@ -10,7 +9,6 @@ import type { Piece } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { wa } from "@/lib/wa";
 import type { Pt, SurfaceId, LoadSource, PrepMode, SurfaceLayer } from "./visualizer/types";
-import { clamp, isValidQuad, setCorner } from "./visualizer/geometry";
 import {
   DEFAULT_QUAD,
   SAMPLE_POOL_QUAD,
@@ -20,7 +18,6 @@ import {
   CORNER_LABELS,
   FIRST_LAYER_ID,
   LAYER_LABELS,
-  NEXT_SURFACE,
 } from "./visualizer/constants";
 import { drawSource, drawSurfaceLayer } from "./visualizer/draw";
 import { buzz, pieceSlugForSurface, suggestionText, readStore } from "./visualizer/helpers";
@@ -37,6 +34,9 @@ import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
 import { useCamera } from "./visualizer/hooks/useCamera";
 import { useSnapshots } from "./visualizer/hooks/useSnapshots";
+import { useSamAutofind } from "./visualizer/hooks/useSamAutofind";
+import { useCornerDrag } from "./visualizer/hooks/useCornerDrag";
+import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -63,13 +63,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     return typeof g === "boolean" ? g : true;
   });
   const [customColors, setCustomColors] = useState<string[] | null>(null);
-  const [holding, setHolding] = useState(false);
   const [tick, setTick] = useState(0);
-  const [loupe, setLoupe] = useState<Pt | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const [samBeta, setSamBeta] = useState(false);
-  const [samBusy, setSamBusy] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
@@ -96,40 +92,18 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dragging = useRef<number | null>(null);
-  const dragFrame = useRef<number | null>(null);
-  const dragPoint = useRef<Pt | null>(null);
   const loadSeq = useRef(0);
-  const holdingRef = useRef(false);
   const restored = useRef(false);
-  const layerSeq = useRef(1);
+  /* Owned here, above render, because render reads them: which corner is
+     live, and whether a press-and-hold compare is on. useCornerDrag writes
+     through the same refs. */
+  const draggingRef = useRef<number | null>(null);
+  const holdingRef = useRef(false);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
   const pieceMap = useMemo(() => new Map(pieces.map((item) => [item.slug, item])), [pieces]);
 
   const { objectUrl, revokeObjectUrl } = useObjectUrls();
-
-  const activeLayerSnapshot = useCallback((): SurfaceLayer => ({
-    id: activeLayerId,
-    label: LAYER_LABELS[surface],
-    surface,
-    quad,
-    pieceSlug,
-    tileSize,
-    blend,
-    prepMode,
-    groutLight,
-    customColors,
-    visible: true,
-    accepted: hasFittedSurface,
-  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, surface, tileSize]);
-
-  const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
-    const next = activeLayerSnapshot();
-    return current.map((layer) => (
-      layer.id === activeLayerId ? { ...layer, ...next, label: LAYER_LABELS[surface] } : layer
-    ));
-  }, [activeLayerId, activeLayerSnapshot, surface]);
 
   /* The undo memory lives in its own hook now; it reads these live
      controls to checkpoint and writes them back to restore. */
@@ -162,22 +136,44 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSnapMessage,
   });
 
-  const selectLayer = useCallback((layer: SurfaceLayer) => {
-    setLayers(withActiveLayer);
-    setActiveLayerId(layer.id);
-    setSurface(layer.surface);
-    setQuad(layer.quad);
-    setPieceSlug(layer.pieceSlug);
-    setTileSize(layer.tileSize);
-    setBlend(layer.blend);
-    setPrepMode(layer.prepMode);
-    setGroutLight(layer.groutLight);
-    setCustomColors(layer.customColors);
-    setSamMask(null);
-    setHasFittedSurface(layer.accepted);
-    setSnapMessage(`${layer.label} selected.`);
-    buzz(3);
-  }, [withActiveLayer]);
+  const { withActiveLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip } = useSurfaceLayers({
+    layers,
+    setLayers,
+    activeLayerId,
+    setActiveLayerId,
+    surface,
+    setSurface,
+    quad,
+    setQuad,
+    pieceSlug,
+    setPieceSlug,
+    tileSize,
+    setTileSize,
+    blend,
+    setBlend,
+    prepMode,
+    setPrepMode,
+    groutLight,
+    setGroutLight,
+    customColors,
+    setCustomColors,
+    hasFittedSurface,
+    setHasFittedSurface,
+    setSamMask,
+    setSnapMessage,
+    pushSnapshot,
+    pieces,
+  });
+
+  const { samBeta, samBusy, runSam, armSam, clearSam } = useSamAutofind({
+    originalRef,
+    quad,
+    setQuad,
+    setSamMask,
+    setHasFittedSurface,
+    setSnapMessage,
+    pushSnapshot,
+  });
 
   const loadImage = useCallback((
     src: string,
@@ -242,10 +238,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD, "pool");
   }, [loadImage]);
 
-  useEffect(() => () => {
-    if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
-  }, []);
-
   usePersistedControls({ photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers, withActiveLayer });
 
   const chooseStarterSurface = (id: SurfaceId) => {
@@ -300,105 +292,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     track("viz_context", { surface: id });
   };
 
-  const addSurfaceLayer = () => {
-    const committedLayers = withActiveLayer(layers);
-    if (!hasFittedSurface) {
-      setLayers(committedLayers);
-      setSnapMessage(`Place ${LAYER_LABELS[surface]} first.`);
-      buzz(2);
-      return;
-    }
-    const used = new Set(committedLayers.map((layer) => layer.surface));
-    const nextSurface = NEXT_SURFACE[surface].find((candidate) => !used.has(candidate));
-    if (!nextSurface) {
-      setLayers(committedLayers);
-      setSnapMessage("Every surface type is already in this preview.");
-      buzz(2);
-      return;
-    }
-    const nextPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
-    const id = `surface-${layerSeq.current + 1}`;
-    layerSeq.current += 1;
-    const nextLayer: SurfaceLayer = {
-      id,
-      label: LAYER_LABELS[nextSurface],
-      surface: nextSurface,
-      quad: SURFACES[nextSurface].quad,
-      pieceSlug: nextPieceSlug,
-      tileSize: SURFACES[nextSurface].tileSize,
-      blend,
-      prepMode: "primer",
-      groutLight,
-      customColors: null,
-      visible: true,
-      accepted: true,
-    };
-    setLayers(committedLayers.concat(nextLayer));
-    setActiveLayerId(id);
-    setSurface(nextSurface);
-    setQuad(nextLayer.quad);
-    setPieceSlug(nextPieceSlug);
-    setCustomColors(null);
-    setSamMask(null);
-    setTileSize(nextLayer.tileSize);
-    setPrepMode("primer");
-    setHasFittedSurface(true);
-    pushSnapshot(`Added ${nextLayer.label}`, {
-      layers: committedLayers.concat(nextLayer),
-      activeLayerId: id,
-      surface: nextSurface,
-      quad: nextLayer.quad,
-      pieceSlug: nextPieceSlug,
-      tileSize: nextLayer.tileSize,
-      prepMode: "primer",
-      customColors: null,
-      samMask: null,
-      hasFittedSurface: true,
-    });
-    setSnapMessage(`Added ${nextLayer.label}. Drag its corners to place it.`);
-    buzz(5);
-    track("viz_layer_add", { surface: nextSurface });
-  };
-
-  /* Take a surface back off. The last one stays, since the preview needs
-     at least one; removing the active surface drops it and lands on the
-     one before it, its own fit and colour intact. */
-  const removeSurfaceLayer = () => {
-    if (layers.length <= 1) return;
-    const removedLabel = LAYER_LABELS[surface];
-    const remaining = layers.filter((layer) => layer.id !== activeLayerId);
-    const nextActive = remaining[remaining.length - 1];
-    setLayers(remaining);
-    setActiveLayerId(nextActive.id);
-    setSurface(nextActive.surface);
-    setQuad(nextActive.quad);
-    setPieceSlug(nextActive.pieceSlug);
-    setTileSize(nextActive.tileSize);
-    setBlend(nextActive.blend);
-    setPrepMode(nextActive.prepMode);
-    setGroutLight(nextActive.groutLight);
-    setCustomColors(nextActive.customColors);
-    setSamMask(null);
-    setHasFittedSurface(nextActive.accepted);
-    pushSnapshot(`Removed ${removedLabel}`, {
-      layers: remaining,
-      activeLayerId: nextActive.id,
-      surface: nextActive.surface,
-      quad: nextActive.quad,
-      pieceSlug: nextActive.pieceSlug,
-      tileSize: nextActive.tileSize,
-      blend: nextActive.blend,
-      prepMode: nextActive.prepMode,
-      groutLight: nextActive.groutLight,
-      customColors: nextActive.customColors,
-      samMask: null,
-      hasFittedSurface: nextActive.accepted,
-    });
-    setSnapMessage(`Removed ${removedLabel}. ${nextActive.label} selected.`);
-    buzz(4);
-    track("viz_layer_remove", { surface: nextActive.surface });
-  };
-
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !photo) return;
@@ -437,7 +330,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         layer,
         piece: layerPiece,
         mask: layer.id === activeLayerId ? samMask : null,
-        finish: dragging.current === null,
+        finish: draggingRef.current === null,
       });
     });
     setTick((t) => t + 1);
@@ -448,121 +341,30 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     return () => cancelAnimationFrame(frame);
   }, [render]);
 
-  const pointerPos = (e: React.PointerEvent): Pt => {
-    const rect = wrapRef.current!.getBoundingClientRect();
-    return {
-      x: clamp((e.clientX - rect.left) / rect.width, 0.02, 0.98),
-      y: clamp((e.clientY - rect.top) / rect.height, 0.02, 0.98),
-    };
-  };
-
-  const updateCorner = useCallback((index: number, point: Pt) => {
-    const safePoint = { x: clamp(point.x, 0.02, 0.98), y: clamp(point.y, 0.02, 0.98) };
-    setQuad((current) => {
-      const next = setCorner(current, index, safePoint);
-      if (isValidQuad(next)) return next;
-      return current;
-    });
-  }, []);
-
-  /* The loupe: what your finger is hiding, shown above it at 2.5x. */
-  const drawLoupe = (p: Pt) => {
-    const src = canvasRef.current;
-    const dst = loupeRef.current;
-    if (!src || !dst) return;
-    const size = 120;
-    dst.width = size;
-    dst.height = size;
-    const zoom = 2.5;
-    const sx = p.x * src.width - size / (2 * zoom);
-    const sy = p.y * src.height - size / (2 * zoom);
-    const ctx = dst.getContext("2d")!;
-    ctx.imageSmoothingEnabled = true;
-    ctx.clearRect(0, 0, size, size);
-    ctx.drawImage(src, sx, sy, size / zoom, size / zoom, 0, 0, size, size);
-    ctx.strokeStyle = "#c2a15c";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(size / 2, size / 2 - 10);
-    ctx.lineTo(size / 2, size / 2 + 10);
-    ctx.moveTo(size / 2 - 10, size / 2);
-    ctx.lineTo(size / 2 + 10, size / 2);
-    ctx.stroke();
-  };
-
-  const holdEnd = () => {
-    if (!holding) return;
-    holdingRef.current = false;
-    setHolding(false);
-    render();
-  };
-
-  const queueCornerDrag = (index: number, point: Pt) => {
-    dragPoint.current = point;
-    setLoupe(point);
-    if (dragFrame.current !== null) return;
-    dragFrame.current = requestAnimationFrame(() => {
-      dragFrame.current = null;
-      const nextPoint = dragPoint.current;
-      if (!nextPoint || dragging.current !== index) return;
-      updateCorner(index, nextPoint);
-      drawLoupe(nextPoint);
-    });
-  };
-
-  const finishDrag = () => {
-    if (dragFrame.current !== null) {
-      cancelAnimationFrame(dragFrame.current);
-      dragFrame.current = null;
-    }
-    if (dragging.current !== null && dragPoint.current) {
-      updateCorner(dragging.current, dragPoint.current);
-      setHasFittedSurface(true);
-      setSnapMessage("Fit updated. Add another surface when ready.");
-    }
-    if (dragging.current !== null) buzz(4);
-    dragging.current = null;
-    dragPoint.current = null;
-    setLoupe(null);
-    holdEnd();
-  };
-
-  const nudgeCorner = (index: number, dx: number, dy: number) => {
-    const current = quad[index];
-    const next = { x: clamp(current.x + dx, 0.02, 0.98), y: clamp(current.y + dy, 0.02, 0.98) };
-    updateCorner(index, next);
-    setHasFittedSurface(true);
-    setSnapMessage("Fit updated. Add another surface when ready.");
-    setLoupe(next);
-    requestAnimationFrame(() => drawLoupe(next));
-    buzz(2);
-    track("viz_adjust", { corner: index, method: "keyboard" });
-  };
-
-  const onCornerKey = (index: number, e: KeyboardEvent<SVGCircleElement>) => {
-    const step = e.shiftKey ? 0.04 : 0.012;
-    const moves: Record<string, [number, number]> = {
-      ArrowLeft: [-step, 0],
-      ArrowRight: [step, 0],
-      ArrowUp: [0, -step],
-      ArrowDown: [0, step],
-    };
-    const move = moves[e.key];
-    if (!move) return;
-    e.preventDefault();
-    nudgeCorner(index, move[0], move[1]);
-  };
-
-  const holdStart = (e: React.PointerEvent) => {
-    if ((e.target as Element).tagName === "circle") return;
-    if (!originalRef.current || !canvasRef.current) return;
-    holdingRef.current = true;
-    setHolding(true);
-    buzz(6);
-    track("viz_compare", {});
-    const ctx = canvasRef.current.getContext("2d")!;
-    ctx.drawImage(originalRef.current, 0, 0);
-  };
+  const {
+    dragPoint,
+    loupe,
+    setLoupe,
+    holding,
+    pointerPos,
+    holdStart,
+    queueCornerDrag,
+    finishDrag,
+    drawLoupe,
+    onCornerKey,
+  } = useCornerDrag({
+    quad,
+    setQuad,
+    setHasFittedSurface,
+    setSnapMessage,
+    render,
+    draggingRef,
+    holdingRef,
+    canvasRef,
+    wrapRef,
+    loupeRef,
+    originalRef,
+  });
 
   const share = async () => {
     const canvas = canvasRef.current;
@@ -625,125 +427,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     track("viz_preview", {});
   };
 
-  /* The learned auto-find (beta, opt-in). Arm it, then one tap sends the
-     untouched photo and the tapped point to the segment endpoint; the mask
-     that comes back clips the mosaic to the exact surface shape. Any miss
-     falls back to the corners, so the desk is never stuck. Metered on the
-     server. */
-  const runSam = async (point: Pt) => {
-    const orig = originalRef.current;
-    if (!orig || samBusy) {
-      setSamBeta(false);
-      return;
-    }
-    setSamBusy(true);
-    buzz(4);
-    try {
-      const ow = orig.width;
-      const oh = orig.height;
-      const scale = Math.min(1, 768 / ow);
-      const sw = Math.max(1, Math.round(ow * scale));
-      const sh = Math.max(1, Math.round(oh * scale));
-      const tmp = document.createElement("canvas");
-      tmp.width = sw;
-      tmp.height = sh;
-      const tctx = tmp.getContext("2d");
-      if (!tctx) throw new Error("no-ctx");
-      tctx.drawImage(orig, 0, 0, sw, sh);
-      const base64 = tmp.toDataURL("image/jpeg", 0.85).split(",")[1] ?? "";
-      const res = await fetch("/api/visualizer/segment", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          image: base64,
-          mediaType: "image/jpeg",
-          x: Math.round(point.x * sw),
-          y: Math.round(point.y * sh),
-        }),
-      });
-      const data = (await res.json()) as { ok?: boolean; mask?: string; message?: string };
-      if (data.ok && typeof data.mask === "string") {
-        const img = new Image();
-        img.onload = () => {
-          setSamMask(img);
-          setHasFittedSurface(true);
-          let fittedQuad = quad;
-          /* Fit the four corners to the shape's own extreme corners, not
-             its bounding box. A floor comes back as a receding trapezoid,
-             so the tiles take its perspective on their own and slant into
-             depth; a wall stays roughly square. The mask still clips the
-             exact shape, so an approximate plane is safe. */
-          try {
-            const mc = document.createElement("canvas");
-            mc.width = img.naturalWidth;
-            mc.height = img.naturalHeight;
-            const mx = mc.getContext("2d");
-            if (mx && mc.width > 0 && mc.height > 0) {
-              mx.drawImage(img, 0, 0);
-              const d = mx.getImageData(0, 0, mc.width, mc.height).data;
-              let tl = { x: 0, y: 0 }, tr = { x: 0, y: 0 }, br = { x: 0, y: 0 }, bl = { x: 0, y: 0 };
-              let tlV = Infinity, brV = -Infinity, trV = -Infinity, blV = Infinity;
-              let found = false;
-              for (let yy = 0; yy < mc.height; yy += 2) {
-                for (let xx = 0; xx < mc.width; xx += 2) {
-                  if (d[(yy * mc.width + xx) * 4 + 3] > 12) {
-                    found = true;
-                    const s = xx + yy;
-                    const df = xx - yy;
-                    if (s < tlV) { tlV = s; tl = { x: xx, y: yy }; }
-                    if (s > brV) { brV = s; br = { x: xx, y: yy }; }
-                    if (df > trV) { trV = df; tr = { x: xx, y: yy }; }
-                    if (df < blV) { blV = df; bl = { x: xx, y: yy }; }
-                  }
-                }
-              }
-              if (found) {
-                const norm = (p: { x: number; y: number }) => ({
-                  x: clamp(p.x / mc.width, 0.02, 0.98),
-                  y: clamp(p.y / mc.height, 0.02, 0.98),
-                });
-                const cornerQuad = [norm(tl), norm(tr), norm(br), norm(bl)];
-                if (isValidQuad(cornerQuad)) { fittedQuad = cornerQuad; setQuad(cornerQuad); }
-              }
-            }
-          } catch {
-            /* leave the current corners */
-          }
-          /* Save the AI result the moment it lands, so a re-find, a clear,
-             or a fresh tap can never lose the segment we paid for. */
-          pushSnapshot("AI find", { samMask: img, quad: fittedQuad, hasFittedSurface: true });
-          setSnapMessage("Surface found and angled. Nudge a corner to refine.");
-          buzz(8);
-        };
-        img.onerror = () => setSnapMessage("Could not read the surface. Drag the corners instead.");
-        img.src = data.mask;
-        track("viz_sam", { ok: true });
-      } else {
-        setSnapMessage(data.message ?? "Could not find it there. Drag the corners instead.");
-        track("viz_sam", { ok: false });
-      }
-    } catch {
-      setSnapMessage("Auto-find is busy. Drag the corners instead.");
-    } finally {
-      setSamBusy(false);
-      setSamBeta(false);
-    }
-  };
-
-  const armSam = () => {
-    if (samBusy) return;
-    setSamBeta(true);
-    setSnapMessage("Now tap the wall or floor.");
-    buzz(3);
-    track("viz_sam_arm", {});
-  };
-
-  const clearSam = () => {
-    setSamMask(null);
-    setSnapMessage("Auto-find cleared. The tiles fill the frame again.");
-    buzz(3);
-  };
-
   /* The visitor's own colourway, laid over the piece. Null means the
      piece paints itself; the first edit seeds from what is showing. */
   const activeColors = customColors ?? (piece.colors ?? ["#3aa9d6"]);
@@ -788,9 +471,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setGroutLight(!groutLight);
     buzz(4);
   };
-
-  const selectLayerChip = (layer: SurfaceLayer) =>
-    selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer);
 
   const refineControls = (
     <>
@@ -873,9 +553,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         aria-describedby="viz-corner-help"
         onPointerDown={(e) => { if (samBeta) { runSam(pointerPos(e)); } else { holdStart(e); } }}
         onPointerMove={(e) => {
-          if (dragging.current === null) return;
+          if (draggingRef.current === null) return;
           const p = pointerPos(e);
-          queueCornerDrag(dragging.current, p);
+          queueCornerDrag(draggingRef.current, p);
         }}
         onPointerUp={finishDrag}
         onPointerLeave={finishDrag}
@@ -920,7 +600,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             onPointerDown={(e) => {
               e.stopPropagation();
               (e.target as Element).setPointerCapture(e.pointerId);
-              dragging.current = i;
+              draggingRef.current = i;
               const p2 = pointerPos(e);
               dragPoint.current = p2;
               buzz(6);
