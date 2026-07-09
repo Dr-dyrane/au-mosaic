@@ -307,6 +307,30 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     track("viz_layer_add", { surface: nextSurface });
   };
 
+  /* Take a surface back off. The last one stays, since the preview needs
+     at least one; removing the active surface drops it and lands on the
+     one before it, its own fit and colour intact. */
+  const removeSurfaceLayer = () => {
+    if (layers.length <= 1) return;
+    const removedLabel = LAYER_LABELS[surface];
+    const remaining = layers.filter((layer) => layer.id !== activeLayerId);
+    const nextActive = remaining[remaining.length - 1];
+    setLayers(remaining);
+    setActiveLayerId(nextActive.id);
+    setSurface(nextActive.surface);
+    setQuad(nextActive.quad);
+    setPieceSlug(nextActive.pieceSlug);
+    setTileSize(nextActive.tileSize);
+    setBlend(nextActive.blend);
+    setPrepMode(nextActive.prepMode);
+    setGroutLight(nextActive.groutLight);
+    setCustomColors(nextActive.customColors);
+    setHasFittedSurface(nextActive.accepted);
+    setSnapMessage(`Removed ${removedLabel}. ${nextActive.label} selected.`);
+    buzz(4);
+    track("viz_layer_remove", { surface: nextActive.surface });
+  };
+
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !photo) return;
@@ -821,6 +845,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     {hasFittedSurface && (
                       <button type="button" onClick={addSurfaceLayer} className="link-hair text-dusk">
                         Add another surface
+                      </button>
+                    )}
+                    {layers.length > 1 && (
+                      <button type="button" onClick={removeSurfaceLayer} className="link-hair text-dusk">
+                        Remove this surface
                       </button>
                     )}
                     <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">
