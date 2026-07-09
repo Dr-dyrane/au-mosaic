@@ -66,6 +66,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [loupe, setLoupe] = useState<Pt | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [samBeta, setSamBeta] = useState(false);
+  const [samBusy, setSamBusy] = useState(false);
+  const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
   const [hasFittedSurface, setHasFittedSurface] = useState(false);
@@ -137,6 +140,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setPrepMode(layer.prepMode);
     setGroutLight(layer.groutLight);
     setCustomColors(layer.customColors);
+    setSamMask(null);
     setHasFittedSurface(layer.accepted);
     setSnapMessage(`${layer.label} selected.`);
     buzz(3);
@@ -174,6 +178,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       setTileSize(targetTileSize);
       setPieceSlug(targetPieceSlug);
       setCustomColors(null);
+      setSamMask(null);
       setPrepMode(targetPrep);
       setQuad(nextQuad ?? SURFACES[targetSurface].quad);
       setSnapMessage(suggestion);
@@ -218,6 +223,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setTileSize(SURFACES[id].tileSize);
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
+    setSamMask(null);
     setPrepMode("primer");
     setQuad(SURFACES[id].quad);
     setHasFittedSurface(true);
@@ -240,6 +246,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setTileSize(next.tileSize);
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
+    setSamMask(null);
     setPrepMode("primer");
     setQuad(next.quad);
     setHasFittedSurface(true);
@@ -299,6 +306,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setQuad(nextLayer.quad);
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
+    setSamMask(null);
     setTileSize(nextLayer.tileSize);
     setPrepMode("primer");
     setHasFittedSurface(true);
@@ -325,6 +333,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setPrepMode(nextActive.prepMode);
     setGroutLight(nextActive.groutLight);
     setCustomColors(nextActive.customColors);
+    setSamMask(null);
     setHasFittedSurface(nextActive.accepted);
     setSnapMessage(`Removed ${removedLabel}. ${nextActive.label} selected.`);
     buzz(4);
@@ -368,10 +377,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         height: Hh,
         layer,
         piece: layerPiece,
+        mask: layer.id === activeLayerId ? samMask : null,
       });
     });
     setTick((t) => t + 1);
-  }, [layers, photo, piece, pieceMap, withActiveLayer]);
+  }, [activeLayerId, layers, photo, piece, pieceMap, samMask, withActiveLayer]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(render);
@@ -555,6 +565,81 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     track("viz_preview", {});
   };
 
+  /* The learned auto-find (beta, opt-in). Arm it, then one tap sends the
+     untouched photo and the tapped point to the segment endpoint; the mask
+     that comes back clips the mosaic to the exact surface shape. Any miss
+     falls back to the corners, so the desk is never stuck. Metered on the
+     server. */
+  const runSam = async (point: Pt) => {
+    const orig = originalRef.current;
+    if (!orig || samBusy) {
+      setSamBeta(false);
+      return;
+    }
+    setSamBusy(true);
+    setSnapMessage("Finding the surface...");
+    buzz(4);
+    try {
+      const ow = orig.width;
+      const oh = orig.height;
+      const scale = Math.min(1, 768 / ow);
+      const sw = Math.max(1, Math.round(ow * scale));
+      const sh = Math.max(1, Math.round(oh * scale));
+      const tmp = document.createElement("canvas");
+      tmp.width = sw;
+      tmp.height = sh;
+      const tctx = tmp.getContext("2d");
+      if (!tctx) throw new Error("no-ctx");
+      tctx.drawImage(orig, 0, 0, sw, sh);
+      const base64 = tmp.toDataURL("image/jpeg", 0.85).split(",")[1] ?? "";
+      const res = await fetch("/api/visualizer/segment", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          image: base64,
+          mediaType: "image/jpeg",
+          x: Math.round(point.x * sw),
+          y: Math.round(point.y * sh),
+        }),
+      });
+      const data = (await res.json()) as { ok?: boolean; mask?: string; message?: string };
+      if (data.ok && typeof data.mask === "string") {
+        const img = new Image();
+        img.onload = () => {
+          setSamMask(img);
+          setHasFittedSurface(true);
+          setSnapMessage("Surface found. Send it, or drag the corners to adjust.");
+          buzz(8);
+        };
+        img.onerror = () => setSnapMessage("Could not read the surface. Drag the corners instead.");
+        img.src = data.mask;
+        track("viz_sam", { ok: true });
+      } else {
+        setSnapMessage(data.message ?? "Could not find it there. Drag the corners instead.");
+        track("viz_sam", { ok: false });
+      }
+    } catch {
+      setSnapMessage("Auto-find is busy. Drag the corners instead.");
+    } finally {
+      setSamBusy(false);
+      setSamBeta(false);
+    }
+  };
+
+  const armSam = () => {
+    if (samBusy) return;
+    setSamBeta(true);
+    setSnapMessage("Now tap the wall or floor.");
+    buzz(3);
+    track("viz_sam_arm", {});
+  };
+
+  const clearSam = () => {
+    setSamMask(null);
+    setSnapMessage("Auto-find cleared. The tiles fill the frame again.");
+    buzz(3);
+  };
+
   /* The visitor's own colourway, laid over the piece. Null means the
      piece paints itself; the first edit seeds from what is showing. */
   const activeColors = customColors ?? (piece.colors ?? ["#3aa9d6"]);
@@ -684,9 +769,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       </p>
       {!previewMode && (
       <svg
-        className="absolute inset-0 h-full w-full touch-none"
+        className={`absolute inset-0 h-full w-full touch-none ${samBeta ? "cursor-crosshair" : ""}`}
         aria-describedby="viz-corner-help"
-        onPointerDown={holdStart}
+        onPointerDown={(e) => { if (samBeta) { runSam(pointerPos(e)); } else { holdStart(e); } }}
         onPointerMove={(e) => {
           if (dragging.current === null) return;
           const p = pointerPos(e);
@@ -851,6 +936,19 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     {layers.length > 1 && (
                       <button type="button" onClick={removeSurfaceLayer} className="link-hair text-dusk">
                         Remove this surface
+                      </button>
+                    )}
+                    {!samMask && !samBusy && (
+                      <button type="button" onClick={armSam} className="link-hair text-dusk">
+                        {samBeta ? "Tap the wall now" : "Auto-find the wall (beta)"}
+                      </button>
+                    )}
+                    {samBusy && (
+                      <span className="text-[12px] uppercase tracking-[0.18em] text-mist">Finding the surface...</span>
+                    )}
+                    {samMask && (
+                      <button type="button" onClick={clearSam} className="link-hair text-dusk">
+                        Clear auto-find
                       </button>
                     )}
                     <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">

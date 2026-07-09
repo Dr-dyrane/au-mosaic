@@ -144,6 +144,7 @@ function drawSurfaceLayer({
   height,
   layer,
   piece,
+  mask,
 }: {
   ctx: CanvasRenderingContext2D;
   origCtx: CanvasRenderingContext2D;
@@ -154,13 +155,19 @@ function drawSurfaceLayer({
   height: number;
   layer: SurfaceLayer;
   piece: Piece;
+  mask?: CanvasImageSource | null;
 }) {
   if (!layer.visible) return;
   const tileColors = layer.customColors && layer.customColors.length > 0 ? layer.customColors : (piece.colors || ["#3aa9d6"]);
   const pattern = makePattern(tileColors, layer.tileSize, layer.groutLight);
-  const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
+  /* Without a mask the four-corner quad frames the tiles, as always. With
+     a segmentation mask the tiles fill the whole frame and the mask decides
+     where they show, so the shape follows the surface exactly. */
+  const q = mask
+    ? [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: width, y: height }, { x: 0, y: height }]
+    : layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
 
-  if (layer.prepMode !== "none") {
+  if (layer.prepMode !== "none" && !mask) {
     ctx.save();
     clipQuad(ctx, q);
     if (layer.prepMode === "blur") {
@@ -197,22 +204,37 @@ function drawSurfaceLayer({
     }
   }
 
+  /* Keep the warped tiles only where the mask is opaque, so the mosaic
+     lands on the exact surface shape the model found and nowhere else.
+     A failed mask draw is swallowed, leaving the full-frame tiles. */
+  if (mask) {
+    try {
+      octx.globalCompositeOperation = "destination-in";
+      octx.drawImage(mask, 0, 0, width, height);
+      octx.globalCompositeOperation = "source-over";
+    } catch {
+      /* leave the overlay as it is */
+    }
+  }
+
   ctx.save();
   ctx.globalAlpha = layer.blend;
   ctx.globalCompositeOperation = "multiply";
   ctx.drawImage(overlay, 0, 0);
   ctx.restore();
 
-  ctx.save();
-  clipQuad(ctx, q);
-  ctx.globalCompositeOperation = "soft-light";
-  ctx.globalAlpha = layer.blend * (layer.prepMode === "none" ? 0.5 : 0.24);
-  if (layer.prepMode === "none") {
-    drawSource(ctx, photo, sourceW, sourceH, width, height, false);
-  } else {
-    drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 12, false);
+  if (!mask) {
+    ctx.save();
+    clipQuad(ctx, q);
+    ctx.globalCompositeOperation = "soft-light";
+    ctx.globalAlpha = layer.blend * (layer.prepMode === "none" ? 0.5 : 0.24);
+    if (layer.prepMode === "none") {
+      drawSource(ctx, photo, sourceW, sourceH, width, height, false);
+    } else {
+      drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 12, false);
+    }
+    ctx.restore();
   }
-  ctx.restore();
 }
 
 export { drawTriangle, makePattern, clipQuad, sampleQuadColor, drawBlurredPhoto, drawSource, drawSurfaceLayer };
