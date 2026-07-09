@@ -136,6 +136,14 @@ export default async function SettingsPage() {
                 >
                   Read the history
                 </Link>
+                {isOwner && (
+                  <a
+                    href="/admin/export/book.json"
+                    className="link-hair mt-3 block w-fit text-dusk text-[12px]"
+                  >
+                    Back up the book
+                  </a>
+                )}
               </div>
 
               <div>

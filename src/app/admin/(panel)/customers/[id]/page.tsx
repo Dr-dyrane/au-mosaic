@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { desc, eq, sql } from "drizzle-orm";
+import { count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { naira, waChat } from "@/lib/backoffice";
+import { whoAmI } from "@/lib/admin-auth";
+import { naira, phone234, waChat } from "@/lib/backoffice";
 import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
+import { salesMotionLabel } from "@/lib/sales-motions";
 import CustomerForm from "./CustomerForm";
+import FoldTwins, { type Twin } from "./FoldTwins";
+import ForgetCustomer from "./ForgetCustomer";
 import SalesMotions from "./SalesMotions";
 import Back from "../../Back";
 import { Touch } from "../../touched";
@@ -37,6 +41,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     .from(schema.customers)
     .where(eq(schema.customers.id, id));
   if (!customer) notFound();
+  const isOwner = (await whoAmI())?.role === "owner";
 
   const orders = await db
     .select()
@@ -70,6 +75,31 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     .where(eq(schema.enquiries.customerId, id))
     .orderBy(desc(schema.enquiries.createdAt));
 
+  /* The story strip reads two more small sets: their payments and
+     their deliveries, both reached through their orders. */
+  const paymentRows = await db
+    .select({
+      id: schema.payments.id,
+      orderId: schema.payments.orderId,
+      amountKobo: schema.payments.amountKobo,
+      paidAt: schema.payments.paidAt,
+    })
+    .from(schema.payments)
+    .innerJoin(schema.orders, eq(schema.payments.orderId, schema.orders.id))
+    .where(eq(schema.orders.customerId, id));
+
+  const deliveryRows = await db
+    .select({
+      id: schema.deliveries.id,
+      orderId: schema.deliveries.orderId,
+      status: schema.deliveries.status,
+      scheduledFor: schema.deliveries.scheduledFor,
+      deliveredAt: schema.deliveries.deliveredAt,
+    })
+    .from(schema.deliveries)
+    .innerJoin(schema.orders, eq(schema.deliveries.orderId, schema.orders.id))
+    .where(eq(schema.orders.customerId, id));
+
   const motions = await db
     .select()
     .from(schema.salesMotions)
@@ -78,6 +108,56 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
       sql`case when ${schema.salesMotions.status} = 'open' then 0 else 1 end`,
       desc(schema.salesMotions.createdAt)
     );
+
+  /* Twins: live cards sharing this card's phone key. The same
+     normalised match the creation doors use, so what they refuse to
+     create, this page offers to fold. Counts ride along so the
+     consequence card can name exactly what moves. */
+  let twins: Twin[] = [];
+  if (customer.phone && !customer.archivedAt) {
+    const key = phone234(customer.phone);
+    const live = await db
+      .select({
+        id: schema.customers.id,
+        name: schema.customers.name,
+        phone: schema.customers.phone,
+      })
+      .from(schema.customers)
+      .where(isNull(schema.customers.archivedAt));
+    const cards = live.filter((c) => c.id !== id && c.phone && phone234(c.phone) === key);
+    if (cards.length > 0) {
+      const twinIds = cards.map((c) => c.id);
+      const [orderCounts, enquiryCounts, motionCounts] = await Promise.all([
+        db
+          .select({ cid: schema.orders.customerId, n: count() })
+          .from(schema.orders)
+          .where(inArray(schema.orders.customerId, twinIds))
+          .groupBy(schema.orders.customerId),
+        db
+          .select({ cid: schema.enquiries.customerId, n: count() })
+          .from(schema.enquiries)
+          .where(inArray(schema.enquiries.customerId, twinIds))
+          .groupBy(schema.enquiries.customerId),
+        db
+          .select({ cid: schema.salesMotions.customerId, n: count() })
+          .from(schema.salesMotions)
+          .where(inArray(schema.salesMotions.customerId, twinIds))
+          .groupBy(schema.salesMotions.customerId),
+      ]);
+      const by = (rows: { cid: string | null; n: number }[]) =>
+        new Map(rows.map((r) => [r.cid ?? "", r.n]));
+      const o = by(orderCounts);
+      const e = by(enquiryCounts);
+      const m = by(motionCounts);
+      twins = cards.map((c) => ({
+        id: c.id,
+        name: c.name,
+        orders: o.get(c.id) ?? 0,
+        enquiries: e.get(c.id) ?? 0,
+        motions: m.get(c.id) ?? 0,
+      }));
+    }
+  }
 
   const billedBy = new Map(billedRows.map((r) => [r.orderId, r.billed]));
   const paidBy = new Map(paidRows.map((r) => [r.orderId, r.paid]));
@@ -91,6 +171,77 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     const balance = (billedBy.get(order.id) ?? 0) - (paidBy.get(order.id) ?? 0);
     return sum + Math.max(balance, 0);
   }, 0);
+  /* Their story: one strip of time. Orders opening, money arriving,
+     vans landing, motions noted, enquiries coming in, and the day the
+     card itself opened. The data already lived in this room; here it
+     stands in one line, newest first. The book's history stays the
+     house-wide ledger; this is one person's thread. */
+  type StoryEvent = { key: string; at: Date; text: string; href?: string };
+  const story: StoryEvent[] = [];
+  story.push({
+    key: `card-${customer.id}`,
+    at: new Date(customer.createdAt),
+    text: "The card opened",
+  });
+  for (const o of orders) {
+    const billed = billedBy.get(o.id) ?? 0;
+    story.push({
+      key: `order-${o.id}`,
+      at: new Date(o.createdAt),
+      text: billed > 0 ? `An order opened, ${naira(billed)} billed` : "An order opened",
+      href: `/admin/orders/${o.id}`,
+    });
+  }
+  for (const p of paymentRows) {
+    story.push({
+      key: `pay-${p.id}`,
+      at: new Date(p.paidAt),
+      text:
+        p.amountKobo < 0
+          ? `${naira(Math.abs(p.amountKobo))} refunded`
+          : `${naira(p.amountKobo)} received`,
+      href: `/admin/orders/${p.orderId}`,
+    });
+  }
+  for (const d of deliveryRows) {
+    const at = d.deliveredAt ?? d.scheduledFor;
+    if (!at) continue;
+    story.push({
+      key: `del-${d.id}`,
+      at: new Date(at),
+      text: d.deliveredAt
+        ? "The delivery landed"
+        : d.status === "out"
+          ? "A delivery went out"
+          : "A delivery was set",
+      href: `/admin/orders/${d.orderId}`,
+    });
+  }
+  for (const e of enquiries) {
+    story.push({
+      key: `enq-${e.id}`,
+      at: new Date(e.createdAt),
+      text: e.status === "converted" ? "An enquiry came in, later converted" : "An enquiry came in",
+    });
+  }
+  for (const m of motions) {
+    story.push({
+      key: `mot-${m.id}`,
+      at: new Date(m.createdAt),
+      text: `${salesMotionLabel(m.kind)} noted`,
+    });
+    if (m.completedAt) {
+      story.push({
+        key: `mot-done-${m.id}`,
+        at: new Date(m.completedAt),
+        text: `${salesMotionLabel(m.kind)} done`,
+      });
+    }
+  }
+  story.sort((a, b) => b.at.getTime() - a.at.getTime());
+  const STORY_CAP = 40;
+  const storyShown = story.slice(0, STORY_CAP);
+
   const latestOrder = orders[0];
   const deliveryOrder = orders.find((order) => (
     order.status !== "delivered" && order.status !== "settled"
@@ -209,6 +360,31 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         />
       </section>
 
+      {storyShown.length > 1 && (
+        <section className="xl:order-5">
+          <p className="eyebrow">Their story</p>
+          <ol className="mt-4 grid gap-2.5">
+            {storyShown.map((e) => (
+              <li key={e.key} className="flex items-baseline justify-between gap-4">
+                {e.href ? (
+                  <Link href={e.href} className="link-hair text-[14px]">
+                    {e.text}
+                  </Link>
+                ) : (
+                  <p className="text-[14px] text-ink">{e.text}</p>
+                )}
+                <span className="whitespace-nowrap text-[12px] text-mist">{fmtDate(e.at)}</span>
+              </li>
+            ))}
+          </ol>
+          {story.length > STORY_CAP && (
+            <p className="mt-4 text-[13px] text-dusk">
+              The older story stays in the rooms above.
+            </p>
+          )}
+        </section>
+      )}
+
       {enquiries.length > 0 && (
         <section className="xl:order-4">
           <p className="eyebrow">Their enquiries</p>
@@ -243,6 +419,23 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
             note: customer.note,
           }}
         />
+        {twins.length > 0 && (
+          <div className="mt-12">
+            <p className="eyebrow">Same number</p>
+            <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+              {twins.length === 1
+                ? "Another card shares this number."
+                : "Other cards share this number."}{" "}
+              One person, one card: fold the twin onto this one and every
+              order, enquiry, and motion follows. The folded card rests in
+              the archive.
+            </p>
+            <FoldTwins keepId={customer.id} twins={twins} />
+          </div>
+        )}
+        {isOwner && customer.name !== "Forgotten" && (
+          <ForgetCustomer id={customer.id} name={customer.name} />
+        )}
       </section>
       </div>
     </main>

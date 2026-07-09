@@ -39,6 +39,24 @@ proved byte-identical to origin/main (the shipped snapshot-history
 work), so syncing main forward resolved them; nothing of another
 hand's was committed or discarded.
 
+## 2026-07-08 - Claude - Benchmark board lane - done
+
+Closed the whole benchmark board in six commits: the twins fold on the
+customer record (consequence card with exact counts, twin archives
+last, history signed), the owner-only `book.json` backup behind a
+quiet Settings link, the dependency-free test layer (`npm run test`,
+the house tsc plus `node:test`, twenty green in the sandbox), the
+story strip on the customer record, the owner-only forget action with
+the stated retention posture, and the `CLAUDE_API_KEY` template line.
+Files as claimed; no schema changes, no migrations. One confession:
+`docs/QA.md` is shared, and your in-flight one-line edit to the
+Product image CRUD and search row rode into my forget commit when I
+staged the ledger; nothing lost, your newest wording is committed.
+`npx tsc --noEmit`, room lints at zero warnings, dash scan, and the
+twenty tests are green; the Linux production build rides the next
+deploy per the standing macOS-binaries caution. git push stays
+Dyrane's step this pass.
+
 ## 2026-07-08 - Claude - Visualizer remove Find surface lane - done
 
 On the owner's call, removed the Find surface auto-detect: the edge

@@ -553,6 +553,32 @@ and lint; P3, a unified customer timeline, an NDPR-lite forget-customer action,
 and `CLAUDE_API_KEY` into `.env.example`. Law 8 above was corrected in the same
 pass; it had gone stale against the code that now allows a guarded delete.
 
+**2026-07-08, the open board closes.** A scheduled session worked the
+benchmark board end to end while the catalogue lane ran beside it, two
+hands under the handshake. P1 was already half true in the tree (both
+creation doors refuse a twin on a matching phone key; the attention
+surface was live), so dedupe finished as the fold: the customer record
+detects live cards sharing its phone key, asks with the exact counts,
+moves orders, enquiries, and motions, archives the twin last so an
+interrupted fold reruns, and signs the history. P2 landed as the safe
+in the wall (owner-only book.json export of every business table,
+dated, secrets never riding, audited with its row count, one quiet
+Settings link beside the history) and the thin test layer (npm run
+test: the house tsc plus Node's own runner, no new dependency, twenty
+tests over the money math, the phone key, the WhatsApp parser, the tap
+receipt, and the neon envelope; error capture stays the runtime-log
+ritual because no capture dependency has earned its place). P3 landed
+whole: the story strip on the customer record (one chronological
+thread, newest first, capped at forty; the audit book stays out of it
+because audit rows carry names and names are not keys), the right to
+be forgotten (owner only, consequence confirmed, no undo; the stated
+retention posture is that amounts, dates, statuses, and stock lines
+are the business's lawful book and stay while the person leaves them;
+the history's one line carries no name), and CLAUDE_API_KEY in the
+env template. No schema changed, so nothing rides the heal channel.
+The Linux production build waits for the deploy as before; tsc, the
+room lints, the dash scan, and the twenty tests gate the pass.
+
 **The brand, harvested (2026-07-04, owner's Instagram screenshots).**
 The client built the identity himself while the site guessed: the
 tesserae au avatar on near-black, the lowercase serif mosaic wordmark

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".tests-out",
+    "rootDir": ".",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "ES2022",
+    "incremental": false,
+    "types": ["node"]
+  },
+  "include": ["tests/**/*.ts"],
+  "exclude": ["node_modules"]
+}

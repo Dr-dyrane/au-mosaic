@@ -171,3 +171,6 @@ public/media/*
 
 # rendered paper (scripts/invoice.py)
 invoices/
+
+# Compiled test output, never shipped
+.tests-out/

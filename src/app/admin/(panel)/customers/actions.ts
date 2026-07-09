@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq, isNull, sql } from "drizzle-orm";
+import { eq, inArray, isNull, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { hasSession } from "@/lib/admin-auth";
+import { hasSession, ownerOnly } from "@/lib/admin-auth";
 import { logAction } from "@/lib/audit";
 import { phone234 } from "@/lib/backoffice";
 import {
@@ -75,6 +75,151 @@ export async function createCustomer(_prev: SaveState, form: FormData): Promise<
 
   /* redirect throws on purpose, so it lives outside the try. */
   redirect(`/admin/customers/${id}`);
+}
+
+/* Two cards, one number: history splits and a debt can hide in the
+   seam. Folding moves every order, enquiry, and sales motion onto the
+   card he keeps, then archives the twin. Nothing is deleted; the twin
+   rests in the archive and the history signs the move. The gate is
+   the phone key itself, so only true twins fold. The writes run in a
+   safe order: records first, archive last, and a fold that stops
+   midway simply runs again. */
+export async function foldCustomer(_prev: SaveState, form: FormData): Promise<SaveState> {
+  if (!(await hasSession())) return { ok: false, message: "Signed out. Sign in again." };
+
+  const keepId = text(form, "keepId");
+  const foldId = text(form, "foldId");
+  if (!UUID.test(keepId) || !UUID.test(foldId) || keepId === foldId) {
+    return { ok: false, message: "Choose the two cards first." };
+  }
+
+  let keptName = "";
+  let foldedName = "";
+  let story = "";
+  try {
+    const db = getDb();
+    const cards = await db
+      .select({
+        id: schema.customers.id,
+        name: schema.customers.name,
+        phone: schema.customers.phone,
+        archivedAt: schema.customers.archivedAt,
+      })
+      .from(schema.customers)
+      .where(inArray(schema.customers.id, [keepId, foldId]));
+    const keep = cards.find((c) => c.id === keepId);
+    const fold = cards.find((c) => c.id === foldId);
+    if (!keep || !fold) return { ok: false, message: "That person is not in the book." };
+    if (keep.archivedAt || fold.archivedAt) {
+      return { ok: false, message: "An archived card does not fold. Restore it first." };
+    }
+    if (!keep.phone || !fold.phone || phone234(keep.phone) !== phone234(fold.phone)) {
+      return { ok: false, message: "Those two cards do not share a number." };
+    }
+
+    const movedOrders = await db
+      .update(schema.orders)
+      .set({ customerId: keepId })
+      .where(eq(schema.orders.customerId, foldId))
+      .returning({ id: schema.orders.id });
+    const movedEnquiries = await db
+      .update(schema.enquiries)
+      .set({ customerId: keepId })
+      .where(eq(schema.enquiries.customerId, foldId))
+      .returning({ id: schema.enquiries.id });
+    const movedMotions = await db
+      .update(schema.salesMotions)
+      .set({ customerId: keepId })
+      .where(eq(schema.salesMotions.customerId, foldId))
+      .returning({ id: schema.salesMotions.id });
+    await db
+      .update(schema.customers)
+      .set({ archivedAt: sql`now()` })
+      .where(eq(schema.customers.id, foldId));
+
+    const part = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+    story = [
+      part(movedOrders.length, "order", "orders"),
+      part(movedEnquiries.length, "enquiry", "enquiries"),
+      part(movedMotions.length, "motion", "motions"),
+    ].join(", ") + " moved";
+    keptName = keep.name;
+    foldedName = fold.name;
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+
+  await logAction("folded a duplicate customer", keptName, `${foldedName} folded in: ${story}`);
+  revalidatePath("/admin/customers");
+  revalidatePath(`/admin/customers/${keepId}`);
+  revalidatePath(`/admin/customers/${foldId}`);
+  revalidatePath("/admin/debts");
+  revalidatePath("/admin");
+  return { ok: true, message: `Folded. ${foldedName}'s records now live on this card.` };
+}
+
+/* The right to be forgotten, NDPR-lite. The money history is the
+   business's lawful book and stays; the person leaves it. One owner
+   action clears their name, number, and words everywhere they live:
+   the card, their enquiry messages and session ids, their delivery
+   addresses and notes, their motion notes, their order notes. The
+   card archives as Forgotten. The audit book stays append-only by
+   law and gains one unnamed line for this act. The card clears last,
+   so a forget that stops midway simply runs again. */
+export async function forgetCustomer(_prev: SaveState, form: FormData): Promise<SaveState> {
+  const refusal = await ownerOnly();
+  if (refusal) return refusal;
+
+  const id = text(form, "id");
+  if (!UUID.test(id)) return { ok: false, message: "Missing customer." };
+
+  try {
+    const db = getDb();
+    const [card] = await db
+      .select({ id: schema.customers.id, name: schema.customers.name })
+      .from(schema.customers)
+      .where(eq(schema.customers.id, id));
+    if (!card) return { ok: false, message: "That person is not in the book." };
+
+    const theirOrders = await db
+      .select({ id: schema.orders.id })
+      .from(schema.orders)
+      .where(eq(schema.orders.customerId, id));
+    const orderIds = theirOrders.map((o) => o.id);
+
+    await db
+      .update(schema.enquiries)
+      .set({ message: "", sessionId: null })
+      .where(eq(schema.enquiries.customerId, id));
+    if (orderIds.length > 0) {
+      await db
+        .update(schema.deliveries)
+        .set({ address: "", note: "" })
+        .where(inArray(schema.deliveries.orderId, orderIds));
+      await db
+        .update(schema.orders)
+        .set({ note: "" })
+        .where(inArray(schema.orders.id, orderIds));
+    }
+    await db
+      .update(schema.salesMotions)
+      .set({ note: "" })
+      .where(eq(schema.salesMotions.customerId, id));
+    await db
+      .update(schema.customers)
+      .set({ name: "Forgotten", phone: "", area: "", note: "", archivedAt: sql`now()` })
+      .where(eq(schema.customers.id, id));
+  } catch {
+    return { ok: false, message: "The database did not answer. Try again." };
+  }
+
+  /* The one line the history keeps carries no name, on purpose. */
+  await logAction("forgot a customer", "", "their card, words, and addresses were cleared; the money history stands");
+  revalidatePath("/admin/customers");
+  revalidatePath(`/admin/customers/${id}`);
+  revalidatePath("/admin/debts");
+  revalidatePath("/admin");
+  return { ok: true, message: "Forgotten. The money history stands, without them in it." };
 }
 
 export async function saveCustomer(_prev: SaveState, form: FormData): Promise<SaveState> {
