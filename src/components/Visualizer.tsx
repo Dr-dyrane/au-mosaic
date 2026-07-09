@@ -36,6 +36,29 @@ import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
 import { useCamera } from "./visualizer/hooks/useCamera";
 
+/* A saved look. Everything the stage needs to reproduce a view, the AI
+   mask included, so a segment we paid for is never lost to the next tap.
+   Snapshots are kept as a short stack the visitor steps back and forth
+   through. */
+type VizSnapshot = {
+  note: string;
+  layers: SurfaceLayer[];
+  activeLayerId: string;
+  surface: SurfaceId;
+  quad: Pt[];
+  pieceSlug: string;
+  tileSize: number;
+  blend: number;
+  prepMode: PrepMode;
+  groutLight: boolean;
+  customColors: string[] | null;
+  hasFittedSurface: boolean;
+  waterOn: boolean;
+  samMask: HTMLImageElement | null;
+};
+
+const MAX_SNAPSHOTS = 12;
+
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
     if (pieces.some((p) => p.slug === initialPiece)) return initialPiece as string;
@@ -73,6 +96,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
   const [hasFittedSurface, setHasFittedSurface] = useState(false);
+  const [history, setHistory] = useState<{ snaps: VizSnapshot[]; i: number }>({ snaps: [], i: -1 });
+  const historySeed = useRef<HTMLImageElement | null>(null);
   const [layers, setLayers] = useState<SurfaceLayer[]>(() => [
     {
       id: FIRST_LAYER_ID,
@@ -129,6 +154,78 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       layer.id === activeLayerId ? { ...layer, ...next, label: LAYER_LABELS[surface] } : layer
     ));
   }, [activeLayerId, activeLayerSnapshot, surface]);
+
+  /* Save the whole editable view as one snapshot: current values, unless
+     the caller hands fresher ones (the AI find passes its mask and fit
+     straight in, before React state has caught up). */
+  const buildSnapshot = useCallback((note: string, over: Partial<VizSnapshot> = {}): VizSnapshot => ({
+    note,
+    layers: (over.layers ?? layers).map((l) => ({ ...l, quad: l.quad.map((p) => ({ ...p })) })),
+    activeLayerId: over.activeLayerId ?? activeLayerId,
+    surface: over.surface ?? surface,
+    quad: (over.quad ?? quad).map((p) => ({ ...p })),
+    pieceSlug: over.pieceSlug ?? pieceSlug,
+    tileSize: over.tileSize ?? tileSize,
+    blend: over.blend ?? blend,
+    prepMode: over.prepMode ?? prepMode,
+    groutLight: over.groutLight ?? groutLight,
+    customColors: over.customColors !== undefined ? over.customColors : customColors,
+    hasFittedSurface: over.hasFittedSurface ?? hasFittedSurface,
+    waterOn: over.waterOn ?? waterOn,
+    samMask: over.samMask !== undefined ? over.samMask : samMask,
+  }), [layers, activeLayerId, surface, quad, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, waterOn, samMask]);
+
+  /* Append a checkpoint, dropping anything ahead of the cursor (a new
+     move after stepping back forks a fresh line) and holding the stack to
+     a sane length. */
+  const pushSnapshot = useCallback((note: string, over: Partial<VizSnapshot> = {}) => {
+    const snap = buildSnapshot(note, over);
+    setHistory((h) => {
+      const base = h.snaps.slice(0, h.i + 1);
+      const next = [...base, snap].slice(-MAX_SNAPSHOTS);
+      return { snaps: next, i: next.length - 1 };
+    });
+  }, [buildSnapshot]);
+
+  /* Put a saved look back on the stage, mask and all. */
+  const restoreSnapshot = useCallback((snap: VizSnapshot) => {
+    setLayers(snap.layers.map((l) => ({ ...l })));
+    setActiveLayerId(snap.activeLayerId);
+    setSurface(snap.surface);
+    setQuad(snap.quad.map((p) => ({ ...p })));
+    setPieceSlug(snap.pieceSlug);
+    setTileSize(snap.tileSize);
+    setBlend(snap.blend);
+    setPrepMode(snap.prepMode);
+    setGroutLight(snap.groutLight);
+    setCustomColors(snap.customColors);
+    setHasFittedSurface(snap.hasFittedSurface);
+    setWaterOn(snap.waterOn);
+    setSamMask(snap.samMask);
+  }, []);
+
+  const stepHistory = useCallback((dir: -1 | 1) => {
+    const target = history.i + dir;
+    if (target < 0 || target >= history.snaps.length) return;
+    restoreSnapshot(history.snaps[target]);
+    setHistory((h) => ({ ...h, i: target }));
+    setSnapMessage(`Snapshot ${target + 1} of ${history.snaps.length}. ${history.snaps[target].note}.`);
+    buzz(4);
+  }, [history, restoreSnapshot]);
+
+  const pinLook = useCallback(() => {
+    pushSnapshot("Pinned look");
+    setSnapMessage("Look pinned. Step back and forward any time.");
+    buzz(5);
+  }, [pushSnapshot]);
+
+  /* Each fresh photo opens a new history, seeded with its clean
+     placement, so Back always returns to the untouched surface. */
+  useEffect(() => {
+    if (!photo || historySeed.current === photo) return;
+    historySeed.current = photo;
+    setHistory({ snaps: [buildSnapshot("Start")], i: 0 });
+  }, [photo, buildSnapshot]);
 
   const selectLayer = useCallback((layer: SurfaceLayer) => {
     setLayers(withActiveLayer);
@@ -311,6 +408,18 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setTileSize(nextLayer.tileSize);
     setPrepMode("primer");
     setHasFittedSurface(true);
+    pushSnapshot(`Added ${nextLayer.label}`, {
+      layers: committedLayers.concat(nextLayer),
+      activeLayerId: id,
+      surface: nextSurface,
+      quad: nextLayer.quad,
+      pieceSlug: nextPieceSlug,
+      tileSize: nextLayer.tileSize,
+      prepMode: "primer",
+      customColors: null,
+      samMask: null,
+      hasFittedSurface: true,
+    });
     setSnapMessage(`Added ${nextLayer.label}. Drag its corners to place it.`);
     buzz(5);
     track("viz_layer_add", { surface: nextSurface });
@@ -336,6 +445,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setCustomColors(nextActive.customColors);
     setSamMask(null);
     setHasFittedSurface(nextActive.accepted);
+    pushSnapshot(`Removed ${removedLabel}`, {
+      layers: remaining,
+      activeLayerId: nextActive.id,
+      surface: nextActive.surface,
+      quad: nextActive.quad,
+      pieceSlug: nextActive.pieceSlug,
+      tileSize: nextActive.tileSize,
+      blend: nextActive.blend,
+      prepMode: nextActive.prepMode,
+      groutLight: nextActive.groutLight,
+      customColors: nextActive.customColors,
+      samMask: null,
+      hasFittedSurface: nextActive.accepted,
+    });
     setSnapMessage(`Removed ${removedLabel}. ${nextActive.label} selected.`);
     buzz(4);
     track("viz_layer_remove", { surface: nextActive.surface });
@@ -610,6 +733,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         img.onload = () => {
           setSamMask(img);
           setHasFittedSurface(true);
+          let fittedQuad = quad;
           /* Fit the four corners to the shape's own extreme corners, not
              its bounding box. A floor comes back as a receding trapezoid,
              so the tiles take its perspective on their own and slant into
@@ -645,12 +769,15 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                   y: clamp(p.y / mc.height, 0.02, 0.98),
                 });
                 const cornerQuad = [norm(tl), norm(tr), norm(br), norm(bl)];
-                if (isValidQuad(cornerQuad)) setQuad(cornerQuad);
+                if (isValidQuad(cornerQuad)) { fittedQuad = cornerQuad; setQuad(cornerQuad); }
               }
             }
           } catch {
             /* leave the current corners */
           }
+          /* Save the AI result the moment it lands, so a re-find, a clear,
+             or a fresh tap can never lose the segment we paid for. */
+          pushSnapshot("AI find", { samMask: img, quad: fittedQuad, hasFittedSurface: true });
           setSnapMessage("Surface found and angled. Nudge a corner to refine.");
           buzz(8);
         };
@@ -1006,6 +1133,36 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     {samMask && (
                       <button type="button" onClick={clearSam} className="link-hair text-dusk">
                         Clear auto-find
+                      </button>
+                    )}
+                    {history.snaps.length > 1 && (
+                      <span className="inline-flex items-center gap-3" role="group" aria-label="Snapshot history">
+                        <button
+                          type="button"
+                          onClick={() => stepHistory(-1)}
+                          disabled={history.i <= 0}
+                          className="link-hair text-dusk disabled:opacity-40"
+                          aria-label="Previous snapshot"
+                        >
+                          Back
+                        </button>
+                        <span className="text-[12px] tabular-nums text-mist" aria-live="polite">
+                          {history.i + 1} / {history.snaps.length}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => stepHistory(1)}
+                          disabled={history.i >= history.snaps.length - 1}
+                          className="link-hair text-dusk disabled:opacity-40"
+                          aria-label="Next snapshot"
+                        >
+                          Forward
+                        </button>
+                      </span>
+                    )}
+                    {hasFittedSurface && (
+                      <button type="button" onClick={pinLook} className="link-hair text-dusk">
+                        Pin this look
                       </button>
                     )}
                     <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">
