@@ -577,7 +577,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       return;
     }
     setSamBusy(true);
-    setSnapMessage("Finding the surface...");
     buzz(4);
     try {
       const ow = orig.width;
@@ -898,6 +897,23 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           {previewMode ? "Adjust" : "Preview"}
         </button>
       )}
+      {samBusy && (
+        <div
+          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-5 bg-sand/45 backdrop-blur-[6px]"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <span className="relative flex h-12 w-12 items-center justify-center" aria-hidden>
+            <span className="absolute h-12 w-12 animate-ping rounded-full bg-gold/25" />
+            <span className="h-11 w-11 animate-spin rounded-full border-2 border-gold/25 border-t-gold" />
+            <span className="absolute h-2 w-2 rounded-full bg-gold" />
+          </span>
+          <span className="chip-glass text-[11px] font-semibold uppercase tracking-[0.22em] text-ink">
+            Reading the surface
+          </span>
+        </div>
+      )}
     </div>
   );
 
@@ -981,9 +997,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                       <button type="button" onClick={armSam} className="link-hair text-dusk">
                         {samBeta ? "Tap the wall now" : "Auto-find the wall (beta)"}
                       </button>
-                    )}
-                    {samBusy && (
-                      <span className="text-[12px] uppercase tracking-[0.18em] text-mist">Finding the surface...</span>
                     )}
                     {samMask && (
                       <button type="button" onClick={clearSam} className="link-hair text-dusk">
