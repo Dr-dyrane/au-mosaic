@@ -1108,64 +1108,70 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               >
                 <div className="min-w-0">
                   {stage}
-                  <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
+                  <p className="mt-3 text-[13px] leading-relaxed text-mist">
                     Drag the corners onto your surface. Press and hold to compare.
                   </p>
                   <div className="mt-4">
                     <LayerChips layers={layers} activeLayerId={activeLayerId} surface={surface} onSelect={selectLayerChip} />
                   </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-6">
-                    {hasFittedSurface && (
-                      <button type="button" onClick={addSurfaceLayer} className="link-hair text-dusk">
-                        Add another surface
-                      </button>
-                    )}
-                    {layers.length > 1 && (
-                      <button type="button" onClick={removeSurfaceLayer} className="link-hair text-dusk">
-                        Remove this surface
-                      </button>
-                    )}
-                    {!samMask && !samBusy && (
-                      <button type="button" onClick={armSam} className="link-hair text-dusk">
-                        {samBeta ? "Tap the wall now" : "Auto-find the wall (beta)"}
-                      </button>
-                    )}
-                    {samMask && (
-                      <button type="button" onClick={clearSam} className="link-hair text-dusk">
-                        Clear auto-find
-                      </button>
-                    )}
-                    {history.snaps.length > 1 && (
-                      <span className="inline-flex items-center gap-3" role="group" aria-label="Snapshot history">
-                        <button
-                          type="button"
-                          onClick={() => stepHistory(-1)}
-                          disabled={history.i <= 0}
-                          className="link-hair text-dusk disabled:opacity-40"
-                          aria-label="Previous snapshot"
-                        >
-                          Back
+                  <div className="mt-4 flex flex-col gap-3">
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                      {!samMask && !samBusy && (
+                        <button type="button" onClick={armSam} className="link-hair font-semibold text-ink">
+                          {samBeta ? "Tap the wall now" : "Auto-find the surface"}
                         </button>
-                        <span className="text-[12px] tabular-nums text-mist" aria-live="polite">
-                          {history.i + 1} / {history.snaps.length}
+                      )}
+                      {samMask && (
+                        <button type="button" onClick={clearSam} className="link-hair text-dusk">
+                          Clear auto-find
+                        </button>
+                      )}
+                      {hasFittedSurface && (
+                        <button type="button" onClick={addSurfaceLayer} className="link-hair text-dusk">
+                          Add surface
+                        </button>
+                      )}
+                      {layers.length > 1 && (
+                        <button type="button" onClick={removeSurfaceLayer} className="link-hair text-dusk">
+                          Remove
+                        </button>
+                      )}
+                      {(hasFittedSurface || history.snaps.length > 1) && (
+                        <span className="flex flex-wrap items-center gap-x-6 gap-y-3 sm:ml-auto">
+                          {hasFittedSurface && (
+                            <button type="button" onClick={pinLook} className="link-hair text-dusk">
+                              Pin this look
+                            </button>
+                          )}
+                          {history.snaps.length > 1 && (
+                            <span className="inline-flex items-center gap-3" role="group" aria-label="Snapshot history">
+                              <button
+                                type="button"
+                                onClick={() => stepHistory(-1)}
+                                disabled={history.i <= 0}
+                                className="link-hair text-dusk disabled:opacity-40"
+                                aria-label="Previous snapshot"
+                              >
+                                Back
+                              </button>
+                              <span className="text-[12px] tabular-nums text-mist" aria-live="polite">
+                                {history.i + 1} / {history.snaps.length}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => stepHistory(1)}
+                                disabled={history.i >= history.snaps.length - 1}
+                                className="link-hair text-dusk disabled:opacity-40"
+                                aria-label="Next snapshot"
+                              >
+                                Forward
+                              </button>
+                            </span>
+                          )}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => stepHistory(1)}
-                          disabled={history.i >= history.snaps.length - 1}
-                          className="link-hair text-dusk disabled:opacity-40"
-                          aria-label="Next snapshot"
-                        >
-                          Forward
-                        </button>
-                      </span>
-                    )}
-                    {hasFittedSurface && (
-                      <button type="button" onClick={pinLook} className="link-hair text-dusk">
-                        Pin this look
-                      </button>
-                    )}
-                    <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">
+                      )}
+                    </div>
+                    <p className="text-[12px] leading-relaxed text-mist" aria-live="polite">
                       {snapMessage ?? "The stones stay editable."}
                     </p>
                   </div>
