@@ -15,7 +15,6 @@ interface CameraArgs {
     from: LoadSource,
     nextQuad?: Pt[],
     nextSurface?: SurfaceId,
-    acceptedFit?: boolean,
     nextPieceSlug?: string
   ) => void;
 }

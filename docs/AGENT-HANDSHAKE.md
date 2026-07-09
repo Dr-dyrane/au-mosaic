@@ -16,6 +16,24 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - Claude - Visualizer remove Find surface lane - done
+
+On the owner's call, removed the Find surface auto-detect: the edge
+heuristic guessed wrong often enough to be worse than no guess. The
+mosaic now lands on the surface's default frame when a photo or sample
+loads, and the four brass corners drag it into place. Removed the Find
+surface and Use detected fit buttons, the auto-snap on upload and camera,
+the pending-snap state, and the detector calls in loadImage and
+fitSurface; deleted `src/components/visualizer/detect.ts` and its import;
+simplified `loadImage` (no acceptedFit) with the matching camera type in
+`src/components/visualizer/hooks/useCamera.ts`. Copy now reads "Drag the
+four corners onto your surface." My files: `src/components/Visualizer.tsx`,
+`src/components/visualizer/hooks/useCamera.ts`,
+`src/components/visualizer/detect.ts` (removed), and this handshake.
+`npx tsc --noEmit`, `npx eslint` at zero warnings, and the dash and arrow
+scan are clean. Corner-drag, layers, colourway, prep, and download are
+untouched.
+
 ## 2026-07-08 - Claude - Visualizer strip-back lane - done
 
 On the owner's call, pulled the studio hand tools (stages 1 and 2a) off

@@ -9,7 +9,7 @@ import { VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { wa } from "@/lib/wa";
-import type { Pt, SurfaceId, LoadSource, PrepMode, PendingSnap, SurfaceLayer } from "./visualizer/types";
+import type { Pt, SurfaceId, LoadSource, PrepMode, SurfaceLayer } from "./visualizer/types";
 import { clamp, isValidQuad, setCorner } from "./visualizer/geometry";
 import {
   DEFAULT_QUAD,
@@ -23,8 +23,7 @@ import {
   NEXT_SURFACE,
 } from "./visualizer/constants";
 import { drawSource, drawSurfaceLayer } from "./visualizer/draw";
-import { detectSurfaceQuad } from "./visualizer/detect";
-import { buzz, pieceSlugForSurface, suggestionText, shouldKeepCurrentFit, readStore } from "./visualizer/helpers";
+import { buzz, pieceSlugForSurface, suggestionText, readStore } from "./visualizer/helpers";
 import PaletteEditor from "./visualizer/parts/PaletteEditor";
 import PieceOptions from "./visualizer/parts/PieceOptions";
 import SurfaceOptions from "./visualizer/parts/SurfaceOptions";
@@ -68,7 +67,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
-  const [pendingSnap, setPendingSnap] = useState<PendingSnap | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
   const [hasFittedSurface, setHasFittedSurface] = useState(false);
   const [layers, setLayers] = useState<SurfaceLayer[]>(() => [
@@ -140,7 +138,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setGroutLight(layer.groutLight);
     setCustomColors(layer.customColors);
     setHasFittedSurface(layer.accepted);
-    setPendingSnap(null);
     setSnapMessage(`${layer.label} selected.`);
     buzz(3);
   }, [withActiveLayer]);
@@ -150,7 +147,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     from: LoadSource,
     nextQuad?: Pt[],
     nextSurface = surface,
-    acceptedFit = false,
     nextPieceSlug?: string
   ) => {
     const ticket = loadSeq.current + 1;
@@ -162,7 +158,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         revokeObjectUrl(src);
         return;
       }
-      const shouldSnap = !nextQuad && (from === "upload" || from === "camera");
       const preferredSlug = nextPieceSlug && pieces.some((item) => item.slug === nextPieceSlug)
         ? nextPieceSlug
         : pieceSlugForSurface(nextSurface, pieces, pieceSlug);
@@ -172,26 +167,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       const targetTileSize = SURFACES[targetSurface].tileSize;
       const targetPiece = pieces.find((item) => item.slug === targetPieceSlug) ?? piece;
       const suggestion = suggestionText(targetSurface, targetPrep, targetPiece.name);
-      const snapped = shouldSnap ? detectSurfaceQuad(img, targetSurface) : null;
-      setHasFittedSurface(snapped ? true : acceptedFit);
-      setPendingSnap(null);
+      /* No auto-detect: the mosaic lands on the surface's default frame
+         and the four corners drag it onto the wall or floor. */
+      setHasFittedSurface(true);
       setSurface(targetSurface);
       setTileSize(targetTileSize);
       setPieceSlug(targetPieceSlug);
       setCustomColors(null);
       setPrepMode(targetPrep);
-      if (snapped) {
-        setQuad(snapped.quad);
-        setSnapMessage(suggestion);
-        track("viz_autosnap", { source: from, surface: targetSurface, confidence: Math.round(snapped.confidence * 100) });
-      } else if (nextQuad) {
-        setQuad(nextQuad);
-        setSnapMessage(suggestion);
-      } else if (shouldSnap) {
-        setQuad(SURFACES[targetSurface].quad);
-        setSnapMessage(suggestion);
-        track("viz_autosnap", { source: from, surface: targetSurface, status: "fallback" });
-      }
+      setQuad(nextQuad ?? SURFACES[targetSurface].quad);
+      setSnapMessage(suggestion);
       setPhoto(img);
       if (from !== "default") track("viz_photo", { source: from });
       revokeObjectUrl(src);
@@ -216,7 +201,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   useEffect(() => {
     if (restored.current) return;
     restored.current = true;
-    loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD, "pool", true);
+    loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD, "pool");
   }, [loadImage]);
 
   useEffect(() => () => {
@@ -235,8 +220,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setCustomColors(null);
     setPrepMode("primer");
     setQuad(SURFACES[id].quad);
-    setPendingSnap(null);
-    setHasFittedSurface(false);
+    setHasFittedSurface(true);
     setSnapMessage(suggestionText(id, "primer", nextPiece.name));
     buzz(4);
     track("viz_surface_choice", { surface: id });
@@ -248,47 +232,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     loadImage(objectUrl(f), "upload", undefined, surface);
   };
 
-  const findSurface = (id = surface) => {
-    const found = photo ? detectSurfaceQuad(photo, id) : null;
-    if (!found) {
-      setSnapMessage("No clean edge yet. Drag corners to refine.");
-      setPendingSnap(null);
-      track("viz_autosnap", { surface: id, status: "miss" });
-      buzz(2);
-      return;
-    }
-    if (shouldKeepCurrentFit(found, quad, hasFittedSurface)) {
-      setSurface(id);
-      setTileSize(SURFACES[id].tileSize);
-      setPendingSnap({ ...found, surface: id });
-      setSnapMessage("Found another edge. Current fit kept.");
-      track("viz_autosnap", { surface: id, confidence: Math.round(found.confidence * 100), status: "review" });
-      buzz(4);
-      return;
-    }
-    setSurface(id);
-    setTileSize(SURFACES[id].tileSize);
-    setQuad(found.quad);
-    setPendingSnap(null);
-    setHasFittedSurface(true);
-    setSnapMessage(found.confidence > 1.35 ? "Surface found. Drag corners to refine." : "Best edge found. Drag corners to refine.");
-    track("viz_autosnap", { surface: id, confidence: Math.round(found.confidence * 100) });
-    buzz(8);
-  };
-
-  const useDetectedFit = () => {
-    if (!pendingSnap) return;
-    const found = pendingSnap;
-    setSurface(found.surface);
-    setTileSize(SURFACES[found.surface].tileSize);
-    setQuad(found.quad);
-    setPendingSnap(null);
-    setHasFittedSurface(true);
-    setSnapMessage("Detected fit applied. Drag corners to refine.");
-    track("viz_autosnap", { surface: found.surface, confidence: Math.round(found.confidence * 100), status: "accepted" });
-    buzz(8);
-  };
-
   const fitSurface = (id: SurfaceId) => {
     const next = SURFACES[id];
     const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
@@ -298,20 +241,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
     setPrepMode("primer");
-    const found = photo ? detectSurfaceQuad(photo, id) : null;
-    if (found) {
-      setQuad(found.quad);
-      setSnapMessage(suggestionText(id, "primer", nextPiece.name));
-      setHasFittedSurface(true);
-      setPendingSnap(null);
-    } else {
-      setQuad(next.quad);
-      setSnapMessage(suggestionText(id, "primer", nextPiece.name));
-      setHasFittedSurface(false);
-      setPendingSnap(null);
-    }
+    setQuad(next.quad);
+    setHasFittedSurface(true);
+    setSnapMessage(suggestionText(id, "primer", nextPiece.name));
     buzz(4);
-    track("viz_surface", { surface: id, autosnap: !!found });
+    track("viz_surface", { surface: id });
   };
 
   const loadContext = (id: SurfaceId) => {
@@ -321,7 +255,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSurface(id);
     setTileSize(next.tileSize);
     if (pieces.some((p) => p.slug === context.piece)) setPieceSlug(context.piece);
-    loadImage(context.src, "sample", next.quad, id, true, context.piece);
+    loadImage(context.src, "sample", next.quad, id, context.piece);
     buzz(6);
     track("viz_context", { surface: id });
   };
@@ -330,7 +264,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const committedLayers = withActiveLayer(layers);
     if (!hasFittedSurface) {
       setLayers(committedLayers);
-      setSnapMessage(`Find ${LAYER_LABELS[surface]} first.`);
+      setSnapMessage(`Place ${LAYER_LABELS[surface]} first.`);
       buzz(2);
       return;
     }
@@ -357,7 +291,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       groutLight,
       customColors: null,
       visible: true,
-      accepted: false,
+      accepted: true,
     };
     setLayers(committedLayers.concat(nextLayer));
     setActiveLayerId(id);
@@ -367,9 +301,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setCustomColors(null);
     setTileSize(nextLayer.tileSize);
     setPrepMode("primer");
-    setHasFittedSurface(false);
-    setPendingSnap(null);
-    setSnapMessage(`Added ${nextLayer.label}. Find surface, then refine.`);
+    setHasFittedSurface(true);
+    setSnapMessage(`Added ${nextLayer.label}. Drag its corners to place it.`);
     buzz(5);
     track("viz_layer_add", { surface: nextSurface });
   };
@@ -491,7 +424,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     if (dragging.current !== null && dragPoint.current) {
       updateCorner(dragging.current, dragPoint.current);
       setHasFittedSurface(true);
-      setPendingSnap(null);
       setSnapMessage("Fit updated. Add another surface when ready.");
     }
     if (dragging.current !== null) buzz(4);
@@ -506,7 +438,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const next = { x: clamp(current.x + dx, 0.02, 0.98), y: clamp(current.y + dy, 0.02, 0.98) };
     updateCorner(index, next);
     setHasFittedSurface(true);
-    setPendingSnap(null);
     setSnapMessage("Fit updated. Add another surface when ready.");
     setLoupe(next);
     requestAnimationFrame(() => drawLoupe(next));
@@ -828,7 +759,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           <p className="eyebrow">Your space</p>
           <p className="font-serif mt-2 text-[20px]">Photo or camera.</p>
           <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-dusk">
-            We find the surface. You refine it.
+            Drag the four corners onto your surface.
           </p>
         </div>
         <div className="flex w-full min-w-0 flex-col gap-5 sm:w-auto sm:min-w-[420px]">
@@ -881,29 +812,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 <div className="min-w-0">
                   {stage}
                   <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
-                    Find surface, then drag corners to refine. Press and hold to compare.
+                    Drag the corners onto your surface. Press and hold to compare.
                   </p>
                   <div className="mt-4">
                     <LayerChips layers={layers} activeLayerId={activeLayerId} surface={surface} onSelect={selectLayerChip} />
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-6">
-                    <button type="button" onClick={() => findSurface()} className="link-hair text-dusk">
-                      Find surface
-                    </button>
-                    {pendingSnap && pendingSnap.surface === surface && (
-                      <button type="button" onClick={useDetectedFit} className="link-hair text-dusk">
-                        Use detected fit
-                      </button>
-                    )}
                     {hasFittedSurface && (
                       <button type="button" onClick={addSurfaceLayer} className="link-hair text-dusk">
                         Add another surface
                       </button>
-                    )}
-                    {!hasFittedSurface && layers.length > 1 && (
-                      <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-mist">
-                        Find {LAYER_LABELS[surface]} first
-                      </span>
                     )}
                     <p className="text-[12px] uppercase tracking-[0.18em] text-mist" aria-live="polite">
                       {snapMessage ?? "The stones stay editable."}
