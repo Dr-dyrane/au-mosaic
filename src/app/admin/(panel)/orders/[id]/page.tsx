@@ -185,6 +185,15 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           data-intent={action.intent}
         />
       ))}
+      {/* The record's vitals for the context rail: written fresh by
+          this render, so the rail stays true while the page scrolls. */}
+      <span hidden data-admin-context-fact data-label="Status" data-value={STATUS_LABEL[order.status]} />
+      <span
+        hidden
+        data-admin-context-fact
+        data-label={balance < 0 ? "Credit" : "Balance"}
+        data-value={naira(Math.abs(balance))}
+      />
       <Back href="/admin/orders" label="All orders" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/orders/${id}`} label={`${customer.name}'s order`} room="Orders" />

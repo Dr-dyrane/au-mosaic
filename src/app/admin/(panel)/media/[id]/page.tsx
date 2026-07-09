@@ -94,6 +94,13 @@ export default async function MediaAssetPage({ params }: { params: Promise<{ id:
 
   return (
     <main>
+      {/* The record's vitals for the context rail, in showroom words. */}
+      <span hidden data-admin-context-fact data-label="State" data-value={label(STATUS_LABELS, asset.status)} />
+      <span hidden data-admin-context-fact data-label="Use" data-value={label(ROLE_LABELS, asset.role)} />
+      <span hidden data-admin-context-fact data-label="Light" data-value={label(SUN_LABELS, asset.sun)} />
+      {connectedPiece && (
+        <span hidden data-admin-context-fact data-label="Piece" data-value={connectedPiece.name} />
+      )}
       <Back href="/admin/media" label="All photos" />
       <div className="mt-6 grid max-w-5xl gap-8 xl:grid-cols-[0.85fr_1fr]">
         <section>

@@ -16,6 +16,29 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Record context adapters lane - done
+
+Closed NEXT-STEPS build-next 3: record pages feed their own live facts
+into the context rail without duplicating the page. Mechanic mirrors
+the shipped `data-admin-context-action` markers: record pages render
+hidden `data-admin-context-fact` spans (label, value) and the rail
+collects them with the same observer pattern, swapping the room pulse
+for the record's vitals while a record is open; the phone disclosure
+reads the same truth. Order shows status and balance or credit;
+customer shows orders, owed, and open motions; piece shows shelf count,
+the window switch, and the warn line only when crossed; photo speaks
+state, use, light, and its piece in showroom words, and gains its own
+rail copy. Deliveries have no record page, so the adapter set is
+complete. My files: `src/components/AdminContext.tsx`, the four record
+pages under `src/app/admin/(panel)/`, `docs/QA.md`,
+`docs/NEXT-STEPS.md`, and this handshake. `npx tsc --noEmit`,
+`npx eslint src scripts drizzle.config.ts --max-warnings=0`,
+`git diff --check`, and the dash scan are clean; the Linux build rides
+the next deploy. Note: the dirty visualizer files found in the tree
+proved byte-identical to origin/main (the shipped snapshot-history
+work), so syncing main forward resolved them; nothing of another
+hand's was committed or discarded.
+
 ## 2026-07-08 - Claude - Visualizer remove Find surface lane - done
 
 On the owner's call, removed the Find surface auto-detect: the edge

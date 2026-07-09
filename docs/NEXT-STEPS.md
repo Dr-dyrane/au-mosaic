@@ -8,6 +8,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Gap | Resolution |
 |---|---|
+| Record context adapters | Order, customer, piece, and photo records now feed their own live facts into the context rail through hidden fact markers; the rail swaps its room pulse for the record's vitals while the record is open. Evidence in `docs/QA.md`, The records feed the rail. |
 | Visualizer autosnap | Find surface now analyzes the loaded photo in-browser, scores likely surface edges, proposes a quad for pools, walls, backsplashes, showers, and floors, then keeps the four draggable stones as the correction layer. Uploads and camera stills try it automatically; the user can rerun it any time. |
 | Action chrome verbs | The compact gold action stands down on Insights, Settings, and an empty Owed ledger instead of faking a Today or History that only navigates, or a Remind that reloads the page. Closes back-office action audit items C and D; the debts room keeps its real Remind oldest action whenever a balance is open. |
 | Root layout crash fallback | `src/app/global-error.tsx` now gives the whole app a maison fallback with Try again and WhatsApp. |
@@ -42,7 +43,6 @@ evidence to `docs/QA.md` and keep only the next decision here.
 |---|---|---|
 | 1 | Visualizer surface intelligence | Test segmentation on hard photos: curved pools, low-contrast walls, busy kitchens, and rooms with furniture crossing the target surface. Keep manual stones as the correction layer. |
 | 2 | Product experience | Bring individual piece pages closer to the best modern product experience: immersive media, practical proof, one enquiry path, and richer context without clutter. |
-| 3 | Record context adapters | Let order, customer, piece, media, and delivery records feed their own live facts into the context rail without duplicating the page. |
 
 ## Standing decisions
 

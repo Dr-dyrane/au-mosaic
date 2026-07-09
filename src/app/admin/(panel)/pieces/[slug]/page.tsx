@@ -26,8 +26,28 @@ export default async function PieceEditPage({ params }: { params: Promise<{ slug
     .from(schema.ranges)
     .orderBy(asc(schema.ranges.sort), asc(schema.ranges.name));
 
+  const quantity = stock?.quantitySheets ?? 0;
+  const warnAt = stock?.reorderAt ?? 0;
+
   return (
     <main>
+      {/* The record's vitals for the context rail: shelf count, the
+          window switch, and the warn line only when it needs his eye. */}
+      <span
+        hidden
+        data-admin-context-fact
+        data-label="In stock"
+        data-value={`${quantity} ${piece.unit}`}
+      />
+      <span
+        hidden
+        data-admin-context-fact
+        data-label="The window"
+        data-value={piece.published ? "On the site" : "Off the site"}
+      />
+      {warnAt > 0 && quantity <= warnAt && (
+        <span hidden data-admin-context-fact data-label="Warn me at" data-value={String(warnAt)} />
+      )}
       <Back href="/admin/pieces" label="All pieces" />
       <h1 className="font-serif text-display-section mt-6">{piece.name}</h1>
       <Touch href={`/admin/pieces/${piece.slug}`} label={piece.name} room="Stockroom" />

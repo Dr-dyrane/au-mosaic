@@ -206,6 +206,15 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
       actions: [],
     };
   }
+  if (/^\/admin\/media\/[^/]+/.test(pathname)) {
+    return {
+      ...ctx,
+      eyebrow: "Photo record",
+      title: "One photograph, one job.",
+      line: "Its use, light, and state live here. The window follows what is Live.",
+      actions: [],
+    };
+  }
   if (pathname === "/admin/share") {
     return {
       ...ctx,
@@ -292,6 +301,55 @@ function useAdminContextActions(pathname: string) {
   return actions;
 }
 
+/* Record pages feed the rail their own live facts through hidden
+   markers, the same mechanic as the context actions. The server wrote
+   the values fresh, so the rail never runs a second query and never
+   duplicates the page: it keeps the record's vitals in sight while the
+   long form scrolls. */
+function contextFactFromDom(el: HTMLElement): Metric | null {
+  const label = el.dataset.label;
+  const value = el.dataset.value;
+  if (!label || !value) return null;
+  return { label, value };
+}
+
+function adminContextFactsFromDom() {
+  const seen = new Set<string>();
+  return Array.from(document.querySelectorAll<HTMLElement>("[data-admin-context-fact]"))
+    .map(contextFactFromDom)
+    .filter((fact): fact is Metric => Boolean(fact))
+    .filter((fact) => {
+      if (seen.has(fact.label)) return false;
+      seen.add(fact.label);
+      return true;
+    });
+}
+
+function useAdminContextFacts(pathname: string) {
+  const [facts, setFacts] = useState<Metric[]>([]);
+
+  useEffect(() => {
+    const sync = () => setFacts(adminContextFactsFromDom());
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["data-admin-context-fact", "data-label", "data-value"],
+    });
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  return facts;
+}
+
+/* A page that speaks for itself outranks the room pulse. */
+function withRecordFacts(ctx: ContextModel, facts: Metric[]): ContextModel {
+  if (facts.length === 0) return ctx;
+  return { ...ctx, metrics: facts };
+}
+
 function ContextBody({
   ctx,
   compact = false,
@@ -351,7 +409,8 @@ function ContextBody({
 
 export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
   const pathname = usePathname();
-  const ctx = contextFor(pathname, pulse);
+  const facts = useAdminContextFacts(pathname);
+  const ctx = withRecordFacts(contextFor(pathname, pulse), facts);
   const pageAction = useAdminPageAction(pathname);
   const routeAction = adminRouteActionFor(pathname);
   const extraActions = useAdminContextActions(pathname);
@@ -375,7 +434,8 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
 
 export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const pathname = usePathname();
-  const ctx = contextFor(pathname, pulse);
+  const facts = useAdminContextFacts(pathname);
+  const ctx = withRecordFacts(contextFor(pathname, pulse), facts);
   const pageAction = useAdminPageAction(pathname);
   const routeAction = adminRouteActionFor(pathname);
   const extraActions = useAdminContextActions(pathname);

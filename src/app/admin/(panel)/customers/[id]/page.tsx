@@ -125,6 +125,20 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         data-label="Add motion"
         data-intent={ADMIN_ACTION_INTENTS.customerMotion}
       />
+      {/* The record's vitals for the context rail: the same sums this
+          page just computed, so the rail and the page cannot disagree. */}
+      <span hidden data-admin-context-fact data-label="Orders" data-value={String(orders.length)} />
+      {totalOwed > 0 && (
+        <span hidden data-admin-context-fact data-label="Owed" data-value={naira(totalOwed)} />
+      )}
+      {motions.some((motion) => motion.status === "open") && (
+        <span
+          hidden
+          data-admin-context-fact
+          data-label="Open motions"
+          data-value={String(motions.filter((motion) => motion.status === "open").length)}
+        />
+      )}
       <Back href="/admin/customers" label="All customers" />
       <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
       <Touch href={`/admin/customers/${id}`} label={customer.name} room="Customers" />
