@@ -16,6 +16,26 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Visualizer refine disclosure lane - open
+
+Owner-gated redesign of the public studio's refine controls to progressive
+disclosure: the panel rests as three summary rows (Surface, Colourway,
+Finish) and opens exactly one at a time, on every breakpoint. This is a
+deliberate, owner-approved reversal of the 2026-07-06 CODEX refinement
+controls lane (expose all controls on tablet and desktop). For the
+Apple-clean direction the owner asked for, DESIGN law 3 (progressive
+disclosure) and the squint test win; the phone's own Surface, Colourway,
+Finish accordion is the pattern, promoted to all sizes. The last accepted
+functionality is pinned on branch rollback/visualizer-pre-disclosure at
+95c967c; restore from there if the upgrade regresses. My files:
+src/components/visualizer/parts/RefinePanel.tsx (new) and
+src/components/Visualizer.tsx (the exposedRefinement and
+mobileRefineSnippets assemblies only; the camera Radix dialog is left for
+a later pass). The fidelity law, the four brass corner stones, snapshot
+history, and the Dry and Water toggle are all preserved. Gate is tsc,
+eslint, and the dash and arrow scan; object-push my files only with the
+origin guard.
+
 ## 2026-07-09 - Claude - Stranded board restored - done
 
 Found the closed benchmark board on no deployed line: the 07-08 reset
