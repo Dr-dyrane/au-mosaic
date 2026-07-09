@@ -16,6 +16,30 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - Claude - Visualizer studio stage 2a lane - done
+
+Shipped the first assisted-masking pass, still no model and no network: a
+magic-wand tap-to-select. New `src/components/visualizer/magicwand.ts`
+grows a colour-alike region out from a tap (floodSelect), traces its
+outer boundary (traceMaskOutline, Moore-neighbour), and simplifies it to
+a normalised polygon (maskToPolygon) that the stage-1 surface tools
+already consume. In `src/components/Visualizer.tsx` the paint tools now
+read a tap versus a drag: a tap runs the wand from the untouched photo
+pixels and sets the surface extent or adds a paint-out, a drag stays
+freeform. A strength slider tunes the colour tolerance, and empty or
+whole-photo grabs are refused with a nudge. This gives Nonso an accurate
+one-tap find-the-surface for plain walls, with the hand tools for the
+rest. My files: `docs/VISUALIZER-STUDIO.md`, this handshake,
+`src/components/visualizer/magicwand.ts`, and
+`src/components/Visualizer.tsx`. `npx tsc --noEmit` and `npx eslint` on
+the touched files at zero warnings are clean, the dash and arrow scan is
+clean, and a node check verified floodSelect, the Moore-neighbour
+outline, and the polygon on a rectangle, a concave L, and a two-colour
+split. Backward compatible: the wand only fires on a tap in paint mode;
+corners and the freeform draw are unchanged. A device pass on the tap
+gesture is owed. The learned SAM upgrade (stage 2b) waits for the real
+env, per the doc.
+
 ## 2026-07-08 - Claude - Visualizer studio stage 1 lane - done
 
 Opened the studio visualizer build (plan in `docs/VISUALIZER-STUDIO.md`,

@@ -24,6 +24,7 @@ import {
 } from "./visualizer/constants";
 import { drawSource, drawSurfaceLayer } from "./visualizer/draw";
 import { detectSurfaceQuad } from "./visualizer/detect";
+import { floodSelect, maskCoverage, maskToPolygon } from "./visualizer/magicwand";
 import { buzz, pieceSlugForSurface, suggestionText, shouldKeepCurrentFit, readStore } from "./visualizer/helpers";
 import PaletteEditor from "./visualizer/parts/PaletteEditor";
 import PieceOptions from "./visualizer/parts/PieceOptions";
@@ -78,6 +79,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [occlude, setOcclude] = useState<Pt[][]>([]);
   const [tool, setTool] = useState<"corners" | "surface" | "erase">("corners");
   const [trace, setTrace] = useState<Pt[] | null>(null);
+  const [tolerance, setTolerance] = useState(28);
   const [layers, setLayers] = useState<SurfaceLayer[]>(() => [
     {
       id: FIRST_LAYER_ID,
@@ -618,6 +620,58 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     });
   };
 
+  /* The wand: read the untouched photo colours and grow a region out
+     from the tap, then hand its outline to the surface or the paint-out.
+     No model, no network; the hand tools refine whatever it misses. */
+  const wandSelect = (point: Pt) => {
+    const orig = originalRef.current;
+    if (!orig) {
+      setSnapMessage("Load a photo first.");
+      return;
+    }
+    const octx = orig.getContext("2d");
+    if (!octx) return;
+    const w = orig.width;
+    const hh = orig.height;
+    let data: Uint8ClampedArray;
+    try {
+      data = octx.getImageData(0, 0, w, hh).data;
+    } catch {
+      setSnapMessage("Could not read the photo. Draw the area by hand.");
+      return;
+    }
+    const mask = floodSelect(data, w, hh, point.x * w, point.y * hh, tolerance);
+    const cov = maskCoverage(mask);
+    if (cov < 0.004) {
+      setSnapMessage("Nothing caught there. Raise the strength, or draw by hand.");
+      buzz(2);
+      return;
+    }
+    if (cov > 0.92) {
+      setSnapMessage("That caught the whole photo. Lower the strength, or draw by hand.");
+      buzz(2);
+      return;
+    }
+    const poly = maskToPolygon(mask, w, hh);
+    if (poly.length < 3) {
+      setSnapMessage("Could not trace that. Draw the area by hand.");
+      buzz(2);
+      return;
+    }
+    if (tool === "erase") {
+      setOcclude((prev) => [...prev, poly]);
+      setSnapMessage("Painted out. That stays in front of the mosaic.");
+      track("viz_wand", { tool: "erase", coverage: Math.round(cov * 100) });
+    } else {
+      setExtent(poly);
+      setHasFittedSurface(true);
+      setPendingSnap(null);
+      setSnapMessage("Surface found. Refine by hand, or paint out what is in front.");
+      track("viz_wand", { tool: "surface", coverage: Math.round(cov * 100) });
+    }
+    buzz(6);
+  };
+
   const paintFinish = () => {
     if (paintFrame.current !== null) {
       cancelAnimationFrame(paintFrame.current);
@@ -626,8 +680,25 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const pts = paintRef.current;
     paintRef.current = null;
     setTrace(null);
-    if (pts && pts.length >= 3) commitTrace(pts);
-    else if (pts) setSnapMessage("Draw around the area with your finger.");
+    if (!pts || pts.length === 0) return;
+    /* A tap, barely any travel, asks the wand to find the region. A real
+       drag draws the shape by hand. */
+    let minX = pts[0].x;
+    let maxX = pts[0].x;
+    let minY = pts[0].y;
+    let maxY = pts[0].y;
+    for (const p of pts) {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
+    }
+    if (maxX - minX < 0.03 && maxY - minY < 0.03) {
+      wandSelect(pts[0]);
+      return;
+    }
+    if (pts.length >= 3) commitTrace(pts);
+    else setSnapMessage("Draw around the area with your finger.");
   };
 
   const stagePointerDown = (e: React.PointerEvent) => {
@@ -666,8 +737,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const selectTool = (next: "corners" | "surface" | "erase") => {
     setTool(next);
     buzz(3);
-    if (next === "surface") setSnapMessage("Trace the surface with your finger.");
-    else if (next === "erase") setSnapMessage("Draw over what should stay in front.");
+    if (next === "surface") setSnapMessage("Tap the wall to find it, or drag to draw by hand.");
+    else if (next === "erase") setSnapMessage("Tap what is in front, or draw over it by hand.");
     else setSnapMessage("Drag the corners to set the perspective.");
   };
 
@@ -1063,7 +1134,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 <div className="min-w-0">
                   {stage}
                   <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
-                    Find the surface, drag corners for perspective, or paint the exact area. Press and hold to compare.
+                    Corners set perspective. In paint mode, tap to auto-find or drag to draw. Press and hold to compare.
                   </p>
                   <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Editing tool">
                     {([["corners", "Corners"], ["surface", "Paint surface"], ["erase", "Paint out"]] as const).map(([id, label]) => (
@@ -1079,6 +1150,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                         {label}
                       </button>
                     ))}
+                    {paintMode && (
+                      <label className="ml-1 flex items-center gap-2 text-[12px] text-dusk">
+                        <span className="uppercase tracking-[0.14em]">Strength</span>
+                        <input
+                          type="range"
+                          min={5}
+                          max={80}
+                          value={tolerance}
+                          onChange={(e) => setTolerance(Number(e.target.value))}
+                          aria-label="Auto-find strength"
+                          className="h-1 w-24 cursor-pointer accent-[#c2a15c]"
+                        />
+                      </label>
+                    )}
                     {(extent || occlude.length > 0) && (
                       <button type="button" onClick={clearShape} className="link-hair text-dusk text-[12px]">
                         Clear shape

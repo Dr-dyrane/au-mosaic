@@ -100,17 +100,35 @@ Code touched: `types.ts` (add `extent` and `occlude` to `SurfaceLayer`),
 in the orchestrator and a new brush part. `detect.ts` stays as an
 optional first guess.
 
-### Stage 2: assisted masking
+### Stage 2a: magic-wand tap-to-select (shipped, no model)
 
-Make it work on any photo without patience. Add a segmentation model
-(SAM family, MobileSAM class) so one tap proposes the surface, and a tap
-on the chair proposes the occlusion. The hand from stage 1 refines the
-proposal. This replaces the edge heuristic as the accurate find the
-surface.
+The first assisted pass needs no model at all. A tap grows a region of
+colour-alike pixels out from the point, a classic region grow on the
+untouched photo, traces its outline, and hands it to the surface or the
+paint-out. Tap the wall to find it, tap the chair to paint it out, then
+refine by hand. A strength slider widens or tightens the grab. It runs
+in the browser, offline, with no dependency and no download. It answers
+find the surface for plain walls and floors; textured or patterned walls
+are where the learned model earns its place.
 
-Acceptance: on a set of ten varied room photos, one tap plus light
-refinement gives a clean surface and foreground mask in under a few
-seconds.
+Shipped: `src/components/visualizer/magicwand.ts` (floodSelect,
+traceMaskOutline, maskToPolygon), wired into the paint tools as a tap
+versus a drag, verified by a node check of the pure functions on a
+rectangle, a concave L, and a two-colour split.
+
+### Stage 2b: learned segmentation (later, needs the real env)
+
+For any photo, including textured walls, add a small segmentation model
+(SAM family, MobileSAM class) via ONNX in the browser, so one tap
+proposes a pixel-precise surface or occlusion that the hand refines.
+This is a dependency plus a first-use model download, and it cannot be
+verified in the build sandbox (no browser, no model fetch), so it is
+built and tested on a device or a preview deploy, opt-in, always falling
+back to 2a and the hand tools.
+
+Acceptance: on ten varied room photos, one tap plus light refinement
+gives a clean surface and foreground mask in a few seconds, and the
+manual tools still work when the model is off or still loading.
 
 ### Stage 3: real geometry
 
