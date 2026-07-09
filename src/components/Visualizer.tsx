@@ -10,7 +10,7 @@ import type { Piece } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { wa } from "@/lib/wa";
 import type { Pt, SurfaceId, LoadSource, PrepMode, PendingSnap, SurfaceLayer } from "./visualizer/types";
-import { clamp, isValidQuad, setCorner, simplifyPath } from "./visualizer/geometry";
+import { clamp, isValidQuad, setCorner } from "./visualizer/geometry";
 import {
   DEFAULT_QUAD,
   SAMPLE_POOL_QUAD,
@@ -24,7 +24,6 @@ import {
 } from "./visualizer/constants";
 import { drawSource, drawSurfaceLayer } from "./visualizer/draw";
 import { detectSurfaceQuad } from "./visualizer/detect";
-import { floodSelect, maskCoverage, maskToPolygon } from "./visualizer/magicwand";
 import { buzz, pieceSlugForSurface, suggestionText, shouldKeepCurrentFit, readStore } from "./visualizer/helpers";
 import PaletteEditor from "./visualizer/parts/PaletteEditor";
 import PieceOptions from "./visualizer/parts/PieceOptions";
@@ -72,22 +71,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [pendingSnap, setPendingSnap] = useState<PendingSnap | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
   const [hasFittedSurface, setHasFittedSurface] = useState(false);
-  /* Stage 1 hand tools. Extent is the freeform surface, occlude the
-     shapes painted out in front. Tool is which one the finger is
-     drawing; trace is the line in progress while the finger moves. */
-  const [extent, setExtent] = useState<Pt[] | null>(null);
-  const [occlude, setOcclude] = useState<Pt[][]>([]);
-  const [tool, setTool] = useState<"corners" | "surface" | "erase">("corners");
-  const [trace, setTrace] = useState<Pt[] | null>(null);
-  const [tolerance, setTolerance] = useState(28);
   const [layers, setLayers] = useState<SurfaceLayer[]>(() => [
     {
       id: FIRST_LAYER_ID,
       label: LAYER_LABELS.pool,
       surface: "pool",
       quad: (readStore().quad as Pt[]) || DEFAULT_QUAD,
-      extent: null,
-      occlude: [],
       pieceSlug: startingPieceSlug(),
       tileSize: (readStore().tileSize as number) || 26,
       blend: typeof readStore().blend === "number" ? (readStore().blend as number) : 0.85,
@@ -107,8 +96,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const dragging = useRef<number | null>(null);
   const dragFrame = useRef<number | null>(null);
   const dragPoint = useRef<Pt | null>(null);
-  const paintRef = useRef<Pt[] | null>(null);
-  const paintFrame = useRef<number | null>(null);
   const loadSeq = useRef(0);
   const holdingRef = useRef(false);
   const restored = useRef(false);
@@ -124,8 +111,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     label: LAYER_LABELS[surface],
     surface,
     quad,
-    extent,
-    occlude,
     pieceSlug,
     tileSize,
     blend,
@@ -134,7 +119,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     customColors,
     visible: true,
     accepted: hasFittedSurface,
-  }), [activeLayerId, blend, customColors, extent, groutLight, hasFittedSurface, occlude, pieceSlug, prepMode, quad, surface, tileSize]);
+  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, surface, tileSize]);
 
   const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
     const next = activeLayerSnapshot();
@@ -148,9 +133,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setActiveLayerId(layer.id);
     setSurface(layer.surface);
     setQuad(layer.quad);
-    setExtent(layer.extent);
-    setOcclude(layer.occlude ?? []);
-    setTool("corners");
     setPieceSlug(layer.pieceSlug);
     setTileSize(layer.tileSize);
     setBlend(layer.blend);
@@ -197,9 +179,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       setTileSize(targetTileSize);
       setPieceSlug(targetPieceSlug);
       setCustomColors(null);
-      setExtent(null);
-      setOcclude([]);
-      setTool("corners");
       setPrepMode(targetPrep);
       if (snapped) {
         setQuad(snapped.quad);
@@ -242,7 +221,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   useEffect(() => () => {
     if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
-    if (paintFrame.current !== null) cancelAnimationFrame(paintFrame.current);
   }, []);
 
   usePersistedControls({ photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers, withActiveLayer });
@@ -257,9 +235,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setCustomColors(null);
     setPrepMode("primer");
     setQuad(SURFACES[id].quad);
-    setExtent(null);
-    setOcclude([]);
-    setTool("corners");
     setPendingSnap(null);
     setHasFittedSurface(false);
     setSnapMessage(suggestionText(id, "primer", nextPiece.name));
@@ -323,9 +298,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
     setPrepMode("primer");
-    setExtent(null);
-    setOcclude([]);
-    setTool("corners");
     const found = photo ? detectSurfaceQuad(photo, id) : null;
     if (found) {
       setQuad(found.quad);
@@ -378,8 +350,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       label: LAYER_LABELS[nextSurface],
       surface: nextSurface,
       quad: SURFACES[nextSurface].quad,
-      extent: null,
-      occlude: [],
       pieceSlug: nextPieceSlug,
       tileSize: SURFACES[nextSurface].tileSize,
       blend,
@@ -393,9 +363,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setActiveLayerId(id);
     setSurface(nextSurface);
     setQuad(nextLayer.quad);
-    setExtent(null);
-    setOcclude([]);
-    setTool("corners");
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
     setTileSize(nextLayer.tileSize);
@@ -570,184 +537,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     track("viz_compare", {});
     const ctx = canvasRef.current.getContext("2d")!;
     ctx.drawImage(originalRef.current, 0, 0);
-  };
-
-  /* The hand tools. In paint mode a finger drag traces an outline; on
-     release it becomes the surface shape, or a paint-out that stays in
-     front. Corners mode keeps the old drag and the press-and-hold
-     compare, so nothing the desk already knows changes. */
-  const paintMode = tool !== "corners";
-
-  const commitTrace = (pts: Pt[]) => {
-    const shape = simplifyPath(pts, 0.006);
-    if (shape.length < 3) {
-      setSnapMessage("Draw around the area with your finger.");
-      return;
-    }
-    if (tool === "surface") {
-      setExtent(shape);
-      setHasFittedSurface(true);
-      setPendingSnap(null);
-      setSnapMessage("Surface shape set. Paint out anything in front.");
-      track("viz_shape", { tool: "surface", points: shape.length });
-    } else {
-      setOcclude((prev) => [...prev, shape]);
-      setSnapMessage("Painted out. That stays in front of the mosaic.");
-      track("viz_shape", { tool: "erase", points: shape.length });
-    }
-    buzz(6);
-  };
-
-  const paintStart = (e: React.PointerEvent) => {
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
-    const p = pointerPos(e);
-    paintRef.current = [p];
-    setTrace([p]);
-    buzz(3);
-  };
-
-  const paintMove = (e: React.PointerEvent) => {
-    const pts = paintRef.current;
-    if (!pts) return;
-    const p = pointerPos(e);
-    const last = pts[pts.length - 1];
-    if (Math.hypot(p.x - last.x, p.y - last.y) < 0.008) return;
-    pts.push(p);
-    if (paintFrame.current !== null) return;
-    paintFrame.current = requestAnimationFrame(() => {
-      paintFrame.current = null;
-      setTrace(paintRef.current ? [...paintRef.current] : null);
-    });
-  };
-
-  /* The wand: read the untouched photo colours and grow a region out
-     from the tap, then hand its outline to the surface or the paint-out.
-     No model, no network; the hand tools refine whatever it misses. */
-  const wandSelect = (point: Pt) => {
-    const orig = originalRef.current;
-    if (!orig) {
-      setSnapMessage("Load a photo first.");
-      return;
-    }
-    const octx = orig.getContext("2d");
-    if (!octx) return;
-    const w = orig.width;
-    const hh = orig.height;
-    let data: Uint8ClampedArray;
-    try {
-      data = octx.getImageData(0, 0, w, hh).data;
-    } catch {
-      setSnapMessage("Could not read the photo. Draw the area by hand.");
-      return;
-    }
-    const mask = floodSelect(data, w, hh, point.x * w, point.y * hh, tolerance);
-    const cov = maskCoverage(mask);
-    if (cov < 0.004) {
-      setSnapMessage("Nothing caught there. Raise the strength, or draw by hand.");
-      buzz(2);
-      return;
-    }
-    if (cov > 0.92) {
-      setSnapMessage("That caught the whole photo. Lower the strength, or draw by hand.");
-      buzz(2);
-      return;
-    }
-    const poly = maskToPolygon(mask, w, hh);
-    if (poly.length < 3) {
-      setSnapMessage("Could not trace that. Draw the area by hand.");
-      buzz(2);
-      return;
-    }
-    if (tool === "erase") {
-      setOcclude((prev) => [...prev, poly]);
-      setSnapMessage("Painted out. That stays in front of the mosaic.");
-      track("viz_wand", { tool: "erase", coverage: Math.round(cov * 100) });
-    } else {
-      setExtent(poly);
-      setHasFittedSurface(true);
-      setPendingSnap(null);
-      setSnapMessage("Surface found. Refine by hand, or paint out what is in front.");
-      track("viz_wand", { tool: "surface", coverage: Math.round(cov * 100) });
-    }
-    buzz(6);
-  };
-
-  const paintFinish = () => {
-    if (paintFrame.current !== null) {
-      cancelAnimationFrame(paintFrame.current);
-      paintFrame.current = null;
-    }
-    const pts = paintRef.current;
-    paintRef.current = null;
-    setTrace(null);
-    if (!pts || pts.length === 0) return;
-    /* A tap, barely any travel, asks the wand to find the region. A real
-       drag draws the shape by hand. */
-    let minX = pts[0].x;
-    let maxX = pts[0].x;
-    let minY = pts[0].y;
-    let maxY = pts[0].y;
-    for (const p of pts) {
-      if (p.x < minX) minX = p.x;
-      if (p.x > maxX) maxX = p.x;
-      if (p.y < minY) minY = p.y;
-      if (p.y > maxY) maxY = p.y;
-    }
-    if (maxX - minX < 0.03 && maxY - minY < 0.03) {
-      wandSelect(pts[0]);
-      return;
-    }
-    if (pts.length >= 3) commitTrace(pts);
-    else setSnapMessage("Draw around the area with your finger.");
-  };
-
-  const stagePointerDown = (e: React.PointerEvent) => {
-    if (paintMode) {
-      paintStart(e);
-      return;
-    }
-    holdStart(e);
-  };
-
-  const stagePointerMove = (e: React.PointerEvent) => {
-    if (paintMode) {
-      paintMove(e);
-      return;
-    }
-    if (dragging.current === null) return;
-    const p = pointerPos(e);
-    queueCornerDrag(dragging.current, p);
-  };
-
-  const stagePointerUp = () => {
-    if (paintMode) {
-      paintFinish();
-      return;
-    }
-    finishDrag();
-  };
-
-  const stagePointerLeave = () => {
-    /* In paint mode the pointer is captured, so the trace survives a
-       finger that strays outside; the release still lands. */
-    if (paintMode) return;
-    finishDrag();
-  };
-
-  const selectTool = (next: "corners" | "surface" | "erase") => {
-    setTool(next);
-    buzz(3);
-    if (next === "surface") setSnapMessage("Tap the wall to find it, or drag to draw by hand.");
-    else if (next === "erase") setSnapMessage("Tap what is in front, or draw over it by hand.");
-    else setSnapMessage("Drag the corners to set the perspective.");
-  };
-
-  const clearShape = () => {
-    setExtent(null);
-    setOcclude([]);
-    setTrace(null);
-    buzz(3);
-    setSnapMessage("Shape cleared. The surface fills the frame again.");
   };
 
   const share = async () => {
@@ -940,59 +729,17 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       <p id="viz-corner-help" className="sr-only">
         Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.
       </p>
-      {(paintMode || extent || occlude.length > 0) && !holding && (
-        <svg
-          className="pointer-events-none absolute inset-0 h-full w-full"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          aria-hidden
-        >
-          {extent && extent.length >= 3 && (
-            <polygon
-              points={extent.map((p) => `${p.x * 100},${p.y * 100}`).join(" ")}
-              fill="var(--t-brass)"
-              fillOpacity="0.14"
-              stroke="var(--t-brass)"
-              strokeOpacity="0.9"
-              strokeWidth="1.5"
-              vectorEffect="non-scaling-stroke"
-            />
-          )}
-          {occlude.map((poly, i) =>
-            poly.length >= 3 ? (
-              <polygon
-                key={i}
-                points={poly.map((p) => `${p.x * 100},${p.y * 100}`).join(" ")}
-                fill="#14110b"
-                fillOpacity="0.3"
-                stroke="#14110b"
-                strokeOpacity="0.75"
-                strokeWidth="1.5"
-                strokeDasharray="3 2"
-                vectorEffect="non-scaling-stroke"
-              />
-            ) : null
-          )}
-          {trace && trace.length >= 2 && (
-            <polyline
-              points={trace.map((p) => `${p.x * 100},${p.y * 100}`).join(" ")}
-              fill="none"
-              stroke={tool === "erase" ? "#14110b" : "var(--t-brass)"}
-              strokeOpacity="0.95"
-              strokeWidth="1.75"
-              strokeDasharray="2 2"
-              vectorEffect="non-scaling-stroke"
-            />
-          )}
-        </svg>
-      )}
       <svg
-        className={`absolute inset-0 h-full w-full touch-none ${paintMode ? "cursor-crosshair" : ""}`}
+        className="absolute inset-0 h-full w-full touch-none"
         aria-describedby="viz-corner-help"
-        onPointerDown={stagePointerDown}
-        onPointerMove={stagePointerMove}
-        onPointerUp={stagePointerUp}
-        onPointerLeave={stagePointerLeave}
+        onPointerDown={holdStart}
+        onPointerMove={(e) => {
+          if (dragging.current === null) return;
+          const p = pointerPos(e);
+          queueCornerDrag(dragging.current, p);
+        }}
+        onPointerUp={finishDrag}
+        onPointerLeave={finishDrag}
       >
         {quad.map((p, i) => {
           const n = quad[(i + 1) % 4];
@@ -1006,11 +753,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
               stroke="var(--t-brass)"
               strokeWidth="2"
               strokeDasharray="6 5"
-              opacity={holding ? 0 : paintMode ? 0.3 : 0.9}
+              opacity={holding ? 0 : 0.9}
             />
           );
         })}
-        {!paintMode && quad.map((p, i) => (
+        {quad.map((p, i) => (
           <circle
             key={`c${i}`}
             cx={`${p.x * 100}%`}
@@ -1134,42 +881,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 <div className="min-w-0">
                   {stage}
                   <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-mist">
-                    Corners set perspective. In paint mode, tap to auto-find or drag to draw. Press and hold to compare.
+                    Find surface, then drag corners to refine. Press and hold to compare.
                   </p>
-                  <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Editing tool">
-                    {([["corners", "Corners"], ["surface", "Paint surface"], ["erase", "Paint out"]] as const).map(([id, label]) => (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => selectTool(id)}
-                        aria-pressed={tool === id}
-                        className={`rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] transition-all duration-300 active:scale-95 ${
-                          tool === id ? "bg-shell text-ink shadow-lift" : "bg-shell/40 text-dusk hover:bg-shell/60"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                    {paintMode && (
-                      <label className="ml-1 flex items-center gap-2 text-[12px] text-dusk">
-                        <span className="uppercase tracking-[0.14em]">Strength</span>
-                        <input
-                          type="range"
-                          min={5}
-                          max={80}
-                          value={tolerance}
-                          onChange={(e) => setTolerance(Number(e.target.value))}
-                          aria-label="Auto-find strength"
-                          className="h-1 w-24 cursor-pointer accent-[#c2a15c]"
-                        />
-                      </label>
-                    )}
-                    {(extent || occlude.length > 0) && (
-                      <button type="button" onClick={clearShape} className="link-hair text-dusk text-[12px]">
-                        Clear shape
-                      </button>
-                    )}
-                  </div>
                   <div className="mt-4">
                     <LayerChips layers={layers} activeLayerId={activeLayerId} surface={surface} onSelect={selectLayerChip} />
                   </div>

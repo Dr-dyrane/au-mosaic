@@ -77,34 +77,3 @@ export function quadDelta(a: Pt[], b: Pt[]) {
 export function setCorner(q: Pt[], index: number, point: Pt) {
   return q.map((pt, i) => (i === index ? point : pt));
 }
-
-/* Thin a hand-traced outline down to the points that carry its shape,
-   so a freeform surface or paint-out stays light to store and clip.
-   Ramer-Douglas-Peucker: keep the point that strays furthest from the
-   straight line between the ends, recurse on each side, drop the rest. */
-function perpendicular(point: Pt, a: Pt, b: Pt) {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len = Math.hypot(dx, dy);
-  if (len < 1e-9) return Math.hypot(point.x - a.x, point.y - a.y);
-  return Math.abs((point.x - a.x) * dy - (point.y - a.y) * dx) / len;
-}
-
-export function simplifyPath(points: Pt[], epsilon = 0.006): Pt[] {
-  if (points.length <= 2) return points.slice();
-  let index = -1;
-  let maxDist = 0;
-  for (let i = 1; i < points.length - 1; i += 1) {
-    const dist = perpendicular(points[i], points[0], points[points.length - 1]);
-    if (dist > maxDist) {
-      maxDist = dist;
-      index = i;
-    }
-  }
-  if (maxDist <= epsilon || index < 0) {
-    return [points[0], points[points.length - 1]];
-  }
-  const left = simplifyPath(points.slice(0, index + 1), epsilon);
-  const right = simplifyPath(points.slice(index), epsilon);
-  return left.slice(0, -1).concat(right);
-}

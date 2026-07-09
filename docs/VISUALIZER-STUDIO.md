@@ -9,6 +9,18 @@ the actual tile.
 Source of the brief: Nonso's review, 2026-07-08 (voice note, transcribed
 and summarised). The audit of his complaints sits in the section below.
 
+## Status, 2026-07-08: the hand tools were pulled
+
+Stages 1 and 2a (the paint-surface, paint-out, and magic-wand tools)
+shipped, then came back off the live site the same day on the owner's
+call: the mode toggle plus tap-versus-drag plus strength slider asked too
+much, and the colour-based wand is least reliable on a plain wall, its
+best case. The public visualizer is back to the known-good flow: it finds
+the surface on load, and the four brass corners drag to fit. The
+direction below still stands; the rebuild of obstruction-hiding and the
+learned model will be simpler, guided in plain words, and tested on a
+real device before it returns.
+
 ## The fidelity law (locked)
 
 We sell the tile, so the render must show the tile the customer buys.

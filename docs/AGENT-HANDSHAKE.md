@@ -16,6 +16,21 @@ note. Newest on top.
 
 ---
 
+## 2026-07-08 - Claude - Visualizer strip-back lane - done
+
+On the owner's call, pulled the studio hand tools (stages 1 and 2a) off
+the live visualizer. They were confusing on their own, and the colour
+wand was unreliable on a plain wall. Reverted
+`src/components/Visualizer.tsx`, `src/components/visualizer/types.ts`,
+`geometry.ts`, and `draw.ts` to their pre-stage-1 state (commit 38a3d15),
+and removed `src/components/visualizer/magicwand.ts`. The public
+visualizer is back to auto-find plus four-corner drag, exactly as before
+my stage 1. No other lane is touched; those visualizer files were mine
+across the three commits, so this only unwinds my own work. Reasons and
+the future plan are in `docs/VISUALIZER-STUDIO.md`; obstruction-hiding
+and the learned model return later, simpler and device-tested. Owner
+clears a stale `.git/index.lock` on the Mac, then resets local to origin.
+
 ## 2026-07-08 - Claude - Visualizer studio stage 2a lane - done
 
 Shipped the first assisted-masking pass, still no model and no network: a
