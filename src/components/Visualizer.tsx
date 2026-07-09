@@ -54,7 +54,6 @@ type VizSnapshot = {
   groutLight: boolean;
   customColors: string[] | null;
   hasFittedSurface: boolean;
-  waterOn: boolean;
   samMask: HTMLImageElement | null;
 };
 
@@ -90,7 +89,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [loupe, setLoupe] = useState<Pt | null>(null);
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const [waterOn, setWaterOn] = useState(true);
   const [samBeta, setSamBeta] = useState(false);
   const [samBusy, setSamBusy] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
@@ -172,9 +170,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     groutLight: over.groutLight ?? groutLight,
     customColors: over.customColors !== undefined ? over.customColors : customColors,
     hasFittedSurface: over.hasFittedSurface ?? hasFittedSurface,
-    waterOn: over.waterOn ?? waterOn,
     samMask: over.samMask !== undefined ? over.samMask : samMask,
-  }), [layers, activeLayerId, surface, quad, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, waterOn, samMask]);
+  }), [layers, activeLayerId, surface, quad, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask]);
 
   /* Append a checkpoint, dropping anything ahead of the cursor (a new
      move after stepping back forks a fresh line) and holding the stack to
@@ -201,7 +198,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setGroutLight(snap.groutLight);
     setCustomColors(snap.customColors);
     setHasFittedSurface(snap.hasFittedSurface);
-    setWaterOn(snap.waterOn);
     setSamMask(snap.samMask);
   }, []);
 
@@ -503,12 +499,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         layer,
         piece: layerPiece,
         mask: layer.id === activeLayerId ? samMask : null,
-        water: layer.surface === "pool" && waterOn,
         finish: dragging.current === null,
       });
     });
     setTick((t) => t + 1);
-  }, [activeLayerId, layers, photo, piece, pieceMap, samMask, waterOn, withActiveLayer]);
+  }, [activeLayerId, layers, photo, piece, pieceMap, samMask, withActiveLayer]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(render);
@@ -868,12 +863,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         <div className="mt-2"><PieceOptions pieces={pieces} pieceSlug={pieceSlug} onPick={pickPiece} /></div>
         <PaletteEditor colors={activeColors} onEdit={editColor} onAdd={addColor} onRemove={removeColor} />
       </div>
-      <div className="mt-8"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} showWater={surface === "pool"} waterOn={waterOn} onWaterToggle={() => setWaterOn((v) => !v)} /></div>
+      <div className="mt-8"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} /></div>
     </>
   );
 
   const prepLabel = prepMode === "primer" ? "Primer" : prepMode === "blur" ? "Blur" : "Original";
-  const finishSummary = `${prepLabel}, ${groutLight ? "light" : "dark"} grout${surface === "pool" ? `, ${waterOn ? "filled" : "dry"}` : ""}`;
+  const finishSummary = `${prepLabel}, ${groutLight ? "light" : "dark"} grout`;
 
   const refineSections = [
     {
@@ -906,7 +901,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       value: finishSummary,
       action: "Tune",
       body: (
-        <LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} showWater={surface === "pool"} waterOn={waterOn} onWaterToggle={() => setWaterOn((v) => !v)} />
+        <LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} />
       ),
     },
   ];
