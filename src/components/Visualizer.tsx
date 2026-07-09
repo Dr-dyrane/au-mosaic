@@ -36,28 +36,7 @@ import CameraDialog from "./visualizer/parts/CameraDialog";
 import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
 import { useCamera } from "./visualizer/hooks/useCamera";
-
-/* A saved look. Everything the stage needs to reproduce a view, the AI
-   mask included, so a segment we paid for is never lost to the next tap.
-   Snapshots are kept as a short stack the visitor steps back and forth
-   through. */
-type VizSnapshot = {
-  note: string;
-  layers: SurfaceLayer[];
-  activeLayerId: string;
-  surface: SurfaceId;
-  quad: Pt[];
-  pieceSlug: string;
-  tileSize: number;
-  blend: number;
-  prepMode: PrepMode;
-  groutLight: boolean;
-  customColors: string[] | null;
-  hasFittedSurface: boolean;
-  samMask: HTMLImageElement | null;
-};
-
-const MAX_SNAPSHOTS = 12;
+import { useSnapshots } from "./visualizer/hooks/useSnapshots";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -95,8 +74,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
   const [hasFittedSurface, setHasFittedSurface] = useState(false);
-  const [history, setHistory] = useState<{ snaps: VizSnapshot[]; i: number }>({ snaps: [], i: -1 });
-  const historySeed = useRef<HTMLImageElement | null>(null);
   const [layers, setLayers] = useState<SurfaceLayer[]>(() => [
     {
       id: FIRST_LAYER_ID,
@@ -154,75 +131,36 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     ));
   }, [activeLayerId, activeLayerSnapshot, surface]);
 
-  /* Save the whole editable view as one snapshot: current values, unless
-     the caller hands fresher ones (the AI find passes its mask and fit
-     straight in, before React state has caught up). */
-  const buildSnapshot = useCallback((note: string, over: Partial<VizSnapshot> = {}): VizSnapshot => ({
-    note,
-    layers: (over.layers ?? layers).map((l) => ({ ...l, quad: l.quad.map((p) => ({ ...p })) })),
-    activeLayerId: over.activeLayerId ?? activeLayerId,
-    surface: over.surface ?? surface,
-    quad: (over.quad ?? quad).map((p) => ({ ...p })),
-    pieceSlug: over.pieceSlug ?? pieceSlug,
-    tileSize: over.tileSize ?? tileSize,
-    blend: over.blend ?? blend,
-    prepMode: over.prepMode ?? prepMode,
-    groutLight: over.groutLight ?? groutLight,
-    customColors: over.customColors !== undefined ? over.customColors : customColors,
-    hasFittedSurface: over.hasFittedSurface ?? hasFittedSurface,
-    samMask: over.samMask !== undefined ? over.samMask : samMask,
-  }), [layers, activeLayerId, surface, quad, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask]);
-
-  /* Append a checkpoint, dropping anything ahead of the cursor (a new
-     move after stepping back forks a fresh line) and holding the stack to
-     a sane length. */
-  const pushSnapshot = useCallback((note: string, over: Partial<VizSnapshot> = {}) => {
-    const snap = buildSnapshot(note, over);
-    setHistory((h) => {
-      const base = h.snaps.slice(0, h.i + 1);
-      const next = [...base, snap].slice(-MAX_SNAPSHOTS);
-      return { snaps: next, i: next.length - 1 };
-    });
-  }, [buildSnapshot]);
-
-  /* Put a saved look back on the stage, mask and all. */
-  const restoreSnapshot = useCallback((snap: VizSnapshot) => {
-    setLayers(snap.layers.map((l) => ({ ...l })));
-    setActiveLayerId(snap.activeLayerId);
-    setSurface(snap.surface);
-    setQuad(snap.quad.map((p) => ({ ...p })));
-    setPieceSlug(snap.pieceSlug);
-    setTileSize(snap.tileSize);
-    setBlend(snap.blend);
-    setPrepMode(snap.prepMode);
-    setGroutLight(snap.groutLight);
-    setCustomColors(snap.customColors);
-    setHasFittedSurface(snap.hasFittedSurface);
-    setSamMask(snap.samMask);
-  }, []);
-
-  const stepHistory = useCallback((dir: -1 | 1) => {
-    const target = history.i + dir;
-    if (target < 0 || target >= history.snaps.length) return;
-    restoreSnapshot(history.snaps[target]);
-    setHistory((h) => ({ ...h, i: target }));
-    setSnapMessage(`Snapshot ${target + 1} of ${history.snaps.length}. ${history.snaps[target].note}.`);
-    buzz(4);
-  }, [history, restoreSnapshot]);
-
-  const pinLook = useCallback(() => {
-    pushSnapshot("Pinned look");
-    setSnapMessage("Look pinned. Step back and forward any time.");
-    buzz(5);
-  }, [pushSnapshot]);
-
-  /* Each fresh photo opens a new history, seeded with its clean
-     placement, so Back always returns to the untouched surface. */
-  useEffect(() => {
-    if (!photo || historySeed.current === photo) return;
-    historySeed.current = photo;
-    setHistory({ snaps: [buildSnapshot("Start")], i: 0 });
-  }, [photo, buildSnapshot]);
+  /* The undo memory lives in its own hook now; it reads these live
+     controls to checkpoint and writes them back to restore. */
+  const { history, pushSnapshot, stepHistory, pinLook } = useSnapshots({
+    photo,
+    layers,
+    activeLayerId,
+    surface,
+    quad,
+    pieceSlug,
+    tileSize,
+    blend,
+    prepMode,
+    groutLight,
+    customColors,
+    hasFittedSurface,
+    samMask,
+    setLayers,
+    setActiveLayerId,
+    setSurface,
+    setQuad,
+    setPieceSlug,
+    setTileSize,
+    setBlend,
+    setPrepMode,
+    setGroutLight,
+    setCustomColors,
+    setHasFittedSurface,
+    setSamMask,
+    setSnapMessage,
+  });
 
   const selectLayer = useCallback((layer: SurfaceLayer) => {
     setLayers(withActiveLayer);

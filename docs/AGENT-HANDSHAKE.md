@@ -16,6 +16,24 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Visualizer modularization, Phase 3 hooks - open
+
+Continuing the behaviour-preserving split in docs/VISUALIZER-MODULARIZATION.md,
+lifting the orchestrator's stateful clusters into hooks so Visualizer.tsx
+breathes and is easy to read, change, and version. First out: the snapshot
+history, now src/components/visualizer/hooks/useSnapshots.ts (VizSnapshot
+type, the stack, build, push, restore, step, pin, and the per-photo baseline
+seed). The orchestrator calls it with the live controls and setters; deps and
+memoisation are preserved, the only change being that stable setters now sit
+in the callback dep arrays, which never re-fire. Orchestrator is down from
+1,225 to 1,163 lines. Next, one cluster per commit: useSamAutofind,
+useCornerDrag, useSurfaceLayers, and the Stage part. My files:
+src/components/Visualizer.tsx and new files under
+src/components/visualizer/hooks and parts. Smoke test after each: load a
+photo, auto-find, drag a corner, swap a piece, edit the palette, step Back and
+Forward, share and download. Gate is tsc, eslint, and the dash scan;
+object-push my files only with the origin guard.
+
 ## 2026-07-09 - Claude - Visualizer refine disclosure lane - open
 
 Owner-gated redesign of the public studio's refine controls to progressive
