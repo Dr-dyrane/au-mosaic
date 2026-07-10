@@ -16,6 +16,34 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Visualizer depth oracle lane (Phase 4c, slice 1) - open
+
+Owner-approved depth oracle, and with it the first runtime ML
+dependency the flagship carries (transformers.js, owner chose the
+option that named the ~50MB model). Slice 1 proves the base case only:
+that this app can compute a sane monocular depth map in the browser,
+flag-gated behind NEXT_PUBLIC_VIZ_DEPTH (off in the template), without
+breaking the Turbopack build. Depth Anything V2 small runs in a Web
+Worker (transformers.js depth-estimation pipeline, WebGPU with a wasm
+fallback), the model fetched from the Hugging Face CDN and cached by
+the browser for the first proof; self-hosting to public or Blob is a
+later hardening step, and the model files stay out of git. A new
+useDepth hook owns the worker lifecycle and caches the map per photo; a
+flag-gated Depth toggle paints the map as a colourmap on the stage so
+the eye can confirm near reads bright and far reads dark. No geometry
+consumes depth yet; the RANSAC plane fit that replaces the crease guess
+is slice 2. This is NOT the Next.js my training knows: the implementer
+reads node_modules/next/dist/docs for the Turbopack worker and wasm
+asset handling before writing next.config. My files: package.json,
+package-lock.json, next.config.ts, a depth worker and
+src/components/visualizer/hooks/useDepth.ts (new), a flag-gated part or
+Visualizer.tsx wiring, .env and .env.example, docs/QA.md, and this
+handshake. The open RefinePanel disclosure lane and the studio UI lane
+the owner also raised are untouched here; they come next. Gate is tsc,
+eslint, npm run test, next build, the dash scan, the size budget, and a
+live proof that a real depth map of the pool renders. Rollback point is
+e76f45c.
+
 ## 2026-07-10 - Claude - Verify ritual route count lane - done
 
 The verify ritual's parenthetical had gone stale twice over: AGENTS.md
