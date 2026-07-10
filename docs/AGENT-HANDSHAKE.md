@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-09 - Claude - Visualizer deterministic fit lane (Phase 2) - open
+## 2026-07-09 - Claude - Visualizer deterministic fit lane (Phase 2) - done
 
 Owner-directed Phase 2 of the reconstruction: the mask-to-quad fit
 becomes a real geometry engine, pure TypeScript, zero per-use cost. A
@@ -39,7 +39,15 @@ wall, furniture-bitten floor, L-room, speckle). My files: fit.ts (new),
 tests/visualizer-fit.test.ts (new), hooks/useSamAutofind.ts, draw.ts,
 docs/QA.md, and this handshake. Gate is tsc, eslint, npm run test, next
 build, the dash scan, and a live browser proof on the pool and blank
-wall starters. Rollback point is b4b12bd.
+wall starters. Rollback point is b4b12bd. CLOSED same day, with one
+course correction the live proof forced: the Hough outline fit laid
+diagonal courses across the pool basin, so fitMask now keys the regime
+on surface kind as well as solidity; pool and floor keep the proven
+extreme-corners fit (unit-asserted equal to the old heuristic), walls
+take the Hough ladder, and Visualizer.tsx passes the live surface into
+the hook. Wall proof is the headline: one tap snapped the quad flush to
+the blank wall starter's feature wall. 34 tests green, both adversarial
+reviews passed, evidence in docs/QA.md.
 
 ## 2026-07-09 - Claude - Visualizer per-layer masks lane (Phase 1) - done
 

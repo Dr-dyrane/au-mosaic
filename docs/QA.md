@@ -520,3 +520,31 @@ masks). Noted for the server pass: the fal SAM 2 worker's cold start
 measured 90 seconds against the route's 30 second abort, so the first
 find of a quiet day still fails politely; the queue API or a warm-up
 ping is the Phase 3 answer.
+
+## The fit engine: geometry becomes deliberate (Phase 2)
+
+The mask-to-quad fit is now a real geometry engine, pure TypeScript,
+node-tested, zero per-use cost: src/components/visualizer/fit.ts.
+Largest component, morphological cleanup, hole fill, Moore boundary
+trace, convex hull, then a solidity gate; occluded shapes clip instead
+of fitting. Above the gate the regime keys on the surface kind: walls,
+backsplashes, and showers take Hough boundary lines intersected into a
+quad (min-area rectangle, then the old extreme corners as fallbacks),
+while pool and floor surfaces keep the proven extreme-corners fit,
+because a floor's outline is not its plane; the quad only sets the tile
+perspective and the mask cuts the exact shape. That floor rule exists
+because the live proof caught the Hough fit laying diagonal courses
+across the pool basin before it could ship; the loop worked. Proof on
+localhost against real fal: the blank wall starter's one tap snapped
+the quad flush to the feature wall's four corners with level courses,
+and the pool starter kept its Phase 1 behaviour by construction (the
+floor path is unit-asserted equal to the old heuristic). The hook also
+reads the live quad through a ref now, so a corner drag during the
+model call can no longer checkpoint a stale quad. Renderer hygiene in
+draw.ts: prep runs inside the mask region (old tile stops ghosting
+through the multiply) and tile patterns are cached by colours, size,
+and grout instead of rebuilt every frame per layer. Gates: tsc, eslint
+at zero warnings across src and tests, npm run test 34 for 34, the
+production build, and the dash scan, all clean; two adversarial review
+rounds passed with one advisory note (a broken-mask prep fallback path,
+commented in place).

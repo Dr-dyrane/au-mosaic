@@ -182,6 +182,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const { samBeta, samBusy, runSam, armSam, clearSam } = useSamAutofind({
     originalRef,
+    surface,
     quad,
     setQuad,
     setSamMask,

@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
-import type { Pt } from "../types";
+import type { Pt, SurfaceId } from "../types";
 import { buzz } from "../helpers";
-import { clamp, isValidQuad } from "../geometry";
+import { fitMask } from "../fit";
 import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
 
 interface UseSamAutofindParams {
   originalRef: RefObject<HTMLCanvasElement | null>;
+  surface: SurfaceId;
   quad: Pt[];
   setQuad: Dispatch<SetStateAction<Pt[]>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
@@ -36,6 +37,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
 } {
   const {
     originalRef,
+    surface,
     quad,
     setQuad,
     setSamMask,
@@ -47,6 +49,14 @@ export function useSamAutofind(params: UseSamAutofindParams): {
 
   const [samBeta, setSamBeta] = useState(false);
   const [samBusy, setSamBusy] = useState(false);
+
+  /* runSam's onload fires long after the tap. Reading the quad from the
+     render that armed it would checkpoint a stale plane if a corner moved
+     during the model call, so the ref always carries the latest. */
+  const quadRef = useRef(quad);
+  useEffect(() => {
+    quadRef.current = quad;
+  }, [quad]);
 
   /* The learned auto-find (beta, opt-in). Arm it, then one tap sends the
      untouched photo and the tapped point to the segment endpoint; the mask
@@ -92,52 +102,47 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           setSamMaskSrc(data.mask as string);
           seedMask(data.mask as string, img);
           setHasFittedSurface(true);
-          let fittedQuad = quad;
-          /* Fit the four corners to the shape's own extreme corners, not
-             its bounding box. A floor comes back as a receding trapezoid,
-             so the tiles take its perspective on their own and slant into
-             depth; a wall stays roughly square. The mask still clips the
-             exact shape, so an approximate plane is safe. */
+          let fittedQuad = quadRef.current;
+          let message = "Surface found. The shape is cut exactly; angle the tiles with the corners.";
+          /* Hand the mask to the geometry engine. A floor comes back as a
+             receding trapezoid, so the tiles take its perspective and
+             slant into depth; a wall stays roughly square. When the
+             outline is not one clean plane (furniture bites, an L-room)
+             the engine says clip: the corners stay where they are and the
+             mask cuts the exact shape. */
           try {
+            const long = Math.max(1, img.naturalWidth, img.naturalHeight);
+            const down = Math.min(1, 192 / long);
+            const mw = Math.max(1, Math.round(img.naturalWidth * down));
+            const mh = Math.max(1, Math.round(img.naturalHeight * down));
             const mc = document.createElement("canvas");
-            mc.width = img.naturalWidth;
-            mc.height = img.naturalHeight;
+            mc.width = mw;
+            mc.height = mh;
             const mx = mc.getContext("2d");
-            if (mx && mc.width > 0 && mc.height > 0) {
-              mx.drawImage(img, 0, 0);
-              const d = mx.getImageData(0, 0, mc.width, mc.height).data;
-              let tl = { x: 0, y: 0 }, tr = { x: 0, y: 0 }, br = { x: 0, y: 0 }, bl = { x: 0, y: 0 };
-              let tlV = Infinity, brV = -Infinity, trV = -Infinity, blV = Infinity;
-              let found = false;
-              for (let yy = 0; yy < mc.height; yy += 2) {
-                for (let xx = 0; xx < mc.width; xx += 2) {
-                  if (d[(yy * mc.width + xx) * 4 + 3] > 12) {
-                    found = true;
-                    const s = xx + yy;
-                    const df = xx - yy;
-                    if (s < tlV) { tlV = s; tl = { x: xx, y: yy }; }
-                    if (s > brV) { brV = s; br = { x: xx, y: yy }; }
-                    if (df > trV) { trV = df; tr = { x: xx, y: yy }; }
-                    if (df < blV) { blV = df; bl = { x: xx, y: yy }; }
-                  }
-                }
+            if (mx && img.naturalWidth > 0 && img.naturalHeight > 0) {
+              mx.drawImage(img, 0, 0, mw, mh);
+              const d = mx.getImageData(0, 0, mw, mh).data;
+              const bits = new Uint8Array(mw * mh);
+              for (let i = 0; i < bits.length; i += 1) {
+                if (d[i * 4 + 3] > 12) bits[i] = 1;
               }
-              if (found) {
-                const norm = (p: { x: number; y: number }) => ({
-                  x: clamp(p.x / mc.width, 0.02, 0.98),
-                  y: clamp(p.y / mc.height, 0.02, 0.98),
-                });
-                const cornerQuad = [norm(tl), norm(tr), norm(br), norm(bl)];
-                if (isValidQuad(cornerQuad)) { fittedQuad = cornerQuad; setQuad(cornerQuad); }
+              const result = fitMask(
+                { data: bits, width: mw, height: mh },
+                surface === "pool" || surface === "floor" ? "floor" : "wall",
+              );
+              if (result.kind === "quad") {
+                fittedQuad = result.quad;
+                setQuad(result.quad);
+                message = "Surface found and angled. Nudge a corner to refine.";
               }
             }
           } catch {
-            /* leave the current corners */
+            /* leave the current corners; the mask still clips the shape */
           }
           /* Save the AI result the moment it lands, so a re-find, a clear,
              or a fresh tap can never lose the segment we paid for. */
           pushSnapshot("AI find", { samMask: img, samMaskSrc: data.mask as string, quad: fittedQuad, hasFittedSurface: true });
-          setSnapMessage("Surface found and angled. Nudge a corner to refine.");
+          setSnapMessage(message);
           buzz(8);
         };
         img.onerror = () => setSnapMessage("Could not read the surface. Drag the corners instead.");

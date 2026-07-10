@@ -58,6 +58,24 @@ function makePattern(colors: string[], tile: number, groutLight: boolean) {
   return c;
 }
 
+/* Rebuilding the 512px tile sheet every frame stutters cheap phones, so
+   finished sheets live here keyed by what actually changes their pixels.
+   Twelve entries covers every layer a session realistically holds; past
+   that the oldest key goes, since Map keeps insertion order. */
+const patternCache = new Map<string, HTMLCanvasElement>();
+
+function getPattern(colors: string[], tile: number, groutLight: boolean) {
+  const key = `${tile}|${groutLight}|${colors.join(",")}`;
+  const hit = patternCache.get(key);
+  if (hit) return hit;
+  const made = makePattern(colors, tile, groutLight);
+  if (patternCache.size >= 12) {
+    patternCache.delete(patternCache.keys().next().value!);
+  }
+  patternCache.set(key, made);
+  return made;
+}
+
 function clipQuad(ctx: CanvasRenderingContext2D, q: Pt[]) {
   ctx.beginPath();
   ctx.moveTo(q[0].x, q[0].y);
@@ -247,7 +265,7 @@ function drawSurfaceLayer({
 }) {
   if (!layer.visible) return;
   const tileColors = layer.customColors && layer.customColors.length > 0 ? layer.customColors : (piece.colors || ["#3aa9d6"]);
-  const pattern = makePattern(tileColors, layer.tileSize, layer.groutLight);
+  const pattern = getPattern(tileColors, layer.tileSize, layer.groutLight);
   /* The four-corner quad always frames the tiles and sets their
      perspective, so dragging it lays them onto a receding surface. A
      segmentation mask, when present, then clips the tiles to the exact
@@ -255,21 +273,49 @@ function drawSurfaceLayer({
      corners. */
   const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
 
-  if (layer.prepMode !== "none" && !mask) {
-    ctx.save();
-    clipQuad(ctx, q);
+  /* The prep coat hides whatever the surface wore before, since the tiles
+     land with multiply and old grout would ghost through. One painter
+     feeds both the quad-clipped path and the mask-cut path so the two
+     cannot drift. */
+  const paintPrep = (target: CanvasRenderingContext2D) => {
     if (layer.prepMode === "blur") {
-      drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 22, false);
-      ctx.fillStyle = "rgba(214, 206, 190, 0.08)";
-      ctx.fillRect(0, 0, width, height);
+      drawBlurredPhoto(target, photo, sourceW, sourceH, width, height, 22, false);
+      target.fillStyle = "rgba(214, 206, 190, 0.08)";
+      target.fillRect(0, 0, width, height);
     } else {
-      ctx.globalAlpha = 0.28;
-      drawBlurredPhoto(ctx, photo, sourceW, sourceH, width, height, 20, false);
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = sampleQuadColor(origCtx, q, width, height);
-      ctx.fillRect(0, 0, width, height);
+      target.globalAlpha = 0.28;
+      drawBlurredPhoto(target, photo, sourceW, sourceH, width, height, 20, false);
+      target.globalAlpha = 1;
+      target.fillStyle = sampleQuadColor(origCtx, q, width, height);
+      target.fillRect(0, 0, width, height);
     }
-    ctx.restore();
+  };
+
+  if (layer.prepMode !== "none") {
+    if (mask) {
+      /* Cut the coat to the mask the same way finishSurface stamps its
+         veils. A mask that will not draw leaves the photo untouched. */
+      const prep = document.createElement("canvas");
+      prep.width = width;
+      prep.height = height;
+      const px = prep.getContext("2d");
+      if (px) {
+        paintPrep(px);
+        try {
+          px.globalCompositeOperation = "destination-in";
+          px.drawImage(mask, 0, 0, width, height);
+          px.globalCompositeOperation = "source-over";
+          ctx.drawImage(prep, 0, 0);
+        } catch {
+          /* skip the coat rather than flood the frame */
+        }
+      }
+    } else {
+      ctx.save();
+      clipQuad(ctx, q);
+      paintPrep(ctx);
+      ctx.restore();
+    }
   }
 
   const overlay = document.createElement("canvas");
