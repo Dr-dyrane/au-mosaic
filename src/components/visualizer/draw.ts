@@ -31,21 +31,21 @@ function drawTriangle(
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
-function makePattern(colors: string[], tile: number, groutLight: boolean) {
-  const cols = Math.max(6, Math.round(512 / tile));
-  const size = cols * tile;
+function makePattern(colors: string[], tile: number, groutLight: boolean, colsX: number, colsY: number) {
+  const w = colsX * tile;
+  const h = colsY * tile;
   const c = document.createElement("canvas");
-  c.width = size;
-  c.height = size;
+  c.width = w;
+  c.height = h;
   const ctx = c.getContext("2d")!;
   ctx.fillStyle = groutLight ? "#e9e4da" : "#242019";
-  ctx.fillRect(0, 0, size, size);
+  ctx.fillRect(0, 0, w, h);
   const g = Math.max(1, tile * 0.06);
   const iw = tile - 2 * g;
   const radius = tile * 0.14;
-  for (let r = 0; r < cols; r++) {
-    for (let q = 0; q < cols; q++) {
-      const i = r * cols + q;
+  for (let r = 0; r < colsY; r++) {
+    for (let q = 0; q < colsX; q++) {
+      const i = r * colsX + q;
       const x = q * tile;
       const y = r * tile;
       const roundTile = () => {
@@ -90,11 +90,11 @@ function makePattern(colors: string[], tile: number, groutLight: boolean) {
    that the oldest key goes, since Map keeps insertion order. */
 const patternCache = new Map<string, HTMLCanvasElement>();
 
-function getPattern(colors: string[], tile: number, groutLight: boolean) {
-  const key = `${tile}|${groutLight}|${colors.join(",")}`;
+function getPattern(colors: string[], tile: number, groutLight: boolean, colsX: number, colsY: number) {
+  const key = `${tile}|${groutLight}|${colsX}|${colsY}|${colors.join(",")}`;
   const hit = patternCache.get(key);
   if (hit) return hit;
-  const made = makePattern(colors, tile, groutLight);
+  const made = makePattern(colors, tile, groutLight, colsX, colsY);
   if (patternCache.size >= 12) {
     patternCache.delete(patternCache.keys().next().value!);
   }
@@ -293,13 +293,25 @@ function drawSurfaceLayer({
 }) {
   if (!layer.visible) return;
   const tileColors = layer.customColors && layer.customColors.length > 0 ? layer.customColors : (piece.colors || ["#3aa9d6"]);
-  const pattern = getPattern(tileColors, layer.tileSize, layer.groutLight);
   /* The four-corner quad always frames the tiles and sets their
      perspective, so dragging it lays them onto a receding surface. A
      segmentation mask, when present, then clips the tiles to the exact
      surface shape the model found. Shape from the mask, angle from the
      corners. */
   const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
+
+  /* Real mosaic is square. A single square sheet warped onto a tall wall
+     stretches its tiles into vertical bricks, so the tile COUNT is set
+     from the face's own screen shape: as many across as its width holds,
+     as many down as its height, at one common tile size. The perspective
+     warp still shrinks the far rows, but a tile stays a tile. */
+  const edge = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
+  const faceW = (edge(q[0], q[1]) + edge(q[3], q[2])) / 2;
+  const faceH = (edge(q[0], q[3]) + edge(q[1], q[2])) / 2;
+  const tilePx = Math.max(12, (Math.max(width, height) * layer.tileSize) / 900);
+  const colsX = Math.max(4, Math.min(48, Math.round(faceW / tilePx)));
+  const colsY = Math.max(4, Math.min(48, Math.round(faceH / tilePx)));
+  const pattern = getPattern(tileColors, layer.tileSize, layer.groutLight, colsX, colsY);
 
   /* A shell face shares the layer's one mask with its four siblings, so
      the mask is cut to this face's quad before it shapes anything. Left
@@ -402,12 +414,13 @@ function drawSurfaceLayer({
   const H = homography(q);
   if (!H) return;
   const N = 18;
-  const P = pattern.width;
+  const Pw = pattern.width;
+  const Ph = pattern.height;
   for (let r = 0; r < N; r++) {
     for (let cq = 0; cq < N; cq++) {
       const u0 = cq / N, u1 = (cq + 1) / N, v0 = r / N, v1 = (r + 1) / N;
-      const s00 = { x: u0 * P, y: v0 * P }, s10 = { x: u1 * P, y: v0 * P };
-      const s11 = { x: u1 * P, y: v1 * P }, s01 = { x: u0 * P, y: v1 * P };
+      const s00 = { x: u0 * Pw, y: v0 * Ph }, s10 = { x: u1 * Pw, y: v0 * Ph };
+      const s11 = { x: u1 * Pw, y: v1 * Ph }, s01 = { x: u0 * Pw, y: v1 * Ph };
       const d00 = mapPoint(H, u0, v0), d10 = mapPoint(H, u1, v0);
       const d11 = mapPoint(H, u1, v1), d01 = mapPoint(H, u0, v1);
       drawTriangle(octx, pattern, [s00, s10, s11], [d00, d10, d11]);

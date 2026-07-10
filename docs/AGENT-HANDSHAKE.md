@@ -16,6 +16,28 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Post-find is workable: clean result, square tiles - done
+
+The owner sent a screenshot of the state right after Find and asked, as a clueless
+user, what do you do. It was a wireframe: eight brass stones and a crosshatch of
+dashed lines over the tiled pool, a "drag the corners" hint on a pool already
+tiled, and tiles stretched into vertical bricks. Two fixes. (1) CLEAN RESULT: Find
+on a pool now drops into Preview the moment the faces land (armFind awaits
+autoFindShell and sets previewMode), so the stones and lines come off and the
+visitor sees a finished pool; the message changed from "nudge any stone" to "Here
+is your pool. Swap the colour on the right, or send it. Tap Adjust to nudge a
+corner." and the stage hint reads a compare line in Preview instead of the drag
+line. (2) SQUARE TILES: a single square tile sheet warped onto a tall wall
+stretched into vertical bricks, so the tile COUNT is now set per face from its own
+screen shape (colsX from the face width, colsY from its height, at one common tile
+size) so a tile stays square; makePattern/getPattern take colsX,colsY, the warp
+loop uses the pattern's own width and height, cache key includes the counts,
+rounding keeps drag churn low. Applies to every surface, not just the shell. My
+files: src/components/Visualizer.tsx, visualizer/draw.ts, hooks/useSamAutofind.ts,
+docs. Rollback point is 09962d8. PROVEN by eye: post-find shows zero stones and
+square glass tiles across floor and walls, consistent run to run; gates tsc,
+eslint zero, 70 tests, next build, dash clean. Evidence in docs/QA.md.
+
 ## 2026-07-10 - Claude - Pool render to photoreal (light, glass, edges, back wall) - done
 
 Owner directive: make it perfect and realistic, operate to the goal without

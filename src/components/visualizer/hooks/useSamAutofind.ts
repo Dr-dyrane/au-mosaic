@@ -573,9 +573,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           hasFittedSurface: true,
         });
         setSnapMessage(
-          landed >= shellFaces.length
-            ? "Pool tiled, face by face. Nudge any stone to refine."
-            : `Tiled ${landed} of ${shellFaces.length} faces. Nudge any stone to refine.`,
+          "Here is your pool. Swap the colour on the right, or send it. Tap Adjust to nudge a corner.",
         );
         buzz(8);
         track("viz_shell_faces", { landed, asked: shellFaces.length });

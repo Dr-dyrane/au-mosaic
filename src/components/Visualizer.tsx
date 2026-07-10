@@ -393,11 +393,17 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
      The pool's AI walk stays behind the scan flag until the owner demos
      it on a phone; with the flag off, a pool arms the tap like the rest. */
   const armFind = () => {
-    if (previewMode) setPreviewMode(false);
     if (scanFlag && surface === "pool" && photo) {
-      void autoFindShell();
+      /* A pool tiles itself, then shows the clean result: the moment the
+         faces land, drop the brass stones and their lines off the stage
+         so the visitor sees a finished pool, not a wireframe. Adjust
+         brings the stones back for anyone who wants to nudge. */
+      void autoFindShell().then((ok) => {
+        if (ok) setPreviewMode(true);
+      });
       return;
     }
+    if (previewMode) setPreviewMode(false);
     armSam();
   };
 
@@ -572,7 +578,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     drawLoupe={drawLoupe} onCornerKey={onCornerKey}
                   />
                   <p className="mt-3 text-[13px] leading-relaxed text-mist">
-                    Drag the corners onto your surface. Press and hold to compare.
+                    {previewMode
+                      ? "Press and hold the image to compare with the original."
+                      : "Drag the corners onto your surface. Press and hold to compare."}
                   </p>
                   <div className="mt-4">
                     <LayerChips layers={layers} activeLayerId={activeLayerId} surface={surface} onSelect={selectLayerChip} />
