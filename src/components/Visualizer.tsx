@@ -31,6 +31,7 @@ import LightOptions from "./visualizer/parts/LightOptions";
 import LayerChips from "./visualizer/parts/LayerChips";
 import RefinePanel from "./visualizer/parts/RefinePanel";
 import CameraDialog from "./visualizer/parts/CameraDialog";
+import ScanOffer from "./visualizer/parts/ScanOffer";
 import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
 import { useCamera } from "./visualizer/hooks/useCamera";
@@ -38,6 +39,11 @@ import { useSnapshots } from "./visualizer/hooks/useSnapshots";
 import { useSamAutofind } from "./visualizer/hooks/useSamAutofind";
 import { useCornerDrag } from "./visualizer/hooks/useCornerDrag";
 import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
+import { useSurfaceSession } from "./visualizer/hooks/useSurfaceSession";
+
+/* The guided scan ships dark until the owner demos it on a real phone.
+   NEXT_PUBLIC vars inline at build, so this is a constant. */
+const scanFlag = process.env.NEXT_PUBLIC_VIZ_SCAN === "on";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -48,6 +54,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   };
   const [pieceSlug, setPieceSlug] = useState(startingPieceSlug);
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
+  /* Who chose this photo: the scan only spends money on a person's pick. */
+  const [photoSource, setPhotoSource] = useState<LoadSource>("default");
   const [quad, setQuad] = useState<Pt[]>(() => (readStore().quad as Pt[]) || DEFAULT_QUAD);
   const [surface, setSurface] = useState<SurfaceId>("pool");
   const [tileSize, setTileSize] = useState(() => (readStore().tileSize as number) || 26);
@@ -149,7 +157,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSnapMessage,
   });
 
-  const { withActiveLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip } = useSurfaceLayers({
+  const { withActiveLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip, activateLayerKind } = useSurfaceLayers({
     layers,
     setLayers,
     activeLayerId,
@@ -190,6 +198,19 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setHasFittedSurface,
     setSnapMessage,
     pushSnapshot,
+  });
+
+  /* The guided session: scan a fresh photo, offer the found surfaces,
+     then walk the finder across the accepted ones. Off unless flagged. */
+  const session = useSurfaceSession({
+    enabled: scanFlag,
+    photo,
+    photoSource,
+    samBusy,
+    addSurfaceLayer,
+    activateLayerKind,
+    runSam,
+    setSnapMessage,
   });
 
   const loadImage = useCallback((
@@ -251,6 +272,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       setActiveLayerId(FIRST_LAYER_ID);
       setSnapMessage(suggestion);
       setPhoto(img);
+      setPhotoSource(from);
       if (from !== "default") track("viz_photo", { source: from });
       revokeObjectUrl(src);
     };
@@ -779,7 +801,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                         </button>
                       )}
                       {hasFittedSurface && (
-                        <button type="button" onClick={addSurfaceLayer} className="link-hair text-dusk">
+                        <button type="button" onClick={() => addSurfaceLayer()} className="link-hair text-dusk">
                           Add surface
                         </button>
                       )}
@@ -823,6 +845,15 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                         </span>
                       )}
                     </div>
+                    {scanFlag && session.scan && (session.offerOpen || session.sessionRunning) && (
+                      <ScanOffer
+                        scan={session.scan}
+                        steps={session.steps}
+                        running={session.sessionRunning}
+                        onAccept={session.accept}
+                        onDismiss={session.dismiss}
+                      />
+                    )}
                     <p className="text-[12px] leading-relaxed text-mist" aria-live="polite">
                       {snapMessage ?? "The stones stay editable."}
                     </p>

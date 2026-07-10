@@ -1,19 +1,10 @@
-import {
-  analyzeVisualizerImage,
-  visualizerAiConfigured,
-  type VisualizerSurface,
-} from "@/lib/visualizer-ai";
+import { scanVisualizerScene, visualizerAiConfigured } from "@/lib/visualizer-ai";
 import { callerKey, makeRateLimiter, spendAllows } from "@/lib/visualizer-limits";
 
 export const dynamic = "force-dynamic";
 
-const SURFACES = new Set(["pool", "wall", "backsplash", "shower", "floor"]);
 const MEDIA_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_IMAGE_CHARS = 1_400_000;
-
-function cleanSurface(value: unknown): VisualizerSurface {
-  return typeof value === "string" && SURFACES.has(value) ? (value as VisualizerSurface) : "pool";
-}
 
 /* A meter on the paid eye, from the shared drawer: six a caller or
    sixty the shop in a rolling minute. It lives only as long as this
@@ -69,15 +60,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const plan = await analyzeVisualizerImage({
+    const scan = await scanVisualizerScene({
       image,
       mediaType,
-      surface: cleanSurface(body.surface),
-      piece: typeof body.piece === "string" ? body.piece.slice(0, 80) : undefined,
       width: typeof body.width === "number" ? body.width : undefined,
       height: typeof body.height === "number" ? body.height : undefined,
     });
-    return Response.json({ ok: true, available: true, plan });
+    return Response.json({ ok: true, available: true, scan });
   } catch {
     return Response.json(
       { ok: false, message: "Manual fit is ready." },

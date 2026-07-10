@@ -8,19 +8,26 @@ const PREP_MODES = ["primer", "blur", "none"] as const;
 export type VisualizerSurface = (typeof SURFACES)[number];
 export type VisualizerPrepMode = (typeof PREP_MODES)[number];
 export type VisualizerPoint = { x: number; y: number };
-export type VisualizerAiPlan = {
-  surface: VisualizerSurface;
-  prepMode: VisualizerPrepMode;
-  quad: [VisualizerPoint, VisualizerPoint, VisualizerPoint, VisualizerPoint];
+
+export type VisualizerScanSurface = {
+  kind: VisualizerSurface;
+  name: string;
+  tap: VisualizerPoint;
+  occluders: string[];
   confidence: number;
-  note: string;
 };
 
-type VisualizerAiArgs = {
+export type VisualizerScan = {
+  scene: string;
+  surfaces: VisualizerScanSurface[];
+  prepMode: VisualizerPrepMode;
+  note: string;
+  confidence: number;
+};
+
+type VisualizerScanArgs = {
   image: string;
   mediaType: "image/jpeg" | "image/png" | "image/webp";
-  surface: VisualizerSurface;
-  piece?: string;
   width?: number;
   height?: number;
 };
@@ -57,77 +64,107 @@ function normalizePoint(value: unknown): VisualizerPoint | null {
   return { x: clamp(x, 0.02, 0.98), y: clamp(y, 0.02, 0.98) };
 }
 
-function quadArea(quad: VisualizerPoint[]) {
-  let sum = 0;
-  for (let i = 0; i < quad.length; i += 1) {
-    const next = quad[(i + 1) % quad.length];
-    sum += quad[i].x * next.y - next.x * quad[i].y;
-  }
-  return Math.abs(sum) / 2;
+/* An honest zero is a real answer; only a non-number earns the
+   fallback. */
+function normalizeConfidence(value: unknown): number {
+  const confidence = Number(value);
+  return clamp(Number.isFinite(confidence) ? confidence : 0.45, 0, 1);
 }
 
-function normalizePlan(input: unknown): VisualizerAiPlan {
-  if (!isRecord(input)) throw new VisualizerAiError("bad-plan");
-  const surface = isSurface(input.surface) ? input.surface : "pool";
-  const prepMode = isPrepMode(input.prepMode) ? input.prepMode : "primer";
-  const rawQuad = Array.isArray(input.quad) ? input.quad : [];
-  const quad = rawQuad.map(normalizePoint).filter(Boolean) as VisualizerPoint[];
-  if (quad.length !== 4 || quadArea(quad) < 0.012) throw new VisualizerAiError("bad-quad");
-  const note = String(input.note || "AI suggested a surface.").slice(0, 96);
-  /* An honest zero is a real answer; only a non-number earns the
-     fallback. */
-  const confidence = Number(input.confidence);
+function normalizeSurface(value: unknown): VisualizerScanSurface | null {
+  if (!isRecord(value) || !isSurface(value.kind)) return null;
+  const tap = normalizePoint(value.tap);
+  if (!tap) return null;
+  const name = String(value.name || "").trim().slice(0, 32) || `the ${value.kind}`;
+  const occluders = (Array.isArray(value.occluders) ? value.occluders : [])
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim().slice(0, 40))
+    .filter(Boolean)
+    .slice(0, 4);
+  return { kind: value.kind, name, tap, occluders, confidence: normalizeConfidence(value.confidence) };
+}
+
+export function normalizeScan(input: unknown): VisualizerScan {
+  if (!isRecord(input)) throw new VisualizerAiError("bad-scan");
+
+  /* One layer per kind on the desk, so one surface per kind in the
+     scan; the most confident sighting wins its chip. */
+  const byKind = new Map<VisualizerSurface, VisualizerScanSurface>();
+  for (const raw of Array.isArray(input.surfaces) ? input.surfaces : []) {
+    const surface = normalizeSurface(raw);
+    if (!surface) continue;
+    const seen = byKind.get(surface.kind);
+    if (!seen || surface.confidence > seen.confidence) byKind.set(surface.kind, surface);
+  }
+  const surfaces = [...byKind.values()].slice(0, 5);
+  if (surfaces.length === 0) throw new VisualizerAiError("no-surfaces");
+
   return {
-    surface,
-    prepMode,
-    quad: [quad[0], quad[1], quad[2], quad[3]],
-    confidence: clamp(Number.isFinite(confidence) ? confidence : 0.45, 0, 1),
-    note,
+    scene: String(input.scene || "").trim().slice(0, 64) || "A customer space.",
+    surfaces,
+    prepMode: isPrepMode(input.prepMode) ? input.prepMode : "primer",
+    note: String(input.note || "").trim().slice(0, 96) || "The scan is ready.",
+    confidence: normalizeConfidence(input.confidence),
   };
 }
 
-export async function analyzeVisualizerImage(args: VisualizerAiArgs): Promise<VisualizerAiPlan> {
+export async function scanVisualizerScene(args: VisualizerScanArgs): Promise<VisualizerScan> {
   const key = process.env.CLAUDE_API_KEY;
   if (!key) throw new VisualizerAiError("not-configured");
 
   const body = {
     model: MODEL,
-    max_tokens: 700,
+    max_tokens: 900,
     temperature: 0,
     system:
       "You help AU Mosaic fit tile previews onto customer spaces. Return only the requested tool. Do not identify people. Do not infer private facts. Prefer conservative geometry the user can adjust.",
     tools: [
       {
-        name: "set_visualizer_fit",
-        description: "Return the best visualizer surface fit for one customer photo.",
+        name: "set_scene_scan",
+        description: "Return the scene reading for one customer photo.",
         input_schema: {
           type: "object",
           additionalProperties: false,
           properties: {
-            surface: { type: "string", enum: SURFACES },
-            prepMode: { type: "string", enum: PREP_MODES },
-            confidence: { type: "number", minimum: 0, maximum: 1 },
-            note: { type: "string", maxLength: 96 },
-            quad: {
+            scene: { type: "string", maxLength: 64 },
+            surfaces: {
               type: "array",
-              minItems: 4,
-              maxItems: 4,
+              minItems: 1,
+              maxItems: 5,
               items: {
                 type: "object",
                 additionalProperties: false,
                 properties: {
-                  x: { type: "number", minimum: 0, maximum: 1 },
-                  y: { type: "number", minimum: 0, maximum: 1 },
+                  kind: { type: "string", enum: SURFACES },
+                  name: { type: "string", maxLength: 32 },
+                  tap: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      x: { type: "number", minimum: 0, maximum: 1 },
+                      y: { type: "number", minimum: 0, maximum: 1 },
+                    },
+                    required: ["x", "y"],
+                  },
+                  occluders: {
+                    type: "array",
+                    maxItems: 4,
+                    items: { type: "string", maxLength: 40 },
+                  },
+                  confidence: { type: "number", minimum: 0, maximum: 1 },
                 },
-                required: ["x", "y"],
+                required: ["kind", "name", "tap", "occluders", "confidence"],
               },
             },
+            prepMode: { type: "string", enum: PREP_MODES },
+            note: { type: "string", maxLength: 96 },
+            confidence: { type: "number", minimum: 0, maximum: 1 },
           },
-          required: ["surface", "prepMode", "confidence", "note", "quad"],
+          required: ["scene", "surfaces", "prepMode", "note", "confidence"],
         },
       },
     ],
-    tool_choice: { type: "tool", name: "set_visualizer_fit" },
+    tool_choice: { type: "tool", name: "set_scene_scan" },
     messages: [
       {
         role: "user",
@@ -143,15 +180,13 @@ export async function analyzeVisualizerImage(args: VisualizerAiArgs): Promise<Vi
           {
             type: "text",
             text: [
-              `Current surface mode: ${args.surface}.`,
-              args.piece ? `Current tile: ${args.piece}.` : "",
               args.width && args.height ? `Image size sent: ${args.width} by ${args.height}.` : "",
-              "Find the surface that should receive mosaic tile.",
-              "Return normalized points in this order: top left, top right, bottom right, bottom left.",
-              "Use primer when old tile, grout, mosaic, or busy floor texture would fight the preview.",
-              "Use blur when the old surface should stay luminous but softer.",
-              "Use none only for clean empty concrete, plaster, or an unfinished bare surface.",
-              "If unsure, return a broad conservative quad with confidence below 0.55.",
+              "Name the scene in one terse sentence.",
+              "List up to five distinct tileable surfaces, at most one per kind.",
+              "For each, give a tap point that sits on the surface well away from ladders, rails, furniture, or people.",
+              "List visible obstacles per surface.",
+              "Be conservative with confidence and use low values when unsure.",
+              "The note is one plain sentence for the customer.",
             ].filter(Boolean).join(" "),
           },
         ],
@@ -175,8 +210,8 @@ export async function analyzeVisualizerImage(args: VisualizerAiArgs): Promise<Vi
     if (!res.ok) throw new VisualizerAiError(`http-${res.status}`);
     const data = (await res.json()) as { content?: ToolBlock[] };
     const block = data.content?.find((item) => item.type === "tool_use");
-    if (!block?.input) throw new VisualizerAiError("no-plan");
-    return normalizePlan(block.input);
+    if (!block?.input) throw new VisualizerAiError("no-scan");
+    return normalizeScan(block.input);
   } finally {
     clearTimeout(timer);
   }

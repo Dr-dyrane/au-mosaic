@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-09 - Claude - Visualizer guided session lane (Phase 4) - open
+## 2026-07-09 - Claude - Visualizer guided session lane (Phase 4) - done
 
 Owner-directed Phase 4 of the reconstruction, flag-gated behind
 NEXT_PUBLIC_VIZ_SCAN (off in the template until the owner demos on a
@@ -49,7 +49,19 @@ lines), docs/QA.md, and this handshake. Gate is tsc, eslint, npm run
 test, next build, the dash scan, and a live proof: a real Haiku scan
 on the pool starter, Tile it landing each surface in sequence with
 masks appending, and the silent degrade with the flag off. Rollback
-point is 4e98d85.
+point is 4e98d85. CLOSED same day. Two parallel streams, per-stream
+adversarial reviews, an integration review of the seam, and one fix
+round, all passed; the fix round mattered: the scan originally keyed on
+photo identity alone, so every page view would have burned the metered
+call through the auto-loaded sample; it now keys on the load source.
+Live proof: zero scans on the default load, one real Haiku scan on the
+Empty pool starter ("Residential pool area with concrete deck and
+walls", three chips pre-selected), Tile it landed pool floor, deck, and
+wall in about twelve seconds with three masked layers composited at
+once, the Upstash counter read exactly six for six paid calls, and the
+flag-off boot produced zero calls and no interface. 49 tests green.
+The flag stays off in the template until the owner demos on a real
+phone. Evidence in docs/QA.md.
 
 ## 2026-07-09 - Claude - Visualizer server hardening lane (Phase 3) - done
 

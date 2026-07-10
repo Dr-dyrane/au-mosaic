@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
 import type { Pt, SurfaceId } from "../types";
-import { buzz } from "../helpers";
+import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
 import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
@@ -147,7 +147,7 @@ interface UseSamAutofindParams {
 export function useSamAutofind(params: UseSamAutofindParams): {
   samBeta: boolean;
   samBusy: boolean;
-  runSam: (point: Pt) => Promise<void>;
+  runSam: (point: Pt) => Promise<boolean>;
   armSam: () => void;
   clearSam: () => void;
 } {
@@ -185,37 +185,30 @@ export function useSamAutofind(params: UseSamAutofindParams): {
      entry, cleared in the finally. */
   const inFlightRef = useRef(false);
 
-  const runSam = async (point: Pt) => {
+  /* Resolves true only after the mask is in state and the snapshot is
+     saved, so the guided session can await one surface before moving to
+     the next. */
+  const runSam = async (point: Pt): Promise<boolean> => {
     const orig = originalRef.current;
     if (!orig || inFlightRef.current) {
       setSamBeta(false);
-      return;
+      return false;
     }
     inFlightRef.current = true;
     setSamBusy(true);
     buzz(4);
     try {
-      const ow = orig.width;
-      const oh = orig.height;
-      const scale = Math.min(1, 768 / ow);
-      const sw = Math.max(1, Math.round(ow * scale));
-      const sh = Math.max(1, Math.round(oh * scale));
-      const tmp = document.createElement("canvas");
-      tmp.width = sw;
-      tmp.height = sh;
-      const tctx = tmp.getContext("2d");
-      if (!tctx) throw new Error("no-ctx");
-      tctx.drawImage(orig, 0, 0, sw, sh);
-      const base64 = tmp.toDataURL("image/jpeg", 0.85).split(",")[1] ?? "";
+      const shot = canvasToJpeg(orig, 768);
+      if (!shot) throw new Error("no-ctx");
       /* One call covers both moods: a warm model answers with the mask
          in the POST, a cold one hands back a ticket and the helper
          polls the free endpoint while samBusy holds the stage. */
       const data = await submitAndAwaitMask(
         JSON.stringify({
-          image: base64,
+          image: shot.base64,
           mediaType: "image/jpeg",
-          x: Math.round(point.x * sw),
-          y: Math.round(point.y * sh),
+          x: Math.round(point.x * shot.width),
+          y: Math.round(point.y * shot.height),
         }),
         () => setSnapMessage("Still looking. The finder is waking."),
       );
@@ -274,6 +267,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         setSnapMessage(message);
         buzz(8);
         track("viz_sam", { ok: true });
+        return true;
       } else {
         setSnapMessage(data.message ?? "Could not find it there. Drag the corners instead.");
         track("viz_sam", { ok: false });
@@ -291,6 +285,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
       setSamBusy(false);
       setSamBeta(false);
     }
+    return false;
   };
 
   const armSam = () => {

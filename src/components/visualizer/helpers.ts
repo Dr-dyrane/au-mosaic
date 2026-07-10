@@ -26,6 +26,30 @@ function shouldKeepCurrentFit(found: SnapResult, current: Pt[], alreadyFit: bool
   return true;
 }
 
+/* The one downscale-and-encode. The finder and the scene scan both send
+   the photo as a small JPEG, base64 without the data prefix, so the wire
+   shape lives here once. Null means the source had no pixels or no
+   context; encoding faults still throw, exactly as before. */
+function canvasToJpeg(
+  source: HTMLCanvasElement | HTMLImageElement,
+  maxWidth: number,
+): { base64: string; width: number; height: number } | null {
+  const sourceW = source instanceof HTMLImageElement ? source.naturalWidth : source.width;
+  const sourceH = source instanceof HTMLImageElement ? source.naturalHeight : source.height;
+  if (!sourceW || !sourceH) return null;
+  const scale = Math.min(1, maxWidth / sourceW);
+  const width = Math.max(1, Math.round(sourceW * scale));
+  const height = Math.max(1, Math.round(sourceH * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(source, 0, 0, width, height);
+  const base64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1] ?? "";
+  return { base64, width, height };
+}
+
 /* Saved controls, if the browser kept them. Safe on the server:
    the first rendered photo is still the house's empty pool. */
 function readStore(): Record<string, unknown> {
@@ -37,4 +61,4 @@ function readStore(): Record<string, unknown> {
   }
 }
 
-export { buzz, pieceSlugForSurface, suggestionText, shouldKeepCurrentFit, readStore };
+export { buzz, pieceSlugForSurface, suggestionText, shouldKeepCurrentFit, canvasToJpeg, readStore };

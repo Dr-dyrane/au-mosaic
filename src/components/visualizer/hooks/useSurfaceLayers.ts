@@ -122,21 +122,30 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     buzz(3);
   }, [setActiveLayerId, setBlend, setCustomColors, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
 
-  const addSurfaceLayer = () => {
+  /* Without a kind the desk picks the next natural surface, as before.
+     The guided session names the kind it wants and reads the boolean to
+     know whether a layer actually landed. */
+  const addSurfaceLayer = (kind?: SurfaceId): boolean => {
     const committedLayers = withActiveLayer(layers);
     if (!hasFittedSurface) {
       setLayers(committedLayers);
       setSnapMessage(`Place ${LAYER_LABELS[surface]} first.`);
       buzz(2);
-      return;
+      return false;
     }
     const used = new Set(committedLayers.map((layer) => layer.surface));
-    const nextSurface = NEXT_SURFACE[surface].find((candidate) => !used.has(candidate));
+    if (kind && used.has(kind)) {
+      setLayers(committedLayers);
+      setSnapMessage(`${LAYER_LABELS[kind]} is already in this preview.`);
+      buzz(2);
+      return false;
+    }
+    const nextSurface = kind ?? NEXT_SURFACE[surface].find((candidate) => !used.has(candidate));
     if (!nextSurface) {
       setLayers(committedLayers);
       setSnapMessage("Every surface type is already in this preview.");
       buzz(2);
-      return;
+      return false;
     }
     const nextPieceSlug = pieceSlugForSurface(nextSurface, pieces, pieceSlug);
     const id = `surface-${layerSeq.current + 1}`;
@@ -183,6 +192,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setSnapMessage(`Added ${nextLayer.label}. Drag its corners to place it.`);
     buzz(5);
     track("viz_layer_add", { surface: nextSurface });
+    return true;
   };
 
   /* Take a surface back off. The last one stays, since the preview needs
@@ -229,5 +239,15 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
   const selectLayerChip = (layer: SurfaceLayer) =>
     selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer);
 
-  return { activeLayerSnapshot, withActiveLayer, selectLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip };
+  /* The guided session asks for a kind, not an id. True means that
+     kind's layer is now the active one; false means it is not on the
+     desk at all. Same commit path as the chips. */
+  const activateLayerKind = useCallback((kind: SurfaceId): boolean => {
+    const layer = layers.find((candidate) => candidate.surface === kind);
+    if (!layer) return false;
+    selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer);
+    return true;
+  }, [activeLayerId, activeLayerSnapshot, layers, selectLayer]);
+
+  return { activeLayerSnapshot, withActiveLayer, selectLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip, activateLayerKind };
 }

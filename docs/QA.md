@@ -581,3 +581,34 @@ four advisory findings were fixed and re-reviewed the same pass. Noted
 for later: a DOMException inside the normaliser would show the busy
 message instead of the surface one, reachable only if the sam2 hatch
 ever returned a remote URL, which sync mode prevents.
+
+## The house learns to see: the scene scan and the guided session (Phase 4)
+
+Behind the NEXT_PUBLIC_VIZ_SCAN flag, off in the template until the
+owner demos it on a real phone, the visualizer now reads the room. One
+Haiku call (claude-haiku-4-5, forced tool, about a fifth of a cent)
+scans each photo a person chooses and returns the scene in plain words
+with up to five surfaces, one per kind, each carrying a chip name, a
+tap point placed away from obstacles, and honest confidence; the pure
+normaliser is unit-tested eight ways. The offer is one glass row in the
+disclosure grammar: the scene sentence, pre-selected chips (only
+surfaces at or above 0.45 confidence arrive ticked), Tile it, Choose
+myself. Accept walks the surfaces in sequence, activating or creating
+each kind's layer and awaiting each mask fully landed before the next.
+Proven live end to end: the auto-loaded house sample fired zero scans
+(the review loop caught that every page view would have burned the
+metered call and drained the shared cap; the scan now keys on the load
+source), the Empty pool starter fired exactly one, Haiku answered
+"Residential pool area with concrete deck and walls" with pool floor,
+pool deck, and pool wall pre-selected, Tile it landed three surfaces in
+about twelve seconds ending "All set. Drag any corner to refine.", the
+composite held three masked layers at once, the Upstash counter read
+exactly six for exactly six paid calls today, and with the flag off the
+same clicks produced zero calls and no interface at all. Below 0.55
+overall confidence or on any failure the line simply never appears.
+Gates: tsc, eslint zero warnings, 49 of 49 tests, the production build,
+the dash scan, all clean; two stream reviews, an integration review of
+the seam, and a fix round for four advisories all passed. Honest scope
+note: the desk holds one layer per surface kind, so a scene scans into
+at most one of each; several walls of the same kind in one photo is a
+later lane, and the corner-drag user lock rides with Phase 5.
