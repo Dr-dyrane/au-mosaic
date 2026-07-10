@@ -31,7 +31,6 @@ import RefinePanel from "./visualizer/parts/RefinePanel";
 import ToolRail from "./visualizer/parts/ToolRail";
 import { IconEye, IconDownload } from "./visualizer/icons";
 import CameraDialog from "./visualizer/parts/CameraDialog";
-import ScanOffer from "./visualizer/parts/ScanOffer";
 import Stage from "./visualizer/parts/Stage";
 import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
@@ -39,7 +38,6 @@ import { useSnapshots } from "./visualizer/hooks/useSnapshots";
 import { useSamAutofind } from "./visualizer/hooks/useSamAutofind";
 import { useCornerDrag } from "./visualizer/hooks/useCornerDrag";
 import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
-import { useSurfaceSession } from "./visualizer/hooks/useSurfaceSession";
 import { usePhotoDesk } from "./visualizer/hooks/usePhotoDesk";
 import { useShareDownload } from "./visualizer/hooks/useShareDownload";
 
@@ -57,7 +55,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [pieceSlug, setPieceSlug] = useState(startingPieceSlug);
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
   /* Who chose this photo: the scan only spends money on a person's pick. */
-  const [photoSource, setPhotoSource] = useState<LoadSource>("default");
+  /* The load source is written for the photo desk's own reset logic; the
+     orchestrator no longer reads it now that finding is a deliberate tap. */
+  const [, setPhotoSource] = useState<LoadSource>("default");
   const [quad, setQuad] = useState<Pt[]>(() => (readStore().quad as Pt[]) || DEFAULT_QUAD);
   /* The active layer's shell floor, live beside the quad. Null means the
      surface is flat, which every layer is until the Shell toggle. A floor
@@ -177,7 +177,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSnapMessage,
   });
 
-  const { withActiveLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip, activateLayerKind } = useSurfaceLayers({
+  const { withActiveLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip } = useSurfaceLayers({
     layers,
     setLayers,
     activeLayerId,
@@ -212,7 +212,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     pieces,
   });
 
-  const { samBeta, samBusy, runSam, runShellFaces, armSam, clearSam } = useSamAutofind({
+  const { samBeta, samBusy, runSam, autoFindShell, armSam, clearSam } = useSamAutofind({
     originalRef,
     surface,
     quad,
@@ -221,27 +221,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setShellFloor,
     setSamMask,
     setSamMaskSrc,
-    faceMasks,
     setFaceMasks,
     setHasFittedSurface,
     setSnapMessage,
     pushSnapshot,
-  });
-
-  /* The guided session: scan a fresh photo, offer the found surfaces,
-     then walk the finder across the accepted ones. Off unless flagged. */
-  const session = useSurfaceSession({
-    enabled: scanFlag,
-    photo,
-    photoSource,
-    samBusy,
-    quad,
-    setShellFloor,
-    addSurfaceLayer,
-    activateLayerKind,
-    runSam,
-    runShellFaces,
-    setSnapMessage,
   });
 
   /* How photos arrive and what a retag does; the camera rides inside. */
@@ -402,11 +385,19 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     track("viz_preview", {});
   };
 
-  /* Arming auto-find must leave Preview first: Preview unmounts the tap
-     overlay, so a tap to find a surface would land on nothing. Adjust
-     brings the overlay back, then the arm takes the next tap. */
+  /* Auto-find, smart by context. A pool becomes a shell that tiles every
+     face on its own, no tap: the corner finder snaps the eight stones
+     onto the real basin, then a segment lands per face. Any other
+     surface arms a single tap for the finder. Either way it leaves
+     Preview first, since Preview unmounts the very overlay a tap needs.
+     The pool's AI walk stays behind the scan flag until the owner demos
+     it on a phone; with the flag off, a pool arms the tap like the rest. */
   const armFind = () => {
     if (previewMode) setPreviewMode(false);
+    if (scanFlag && surface === "pool" && photo) {
+      void autoFindShell();
+      return;
+    }
     armSam();
   };
 
@@ -605,15 +596,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                       history={history}
                       openRefine={openRefine}
                     />
-                    {scanFlag && session.scan && (session.offerOpen || session.sessionRunning) && (
-                      <ScanOffer
-                        scan={session.scan}
-                        steps={session.steps}
-                        running={session.sessionRunning}
-                        onAccept={session.accept}
-                        onDismiss={session.dismiss}
-                      />
-                    )}
                     <p className="text-[12px] leading-relaxed text-mist" aria-live="polite">
                       {snapMessage ?? "The stones stay editable."}
                     </p>

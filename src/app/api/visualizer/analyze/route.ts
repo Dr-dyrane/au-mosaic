@@ -1,4 +1,4 @@
-import { scanVisualizerScene, visualizerAiConfigured } from "@/lib/visualizer-ai";
+import { findSurfaceCorners, isVisualizerSurface, visualizerAiConfigured } from "@/lib/visualizer-ai";
 import { callerKey, makeRateLimiter, spendAllows } from "@/lib/visualizer-limits";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   const mediaType = typeof body.mediaType === "string" && MEDIA_TYPES.has(body.mediaType)
     ? (body.mediaType as "image/jpeg" | "image/png" | "image/webp")
     : "image/jpeg";
+  const surface = isVisualizerSurface(body.surface) ? body.surface : "pool";
 
   if (!image || image.length > MAX_IMAGE_CHARS || !/^[a-zA-Z0-9+/=]+$/.test(image)) {
     return Response.json({ ok: false, message: "Manual fit is ready." }, { status: 413 });
@@ -60,13 +61,14 @@ export async function POST(req: Request) {
   }
 
   try {
-    const scan = await scanVisualizerScene({
+    const corners = await findSurfaceCorners({
       image,
       mediaType,
+      surface,
       width: typeof body.width === "number" ? body.width : undefined,
       height: typeof body.height === "number" ? body.height : undefined,
     });
-    return Response.json({ ok: true, available: true, scan });
+    return Response.json({ ok: true, available: true, corners });
   } catch {
     return Response.json(
       { ok: false, message: "Manual fit is ready." },

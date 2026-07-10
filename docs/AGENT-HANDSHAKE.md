@@ -16,6 +16,37 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Context-aware Auto + corner point-snapping, Tile it removed - done
+
+The owner's geometry redesign, built in one proven pass on their call (AI
+corners + mask refine). "Tile it" and its scene scan are gone; the Auto/Find
+button is now context-aware. On a POOL it runs autoFindShell (useSamAutofind.ts):
+POST /api/visualizer/analyze returns the pool's rim + floor corners from Haiku
+(visualizer-ai.ts findSurfaceCorners, which REPLACED scanVisualizerScene), the
+eight stones snap onto the real basin (setQuad rim, setShellFloor floor), one
+point per visible face is taken from the snapped box (buildShellFaces centroids),
+and each face is segmented (per-face SAM masks) with the floor/wall extent
+trapezoids tightening the geometry; the whole basin tiles with NO tap. Any other
+surface arms a single tap as before. A fragmentation guard (largestComponent +
+solidity from fitMask) skips a face whose mask is not one solid region, so a
+stray speckle leaves bare concrete instead of a moth-eaten mess. Gated behind
+NEXT_PUBLIC_VIZ_SCAN (the AI walk; with the flag off, Auto on a pool arms the tap
+like the rest). Deleted: parts/ScanOffer.tsx, hooks/useSurfaceSession.ts. My
+files: src/lib/visualizer-ai.ts, src/app/api/visualizer/analyze/route.ts,
+tests/visualizer-scan.test.ts (now corner-normaliser tests),
+hooks/useSamAutofind.ts, hooks/useSurfaceLayers.ts (dropped dead
+activateLayerKind), Visualizer.tsx, docs. Rollback point is cb4eb38. An
+adversarial review agent cleared it (no blockers; its dead-code nits were then
+swept). PROVEN LIVE in headless chromium, four runs: one Find click = 1 corner
+call + 4 per-face masks, no tap, no Tile it, and with the guard the result is
+CLEAN AND CONSISTENT across runs (floor + both walls tiled in true perspective;
+the earlier speckle on a bad face is gone). Gates: tsc, eslint zero, 70 tests
+(scan tests became corner tests), next build, dash clean. Honest carried limits:
+the far back wall often stays bare (its centroid mask reads fragmented and is
+skipped, correctly); a bad corner read falls back to the default geometry;
+useSamAutofind.ts is 568 lines (over the ~500 budget, the SAM round-trip helpers
+are the natural extraction into a samClient module). Evidence in docs/QA.md.
+
 ## 2026-07-10 - Claude - Studio teardown: full-bleed revert, depth removed, auto exits preview - done
 
 On the owner's direct call after seeing the deployed studio: the full-bleed

@@ -261,15 +261,5 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
   const selectLayerChip = (layer: SurfaceLayer) =>
     selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer);
 
-  /* The guided session asks for a kind, not an id. True means that
-     kind's layer is now the active one; false means it is not on the
-     desk at all. Same commit path as the chips. */
-  const activateLayerKind = useCallback((kind: SurfaceId): boolean => {
-    const layer = layers.find((candidate) => candidate.surface === kind);
-    if (!layer) return false;
-    selectLayer(layer.id === activeLayerId ? activeLayerSnapshot() : layer);
-    return true;
-  }, [activeLayerId, activeLayerSnapshot, layers, selectLayer]);
-
-  return { activeLayerSnapshot, withActiveLayer, selectLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip, activateLayerKind };
+  return { activeLayerSnapshot, withActiveLayer, selectLayer, addSurfaceLayer, removeSurfaceLayer, selectLayerChip };
 }

@@ -6,6 +6,8 @@ import { track } from "@vercel/analytics";
 import type { Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
+import { largestComponent, solidity } from "../fitMask";
+import { buildShellFaces, defaultShellFloor } from "../shell";
 import { deriveShellFloor, floorTrapezoidFromMask, wallTrapezoidFromMask } from "../shellFit";
 import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
@@ -186,6 +188,40 @@ function maskToBits(img: HTMLImageElement, long = 192): { data: Uint8Array; widt
   return { data: bits, width: mw, height: mh };
 }
 
+/* The mean of a quad's corners: a point that sits inside the face, so
+   the segmenter has an anchor squarely on it. */
+function centroid(quad: Pt[]): Pt {
+  const n = quad.length || 1;
+  return {
+    x: quad.reduce((sum, p) => sum + p.x, 0) / n,
+    y: quad.reduce((sum, p) => sum + p.y, 0) / n,
+  };
+}
+
+/* Ask the corner finder where the pool's rim and floor sit, so the
+   stones can snap onto the real basin before the masks tighten them.
+   Null when the eye is off, over budget, or unsure; the caller keeps the
+   geometry it has. */
+async function fetchShellCorners(orig: HTMLCanvasElement): Promise<{ rim: Pt[]; floor: Pt[] } | null> {
+  const shot = canvasToJpeg(orig, 768);
+  if (!shot) return null;
+  try {
+    const res = await fetch("/api/visualizer/analyze", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ image: shot.base64, mediaType: "image/jpeg", surface: "pool", width: shot.width, height: shot.height }),
+    });
+    const data = (await res.json()) as { ok?: boolean; available?: boolean; corners?: { shape?: string; rim?: Pt[]; floor?: Pt[] } };
+    const c = data.corners;
+    if (data.ok && data.available && c?.shape === "shell" && Array.isArray(c.rim) && c.rim.length === 4 && Array.isArray(c.floor) && c.floor.length === 4) {
+      return { rim: c.rim, floor: c.floor };
+    }
+  } catch {
+    /* silent: the corners are a convenience, the geometry still stands */
+  }
+  return null;
+}
+
 interface UseSamAutofindParams {
   originalRef: RefObject<HTMLCanvasElement | null>;
   surface: SurfaceId;
@@ -195,7 +231,6 @@ interface UseSamAutofindParams {
   setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
-  faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
   setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
@@ -213,7 +248,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
   samBeta: boolean;
   samBusy: boolean;
   runSam: (point: Pt) => Promise<boolean>;
-  runShellFaces: (faces: { id: ShellFaceId; point: Pt }[]) => Promise<boolean>;
+  autoFindShell: () => Promise<boolean>;
   armSam: () => void;
   clearSam: () => void;
 } {
@@ -226,7 +261,6 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     setShellFloor,
     setSamMask,
     setSamMaskSrc,
-    faceMasks,
     setFaceMasks,
     setHasFittedSurface,
     setSnapMessage,
@@ -252,13 +286,6 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     shellFloorRef.current = shellFloor;
   }, [shellFloor]);
 
-  /* The per-face loop accumulates onto whatever faces the active layer
-     already carries, so a second run tops up rather than wipes; the ref
-     keeps the latest committed set under the many awaits. */
-  const faceMasksRef = useRef(faceMasks);
-  useEffect(() => {
-    faceMasksRef.current = faceMasks;
-  }, [faceMasks]);
 
   /* The learned auto-find (beta, opt-in). Arm it, then one tap sends the
      untouched photo and the tapped point to the segment endpoint; the mask
@@ -407,29 +434,61 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     return false;
   };
 
-  /* The no-tap shell walk. Given one point per visible basin face (from
-     the scene scan), send them one at a time and paint each face in as
-     its own segment lands, so the visitor watches the basin fill wall by
-     wall with no tap. A face the finder cannot read is skipped, not
-     fatal. The floor's mask also sets the basin floor, so the walls that
+  /* The no-tap shell walk. Read the corners, snap the eight stones onto
+     the real basin, then send one point per visible face and paint each
+     in as its segment lands, so the visitor watches the basin fill wall
+     by wall with no tap. A face the finder cannot read is skipped, not
+     fatal; the floor's mask also sets the basin floor, so the walls that
      share its far corners recede with it. One snapshot at the end holds
-     every face for undo. Resolves true if at least one face landed. */
-  const runShellFaces = async (faces: { id: ShellFaceId; point: Pt }[]): Promise<boolean> => {
+     the whole box for undo. Resolves true if at least one face landed.
+     Everything after the lock is inside the try, so no throw can leave
+     the finder stuck busy. */
+  const autoFindShell = async (): Promise<boolean> => {
     const orig = originalRef.current;
-    if (!orig || inFlightRef.current || faces.length === 0) return false;
+    if (!orig || inFlightRef.current) return false;
     inFlightRef.current = true;
     setSamBusy(true);
     buzz(4);
-    const found: Partial<Record<ShellFaceId, FaceMask>> = { ...(faceMasksRef.current ?? {}) };
+    const found: Partial<Record<ShellFaceId, FaceMask>> = {};
     let landed = 0;
     let fittedFloor: Pt[] | null = null;
     try {
+      /* Read the corners first and snap onto the real basin, so the
+         per-face points land on the true faces instead of a default
+         guess. A declined read keeps the geometry the visitor has. */
+      setSnapMessage("Reading the pool.");
+      const corners = await fetchShellCorners(orig);
+      const rim = corners?.rim ?? quadRef.current;
+      const floor = corners?.floor ?? defaultShellFloor(rim);
+      setQuad(rim);
+      setShellFloor(floor);
+      /* One point per visible face from the snapped box; the near wall is
+         under the camera and never tiled, so it drops out here. */
+      const faces = buildShellFaces(rim, floor)
+        .filter((face) => face.visible)
+        .map((face) => ({ id: face.id, point: centroid(face.quad) }));
       for (const face of faces) {
         setSnapMessage(`Fitting the ${FACE_WORD[face.id]}.`);
         try {
           const { img, maskSrc } = await segmentAtPoint(orig, face.point, () =>
             setSnapMessage("Still looking. The finder is waking."));
           const bits = maskToBits(img);
+          /* A face whose segment is not one solid region (a stray point
+             caught speckle, or the back wall dissolved into the floor)
+             clips the tiles into a moth-eaten mess, worse than bare
+             concrete. Keep only faces whose mask reads as a single
+             cohesive, filled shape; skip the rest, and fit the geometry
+             from the cleaned island so a stray speck cannot skew it. */
+          let clean = bits;
+          if (bits) {
+            const island = largestComponent(bits);
+            const total = bits.data.reduce((sum, v) => sum + v, 0);
+            const cohesion = island ? island.data.reduce((sum, v) => sum + v, 0) / (total || 1) : 0;
+            if (!island || total < bits.width * bits.height * 0.01 || cohesion < 0.7 || solidity(island) < 0.5) {
+              continue;
+            }
+            clean = island;
+          }
           let faceQuad: Pt[] | undefined;
           if (face.id === "floor") {
             /* The floor's own mask sets the basin floor as a clean
@@ -440,7 +499,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
                (fitMask's floor regime skewed this plane into a degenerate
                fan, so the extent read is used instead.) The floor rides
                the shell floor, not a per-face quad. */
-            const derived = bits ? floorTrapezoidFromMask(bits) : null;
+            const derived = clean ? floorTrapezoidFromMask(clean) : null;
             if (derived) fittedFloor = derived;
           } else {
             /* A wall's shared-vertex geometry is a thin sliver that
@@ -450,7 +509,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
                an axis-aligned box that streaked under the gloss, so the
                extent read is used instead. A degenerate read is dropped
                and the wall stays bare rather than streaked. */
-            const wall = bits ? wallTrapezoidFromMask(bits) : null;
+            const wall = clean ? wallTrapezoidFromMask(clean) : null;
             if (wall) faceQuad = wall;
           }
           found[face.id] = { src: maskSrc, quad: faceQuad };
@@ -467,21 +526,22 @@ export function useSamAutofind(params: UseSamAutofindParams): {
       }
       if (landed > 0) {
         setHasFittedSurface(true);
-        pushSnapshot("Shell faces", {
+        pushSnapshot("Auto shell", {
+          quad: rim,
+          shellFloor: fittedFloor ?? floor,
           faceMasks: { ...found },
           hasFittedSurface: true,
-          ...(fittedFloor ? { shellFloor: fittedFloor } : {}),
         });
         setSnapMessage(
           landed === faces.length
-            ? "Shell tiled, face by face. Nudge any stone to refine."
-            : `Tiled ${landed} of ${faces.length} faces. Nudge any stone, or tap a face to add it.`,
+            ? "Pool tiled, face by face. Nudge any stone to refine."
+            : `Tiled ${landed} of ${faces.length} faces. Nudge any stone to refine.`,
         );
         buzz(8);
         track("viz_shell_faces", { landed, asked: faces.length });
         return true;
       }
-      setSnapMessage("Could not read the shell. Drag the corners instead.");
+      setSnapMessage("Could not read the pool. Drag the corners instead.");
       return false;
     } finally {
       inFlightRef.current = false;
@@ -504,5 +564,5 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     buzz(3);
   };
 
-  return { samBeta, samBusy, runSam, runShellFaces, armSam, clearSam };
+  return { samBeta, samBusy, runSam, autoFindShell, armSam, clearSam };
 }
