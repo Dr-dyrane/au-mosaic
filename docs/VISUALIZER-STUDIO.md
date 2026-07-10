@@ -288,3 +288,104 @@ Ship stage 1 first. It resolves the two defects and the hand-control ask
 with no model, no cost, and no network, and it proves the decoupling. Then
 add the models stage by stage, each one gated and each one useful the day
 it lands.
+
+## The deploy blueprint (2026-07-10, from the foresight design panel)
+
+A read-only multi-agent design panel foresaw the whole studio deploy and
+synthesized this sequenced plan. It is the master map for the remaining
+lanes. One invariant composes it all: the mask answers WHERE, depth
+answers HOW IT SITS and WHAT IS IN FRONT, the fit engine is the
+guaranteed floor, the snap layer makes failure legible, and the studio
+UI is the shell that holds it. Confidence is the currency traded between
+them. The fidelity law is the boundary every layer respects: find, read,
+relight, warp the real tile, never invent the mosaic.
+
+### The deployed studio, as the customer meets it
+
+Full-bleed studio, the stage the hero across every width, held in a 26px
+squircle in the page gutter. Upload or shoot. A quiet Haiku scan reads
+the scene and offers Tile it. One tap walks the surface: a flat wall
+finds one clean shape; a pool finds each face on its own (left, back,
+right wall, floor), one clean SAM cut per face, so the basin reads as a
+real box with seams that meet by construction. Depth reads how each
+plane sits and carves out anything standing in front (a ladder, a chair,
+a person) so the tile falls behind it. Eight brass stones land labelled
+1 to 8 (1 to 4 flat), left to right; a dragged stone leans into the
+nearest real corner the image offers and snaps home. If a fit flattens,
+the stones reposition to a sane on-surface default and say so. Refine
+discloses one decision at a time (Surface, Colourway, Finish, Depth),
+phone and desktop alike. Tools read as drawn icons with one-word labels,
+gold when active; on the phone the tool rail is a floating glass
+capsule, icons only at rest. The one loud thing is the gold Send capsule
+to WhatsApp with the look attached.
+
+### The lanes, in build order
+
+Each is its own handshake lane with a live proof and a flag. They
+collide on Visualizer.tsx, useSamAutofind.ts, Stage.tsx, and draw.ts, so
+they serialize; the order is chosen so each builds on finished data.
+
+- L0a Close the depth oracle lane (4c slice 1). DONE at this writing.
+- L0b Close the open RefinePanel disclosure lane, releasing RefinePanel
+  and the exposedRefinement assemblies for the studio UI.
+- L1 Types and fit-engine export foundation, one additive commit:
+  types.ts gains faceMasks, ShellFaceId, the scan shape and faces types,
+  CornerCandidate, SnapState; fitQuad widens exports; constants gains the
+  snap, flatten, and RANSAC thresholds.
+- L2 Server meta tag and segment prompt (dark): visualizer-ai.ts scan
+  returns shape (single_surface or shell) and an enumerated faces array
+  with per-face tap and text prompt; the segment route forwards the SAM 3
+  text prompt it currently drops.
+- L3 Pure geometry modules with node tests: shellFaceFit (reconcile 8
+  shared points from 4 masks), samMaskClient (extract submit/poll/alpha
+  from useSamAutofind for the 500-line law), fitRecover (isFlatFit, sane
+  defaults, assignStoneNumbers), cornerCandidates, depthPlane (fitPlane,
+  planeQuad, carveOcclusion), depthShell.
+- L4 Per-face mask backbone (flag NEXT_PUBLIC_VIZ_FACES): one SAM call
+  per enumerated face into a faceMasks map, sequential and cap-aware
+  (keep the faces landed if the cap trips); draw.ts uses each face's own
+  mask; the guided walk branches on shape. This retires the ambiguous
+  single-shell mask and the soft crease derivation.
+- L5 Depth geometry (flag NEXT_PUBLIC_VIZ_DEPTH): RANSAC plane fit from
+  the depth map inside a mask gives a face its perspective quad where it
+  beats the fit engine; carveOcclusion subtracts nearer-than-plane pixels
+  before the mask reaches state; depthShell intersects wall planes with
+  the floor plane for eight coherent points. A higher-authority parallel
+  path chosen by confidence, never a rewrite. Over any plane inverse
+  depth is affine in image coordinates, and Depth Anything's unknown
+  global affine preserves affineness, so planarity needs no camera
+  intrinsics; planeQuad assumes a centre principal point and a focal near
+  0.9x the long edge, correctable by hand.
+- L6 Numbered snap points (flag NEXT_PUBLIC_VIZ_SNAP): on clip or
+  isFlatFit or a null derivation, fitRecover repositions and marks
+  recovered; stones render numbers 1-8 (4 flat) and magnet to candidate
+  corners (Hough, contour, extremes, creases, and depth corners) with a
+  snap radius, reduced motion respected.
+- L7 Studio full-bleed layout and the icon module: drop the page
+  max-width so the stage eats width; a visualizer/icons.tsx mirroring the
+  back office (viewBox 24, stroke currentColor 1.6), re-exporting the
+  five shared verbs.
+- L8 ToolRail, chrome swap, mobile refine sheet: a ToolRail part
+  replaces the button wall, gold Send loud, the rest quiet; the phone
+  rail is icons at rest with the active tool's word; a Refine tool opens
+  the sheet rendering the real RefinePanel.
+
+### Owner decisions on the blueprint (recommendation each)
+
+1. Render-clamp bump for full-bleed sharpness (fidelity-adjacent):
+   raise the render clamp to track displayed width times device pixel
+   ratio, capped near 2200, eye-gated on a phone and a wide monitor.
+2. The per-face cost multiplier: a pool shell is up to four SAM submits
+   against the shared daily cap; request only enumerated faces, keep
+   partial results on a cap trip, and consider a per-session soft cap.
+3. The depth model download on metered mobile (50 to 100MB once): keep
+   depth lazy and dark until the owner accepts the one-time cost on a
+   real phone; self-host to Blob later.
+4. Assumed camera intrinsics: ship the assumption, treat it as graceful,
+   revisit only if foreshortening reads wrong on the owner's phone.
+5. Flag proliferation: keep VIZ_SCAN, VIZ_FACES, VIZ_SNAP, VIZ_DEPTH
+   separate through the per-piece phone demos, then collapse the three
+   new ones into one NEXT_PUBLIC_VIZ_STUDIO flag at launch.
+6. The RefineSection icon slot and lifting shared icons to a top-level
+   module both touch other hands' files; propose additively in the
+   handshake, land inside or after those lanes, never unilaterally.

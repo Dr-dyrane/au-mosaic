@@ -681,3 +681,40 @@ open disclosure lane); shellFit.ts is 203. Gates: tsc, eslint zero
 warnings, 67 of 67 tests, the production build, the dash scan, all
 clean; the workflow's own review round flagged the unproven filter, and
 that finding was closed here by hand with the load-bearing test.
+
+## The studio learns to see in three dimensions (Phase 4c, slice 1)
+
+Depth Anything V2 small now runs in the browser as the flagship's first
+runtime ML dependency (transformers.js 3.8.1, pinned), confined to a Web
+Worker so it never touches the SSR graph or blocks the hand, flag-gated
+behind NEXT_PUBLIC_VIZ_DEPTH. The useDepth hook owns the worker
+lifecycle, downscales the photo to a 512px edge, caches the map per
+photo, and returns null on any failure so the render is never at risk. A
+Depth toggle paints the map as a near-bright far-dark ramp on the stage
+so the eye can read the geometry the model perceives. No geometry
+consumes depth yet; that is slice 2.
+
+The paramount gate was the Turbopack build, and it passed clean: a
+top-level turbopack.resolveAlias maps the Node-only onnxruntime-node and
+sharp to an empty module so Turbopack does not trace them into the
+worker graph (the old webpack externals trick does not run under
+Turbopack), and next build compiles with no "not statically analysable"
+error. Proven live: on the empty pool the depth map read 222 (bright,
+near) at the pool bottom and 8 (dark, far) at the back wall, a correct
+monocular depth of the basin, computed in single-threaded WASM. That
+single-thread setting was found by driving it live: the threaded ONNX
+backend wants SharedArrayBuffer, which needs cross-origin isolation
+(COOP and COEP) that neither the dev server nor Vercel sends, so the
+threaded path failed silently and depth fell through; env.backends.onnx
+.wasm.numThreads = 1 is the real fix and matters in production, not just
+the sandbox. The model fetches from the HF CDN once and the browser
+Cache API holds it; self-hosting to Blob is a later hardening step and
+the model files stay out of git.
+
+Gates: tsc, eslint zero warnings, 67 tests, the Turbopack production
+build, and the dash scan, all clean. Two review advisories carried
+forward honestly: Visualizer.tsx is 745 lines, over the 500 budget and
+inherited (the studio UI lane pays it down); and render() suppresses
+mosaic repaints while the depth overlay is shown, which is fine for a
+diagnostic you toggle off to edit and gets addressed when depth becomes
+consumed by geometry in slice 2.

@@ -40,10 +40,15 @@ import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
 import { useSurfaceSession } from "./visualizer/hooks/useSurfaceSession";
 import { usePhotoDesk } from "./visualizer/hooks/usePhotoDesk";
 import { useShareDownload } from "./visualizer/hooks/useShareDownload";
+import { useDepth, paintDepthMap } from "./visualizer/hooks/useDepth";
 
 /* The guided scan ships dark until the owner demos it on a real phone.
    NEXT_PUBLIC vars inline at build, so this is a constant. */
 const scanFlag = process.env.NEXT_PUBLIC_VIZ_SCAN === "on";
+
+/* Depth reads a diagnostic map in the browser, off until proven on
+   device. Same build-time inlining as the scan flag. */
+const depthFlag = process.env.NEXT_PUBLIC_VIZ_DEPTH === "on";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -84,6 +89,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [tick, setTick] = useState(0);
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  /* The depth overlay is a diagnostic paint over the stage; it never
+     touches a layer. Off unless flagged. */
+  const [depthShown, setDepthShown] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
   const [samMaskSrc, setSamMaskSrc] = useState<string | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
@@ -119,6 +127,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
      through the same refs. */
   const draggingRef = useRef<number | null>(null);
   const holdingRef = useRef(false);
+  /* Read inside render so the depth overlay is not overpainted by the
+     mosaic. A ref, not state, so render need not list it as a dep. */
+  const depthShownRef = useRef(false);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
   const pieceMap = useMemo(() => new Map(pieces.map((item) => [item.slug, item])), [pieces]);
@@ -132,6 +143,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   }, []);
 
   const { objectUrl, revokeObjectUrl } = useObjectUrls();
+
+  /* Lazy: the worker and the model only wake on the first Depth press,
+     so with the flag off nothing here ever runs. */
+  const { runDepth, depthBusy } = useDepth();
 
   /* The undo memory lives in its own hook now; it reads these live
      controls to checkpoint and writes them back to restore. */
@@ -255,6 +270,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !photo) return;
+    /* Hold the depth paint: while it shows, the mosaic must not repaint. */
+    if (depthShownRef.current) return;
     const sourceW = photo.naturalWidth;
     const sourceH = photo.naturalHeight;
     const maxW = 1400;
@@ -365,6 +382,31 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       setSnapMessage("A shell now. Eight stones shape it.");
     }
     buzz(4);
+  };
+
+  /* First press reads the map and paints it over the stage; the mosaic
+     is untouched underneath. Hide returns the normal render. Any read
+     failure leaves the mosaic as is. */
+  const toggleDepth = async () => {
+    if (depthShown) {
+      depthShownRef.current = false;
+      setDepthShown(false);
+      schedulePaint();
+      buzz(4);
+      return;
+    }
+    if (!photo) return;
+    buzz(4);
+    const map = await runDepth(photo);
+    const canvas = canvasRef.current;
+    if (!map || !canvas) {
+      setSnapMessage("Could not read depth. The mosaic stays as is.");
+      return;
+    }
+    depthShownRef.current = true;
+    setDepthShown(true);
+    paintDepthMap(canvas, map);
+    track("viz_depth", {});
   };
 
   /* Preview just clears the drag controls off the stage so the mosaic
@@ -581,6 +623,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                         <button type="button" onClick={toggleShell} className="link-hair text-dusk">
                           {shellFloor ? "Flat" : "Shell"}
                         </button>
+                      )}
+                      {depthFlag && (
+                        <button type="button" onClick={toggleDepth} disabled={depthBusy} className="link-hair text-dusk disabled:opacity-40">
+                          {depthShown ? "Hide" : "Depth"}
+                        </button>
+                      )}
+                      {depthFlag && depthBusy && (
+                        <span className="chip-glass text-[11px] font-semibold uppercase tracking-[0.22em] text-ink" role="status" aria-live="polite">
+                          Reading depth
+                        </span>
                       )}
                       {layers.length > 1 && (
                         <button type="button" onClick={removeSurfaceLayer} className="link-hair text-dusk">

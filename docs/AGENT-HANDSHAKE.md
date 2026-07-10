@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-10 - Claude - Visualizer depth oracle lane (Phase 4c, slice 1) - open
+## 2026-07-10 - Claude - Visualizer depth oracle lane (Phase 4c, slice 1) - done
 
 Owner-approved depth oracle, and with it the first runtime ML
 dependency the flagship carries (transformers.js, owner chose the
@@ -42,7 +42,20 @@ handshake. The open RefinePanel disclosure lane and the studio UI lane
 the owner also raised are untouched here; they come next. Gate is tsc,
 eslint, npm run test, next build, the dash scan, the size budget, and a
 live proof that a real depth map of the pool renders. Rollback point is
-e76f45c.
+e76f45c. CLOSED. The Turbopack build passes with the top-level
+turbopack.resolveAlias mapping onnxruntime-node and sharp to an empty
+module. Live proof witnessed a correct depth map of the pool (222
+bright near the bottom, 8 dark at the back wall) in single-threaded
+WASM; the numThreads=1 setting, found by driving it live, is the real
+fix for the no-cross-origin-isolation environment and matters on Vercel
+too. transformers.js 3.8.1 pinned, model out of git (browser Cache
+API). 67 tests, gates clean. Two advisories carried: Visualizer.tsx at
+745 lines (inherited, the studio UI lane pays it down) and render()
+suppressing repaints while the depth overlay shows (fine for a
+diagnostic, addressed when slice 2 consumes depth). The full deploy
+blueprint (L0a to L8, per-face masks, snap points, depth geometry,
+studio UI) is now in docs/VISUALIZER-STUDIO.md "The deploy blueprint".
+Evidence in docs/QA.md.
 
 ## 2026-07-10 - Claude - Verify ritual route count lane - done
 
