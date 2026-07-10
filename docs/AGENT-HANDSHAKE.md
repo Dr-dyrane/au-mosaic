@@ -16,6 +16,36 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Find auto-fits the pool (rim-only corner read, guarded) - done
+
+Sequel to the pure-geometry entry below. The owner asked to test auto-fit
+honestly and re-add it. Done. Find on a pool now reads the rim from the corner
+finder and derives the floor, so the box lands on the real basin instead of a
+default guess. The catch we found and fixed: asking the model for rim AND floor
+in one call made it compress the rim (near lip at y0.5 vs the real 0.85, box
+collapsed). Asking for the RIM ALONE reads the full opening; the floor is derived
+geometrically as before. Then tightened: the first rim-only prompt ("low in the
+frame") overshot the near edge to y0.95 (onto the front deck); reworded to enclose
+the pool basin only and stop at the near coping, it now lands far edge y0.35, near
+edge y0.72 (the front lip), front deck bare. Tuned against the studio's own 768x960
+downscale, which the model reads differently from the full file (0.95 vs 0.75). A
+`plausibleRim` guard falls back to the hand-fit default box on any read that does
+not look like an opening, so it is never worse than default. Proven by eye + rim
+overlays with gridlines, deterministic across headless runs. Adversarial-reviewed
+(3 lenses, verified): fixed a declined re-Find wiping the visitor's floor nudges,
+and a mid-drag Find fighting the drag.
+
+FILES TOUCHED (visualizer lane, all mine, clear now):
+`src/lib/visualizer-ai.ts` (RESTORED + made pool rim-only: ShellCorners drops
+floor, schema/instruction ask rim only), `src/app/api/visualizer/analyze/route.ts`
+(RESTORED, unchanged from 4ee86f4: rate limit + spend cap intact),
+`src/components/visualizer/hooks/useSamAutofind.ts` (autoFindShell async: fetch
+rim, guard, derive floor, keep floor on declined read),
+`src/components/Visualizer.tsx` (armFind: mid-drag guard + accurate comment).
+This reverses the "no corner model for the shell" line from the entry below: the
+corner model is back, but only for a single rim read, guarded, floor still
+geometry. Does not touch the back-office shell lane.
+
 ## 2026-07-10 - Claude - Shell goes pure geometry, SAM reserved for single surfaces - done
 
 Owner call: the per-face shell masking is not worth it (the points muffle, the

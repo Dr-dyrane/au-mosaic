@@ -390,13 +390,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
      The pool's AI walk stays behind the scan flag until the owner demos
      it on a phone; with the flag off, a pool arms the tap like the rest. */
   const armFind = () => {
+    /* A stone mid-drag owns the pointer. A stray Find (a second finger on a
+       touch device, below the busy veil) would let the async fit land on top
+       of the drag and jump the corner, so ignore it until the stone is set
+       down. */
+    if (draggingRef.current !== null) return;
     if (previewMode) setPreviewMode(false);
     if (surface === "pool" && photo) {
-      /* A pool raises its geometric box, then leaves the eight stones up
-         so the visitor fits them to their own basin: the shell is
-         geometry, not a cut mask, so the fit is the stones. It costs
-         nothing (no model), so it needs no flag. Any other surface arms
-         the single-tap finder. */
+      /* A pool raises its geometric box. Auto-fit reads the rim from the
+         corner finder and derives the floor, but a read that does not look
+         like a real opening is dropped for the default box, so the fit
+         never collapses. Either way the eight stones stay up to nudge. The
+         corner call meters itself in the route (rate limit and daily cap),
+         so it needs no extra flag. Any other surface arms the single-tap
+         finder. */
       void autoFindShell();
       return;
     }

@@ -6,6 +6,7 @@ import { track } from "@vercel/analytics";
 import type { Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
+import { isValidQuad } from "../geometry";
 import { defaultShellFloor } from "../shell";
 import { deriveShellFloor } from "../shellFit";
 import { seedMask } from "../maskCache";
@@ -125,6 +126,42 @@ async function ensureAlphaMask(
   ctx.putImageData(pixels, 0, 0);
   const src = canvas.toDataURL("image/png");
   return { img: await loadMaskImage(src), src };
+}
+
+/* Ask the corner finder for the pool's rim (its top opening). One vision
+   call, no per-face segmentation. We take only the rim: the floor is
+   derived from it so the box can never collapse. Null when the eye is
+   off, over budget, or unsure; the caller keeps the geometry it has. */
+async function fetchPoolRim(orig: HTMLCanvasElement): Promise<Pt[] | null> {
+  const shot = canvasToJpeg(orig, 768);
+  if (!shot) return null;
+  try {
+    const res = await fetch("/api/visualizer/analyze", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ image: shot.base64, mediaType: "image/jpeg", surface: "pool", width: shot.width, height: shot.height }),
+    });
+    const data = (await res.json()) as { ok?: boolean; available?: boolean; corners?: { shape?: string; rim?: Pt[] } };
+    const rim = data.corners?.rim;
+    if (data.ok && data.available && data.corners?.shape === "shell" && Array.isArray(rim) && rim.length === 4) {
+      return rim;
+    }
+  } catch {
+    /* silent: the fit is a convenience, the geometry still stands */
+  }
+  return null;
+}
+
+/* The corner model reads the far lip of a pool well but chronically stops the
+   near lip halfway up the frame, which collapses the box into a squished band.
+   So we only trust a read that behaves like a real opening: a valid quad, a
+   near edge that actually reaches toward the near coping, and honest depth on
+   screen. Anything shorter falls back to the hand-fit default box. */
+function plausibleRim(rim: Pt[]): boolean {
+  if (!isValidQuad(rim)) return false;
+  const nearY = Math.max(...rim.map((p) => p.y));
+  const farY = Math.min(...rim.map((p) => p.y));
+  return nearY > 0.6 && nearY - farY > 0.18;
 }
 
 interface UseSamAutofindParams {
@@ -339,34 +376,54 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     return false;
   };
 
-  /* The pool is a shell: a connected eight-stone box the visitor fits to
-     their own basin. No segmentation, no corner model. The masks muffled
-     the box more than they helped, and the geometry alone, tiled under
-     the scene's own light, is the idea that works. So Find just raises
-     the box on the current rim and hands the stones over to be dragged;
-     the finder is reserved for single surfaces. */
-  const autoFindShell = (): Promise<boolean> => {
-    const rim = quadRef.current;
-    const floor = shellFloorRef.current ?? defaultShellFloor(rim);
-    setShellFloor(floor);
-    setSamMask(null);
-    setSamMaskSrc(null);
-    setFaceMasks(null);
-    setHasFittedSurface(true);
-    pushSnapshot("Shell", {
-      quad: rim,
-      shellFloor: floor,
-      samMask: null,
-      samMaskSrc: null,
-      faceMasks: null,
-      hasFittedSurface: true,
-    });
-    setSnapMessage(
-      "Drag the eight stones onto your pool's edges to fit the box, then Preview or send it.",
-    );
-    buzz(6);
-    track("viz_shell_place", {});
-    return Promise.resolve(true);
+  /* The pool is a shell: a connected eight-stone box. Auto-fit reads the
+     rim (the top opening) from the corner finder and derives the floor
+     from it, so the box is placed on the real pool yet can never collapse
+     the way an eight-corner read did. No per-face segmentation; the tiles
+     ride the geometry under the scene's own light. Whatever the fit
+     lands, the eight stones stay up to nudge, and any other surface keeps
+     the single-tap finder. A declined read keeps the box the visitor has. */
+  const autoFindShell = async (): Promise<boolean> => {
+    const orig = originalRef.current;
+    if (inFlightRef.current) return false;
+    inFlightRef.current = true;
+    setSamBusy(true);
+    buzz(4);
+    try {
+      setSnapMessage("Reading the pool.");
+      const read = orig ? await fetchPoolRim(orig) : null;
+      const fitted = read && plausibleRim(read) ? read : null;
+      const rim = fitted ?? quadRef.current;
+      /* A fresh fit re-derives the floor to match its new rim. A declined
+         read keeps the box the visitor has, so it holds any floor stones
+         they already nudged instead of snapping them back to default. */
+      const floor = fitted ? defaultShellFloor(rim) : (shellFloorRef.current ?? defaultShellFloor(rim));
+      setQuad(rim);
+      setShellFloor(floor);
+      setSamMask(null);
+      setSamMaskSrc(null);
+      setFaceMasks(null);
+      setHasFittedSurface(true);
+      pushSnapshot("Auto-fit shell", {
+        quad: rim,
+        shellFloor: floor,
+        samMask: null,
+        samMaskSrc: null,
+        faceMasks: null,
+        hasFittedSurface: true,
+      });
+      setSnapMessage(
+        fitted
+          ? "Pool fitted. Nudge any stone to refine, then Preview or send it."
+          : "Drag the eight stones onto your pool's edges to fit the box, then Preview or send it.",
+      );
+      buzz(8);
+      track("viz_shell_autofit", { fitted: Boolean(fitted) });
+      return true;
+    } finally {
+      inFlightRef.current = false;
+      setSamBusy(false);
+    }
   };
 
   const armSam = () => {

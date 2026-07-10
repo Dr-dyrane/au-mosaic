@@ -1,7 +1,7 @@
 # QA ledger · The Mosaic Maison
 
 Every checkpoint verified with evidence, not opinion. Updated each pass.
-Last pass: 2026-07-08.
+Last pass: 2026-07-10.
 
 ## The owner's checklist
 
@@ -725,3 +725,67 @@ inherited (the studio UI lane pays it down); and render() suppresses
 mosaic repaints while the depth overlay is shown, which is fine for a
 diagnostic you toggle off to edit and gets addressed when depth becomes
 consumed by geometry in slice 2.
+
+## Find learns to land the pool, and we prove it before believing it
+
+The shell is geometry now, not a cut mask: eight stones the visitor fits
+to their own basin. Find used to just raise a default box on the current
+rim. The owner asked for more, in his words, test auto-fit and let us see
+for ourselves, no lies. So we tested it in the open and let the render
+decide.
+
+The first read was a lie waiting to happen. The corner finder was asked
+for the rim and the floor in one call, and it compressed the rim to
+reserve room for the floor: it stopped the near lip halfway up the frame,
+y around 0.5 where the real coping sits near 0.85, and the derived box
+collapsed into a squished band across the upper third with the whole
+lower basin bare. We did not take the model's word: we read the raw
+corners back (rim near edge 0.50, a 0.15 vertical span) and we shot the
+stage. Both agreed it failed. That render is kept as the honest before.
+
+The fix came from asking a smaller question. Since the studio derives the
+floor from the rim geometrically, the model never needed to return the
+floor at all. Asked for the rim alone, it reads the full opening and the
+studio derives the floor from it.
+
+Then we tightened where the eye stops, because near to perfect is the
+only bar. The first rim-only prompt pushed the near edge "low in the
+frame," and it overshot: it stopped at the very bottom (y0.95), so the
+tiles crept onto the flat foreground deck. We proved it honestly, not by
+eye alone: a debug read of the exact rim the app sends showed the near
+corners at 0.95, and an overlay with reference gridlines put the real
+near coping at about 0.72. A lesson fell out of that measurement: the
+model reads a downscale differently from the full file (it placed the
+near lip at 0.75 on the 1122-tall original but 0.95 on the 768 the studio
+actually sends), so the prompt was tuned against the studio's own 768 by
+960 framing, not the raw photo. Reworded to enclose the pool basin only
+and hold the near edge at the coping where the wall meets the deck (never
+the paving beyond it), the eye now traces the real opening: far edge at
+the back wall (y0.35), near edge at the front lip (y0.72), the tiles
+filling the basin while the front deck stays bare concrete. The box
+paints back, left, right, and floor; the near wall facing the visitor
+stays bare. Proven live, deterministic at temperature 0, identical across
+headless runs: one corner call, no segmentation, the tiles riding the
+geometry under the scene's own light.
+
+A guard keeps the honesty. `plausibleRim` trusts a read only when it
+behaves like a real opening: a valid quad, a near edge that reaches
+toward the near coping (y over 0.6), and honest depth on screen (span
+over 0.18). Anything shorter falls back to the hand-fit default box, so a
+rate limit, a daily cap, an unconfigured eye, or a bad read never renders
+worse than the box the visitor already had. The corner call meters itself
+in the route (six a caller, sixty the shop, a rolling minute, plus the
+durable daily cap), so Find needs no extra flag.
+
+Adversarial review (three lenses, each finding verified by a skeptic)
+carried two fixes into this pass. A re-Find whose read was declined kept
+the visitor's rim but used to re-derive the floor, silently wiping any
+floor stones they had nudged; now a declined read keeps the floor it has
+(`fitted ? derive : shellFloorRef.current ?? derive`). And a Find tapped
+by a second finger while the first drags a stone would let the async fit
+land on the drag and jump the corner; `armFind` now ignores a Find while
+a stone is mid-drag. The route and the AI module reviewed clean.
+
+Gates: eslint zero warnings across `src`, the Turbopack production build
+compiles the full route table (76 of 76 static pages), and the fit is
+proven by eye on the live stage, before and after, no lies.
