@@ -548,3 +548,36 @@ at zero warnings across src and tests, npm run test 34 for 34, the
 production build, and the dash scan, all clean; two adversarial review
 rounds passed with one advisory note (a broken-mask prep fallback path,
 commented in place).
+
+## The paid calls grow up: SAM 3, the queue, and a real spend cap (Phase 3)
+
+The segment path now speaks to fal SAM 3 at a flat half-cent per
+request through the queue API, behind a provider seam whose escape
+hatch (VISUALIZER_SAM_PROVIDER=sam2) returns to the old sync path in
+one env line. Four metered smoke calls settled the schema before any
+wiring: the prompt field defaults to the word wheel, so tap-driven use
+must send an explicit empty string; the queue status URLs drop the
+image subpath; a warm job completes about two seconds after submit; and
+the shipped payload returns a true binary-alpha cut-out. The route
+submits, short-polls twice, and answers in one round trip when warm
+(proven live: one POST, 200, mask inline); a slow job returns a pending
+ticket the hook polls every 1.5 seconds for up to 110 seconds with
+honest copy ("Still looking. The finder is waking."), which covers the
+90 second cold starts we measured on the old path. The alpha invariant
+now has one guardian in the hook: pixels decide, so an opaque-alpha
+mask is rewritten from luminance no matter what the server tagged, and
+any failure to normalise falls back to the corners with no state
+written. The two copy-pasted per-instance limiters became one module,
+src/lib/visualizer-limits.ts, joined by the durable daily cap on
+Upstash over plain REST fetch, counting paid submits only, failing open
+with a comment so a fresh clone still runs. Proven live: two taps, the
+UTC day key read back exactly 2 with a two day TTL. Tap points are now
+validated against the image's true header-parsed size before fal is
+paid, the GET poll handler validates ids and answers calmly for junk,
+and the confidence falsy bug is fixed so an honest zero stays zero.
+Gates: tsc, eslint zero warnings, 41 of 41 tests, the production build,
+and the dash scan, all clean; two adversarial reviews passed and their
+four advisory findings were fixed and re-reviewed the same pass. Noted
+for later: a DOMException inside the normaliser would show the busy
+message instead of the surface one, reachable only if the sam2 hatch
+ever returned a remote URL, which sync mode prevents.

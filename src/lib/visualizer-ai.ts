@@ -74,11 +74,14 @@ function normalizePlan(input: unknown): VisualizerAiPlan {
   const quad = rawQuad.map(normalizePoint).filter(Boolean) as VisualizerPoint[];
   if (quad.length !== 4 || quadArea(quad) < 0.012) throw new VisualizerAiError("bad-quad");
   const note = String(input.note || "AI suggested a surface.").slice(0, 96);
+  /* An honest zero is a real answer; only a non-number earns the
+     fallback. */
+  const confidence = Number(input.confidence);
   return {
     surface,
     prepMode,
     quad: [quad[0], quad[1], quad[2], quad[3]],
-    confidence: clamp(Number(input.confidence) || 0.45, 0, 1),
+    confidence: clamp(Number.isFinite(confidence) ? confidence : 0.45, 0, 1),
     note,
   };
 }

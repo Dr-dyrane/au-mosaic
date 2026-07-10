@@ -1,62 +1,28 @@
 import {
+  readImageSize,
+  samProvider,
+  segmentPoll,
+  segmentSubmit,
   segmentSurface,
   visualizerSamConfigured,
 } from "@/lib/visualizer-sam";
+import { callerKey, makeRateLimiter, spendAllows } from "@/lib/visualizer-limits";
 
 export const dynamic = "force-dynamic";
 
 const MEDIA_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_IMAGE_CHARS = 1_400_000;
 
-/* Same meter the analyze route uses, kept local: recent segment calls
-   per caller and for the whole shop, pruned to a rolling minute. It
-   lives only as long as this serverless instance, so it resets per box
-   and does not sum across the fleet. A hard daily spend cap would need
-   outside persistence, noted as a follow-up. Segmentation is paid, so
-   the shutter matters. */
-const RATE_WINDOW_MS = 60_000;
-const PER_CALLER_MAX = 10;
-const GLOBAL_MAX = 80;
-const callerHits = new Map<string, number[]>();
-const globalHits: number[] = [];
+/* Two meters from the shared drawer: a strict one on paid submits and
+   a generous one on free status polls, so a patient client waiting out
+   a cold model is never mistaken for a flood. Both live only as long
+   as this serverless instance; the durable daily cap is spendAllows. */
+const paidAllows = makeRateLimiter({ windowMs: 60_000, perCallerMax: 10, globalMax: 80 });
+const pollAllows = makeRateLimiter({ windowMs: 60_000, perCallerMax: 60, globalMax: 600 });
 
-function callerKey(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  const first = fwd ? fwd.split(",")[0].trim() : "";
-  if (first) return first;
-  const real = req.headers.get("x-real-ip");
-  return real ? real.trim() : "unknown";
-}
-
-function rateAllows(key: string): boolean {
-  const now = Date.now();
-  const cutoff = now - RATE_WINDOW_MS;
-
-  while (globalHits.length && globalHits[0] < cutoff) globalHits.shift();
-
-  if (callerHits.size > 2000) {
-    for (const [k, arr] of callerHits) {
-      if (arr.length === 0 || arr[arr.length - 1] < cutoff) callerHits.delete(k);
-    }
-  }
-
-  const prior = callerHits.get(key) ?? [];
-  const mine: number[] = [];
-  for (const t of prior) {
-    if (t >= cutoff) mine.push(t);
-  }
-
-  if (mine.length >= PER_CALLER_MAX || globalHits.length >= GLOBAL_MAX) {
-    if (mine.length) callerHits.set(key, mine);
-    else callerHits.delete(key);
-    return false;
-  }
-
-  mine.push(now);
-  globalHits.push(now);
-  callerHits.set(key, mine);
-  return true;
-}
+/* fal ticket ids are UUIDs; anything outside this shape never reaches
+   the queue. */
+const REQUEST_ID = /^[A-Za-z0-9_-]{8,80}$/;
 
 /* The desk answer when the paid eye is off, over budget, or refuses:
    the same calm line every time, so the stage falls back to the hand
@@ -87,17 +53,89 @@ export async function POST(req: Request) {
     return Response.json({ ok: false, message: "Place it by hand." }, { status: 400 });
   }
 
+  /* A tap outside the photo is a client bug, not a model question. */
+  const size = readImageSize(image, mediaType);
+  if (size && (x >= size.width || y >= size.height)) {
+    return Response.json({ ok: false, message: "Place it by hand." }, { status: 400 });
+  }
+
   if (!visualizerSamConfigured()) {
     return Response.json(FALLBACK);
   }
 
-  if (!rateAllows(callerKey(req))) {
+  if (!paidAllows(callerKey(req))) {
+    return Response.json(FALLBACK);
+  }
+
+  /* The durable daily cap, checked on submits only: this is the moment
+     money is about to move. */
+  if (!(await spendAllows("segment"))) {
+    return Response.json(FALLBACK);
+  }
+
+  if (samProvider() === "sam2") {
+    try {
+      const result = await segmentSurface({ image, mediaType, x, y, label });
+      return Response.json({ ok: true, available: true, mask: result.mask, width: result.width, height: result.height });
+    } catch {
+      return Response.json({ ok: false, message: "Place it by hand." }, { status: 502 });
+    }
+  }
+
+  /* SAM 3 over the queue: submit, then wait just long enough to catch
+     a warm model in this same breath. A cold one gets a ticket back
+     and the client polls GET below while the model wakes. */
+  try {
+    const { requestId } = await segmentSubmit({ image, mediaType, x, y, label });
+    for (let i = 0; i < 2; i += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const poll = await segmentPoll(requestId);
+      if (!("pending" in poll)) {
+        return Response.json({
+          ok: true,
+          available: true,
+          mask: poll.mask,
+          width: poll.width,
+          height: poll.height,
+          maskKind: poll.maskKind,
+        });
+      }
+    }
+    return Response.json({ ok: true, available: true, pending: true, id: requestId });
+  } catch {
+    return Response.json({ ok: false, message: "Place it by hand." }, { status: 502 });
+  }
+}
+
+/* The free half of the queue dance: the client brings its ticket back
+   until the mask is ready. No spend is counted here, ever. */
+export async function GET(req: Request) {
+  const id = new URL(req.url).searchParams.get("id") ?? "";
+  if (!REQUEST_ID.test(id)) {
+    return Response.json({ ok: false, message: "Place it by hand." }, { status: 400 });
+  }
+
+  if (!visualizerSamConfigured()) {
+    return Response.json(FALLBACK);
+  }
+
+  if (!pollAllows(callerKey(req))) {
     return Response.json(FALLBACK);
   }
 
   try {
-    const result = await segmentSurface({ image, mediaType, x, y, label });
-    return Response.json({ ok: true, available: true, mask: result.mask, width: result.width, height: result.height });
+    const poll = await segmentPoll(id);
+    if ("pending" in poll) {
+      return Response.json({ ok: true, pending: true });
+    }
+    return Response.json({
+      ok: true,
+      available: true,
+      mask: poll.mask,
+      width: poll.width,
+      height: poll.height,
+      maskKind: poll.maskKind,
+    });
   } catch {
     return Response.json({ ok: false, message: "Place it by hand." }, { status: 502 });
   }

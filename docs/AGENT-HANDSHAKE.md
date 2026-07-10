@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-09 - Claude - Visualizer server hardening lane (Phase 3) - open
+## 2026-07-09 - Claude - Visualizer server hardening lane (Phase 3) - done
 
 Owner-directed Phase 3 of the reconstruction: the paid calls grow up.
 The segment path migrates to fal SAM 3 (flat $0.005 per request, text
@@ -44,6 +44,18 @@ commented escape-hatch line), docs/QA.md, and this handshake. Gate is
 tsc, eslint, npm run test, next build, the dash scan, and a live proof
 that includes a deliberately COLD fal worker surviving end to end plus
 the Upstash counter visibly ticking. Rollback point is a3e98fa.
+CLOSED same day. Four smoke calls settled the real SAM 3 schema first
+(prompt defaults to "wheel", so tap use sends an explicit empty string;
+queue status URLs drop the image subpath; warm completion about two
+seconds). Live proof: pool and wall both fit through the queue in one
+round trip, the GET poll handler answers junk calmly, and the Upstash
+UTC day key read back exactly 2 after exactly two paid submits. No
+cold start was observable because fal keeps the shared flat-price
+SAM 3 endpoint hot, which itself retires the 90 second failure; the
+110 second client poll budget stands guard regardless. Two adversarial
+reviews passed; their four advisory findings (alpha invariant guards,
+poll failure copy, ref single-flight) were fixed and re-reviewed in the
+same pass. 41 tests green. Evidence in docs/QA.md.
 
 ## 2026-07-09 - Claude - Visualizer deterministic fit lane (Phase 2) - done
 

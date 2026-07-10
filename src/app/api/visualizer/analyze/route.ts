@@ -3,6 +3,7 @@ import {
   visualizerAiConfigured,
   type VisualizerSurface,
 } from "@/lib/visualizer-ai";
+import { callerKey, makeRateLimiter, spendAllows } from "@/lib/visualizer-limits";
 
 export const dynamic = "force-dynamic";
 
@@ -14,59 +15,10 @@ function cleanSurface(value: unknown): VisualizerSurface {
   return typeof value === "string" && SURFACES.has(value) ? (value as VisualizerSurface) : "pool";
 }
 
-/* A meter on the paid eye. Recent analysis stamps, per caller and for
-   the whole shop, pruned to the last minute each pass. It lives only as
-   long as this serverless instance, so it resets per box and does not
-   sum across the fleet. Not a global daily budget: a hard daily spend
-   cap would need outside persistence, noted as a follow-up. */
-const RATE_WINDOW_MS = 60_000;
-const PER_CALLER_MAX = 6;
-const GLOBAL_MAX = 60;
-const callerHits = new Map<string, number[]>();
-const globalHits: number[] = [];
-
-function callerKey(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  const first = fwd ? fwd.split(",")[0].trim() : "";
-  if (first) return first;
-  const real = req.headers.get("x-real-ip");
-  return real ? real.trim() : "unknown";
-}
-
-function rateAllows(key: string): boolean {
-  const now = Date.now();
-  const cutoff = now - RATE_WINDOW_MS;
-
-  /* Prune the shop window, oldest first. */
-  while (globalHits.length && globalHits[0] < cutoff) globalHits.shift();
-
-  /* If many addresses have passed through, sweep the idle ones so the
-     map cannot grow without bound under a flood of fresh callers. */
-  if (callerHits.size > 2000) {
-    for (const [k, arr] of callerHits) {
-      if (arr.length === 0 || arr[arr.length - 1] < cutoff) callerHits.delete(k);
-    }
-  }
-
-  const prior = callerHits.get(key) ?? [];
-  const mine: number[] = [];
-  for (const t of prior) {
-    if (t >= cutoff) mine.push(t);
-  }
-
-  /* Two gates: this caller, then everyone. An empty record is dropped,
-     never stored, so an idle caller leaves no trace. */
-  if (mine.length >= PER_CALLER_MAX || globalHits.length >= GLOBAL_MAX) {
-    if (mine.length) callerHits.set(key, mine);
-    else callerHits.delete(key);
-    return false;
-  }
-
-  mine.push(now);
-  globalHits.push(now);
-  callerHits.set(key, mine);
-  return true;
-}
+/* A meter on the paid eye, from the shared drawer: six a caller or
+   sixty the shop in a rolling minute. It lives only as long as this
+   serverless instance; the durable daily cap is spendAllows below. */
+const rateAllows = makeRateLimiter({ windowMs: 60_000, perCallerMax: 6, globalMax: 60 });
 
 export async function POST(req: Request) {
   let body: Record<string, unknown>;
@@ -99,6 +51,16 @@ export async function POST(req: Request) {
      minute, the shutter drops and we answer exactly as AI-down does: no
      limit shown, manual fit instead. */
   if (!rateAllows(callerKey(req))) {
+    return Response.json({
+      ok: true,
+      available: false,
+      message: "Manual fit is ready.",
+    });
+  }
+
+  /* The durable daily cap, checked last: this is the moment money is
+     about to move. */
+  if (!(await spendAllows("analyze"))) {
     return Response.json({
       ok: true,
       available: false,
