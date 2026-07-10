@@ -641,3 +641,43 @@ and hooks/useShareDownload.ts; fit.ts split to 119 over fitMask.ts
 API-preservation proof; every move verified verbatim by mechanical
 diff. Gates: tsc, eslint zero warnings across src and tests, 56 of 56
 tests, the production build, the dash scan, all clean.
+
+## The shell reads its own floor, and one guided tap shells the pool (Phase 4b, slice 2)
+
+A pool already wearing its shell now asks the photo where the basin
+floor is. A pure new shellFit.ts erodes the SAM mask so the rim's own
+edges stay out, runs Sobel over the untouched photo's luminance inside
+what remains, finds the crease lines with the same Hough the wall fit
+uses, and accepts a floor quad only when every corner sits strictly
+inside the rim, the area is neither a puddle nor the rim itself, and the
+creases explain at least half the candidate. Null is a first-class
+answer: no confident floor means the hand-set or default floor stands.
+The magic engages only where the visitor chose the shell: auto-find
+derives when the active pool layer is shelled, and the flag-gated
+guided walk turns a pool's shell on before its find so one Tile it
+yields a shelled basin. The bare manual flow is untouched.
+
+Proven live on the empty pool starter and the guided walk: Tile it
+auto-shelled the pool (eight stones on the pool layer, the Flat toggle
+present), the walk finished cleanly, three masked layers composited,
+and auto-find on a shelled pool ran without a crash and fell back to
+the standing floor when the creases were too soft to trust, exactly as
+designed. The derivation math itself is proven by nine node tests: a
+known interior floor recovered within four percent, null on a flat
+photo, null on creases painted on the rim (the erosion holds), an
+oversized candidate refused, and, added this pass, a direct floorQuad
+test whose candidate straddles the rim edge but passes every other
+gate, verified load-bearing by removing the inside-rim filter and
+watching only that test fail. Honest gap: a successful live derivation
+was not witnessed, because the available rendered pool photos carry
+soft floor creases that the conservative confidence floor correctly
+declines; the success path awaits the owner's real-phone test on an
+actual tiled pool, which is the same eye-gate the whole guided scan
+already waits behind. Deliberately conservative: a wrong floor folds
+walls at a line the water never drew, so declining is the safe error.
+Owner modularity budget held: no visualizer file above 500 lines except
+the orchestrator, which stayed 693 (the refine assemblies belong to the
+open disclosure lane); shellFit.ts is 203. Gates: tsc, eslint zero
+warnings, 67 of 67 tests, the production build, the dash scan, all
+clean; the workflow's own review round flagged the unproven filter, and
+that finding was closed here by hand with the load-bearing test.

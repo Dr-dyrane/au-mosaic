@@ -28,7 +28,7 @@ line names no number, so it needed no touch. My files: AGENTS.md and
 this handshake. No code, and no open lane touched; the shell derivation
 lane owns shellFit.ts and its hooks, not this line.
 
-## 2026-07-10 - Claude - Visualizer shell derivation lane (Phase 4b, slice 2) - open
+## 2026-07-10 - Claude - Visualizer shell derivation lane (Phase 4b, slice 2) - done
 
 Owner-directed second slice: the shell derives itself from what the
 finder already sees, no new dependency (the in-browser depth model
@@ -53,7 +53,24 @@ handshake. Gate is tsc, eslint, npm run test, next build, the dash
 scan, the size budget, and a live proof: shell plus auto-find on the
 empty pool starter snapping the floor to the basin creases, the guided
 walk auto-shelling the pool, and the fallback standing when creases
-cannot be trusted. Rollback point is 0a9a0c1.
+cannot be trusted. Rollback point is 0a9a0c1. CLOSED with one honest
+caveat. The workflow hit a spend limit mid-run; two of its four agents
+finished (implement plus review round one), and the review's single
+must-fix (no test made the inside-rim filter load-bearing) was closed
+here by hand: a direct floorQuad test whose candidate straddles the
+rim, verified by removing the filter and watching only that test fail.
+Live proof confirmed the auto-shell (the guided Tile it put eight
+stones on the pool) and the graceful fallback (auto-find on a shelled
+pool ran clean and kept the standing floor when creases were soft), but
+a successful live DERIVATION was not witnessed: the rendered starter
+photos carry soft floor creases the conservative confidence floor
+correctly declines, so the success path waits on the owner's
+real-tiled-pool phone test, the same eye-gate the guided scan already
+sits behind. The derivation itself is proven by nine node tests, and
+the coordinate spaces were code-verified aligned (mask bits, luma, and
+rim pixels all at one downscaled grid). 67 tests, gates clean, size
+budget held (shellFit.ts 203). Evidence and the honest gap in
+docs/QA.md.
 
 ## 2026-07-10 - Claude - Visualizer pool shell lane (Phase 4b, slice 1) - done
 

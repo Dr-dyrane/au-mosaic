@@ -6,6 +6,7 @@ import { track } from "@vercel/analytics";
 import type { Pt, SurfaceId } from "../types";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
+import { deriveShellFloor } from "../shellFit";
 import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
 
@@ -130,6 +131,8 @@ interface UseSamAutofindParams {
   surface: SurfaceId;
   quad: Pt[];
   setQuad: Dispatch<SetStateAction<Pt[]>>;
+  shellFloor: Pt[] | null;
+  setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
@@ -156,6 +159,8 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     surface,
     quad,
     setQuad,
+    shellFloor,
+    setShellFloor,
     setSamMask,
     setSamMaskSrc,
     setHasFittedSurface,
@@ -173,6 +178,14 @@ export function useSamAutofind(params: UseSamAutofindParams): {
   useEffect(() => {
     quadRef.current = quad;
   }, [quad]);
+
+  /* The shell floor rides the same latest-ref discipline: the derivation
+     gate must read the floor as it is when the mask lands, not as it was
+     at the tap. */
+  const shellFloorRef = useRef(shellFloor);
+  useEffect(() => {
+    shellFloorRef.current = shellFloor;
+  }, [shellFloor]);
 
   /* The learned auto-find (beta, opt-in). Arm it, then one tap sends the
      untouched photo and the tapped point to the segment endpoint; the mask
@@ -225,6 +238,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         seedMask(maskSrc, img);
         setHasFittedSurface(true);
         let fittedQuad = quadRef.current;
+        let fittedFloor: Pt[] | null = null;
         let message = "Surface found. The shape is cut exactly; angle the tiles with the corners.";
         /* Hand the mask to the geometry engine. A floor comes back as a
            receding trapezoid, so the tiles take its perspective and
@@ -256,6 +270,32 @@ export function useSamAutofind(params: UseSamAutofindParams): {
               fittedQuad = result.quad;
               setQuad(result.quad);
               message = "Surface found and angled. Nudge a corner to refine.";
+              /* A pool already wearing its shell gets one more read: the
+                 photo's interior creases place the basin floor. The luma
+                 comes off the untouched photo at the mask's own grid, so
+                 mask, luma, and rim share one pixel space. Null keeps
+                 the floor the visitor has. */
+              if (surface === "pool" && shellFloorRef.current) {
+                const lc = document.createElement("canvas");
+                lc.width = mw;
+                lc.height = mh;
+                const lx = lc.getContext("2d");
+                if (lx) {
+                  lx.drawImage(orig, 0, 0, mw, mh);
+                  const ld = lx.getImageData(0, 0, mw, mh).data;
+                  const luma = new Uint8Array(mw * mh);
+                  for (let i = 0; i < luma.length; i += 1) {
+                    luma[i] = Math.max(ld[i * 4], ld[i * 4 + 1], ld[i * 4 + 2]);
+                  }
+                  const rimPx = result.quad.map((p) => ({ x: p.x * mw, y: p.y * mh }));
+                  const derived = deriveShellFloor({ data: bits, width: mw, height: mh }, luma, rimPx);
+                  if (derived) {
+                    fittedFloor = derived;
+                    setShellFloor(derived);
+                    message = "Shell fitted. Nudge any stone.";
+                  }
+                }
+              }
             }
           }
         } catch {
@@ -263,7 +303,13 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         }
         /* Save the AI result the moment it lands, so a re-find, a clear,
            or a fresh tap can never lose the segment we paid for. */
-        pushSnapshot("AI find", { samMask: img, samMaskSrc: maskSrc, quad: fittedQuad, hasFittedSurface: true });
+        pushSnapshot("AI find", {
+          samMask: img,
+          samMaskSrc: maskSrc,
+          quad: fittedQuad,
+          hasFittedSurface: true,
+          ...(fittedFloor ? { shellFloor: fittedFloor } : {}),
+        });
         setSnapMessage(message);
         buzz(8);
         track("viz_sam", { ok: true });

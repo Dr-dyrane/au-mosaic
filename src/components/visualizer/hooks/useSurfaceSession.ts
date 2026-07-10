@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { LoadSource, Pt, SurfaceId } from "../types";
 import { canvasToJpeg } from "../helpers";
+import { defaultShellFloor } from "../shell";
 
 /* The scene scan, exactly as the analyze route promises it. The server
    stream owns the other side of this contract. */
@@ -46,6 +47,8 @@ interface UseSurfaceSessionParams {
   photo: HTMLImageElement | null;
   photoSource: LoadSource;
   samBusy: boolean;
+  quad: Pt[];
+  setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
   addSurfaceLayer: (kind?: SurfaceId) => boolean;
   activateLayerKind: (kind: SurfaceId) => boolean;
   runSam: (point: Pt) => Promise<boolean>;
@@ -158,6 +161,13 @@ export function useSurfaceSession(params: UseSurfaceSessionParams) {
       if (!ready) continue;
       helpers.setSnapMessage(`Finding ${surface.name}.`);
       await settle();
+      if (surface.kind === "pool") {
+        /* The shell goes on before the find: the finder only derives a
+           basin floor when a floor is already live, so the walk seeds
+           the default one from the layer's own rim. */
+        live.current.setShellFloor(defaultShellFloor(live.current.quad));
+        await settle();
+      }
       const landed = await live.current.runSam(surface.tap);
       setSteps((prev) => prev.map((step) => (
         step.kind === surface.kind ? { ...step, state: landed ? "done" : "failed" } : step
