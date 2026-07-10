@@ -16,6 +16,38 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Visualizer pool shell lane (Phase 4b, slice 1) - open
+
+Owner-directed first slice of the pool shell from the horizon: hand
+draggable shells, no AI. The design keeps the rim as the existing quad,
+so every shipped system stays untouched: SurfaceLayer gains one field,
+shellFloor (four points or null), committed and restored through
+withActiveLayer exactly like quad and maskSrc. A pure new
+src/components/visualizer/shell.ts builds the faces from rim plus
+floor: back, left, and right walls join rim corners to floor corners,
+the near wall exists but stays hidden, the floor draws last; faces
+share vertices by construction so seams cannot gape. The render loop
+draws each visible, valid face through the unchanged drawSurfaceLayer
+with the layer's own mask clipping every face, which means a SAM basin
+cut-out dresses the whole shell exactly. Eight brass stones: indices 0
+to 3 stay the rim, 4 to 7 move the floor, one branch in useCornerDrag;
+the wireframe adds the floor rectangle and four verticals so the box
+reads at a glance. A Shell toggle appears beside the stage actions when
+the active layer is a pool: on builds a default floor inset from the
+rim, off returns to the flat quad, both snapshotted. Tile courses break
+at internal corners on purpose, as real tilers do. Same tile scale on
+every face this slice; edge-length scale and the mask-derived floor
+(slice 2) follow. My files: src/components/visualizer/types.ts,
+src/components/visualizer/shell.ts (new), constants.ts (labels),
+src/components/Visualizer.tsx, hooks/useCornerDrag.ts,
+hooks/useSurfaceLayers.ts, hooks/useSnapshots.ts,
+hooks/usePersistedControls.ts, tests/visualizer-shell.test.ts (new),
+docs/QA.md, and this handshake. Gate is tsc, eslint, npm run test, next
+build, the dash scan, and a live proof: toggle the shell on the empty
+pool starter, four tiled faces and the wireframe visible, auto-find
+clipping the shell to the basin mask, the shell surviving a chip switch
+and a reload. Rollback point is 4f43609.
+
 ## 2026-07-09 - Claude - Visualizer plan and horizon docs lane - done
 
 Owner-directed documentation pass after the four-phase reconstruction
