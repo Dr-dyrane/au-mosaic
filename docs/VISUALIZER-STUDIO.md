@@ -9,6 +9,74 @@ the actual tile.
 Source of the brief: Nonso's review, 2026-07-08 (voice note, transcribed
 and summarised). The audit of his complaints sits in the section below.
 
+## Status, 2026-07-09: the reconstruction, four phases live
+
+The rebuild promised below happened in one owner-directed day: four
+phases, each implemented by agents from a traced spec, adversarially
+reviewed, gated, proven live in the browser against real vendors, and
+pushed. Evidence lives in docs/QA.md; the story is in the handshake.
+
+- Phase 1 (b4b12bd): every surface layer owns its SAM mask, so adding
+  or selecting a surface appends instead of replacing. A new photo
+  resets the desk.
+- Phase 2 (a3e98fa): the fit engine, pure TypeScript in fit.ts. Walls
+  take Hough boundary lines intersected into a quad; pools and floors
+  keep the plane-basis fit, because a floor's outline is not its plane;
+  occluded shapes clip instead of guessing. Node-tested.
+- Phase 3 (4e98d85): segmentation moved to fal SAM 3 at a flat half
+  cent per request through the queue API, behind a provider seam with
+  an env hatch back to SAM 2. One limiter module plus a durable daily
+  spend cap on Upstash. Tap points are validated against the image's
+  true size before money moves.
+- Phase 4 (700b3e2): the scene scan and the guided session behind
+  NEXT_PUBLIC_VIZ_SCAN. One Haiku glance names the scene and its
+  surfaces; Tile it walks them in sequence, each mask landing in its
+  own layer. Off in the template until the owner demos on a real phone.
+
+Stage 2b below is therefore shipped, in served form, and stage 1's
+extent-and-occlusion decoupling is superseded by per-layer SAM masks:
+the mask is the extent and the occlusion in one.
+
+## The horizon, 2026-07-09: the owner set a rule
+
+The owner's imagination must never be the ceiling. The strongest
+existing-technology variant gets proposed unprompted at every phase
+close, and the agreed forward order is:
+
+1. Phase 4b, the pool shell. One layer holding faces that share corner
+   points: rim p0 to p3, floor p4 to p7, walls joining them. Seams
+   meet perfectly by construction, eight stones instead of sixteen, and
+   the one-layer-per-kind constraint dissolves inside the group. The
+   first slice ships hand-draggable shells with no AI; the derivation
+   from the basin mask and its interior creases lands second. Tile
+   courses break at internal corners on purpose; real tilers do the
+   same, so per-face homographies with shared edges are the honest
+   model.
+2. Phase 4c, the depth oracle. Depth Anything V2 small in the browser
+   (about 50MB once, under 200ms on WebGPU): automatic plane
+   orientation inside any SAM mask, true occlusion ordering from
+   nearness, and the shell's eight points derived from one photo. Zero
+   cost per session. This is stage 3 below, now with a proven home.
+3. Phase 4d, text-driven masks and the waterline. SAM 3 text prompts
+   ("every wall", "the pool waterline") end the need for tap points and
+   open the waterline band as its own face: a mosaic-house signature
+   and an upsell chip.
+4. Phase 4e, light that belongs to the photo. Transfer the photo's own
+   local luminance onto the laid tiles, pure canvas math, SKU-exact by
+   construction. Stage 4's deterministic half; any generative
+   harmonisation stays an owner decision after seeing this one.
+5. Phase 5, the numbers-gated review, now judging shell coherence and
+   depth consistency instead of four disconnected quads. The
+   corner-drag user lock rides here.
+6. Phase 6, owner gates: the True light finisher and the WhatsApp
+   backstop, send us your photo and we prepare it within a day.
+7. Parked, named: live AR placement. iPhones take the USDZ Quick Look
+   export path when this wakes.
+
+Hard-photo testing (curved pools, low-contrast walls, busy kitchens,
+furniture crossing the surface) rides every phase's device pass rather
+than standing as its own errand.
+
 ## Status, 2026-07-08: the hand tools were pulled
 
 Stages 1 and 2a (the paint-surface, paint-out, and magic-wand tools)
@@ -204,11 +272,15 @@ touches these files.
 
 ## Open decisions
 
-1. Compute home for the AI stages: browser or served endpoint. Leaning
-   served, with manual stage 1 offline as the floor.
-2. Segmentation and depth model choices, once the home is set.
-3. Whether stage 4 uses a generative harmonisation pass at all, or stays
-   fully deterministic. Decide after seeing stage 3 output.
+1. Resolved 2026-07-09: served endpoint for segmentation (fal SAM 3
+   over the queue, metered and capped), the hand as the offline floor.
+   Depth runs in the browser when Phase 4c lands, since its model is
+   small enough and its per-session cost is zero.
+2. Resolved 2026-07-09: SAM 3 for masks, Depth Anything V2 small for
+   depth, claude-haiku-4-5 for the scene read.
+3. Whether the realism pass uses a generative harmonisation step at
+   all, or stays fully deterministic. Owner decides in Phase 6 after
+   seeing the deterministic light transfer of Phase 4e.
 
 ## The careful order
 

@@ -16,6 +16,25 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Visualizer plan and horizon docs lane - done
+
+Owner-directed documentation pass after the four-phase reconstruction
+shipped. docs/VISUALIZER-STUDIO.md gains a dated status section (what
+shipped, with commits), resolves two of its three open decisions
+(compute home is the served fal endpoint, models are SAM 3 plus Depth
+Anything V2 small plus claude-haiku-4-5), and records The horizon: the
+owner's standing rule that the strongest existing-technology variant is
+proposed unprompted at every phase close, plus the agreed forward order
+(4b pool shell with shared corner points, 4c in-browser depth oracle,
+4d text-driven masks and the waterline, 4e deterministic light
+transfer, then the review phase and the owner gates, AR parked and
+named). docs/NEXT-STEPS.md moves the reconstruction to Closed this pass
+and rewrites Build next: the pool shell first, the owner's real-phone
+demo of the guided scan second (flipping NEXT_PUBLIC_VIZ_SCAN in Vercel
+is the whole launch), product experience third. My files: those two
+docs and this handshake. Dash scan and git diff check clean; no code
+touched.
+
 ## 2026-07-09 - Claude - Visualizer guided session lane (Phase 4) - done
 
 Owner-directed Phase 4 of the reconstruction, flag-gated behind

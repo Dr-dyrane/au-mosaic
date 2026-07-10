@@ -8,6 +8,7 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Gap | Resolution |
 |---|---|
+| Visualizer reconstruction, phases 1 to 4 | Per-layer masks end replace-instead-of-append, the pure fit engine reads masks into quads (Hough for walls, plane basis for floors), SAM 3 rides fal's queue behind a provider seam with one limiter and a durable daily cap, and the flag-gated Haiku scene scan walks Tile it across every found surface. All proven live; evidence in `docs/QA.md`, the four Phase entries. Forward order in `docs/VISUALIZER-STUDIO.md`, The horizon. |
 | Record context adapters | Order, customer, piece, and photo records now feed their own live facts into the context rail through hidden fact markers; the rail swaps its room pulse for the record's vitals while the record is open. Evidence in `docs/QA.md`, The records feed the rail. |
 | Visualizer autosnap | Find surface now analyzes the loaded photo in-browser, scores likely surface edges, proposes a quad for pools, walls, backsplashes, showers, and floors, then keeps the four draggable stones as the correction layer. Uploads and camera stills try it automatically; the user can rerun it any time. |
 | Action chrome verbs | The compact gold action stands down on Insights, Settings, and an empty Owed ledger instead of faking a Today or History that only navigates, or a Remind that reloads the page. Closes back-office action audit items C and D; the debts room keeps its real Remind oldest action whenever a balance is open. |
@@ -41,8 +42,9 @@ evidence to `docs/QA.md` and keep only the next decision here.
 
 | Priority | Build | Scope |
 |---|---|---|
-| 1 | Visualizer surface intelligence | Test segmentation on hard photos: curved pools, low-contrast walls, busy kitchens, and rooms with furniture crossing the target surface. Keep manual stones as the correction layer. |
-| 2 | Product experience | Bring individual piece pages closer to the best modern product experience: immersive media, practical proof, one enquiry path, and richer context without clutter. |
+| 1 | Visualizer pool shell (Phase 4b) | One layer holding faces that share corner points: rim, floor, and the walls joining them, so seams meet by construction and the one-per-kind constraint dissolves. First slice is hand-draggable shells with no AI; the derivation from the basin mask lands second. The full forward order (depth oracle, text masks and the waterline, light transfer, review, owner gates) sits in `docs/VISUALIZER-STUDIO.md`, The horizon. Hard-photo testing rides each phase's device pass. |
+| 2 | Owner phone demo of the guided scan | NEXT_PUBLIC_VIZ_SCAN stays off in production until the owner runs the Tile it flow on a real phone and likes it; flipping the flag in Vercel is the whole launch. |
+| 3 | Product experience | Bring individual piece pages closer to the best modern product experience: immersive media, practical proof, one enquiry path, and richer context without clutter. |
 
 ## Standing decisions
 
