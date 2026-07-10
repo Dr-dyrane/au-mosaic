@@ -16,6 +16,35 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Visualizer server hardening lane (Phase 3) - open
+
+Owner-directed Phase 3 of the reconstruction: the paid calls grow up.
+The segment path migrates to fal SAM 3 (flat $0.005 per request, text
+and point prompts) behind a provider interface with the current SAM 2
+sync path kept as an env escape hatch (VISUALIZER_SAM_PROVIDER=sam2),
+and moves to fal's queue API so the 90 second cold start we measured
+stops beating the old 30 second abort: the route submits and
+short-polls briefly, the hook then polls with honest waking copy until
+the mask lands. The mask invariant is stated and kept: whatever the
+provider returns, the client normalises so the shape rides the alpha
+channel, which is what draw.ts and fit.ts consume. The two copy-pasted
+per-instance rate limiters move into one src/lib/visualizer-limits.ts,
+joined by the durable daily spend cap on Upstash Redis over plain REST
+fetch (no new dependency), counting submits only, failing open with a
+comment when unconfigured so a fresh clone still runs. The segment
+route learns the image's true size from the base64 header bytes and
+refuses tap points outside it before paying fal. The confidence falsy
+bug in visualizer-ai.ts (a zero becomes 0.45) is fixed. My files:
+src/lib/visualizer-limits.ts (new), src/lib/visualizer-sam.ts,
+src/lib/visualizer-ai.ts, src/app/api/visualizer/segment/route.ts,
+src/app/api/visualizer/analyze/route.ts,
+src/components/visualizer/hooks/useSamAutofind.ts,
+tests/visualizer-limits.test.ts (new), .env and .env.example (one
+commented escape-hatch line), docs/QA.md, and this handshake. Gate is
+tsc, eslint, npm run test, next build, the dash scan, and a live proof
+that includes a deliberately COLD fal worker surviving end to end plus
+the Upstash counter visibly ticking. Rollback point is a3e98fa.
+
 ## 2026-07-09 - Claude - Visualizer deterministic fit lane (Phase 2) - done
 
 Owner-directed Phase 2 of the reconstruction: the mask-to-quad fit
