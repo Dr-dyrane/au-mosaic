@@ -12,6 +12,8 @@ import { useState } from "react";
 export interface RefineSection {
   key: string;
   eyebrow: string;
+  /* Optional glyph drawn beside the eyebrow, tinting gold with it. */
+  icon?: ReactNode;
   value: string;
   action: string;
   body: ReactNode;
@@ -38,7 +40,10 @@ export default function RefinePanel({
               className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
             >
               <span className="min-w-0">
-                <span className="eyebrow block">{section.eyebrow}</span>
+                <span className="flex items-center gap-2 text-gold">
+                  {section.icon}
+                  <span className="eyebrow block">{section.eyebrow}</span>
+                </span>
                 <span className="mt-1 block truncate font-serif text-[20px] text-ink">{section.value}</span>
               </span>
               <span className={`link-hair shrink-0 ${isOpen ? "text-ink" : "text-dusk"}`}>

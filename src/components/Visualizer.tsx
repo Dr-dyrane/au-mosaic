@@ -28,6 +28,8 @@ import StarterSurface from "./visualizer/parts/StarterSurface";
 import LightOptions from "./visualizer/parts/LightOptions";
 import LayerChips from "./visualizer/parts/LayerChips";
 import RefinePanel from "./visualizer/parts/RefinePanel";
+import ToolRail from "./visualizer/parts/ToolRail";
+import { IconEye, IconDownload } from "./visualizer/icons";
 import CameraDialog from "./visualizer/parts/CameraDialog";
 import ScanOffer from "./visualizer/parts/ScanOffer";
 import Stage from "./visualizer/parts/Stage";
@@ -274,7 +276,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     if (depthShownRef.current) return;
     const sourceW = photo.naturalWidth;
     const sourceH = photo.naturalHeight;
-    const maxW = 1400;
+    /* Track the shown stage width times the device pixels, so the mosaic
+       stays crisp when the studio runs wide. Floored at 1400 so the fit
+       never softens, capped at 2000 to spare a cheap phone. SSR-safe. */
+    const shownW = wrapRef.current?.clientWidth || 1400;
+    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+    const maxW = Math.max(1400, Math.min(2000, Math.round(shownW * dpr)));
     const scale = Math.min(1, maxW / sourceW);
     const W = Math.round(sourceW * scale);
     const Hh = Math.round(sourceH * scale);
@@ -462,18 +469,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     buzz(4);
   };
 
-  const refineControls = (
-    <>
-      <SurfaceOptions surface={surface} onFit={fitSurface} />
-      <ContextOptions onLoad={loadContext} />
-      <div className="mt-8">
-        <p className="eyebrow">Colourway</p>
-        <div className="mt-2"><PieceOptions pieces={pieces} pieceSlug={pieceSlug} onPick={pickPiece} /></div>
-        <PaletteEditor colors={activeColors} onEdit={editColor} onAdd={addColor} onRemove={removeColor} />
-      </div>
-      <div className="mt-8"><LightOptions tileSize={tileSize} blend={blend} prepMode={prepMode} groutLight={groutLight} onTileSize={changeTileSize} onBlend={changeBlend} onPrepMode={changePrepMode} onGroutToggle={toggleGrout} /></div>
-    </>
-  );
+  /* The Refine tool in the rail opens the bottom-sheet; the sheet and the
+     desktop rail share one set of disclosure sections. */
+  const openRefine = () => setRefineOpen(true);
 
   const prepLabel = prepMode === "primer" ? "Primer" : prepMode === "blur" ? "Blur" : "Original";
   const finishSummary = `${prepLabel}, ${groutLight ? "light" : "dark"} grout`;
@@ -515,7 +513,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   ];
 
   const exposedRefinement = (
-    <aside className="min-w-0 lg:sticky lg:top-28" data-viz="refine-panel">
+    <aside className="hidden min-w-0 lg:block lg:sticky lg:top-28" data-viz="refine-panel">
       <div className="mb-6">
         <p className="eyebrow">Refine</p>
         <p className="font-serif mt-2 text-[26px]">Make the surface yours.</p>
@@ -528,8 +526,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-5 sm:px-8">
-      <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mx-auto w-full max-w-[1760px] px-5 sm:px-8">
+      {/* The upload panel stays a readable band even when the studio runs
+          wide: only the stage should eat the extra pixels. */}
+      <div className="panel mb-7 flex max-w-3xl flex-col items-start gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="eyebrow">Your space</p>
           <p className="font-serif mt-2 text-[20px]">Photo or camera.</p>
@@ -603,77 +603,28 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     <LayerChips layers={layers} activeLayerId={activeLayerId} surface={surface} onSelect={selectLayerChip} />
                   </div>
                   <div className="mt-4 flex flex-col gap-3">
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                      {!samMaskSrc && !samBusy && (
-                        <button type="button" onClick={armSam} className="link-hair font-semibold text-ink">
-                          {samBeta ? "Tap the wall now" : "Auto-find the surface"}
-                        </button>
-                      )}
-                      {samMaskSrc && (
-                        <button type="button" onClick={clearSam} className="link-hair text-dusk">
-                          Clear auto-find
-                        </button>
-                      )}
-                      {hasFittedSurface && (
-                        <button type="button" onClick={() => addSurfaceLayer()} className="link-hair text-dusk">
-                          Add surface
-                        </button>
-                      )}
-                      {surface === "pool" && (
-                        <button type="button" onClick={toggleShell} className="link-hair text-dusk">
-                          {shellFloor ? "Flat" : "Shell"}
-                        </button>
-                      )}
-                      {depthFlag && (
-                        <button type="button" onClick={toggleDepth} disabled={depthBusy} className="link-hair text-dusk disabled:opacity-40">
-                          {depthShown ? "Hide" : "Depth"}
-                        </button>
-                      )}
-                      {depthFlag && depthBusy && (
-                        <span className="chip-glass text-[11px] font-semibold uppercase tracking-[0.22em] text-ink" role="status" aria-live="polite">
-                          Reading depth
-                        </span>
-                      )}
-                      {layers.length > 1 && (
-                        <button type="button" onClick={removeSurfaceLayer} className="link-hair text-dusk">
-                          Remove
-                        </button>
-                      )}
-                      {(hasFittedSurface || history.snaps.length > 1) && (
-                        <span className="flex flex-wrap items-center gap-x-6 gap-y-3 sm:ml-auto">
-                          {hasFittedSurface && (
-                            <button type="button" onClick={pinLook} className="link-hair text-dusk">
-                              Pin this look
-                            </button>
-                          )}
-                          {history.snaps.length > 1 && (
-                            <span className="inline-flex items-center gap-3" role="group" aria-label="Snapshot history">
-                              <button
-                                type="button"
-                                onClick={() => stepHistory(-1)}
-                                disabled={history.i <= 0}
-                                className="link-hair text-dusk disabled:opacity-40"
-                                aria-label="Previous snapshot"
-                              >
-                                Back
-                              </button>
-                              <span className="text-[12px] tabular-nums text-mist" aria-live="polite">
-                                {history.i + 1} / {history.snaps.length}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => stepHistory(1)}
-                                disabled={history.i >= history.snaps.length - 1}
-                                className="link-hair text-dusk disabled:opacity-40"
-                                aria-label="Next snapshot"
-                              >
-                                Forward
-                              </button>
-                            </span>
-                          )}
-                        </span>
-                      )}
-                    </div>
+                    <ToolRail
+                      armSam={armSam}
+                      clearSam={clearSam}
+                      samBeta={samBeta}
+                      samBusy={samBusy}
+                      samMaskSrc={samMaskSrc}
+                      addSurfaceLayer={addSurfaceLayer}
+                      hasFittedSurface={hasFittedSurface}
+                      surface={surface}
+                      toggleShell={toggleShell}
+                      shellFloor={shellFloor}
+                      depthFlag={depthFlag}
+                      toggleDepth={toggleDepth}
+                      depthBusy={depthBusy}
+                      depthShown={depthShown}
+                      removeSurfaceLayer={removeSurfaceLayer}
+                      layersLength={layers.length}
+                      pinLook={pinLook}
+                      stepHistory={stepHistory}
+                      history={history}
+                      openRefine={openRefine}
+                    />
                     {scanFlag && session.scan && (session.offerOpen || session.sessionRunning) && (
                       <ScanOffer
                         scan={session.scan}
@@ -711,7 +662,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     <IconClose className="h-4 w-4" />
                   </Dialog.Close>
                 </div>
-                <div className="mt-7">{refineControls}</div>
+                <div className="mt-7">
+                  <RefinePanel sections={refineSections} defaultOpen="surface" />
+                </div>
               </Dialog.Content>
             </Dialog.Portal>
           </Dialog.Root>
@@ -722,9 +675,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 Send it to the house
               </button>
               <button onClick={togglePreview} className="link-hair text-dusk">
+                <IconEye open={!previewMode} />
                 {previewMode ? "Adjust" : "Preview"}
               </button>
               <button onClick={download} className="link-hair text-dusk">
+                <IconDownload />
                 Download
               </button>
             </div>

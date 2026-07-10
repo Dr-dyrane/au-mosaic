@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-10 - Claude - Visualizer studio UI lane (L7 and L8) - open
+## 2026-07-10 - Claude - Visualizer studio UI lane (L7 and L8) - done (phone), desktop rough
 
 Owner-directed, and the one visible non-flagged change: the studio look
 the plan named but never built. The visualizer stops being a max-w-6xl
@@ -52,7 +52,24 @@ parts/RefinePanel.tsx (additive icon slot only), parts/Stage.tsx (the
 Preview chip icon), docs/QA.md, and this handshake. Gate is tsc,
 eslint, npm run test, next build, the dash scan, the size budget, and a
 live proof at three widths plus a phone with no horizontal overflow and
-every prior action reachable. Rollback point is 761c158.
+every prior action reachable. Rollback point is 761c158. CLOSED, but
+honestly split: the icon module, the ToolRail, and the full-bleed shell
+shipped and the gates are clean (tsc, eslint zero, 67 tests, next build,
+dash scan, no visualizer file over 500, Visualizer.tsx 745 to 700). I
+drove the live proof myself rather than trust a claimed one. On the
+PHONE it is genuinely good: the stage is full-bleed edge to edge as the
+hero and the tools read as a clean floating glass capsule of icons with
+the gold Send beside them, no horizontal overflow. On DESKTOP it is a
+rough first pass: a tall portrait photo overflowed the fold, so I capped
+the stage to the viewport height in parts/Stage.tsx (lg:mx-auto lg:w-fit
+on the wrap, lg:max-h-[calc(100vh-8rem)] on the canvas, contain
+behaviour) which removed the overflow, but the stage still lands below
+the hero prose and the upload panel, so it is not yet the immediate hero
+on a wide screen. I am NOT calling the desktop composition a finished
+Apple-level experience; it is a documented refinement (stage prominence,
+balance with the refine column), left open for a later pass and for the
+owner's eye. The headline priority now is the functional no-tap
+per-face flow (L2 plus L4), not more chrome. Evidence in docs/QA.md.
 
 ## 2026-07-10 - Claude - Visualizer depth oracle lane (Phase 4c, slice 1) - done
 

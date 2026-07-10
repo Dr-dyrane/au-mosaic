@@ -2,6 +2,7 @@
 
 import type { Dispatch, KeyboardEvent, PointerEvent, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
+import { IconEye } from "../icons";
 import type { Pt } from "../types";
 import { CORNER_LABELS, SHELL_CORNER_LABELS } from "../constants";
 import { buzz } from "../helpers";
@@ -64,9 +65,11 @@ export default function Stage({
   return (
     <div
       ref={wrapRef}
-      className="relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px]"
+      className="relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px] lg:mx-auto lg:w-fit"
     >
-      <canvas ref={canvasRef} className="block h-auto w-full max-w-full" />
+      {/* Contain the stage: a landscape photo fills the column, a tall
+          portrait fits the viewport height so it never overflows the fold. */}
+      <canvas ref={canvasRef} className="block h-auto w-full max-w-full lg:mx-auto lg:w-auto lg:max-h-[calc(100vh-8rem)]" />
       <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />
       <p id="viz-corner-help" className="sr-only">
         Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.
@@ -225,6 +228,7 @@ export default function Stage({
           aria-label={previewMode ? "Show the drag controls" : "Hide the drag controls to preview"}
           className="chip-glass absolute right-4 top-4 z-20 font-semibold"
         >
+          <IconEye open={!previewMode} className="h-3.5 w-3.5" />
           {previewMode ? "Adjust" : "Preview"}
         </button>
       )}
