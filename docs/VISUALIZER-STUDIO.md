@@ -344,18 +344,29 @@ they serialize; the order is chosen so each builds on finished data.
   from useSamAutofind for the 500-line law), fitRecover (isFlatFit, sane
   defaults, assignStoneNumbers), cornerCandidates, depthPlane (fitPlane,
   planeQuad, carveOcclusion), depthShell.
-- L4 Per-face mask backbone (flag NEXT_PUBLIC_VIZ_FACES): one SAM call
-  per enumerated face into a faceMasks map, sequential and cap-aware
-  (keep the faces landed if the cap trips); draw.ts uses each face's own
-  mask; the guided walk branches on shape. This retires the ambiguous
-  single-shell mask and the soft crease derivation. It also solves the
-  CORNER-CORRESPONDENCE problem the owner named (2026-07-10): when one
-  shell mask returns and the fit flattens, the corners scatter and
-  nothing says which point belongs to which side. Per-face masks make
-  each corner's side unambiguous by construction, because the left-wall
-  mask's corners ARE the left wall's corners. shellFaceFit reconciles
-  the eight shared points from the four masks, so every point knows its
-  side before the hand ever touches it.
+- L4 Per-face mask backbone, NO TAP (the headline priority, owner
+  2026-07-10). Remove the manual "tap the wall / auto-find the surface"
+  interaction entirely. The studio segments automatically: the user
+  picks shell or surface, and the app sends the whole image one face at
+  a time to SAM 3 using the scene scan's per-face TEXT prompt ("left
+  wall of the pool", "pool floor"), iterating for a shell until every
+  wall and the floor has its own mask appended, one pass for a single
+  surface. Each face's mask lands in a faceMasks map, sequential and
+  cap-aware (keep the faces landed if the daily cap trips, say so);
+  draw.ts uses each face's own mask; the guided walk and the manual
+  pick both drive the same auto-loop. This retires the ambiguous
+  single-shell mask, the soft crease derivation, AND the tap. It fixes
+  the two things the owner named: the single-floor problem (each face
+  its own mask) and the fiddly UX (no tapping, it tiles itself). It also
+  solves CORNER-CORRESPONDENCE: when one shell mask returned and the fit
+  flattened, the corners scattered and nothing said which point belonged
+  to which side; per-face masks make each corner's side unambiguous by
+  construction, because the left-wall mask's corners ARE the left wall's
+  corners. shellFaceFit reconciles the eight shared points from the four
+  masks, so every point knows its side before the hand ever touches it.
+  PROOF BAR: a pool tiles into a full four-face shell with no tap, and
+  the live proof judges it at an Apple-level ease-of-use bar, not just
+  that it renders. Depends on L2 (the scan must return per-face prompts).
 - L5 Depth geometry (flag NEXT_PUBLIC_VIZ_DEPTH): RANSAC plane fit from
   the depth map inside a mask gives a face its perspective quad where it
   beats the fit engine; carveOcclusion subtracts nearer-than-plane pixels
