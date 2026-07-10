@@ -16,6 +16,41 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Visualizer guided session lane (Phase 4) - open
+
+Owner-directed Phase 4 of the reconstruction, flag-gated behind
+NEXT_PUBLIC_VIZ_SCAN (off in the template until the owner demos on a
+real phone). The orphaned analyze route becomes the scene reader: one
+claude-haiku-4-5 forced-tool call on the 768px photo returning the
+scene in plain words, up to five surfaces (kind, plain name, tap point,
+occluders, confidence), prep, and a note; the pure normaliser is
+exported and unit-tested. A new useSurfaceSession hook scans on each
+new photo when the flag is on, and below confidence 0.55 or on any
+failure the line simply never appears, today's manual flow untouched.
+The offer renders as one capsule row (one decision at a time, the
+disclosure grammar): the scene sentence, pre-selected surface chips,
+Tile it, Choose myself. On accept the session runs sequentially: for
+each surface it activates or creates the matching layer (addSurfaceLayer
+learns an optional target kind), calls the proven point-prompt segment
+path at that surface's tap point, and awaits the mask fully landed
+(snapshot per surface) before the next, with plain-words progress per
+chip. Scope note stated honestly: the desk holds one layer per surface
+kind, so a scene scans into at most one of each; same-kind multiplicity
+(three separate pool walls) is a later lane. The user-locked flag on
+corner drag rides with Phase 5 where automation would first need it.
+My files: src/lib/visualizer-ai.ts,
+src/app/api/visualizer/analyze/route.ts,
+src/components/visualizer/hooks/useSurfaceSession.ts (new),
+hooks/useSurfaceLayers.ts, hooks/useSamAutofind.ts,
+src/components/visualizer/parts/ScanOffer.tsx (new),
+src/components/visualizer/helpers.ts, src/components/Visualizer.tsx,
+tests/visualizer-scan.test.ts (new), .env and .env.example (flag
+lines), docs/QA.md, and this handshake. Gate is tsc, eslint, npm run
+test, next build, the dash scan, and a live proof: a real Haiku scan
+on the pool starter, Tile it landing each surface in sequence with
+masks appending, and the silent degrade with the flag off. Rollback
+point is 4e98d85.
+
 ## 2026-07-09 - Claude - Visualizer server hardening lane (Phase 3) - done
 
 Owner-directed Phase 3 of the reconstruction: the paid calls grow up.
