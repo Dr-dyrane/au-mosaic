@@ -14,6 +14,8 @@ git history: their decisions shipped, their prompts moved to the kit.
 | SAAS-QA.md | The standards board. Modern SaaS admin checklist with honest verdicts. Update verdicts as passes land. |
 | NEXT-STEPS.md | The open board. Documented gaps, owner-truth errands, and next build priorities. |
 | QA.md | The ledger. Every checkpoint with evidence. Updated each pass, never rewritten. |
+| VISUALIZER-BUILD-LOG.md | The visualizer journey: what shipped per phase, the lessons, the harness, and the forward plan. Read first when picking up the visualizer. |
+| VISUALIZER-STUDIO.md | The visualizer vision and the horizon: where the studio is going and the owner's standing rules. |
 | GIT.md | The git playbook. Sync, reset, lock recovery, staging, and push rules for every agent. |
 | THEMING.md | The theming contract. Nine tokens, three scenes; the whole job when brand colours arrive. |
 | client/PROPOSAL-NONSO.md | The proposal Nonso saw. Business record. |
