@@ -15,6 +15,7 @@ export type VizSnapshot = {
   activeLayerId: string;
   surface: SurfaceId;
   quad: Pt[];
+  shellFloor: Pt[] | null;
   pieceSlug: string;
   tileSize: number;
   blend: number;
@@ -34,6 +35,7 @@ interface UseSnapshotsParams {
   activeLayerId: string;
   surface: SurfaceId;
   quad: Pt[];
+  shellFloor: Pt[] | null;
   pieceSlug: string;
   tileSize: number;
   blend: number;
@@ -47,6 +49,7 @@ interface UseSnapshotsParams {
   setActiveLayerId: Dispatch<SetStateAction<string>>;
   setSurface: Dispatch<SetStateAction<SurfaceId>>;
   setQuad: Dispatch<SetStateAction<Pt[]>>;
+  setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
   setPieceSlug: Dispatch<SetStateAction<string>>;
   setTileSize: Dispatch<SetStateAction<number>>;
   setBlend: Dispatch<SetStateAction<number>>;
@@ -70,6 +73,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     activeLayerId,
     surface,
     quad,
+    shellFloor,
     pieceSlug,
     tileSize,
     blend,
@@ -83,6 +87,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setActiveLayerId,
     setSurface,
     setQuad,
+    setShellFloor,
     setPieceSlug,
     setTileSize,
     setBlend,
@@ -103,10 +108,15 @@ export function useSnapshots(params: UseSnapshotsParams) {
      straight in, before React state has caught up). */
   const buildSnapshot = useCallback((note: string, over: Partial<VizSnapshot> = {}): VizSnapshot => ({
     note,
-    layers: (over.layers ?? layers).map((l) => ({ ...l, quad: l.quad.map((p) => ({ ...p })) })),
+    layers: (over.layers ?? layers).map((l) => ({
+      ...l,
+      quad: l.quad.map((p) => ({ ...p })),
+      shellFloor: l.shellFloor ? l.shellFloor.map((p) => ({ ...p })) : null,
+    })),
     activeLayerId: over.activeLayerId ?? activeLayerId,
     surface: over.surface ?? surface,
     quad: (over.quad ?? quad).map((p) => ({ ...p })),
+    shellFloor: (over.shellFloor !== undefined ? over.shellFloor : shellFloor)?.map((p) => ({ ...p })) ?? null,
     pieceSlug: over.pieceSlug ?? pieceSlug,
     tileSize: over.tileSize ?? tileSize,
     blend: over.blend ?? blend,
@@ -116,7 +126,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     hasFittedSurface: over.hasFittedSurface ?? hasFittedSurface,
     samMask: over.samMask !== undefined ? over.samMask : samMask,
     samMaskSrc: over.samMaskSrc !== undefined ? over.samMaskSrc : samMaskSrc,
-  }), [layers, activeLayerId, surface, quad, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask, samMaskSrc]);
+  }), [layers, activeLayerId, surface, quad, shellFloor, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask, samMaskSrc]);
 
   /* Append a checkpoint, dropping anything ahead of the cursor (a new
      move after stepping back forks a fresh line) and holding the stack to
@@ -136,6 +146,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setActiveLayerId(snap.activeLayerId);
     setSurface(snap.surface);
     setQuad(snap.quad.map((p) => ({ ...p })));
+    setShellFloor(snap.shellFloor ? snap.shellFloor.map((p) => ({ ...p })) : null);
     setPieceSlug(snap.pieceSlug);
     setTileSize(snap.tileSize);
     setBlend(snap.blend);
@@ -145,7 +156,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setHasFittedSurface(snap.hasFittedSurface);
     setSamMask(snap.samMask);
     setSamMaskSrc(snap.samMaskSrc);
-  }, [setLayers, setActiveLayerId, setSurface, setQuad, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setHasFittedSurface, setSamMask, setSamMaskSrc]);
+  }, [setLayers, setActiveLayerId, setSurface, setQuad, setShellFloor, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setHasFittedSurface, setSamMask, setSamMaskSrc]);
 
   const stepHistory = useCallback((dir: -1 | 1) => {
     const target = history.i + dir;

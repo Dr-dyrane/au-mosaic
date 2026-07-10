@@ -6,22 +6,20 @@ import { IconClose } from "@/app/admin/(panel)/icons";
 import { track } from "@vercel/analytics";
 import { VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
-import { SITE } from "@/lib/site";
-import { wa } from "@/lib/wa";
 import type { Pt, SurfaceId, LoadSource, PrepMode, SurfaceLayer } from "./visualizer/types";
 import {
   DEFAULT_QUAD,
   SAMPLE_POOL_QUAD,
   SURFACES,
-  CONTEXTS,
   DEFAULT_PIECE,
-  CORNER_LABELS,
   FIRST_LAYER_ID,
   LAYER_LABELS,
 } from "./visualizer/constants";
 import { drawSource, drawSurfaceLayer } from "./visualizer/draw";
+import { buildShellFaces, defaultShellFloor } from "./visualizer/shell";
+import { isValidQuad } from "./visualizer/geometry";
 import { hydrateMask } from "./visualizer/maskCache";
-import { buzz, pieceSlugForSurface, suggestionText, readStore } from "./visualizer/helpers";
+import { buzz, readStore } from "./visualizer/helpers";
 import PaletteEditor from "./visualizer/parts/PaletteEditor";
 import PieceOptions from "./visualizer/parts/PieceOptions";
 import SurfaceOptions from "./visualizer/parts/SurfaceOptions";
@@ -32,14 +30,16 @@ import LayerChips from "./visualizer/parts/LayerChips";
 import RefinePanel from "./visualizer/parts/RefinePanel";
 import CameraDialog from "./visualizer/parts/CameraDialog";
 import ScanOffer from "./visualizer/parts/ScanOffer";
+import Stage from "./visualizer/parts/Stage";
 import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
-import { useCamera } from "./visualizer/hooks/useCamera";
 import { useSnapshots } from "./visualizer/hooks/useSnapshots";
 import { useSamAutofind } from "./visualizer/hooks/useSamAutofind";
 import { useCornerDrag } from "./visualizer/hooks/useCornerDrag";
 import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
 import { useSurfaceSession } from "./visualizer/hooks/useSurfaceSession";
+import { usePhotoDesk } from "./visualizer/hooks/usePhotoDesk";
+import { useShareDownload } from "./visualizer/hooks/useShareDownload";
 
 /* The guided scan ships dark until the owner demos it on a real phone.
    NEXT_PUBLIC vars inline at build, so this is a constant. */
@@ -57,6 +57,15 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   /* Who chose this photo: the scan only spends money on a person's pick. */
   const [photoSource, setPhotoSource] = useState<LoadSource>("default");
   const [quad, setQuad] = useState<Pt[]>(() => (readStore().quad as Pt[]) || DEFAULT_QUAD);
+  /* The active layer's shell floor, live beside the quad. Null means the
+     surface is flat, which every layer is until the Shell toggle. A floor
+     the visitor shaped survives a reload like the rim does: four points,
+     guarded before trust. */
+  const storedShellFloor = () => {
+    const v = readStore().shellFloor;
+    return Array.isArray(v) && v.length === 4 ? (v as Pt[]) : null;
+  };
+  const [shellFloor, setShellFloor] = useState<Pt[] | null>(storedShellFloor);
   const [surface, setSurface] = useState<SurfaceId>("pool");
   const [tileSize, setTileSize] = useState(() => (readStore().tileSize as number) || 26);
   const [blend, setBlend] = useState(() => {
@@ -93,6 +102,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       groutLight: typeof readStore().groutLight === "boolean" ? (readStore().groutLight as boolean) : true,
       customColors: null,
       maskSrc: null,
+      shellFloor: storedShellFloor(),
       visible: true,
       accepted: false,
     },
@@ -103,7 +113,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const loadSeq = useRef(0);
   const restored = useRef(false);
   /* Owned here, above render, because render reads them: which corner is
      live, and whether a press-and-hold compare is on. useCornerDrag writes
@@ -132,6 +141,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     activeLayerId,
     surface,
     quad,
+    shellFloor,
     pieceSlug,
     tileSize,
     blend,
@@ -145,6 +155,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setActiveLayerId,
     setSurface,
     setQuad,
+    setShellFloor,
     setPieceSlug,
     setTileSize,
     setBlend,
@@ -166,6 +177,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSurface,
     quad,
     setQuad,
+    shellFloor,
+    setShellFloor,
     pieceSlug,
     setPieceSlug,
     tileSize,
@@ -213,82 +226,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSnapMessage,
   });
 
-  const loadImage = useCallback((
-    src: string,
-    from: LoadSource,
-    nextQuad?: Pt[],
-    nextSurface = surface,
-    nextPieceSlug?: string
-  ) => {
-    const ticket = loadSeq.current + 1;
-    loadSeq.current = ticket;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      if (ticket !== loadSeq.current) {
-        revokeObjectUrl(src);
-        return;
-      }
-      const preferredSlug = nextPieceSlug && pieces.some((item) => item.slug === nextPieceSlug)
-        ? nextPieceSlug
-        : pieceSlugForSurface(nextSurface, pieces, pieceSlug);
-      const targetSurface = nextSurface;
-      const targetPieceSlug = from === "default" ? pieceSlug : preferredSlug;
-      const targetPrep: PrepMode = from === "default" ? prepMode : "primer";
-      const targetTileSize = SURFACES[targetSurface].tileSize;
-      const targetPiece = pieces.find((item) => item.slug === targetPieceSlug) ?? piece;
-      const suggestion = suggestionText(targetSurface, targetPrep, targetPiece.name);
-      /* No auto-detect: the mosaic lands on the surface's default frame
-         and the four corners drag it onto the wall or floor. */
-      const targetQuad = nextQuad ?? SURFACES[targetSurface].quad;
-      setHasFittedSurface(true);
-      setSurface(targetSurface);
-      setTileSize(targetTileSize);
-      setPieceSlug(targetPieceSlug);
-      setCustomColors(null);
-      setSamMask(null);
-      setSamMaskSrc(null);
-      setPrepMode(targetPrep);
-      setQuad(targetQuad);
-      /* A new photo means a new desk: one fresh layer mirroring the flat
-         controls just set, so the last photo's surfaces cannot haunt it. */
-      setLayers([
-        {
-          id: FIRST_LAYER_ID,
-          label: LAYER_LABELS[targetSurface],
-          surface: targetSurface,
-          quad: targetQuad,
-          pieceSlug: targetPieceSlug,
-          tileSize: targetTileSize,
-          blend,
-          prepMode: targetPrep,
-          groutLight,
-          customColors: null,
-          maskSrc: null,
-          visible: true,
-          accepted: true,
-        },
-      ]);
-      setActiveLayerId(FIRST_LAYER_ID);
-      setSnapMessage(suggestion);
-      setPhoto(img);
-      setPhotoSource(from);
-      if (from !== "default") track("viz_photo", { source: from });
-      revokeObjectUrl(src);
-    };
-    img.onerror = () => {
-      if (ticket === loadSeq.current) setSnapMessage("That image did not open. Try another photo.");
-      revokeObjectUrl(src);
-    };
-    img.src = src;
-  }, [blend, groutLight, piece, pieceSlug, pieces, prepMode, revokeObjectUrl, surface]);
-
-  const { cameraOpen, cameraError, clearCameraError, openCamera, snapCamera, stopCamera } = useCamera({
-    videoRef,
-    objectUrl,
-    setSnapMessage,
-    surface,
-    onCapture: loadImage,
+  /* How photos arrive and what a retag does; the camera rides inside. */
+  const {
+    loadImage, chooseStarterSurface, onFile, fitSurface, loadContext,
+    cameraOpen, cameraError, openCamera, snapCamera, stopCamera,
+  } = usePhotoDesk({
+    pieces, piece, pieceSlug, surface, shellFloor, blend, prepMode, groutLight,
+    withActiveLayer, objectUrl, revokeObjectUrl, videoRef,
+    setPhoto, setPhotoSource, setSurface, setQuad, setShellFloor,
+    setTileSize, setPieceSlug, setPrepMode, setCustomColors, setSamMask,
+    setSamMaskSrc, setLayers, setActiveLayerId, setHasFittedSurface, setSnapMessage,
   });
 
   /* The feature opens on its own before-state. User photos are chosen,
@@ -299,61 +246,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     loadImage(VISUALIZER_SAMPLE.pool.src, "default", SAMPLE_POOL_QUAD, "pool");
   }, [loadImage]);
 
-  usePersistedControls({ photo, quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers, withActiveLayer });
-
-  const chooseStarterSurface = (id: SurfaceId) => {
-    const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
-    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
-    setLayers(withActiveLayer);
-    setSurface(id);
-    setTileSize(SURFACES[id].tileSize);
-    setPieceSlug(nextPieceSlug);
-    setCustomColors(null);
-    setSamMask(null);
-    setSamMaskSrc(null);
-    setPrepMode("primer");
-    setQuad(SURFACES[id].quad);
-    setHasFittedSurface(true);
-    setSnapMessage(suggestionText(id, "primer", nextPiece.name));
-    buzz(4);
-    track("viz_surface_choice", { surface: id });
-  };
-
-  const onFile = (f: File | undefined) => {
-    if (!f) return;
-    clearCameraError();
-    loadImage(objectUrl(f), "upload", undefined, surface);
-  };
-
-  const fitSurface = (id: SurfaceId) => {
-    const next = SURFACES[id];
-    const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
-    const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
-    setSurface(id);
-    setTileSize(next.tileSize);
-    setPieceSlug(nextPieceSlug);
-    setCustomColors(null);
-    setSamMask(null);
-    setSamMaskSrc(null);
-    setPrepMode("primer");
-    setQuad(next.quad);
-    setHasFittedSurface(true);
-    setSnapMessage(suggestionText(id, "primer", nextPiece.name));
-    buzz(4);
-    track("viz_surface", { surface: id });
-  };
-
-  const loadContext = (id: SurfaceId) => {
-    const context = CONTEXTS.find((item) => item.id === id);
-    if (!context) return;
-    const next = SURFACES[id];
-    setSurface(id);
-    setTileSize(next.tileSize);
-    if (pieces.some((p) => p.slug === context.piece)) setPieceSlug(context.piece);
-    loadImage(context.src, "sample", next.quad, id, context.piece);
-    buzz(6);
-    track("viz_context", { surface: id });
-  };
+  usePersistedControls({ photo, quad, shellFloor, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers, withActiveLayer });
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
@@ -382,6 +275,32 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     const drawableLayers = withActiveLayer(layers);
     drawableLayers.forEach((layer) => {
       const layerPiece = pieceMap.get(layer.pieceSlug) ?? piece;
+      const mask = layer.id === activeLayerId ? (samMask ?? hydrateMask(layer.maskSrc, schedulePaint)) : hydrateMask(layer.maskSrc, schedulePaint);
+      if (layer.shellFloor) {
+        /* A shelled pool is five quads sharing eight points. Each face
+           draws as its own surface under the layer's one mask, so a SAM
+           basin cut-out dresses the whole shell. The mask is cut to each
+           face's quad on the way in, or every face's prep and finish
+           would stamp the whole basin and bury its siblings. */
+        buildShellFaces(layer.quad, layer.shellFloor).forEach((face) => {
+          if (!face.visible || !isValidQuad(face.quad)) return;
+          drawSurfaceLayer({
+            ctx,
+            origCtx,
+            photo,
+            sourceW,
+            sourceH,
+            width: W,
+            height: Hh,
+            layer: { ...layer, quad: face.quad },
+            piece: layerPiece,
+            mask,
+            finish: draggingRef.current === null,
+            clipMaskToQuad: true,
+          });
+        });
+        return;
+      }
       drawSurfaceLayer({
         ctx,
         origCtx,
@@ -392,7 +311,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         height: Hh,
         layer,
         piece: layerPiece,
-        mask: layer.id === activeLayerId ? (samMask ?? hydrateMask(layer.maskSrc, schedulePaint)) : hydrateMask(layer.maskSrc, schedulePaint),
+        mask,
         finish: draggingRef.current === null,
       });
     });
@@ -406,19 +325,13 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   }, [render]);
 
   const {
-    dragPoint,
-    loupe,
-    setLoupe,
-    holding,
-    pointerPos,
-    holdStart,
-    queueCornerDrag,
-    finishDrag,
-    drawLoupe,
-    onCornerKey,
+    dragPoint, loupe, setLoupe, holding, pointerPos, holdStart,
+    queueCornerDrag, finishDrag, drawLoupe, onCornerKey,
   } = useCornerDrag({
     quad,
     setQuad,
+    shellFloor,
+    setShellFloor,
     setHasFittedSurface,
     setSnapMessage,
     render,
@@ -430,57 +343,24 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     originalRef,
   });
 
-  const share = async () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const currentLayers = withActiveLayer(layers).filter((layer) => layer.visible);
-    const layerSummary = currentLayers.map((layer) => {
-      const layerPiece = pieceMap.get(layer.pieceSlug) ?? piece;
-      return `${layer.label}: ${layerPiece.name}`;
-    }).join("; ");
-    const primaryLayer = currentLayers.find((layer) => layer.id === activeLayerId) ?? currentLayers[0];
-    const primaryPiece = primaryLayer ? pieceMap.get(primaryLayer.pieceSlug) ?? piece : piece;
-    const fileName = currentLayers.length > 1 ? "au-mosaic-visualizer-surfaces.png" : `au-mosaic-${primaryPiece.slug}.png`;
-    const shareText = layerSummary || piece.name;
-    track("viz_share", { piece: primaryPiece.slug, layers: currentLayers.length });
-    buzz(8);
-    canvas.toBlob(async (blob) => {
-      if (!blob) return;
-      const file = new File([blob], fileName, { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], text: `${shareText} · ${SITE.url.replace(/^https?:\/\//, "")}` });
-          return;
-        } catch {}
-      }
-      const a = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      a.href = url;
-      a.download = file.name;
-      a.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), 0);
-      setSnapMessage("Preview saved. Attach it in WhatsApp.");
-      window.open(wa(`Hello AU Mosaic, I visualised ${shareText} in my space. Please send a quote.`), "_blank");
-    }, "image/png");
-  };
+  const { share, download } = useShareDownload({
+    canvasRef, layers, activeLayerId, piece, pieceMap, withActiveLayer, setSnapMessage,
+  });
 
-  const download = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const currentLayers = withActiveLayer(layers).filter((layer) => layer.visible);
-    const primaryLayer = currentLayers.find((layer) => layer.id === activeLayerId) ?? currentLayers[0];
-    const primaryPiece = primaryLayer ? pieceMap.get(primaryLayer.pieceSlug) ?? piece : piece;
-    const fileName = currentLayers.length > 1 ? "au-mosaic-visualizer-surfaces.png" : `au-mosaic-${primaryPiece.slug}.png`;
-    track("viz_download", { piece: primaryPiece.slug, layers: currentLayers.length });
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), 0);
-    }, "image/png");
+  /* One tap folds the flat pool into a box interior: the rim keeps its
+     four stones, four more shape the floor. Tap again to lie flat. */
+  const toggleShell = () => {
+    if (shellFloor) {
+      setShellFloor(null);
+      pushSnapshot("Shell off", { shellFloor: null });
+      setSnapMessage("Back to one flat surface.");
+    } else {
+      const nextFloor = defaultShellFloor(quad);
+      setShellFloor(nextFloor);
+      pushSnapshot("Shell on", { shellFloor: nextFloor });
+      setSnapMessage("A shell now. Eight stones shape it.");
+    }
+    buzz(4);
   };
 
   /* Preview just clears the drag controls off the stage so the mosaic
@@ -601,128 +481,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     </aside>
   );
 
-  const stage = (
-    <div
-      ref={wrapRef}
-      className="relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px]"
-    >
-      <canvas ref={canvasRef} className="block h-auto w-full max-w-full" />
-      <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />
-      <p id="viz-corner-help" className="sr-only">
-        Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.
-      </p>
-      {!previewMode && (
-      <svg
-        className={`absolute inset-0 h-full w-full touch-none ${samBeta ? "cursor-crosshair" : ""}`}
-        aria-describedby="viz-corner-help"
-        onPointerDown={(e) => { if (samBeta) { runSam(pointerPos(e)); } else { holdStart(e); } }}
-        onPointerMove={(e) => {
-          if (draggingRef.current === null) return;
-          const p = pointerPos(e);
-          queueCornerDrag(draggingRef.current, p);
-        }}
-        onPointerUp={finishDrag}
-        onPointerLeave={finishDrag}
-      >
-        {quad.map((p, i) => {
-          const n = quad[(i + 1) % 4];
-          return (
-            <line
-              key={i}
-              x1={`${p.x * 100}%`}
-              y1={`${p.y * 100}%`}
-              x2={`${n.x * 100}%`}
-              y2={`${n.y * 100}%`}
-              stroke="var(--t-brass)"
-              strokeWidth="2"
-              strokeDasharray="6 5"
-              opacity={holding ? 0 : 0.9}
-            />
-          );
-        })}
-        {quad.map((p, i) => (
-          <circle
-            key={`c${i}`}
-            cx={`${p.x * 100}%`}
-            cy={`${p.y * 100}%`}
-            r="14"
-            tabIndex={hasFittedSurface ? 0 : -1}
-            role="button"
-            aria-label={`${CORNER_LABELS[i]} surface corner. Use arrow keys to nudge.`}
-            aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
-            fill="var(--t-brass)"
-            fillOpacity={holding ? 0 : 0.9}
-            stroke="#14110b"
-            strokeWidth="2"
-            style={{ cursor: "grab" }}
-            onFocus={() => {
-              setLoupe(p);
-              requestAnimationFrame(() => drawLoupe(p));
-            }}
-            onBlur={() => setLoupe(null)}
-            onKeyDown={(e) => onCornerKey(i, e)}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              (e.target as Element).setPointerCapture(e.pointerId);
-              draggingRef.current = i;
-              const p2 = pointerPos(e);
-              dragPoint.current = p2;
-              buzz(6);
-              setLoupe(p2);
-              requestAnimationFrame(() => drawLoupe(p2));
-              track("viz_adjust", { corner: i });
-            }}
-          />
-        ))}
-      </svg>
-      )}
-      {loupe && (
-        <div
-          className="pointer-events-none absolute z-10"
-          style={{
-            left: `calc(${loupe.x * 100}% - 60px)`,
-            top: `calc(${loupe.y * 100}% - 150px)`,
-          }}
-        >
-          <canvas
-            ref={loupeRef}
-            className="rounded-full"
-            style={{ boxShadow: "0 0 0 2px var(--t-brass), 0 14px 40px -12px rgb(0 0 0 / 0.6)" }}
-          />
-        </div>
-      )}
-      {holding && <span className="chip-glass absolute left-1/2 top-4 -translate-x-1/2">Original</span>}
-      {!holding && (
-        <button
-          type="button"
-          onClick={togglePreview}
-          aria-pressed={previewMode}
-          aria-label={previewMode ? "Show the drag controls" : "Hide the drag controls to preview"}
-          className="chip-glass absolute right-4 top-4 z-20 font-semibold"
-        >
-          {previewMode ? "Adjust" : "Preview"}
-        </button>
-      )}
-      {samBusy && (
-        <div
-          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-5 bg-sand/45 backdrop-blur-[6px]"
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-        >
-          <span className="relative flex h-12 w-12 items-center justify-center" aria-hidden>
-            <span className="absolute h-12 w-12 animate-ping rounded-full bg-gold/25" />
-            <span className="h-11 w-11 animate-spin rounded-full border-2 border-gold/25 border-t-gold" />
-            <span className="absolute h-2 w-2 rounded-full bg-gold" />
-          </span>
-          <span className="chip-glass text-[11px] font-semibold uppercase tracking-[0.22em] text-ink">
-            Reading the surface
-          </span>
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
       <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-start sm:justify-between">
@@ -781,7 +539,17 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                 data-viz="workspace"
               >
                 <div className="min-w-0">
-                  {stage}
+                  <Stage
+                    wrapRef={wrapRef} canvasRef={canvasRef} loupeRef={loupeRef}
+                    draggingRef={draggingRef} dragPoint={dragPoint} tick={tick}
+                    quad={quad} shellFloor={shellFloor} holding={holding}
+                    loupe={loupe} setLoupe={setLoupe}
+                    previewMode={previewMode} togglePreview={togglePreview}
+                    samBeta={samBeta} samBusy={samBusy} hasFittedSurface={hasFittedSurface}
+                    pointerPos={pointerPos} runSam={runSam} holdStart={holdStart}
+                    queueCornerDrag={queueCornerDrag} finishDrag={finishDrag}
+                    drawLoupe={drawLoupe} onCornerKey={onCornerKey}
+                  />
                   <p className="mt-3 text-[13px] leading-relaxed text-mist">
                     Drag the corners onto your surface. Press and hold to compare.
                   </p>
@@ -803,6 +571,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                       {hasFittedSurface && (
                         <button type="button" onClick={() => addSurfaceLayer()} className="link-hair text-dusk">
                           Add surface
+                        </button>
+                      )}
+                      {surface === "pool" && (
+                        <button type="button" onClick={toggleShell} className="link-hair text-dusk">
+                          {shellFloor ? "Flat" : "Shell"}
                         </button>
                       )}
                       {layers.length > 1 && (

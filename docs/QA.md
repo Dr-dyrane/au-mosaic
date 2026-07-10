@@ -612,3 +612,32 @@ the seam, and a fix round for four advisories all passed. Honest scope
 note: the desk holds one layer per surface kind, so a scene scans into
 at most one of each; several walls of the same kind in one photo is a
 later lane, and the corner-drag user lock rides with Phase 5.
+
+## The pool becomes a shell, and the codebase stops cobwebbing (Phase 4b, slice 1)
+
+One pool layer can now be a connected box interior. The rim stays the
+four-corner quad every shipped system already knows; a Shell toggle
+(pool layers only) adds four floor points, and a pure shell.ts joins
+them into faces that share their corner objects, so seams meet by
+construction: back, left, and right walls, a hidden near wall, the
+floor drawn last. Eight brass stones drag the whole box through the
+same machinery the four always used; the wireframe adds the floor and
+four verticals so the shape reads at a glance. The layer's one SAM mask
+clips every face, and the review round found the finish veils of each
+face washing the whole basin five times, so each face's mask is now cut
+to its own quad before prep and finish land. A retag away from pool
+folds the shell flat (the reviewer caught the stranded state, the
+implementer found a third retag path on its own), and the floor the
+visitor shaped survives a reload like the rim does, a persistence gap
+the live proof exposed and the desk fixed by joining the default load's
+keep-what-the-browser-remembered discipline. Proven live: toggle on the
+empty pool starter with the box reading true, auto-find clipping the
+shell to the basin, four stones on the wall layer and eight back on the
+pool, and eight again after a full reload. Owner directive honoured in
+the same lane: no visualizer file above 500 lines. The orchestrator
+fell from about 1100 to 689 via parts/Stage.tsx, hooks/usePhotoDesk.ts,
+and hooks/useShareDownload.ts; fit.ts split to 119 over fitMask.ts
+(225) and fitQuad.ts (262) with the untouched fit test suite as the
+API-preservation proof; every move verified verbatim by mechanical
+diff. Gates: tsc, eslint zero warnings across src and tests, 56 of 56
+tests, the production build, the dash scan, all clean.

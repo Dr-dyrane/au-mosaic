@@ -10,6 +10,8 @@ import { clamp, isValidQuad, setCorner } from "../geometry";
 interface UseCornerDragParams {
   quad: Pt[];
   setQuad: Dispatch<SetStateAction<Pt[]>>;
+  shellFloor: Pt[] | null;
+  setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
   render: () => void;
@@ -34,6 +36,8 @@ export function useCornerDrag(params: UseCornerDragParams) {
   const {
     quad,
     setQuad,
+    shellFloor,
+    setShellFloor,
     setHasFittedSurface,
     setSnapMessage,
     render,
@@ -62,14 +66,26 @@ export function useCornerDrag(params: UseCornerDragParams) {
     };
   };
 
+  /* Stones 0 to 3 are the rim quad; 4 to 7 are the shell floor. Each
+     ring guards its own quad; the leaning wall faces are checked per
+     face at render time instead. */
   const updateCorner = useCallback((index: number, point: Pt) => {
     const safePoint = { x: clamp(point.x, 0.02, 0.98), y: clamp(point.y, 0.02, 0.98) };
+    if (index >= 4) {
+      setShellFloor((current) => {
+        if (!current) return current;
+        const next = setCorner(current, index - 4, safePoint);
+        if (isValidQuad(next)) return next;
+        return current;
+      });
+      return;
+    }
     setQuad((current) => {
       const next = setCorner(current, index, safePoint);
       if (isValidQuad(next)) return next;
       return current;
     });
-  }, [setQuad]);
+  }, [setQuad, setShellFloor]);
 
   /* The loupe: what your finger is hiding, shown above it at 2.5x. */
   const drawLoupe = (p: Pt) => {
@@ -134,7 +150,8 @@ export function useCornerDrag(params: UseCornerDragParams) {
   };
 
   const nudgeCorner = (index: number, dx: number, dy: number) => {
-    const current = quad[index];
+    const current = index >= 4 ? shellFloor?.[index - 4] : quad[index];
+    if (!current) return;
     const next = { x: clamp(current.x + dx, 0.02, 0.98), y: clamp(current.y + dy, 0.02, 0.98) };
     updateCorner(index, next);
     setHasFittedSurface(true);

@@ -28,6 +28,9 @@ export type SurfaceLayer = {
   /* The fal segment rides the layer as a data URI, so every surface
      keeps its own shape. */
   maskSrc: string | null;
+  /* A pool can be a shell: the rim stays the quad, these four points
+     are the floor, and faces join them. Null means flat. */
+  shellFloor: Pt[] | null;
   visible: boolean;
   accepted: boolean;
 };

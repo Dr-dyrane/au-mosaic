@@ -18,6 +18,8 @@ interface UseSurfaceLayersParams {
   setSurface: Dispatch<SetStateAction<SurfaceId>>;
   quad: Pt[];
   setQuad: Dispatch<SetStateAction<Pt[]>>;
+  shellFloor: Pt[] | null;
+  setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
   pieceSlug: string;
   setPieceSlug: Dispatch<SetStateAction<string>>;
   tileSize: number;
@@ -57,6 +59,8 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setSurface,
     quad,
     setQuad,
+    shellFloor,
+    setShellFloor,
     pieceSlug,
     setPieceSlug,
     tileSize,
@@ -86,6 +90,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     label: LAYER_LABELS[surface],
     surface,
     quad,
+    shellFloor,
     pieceSlug,
     tileSize,
     blend,
@@ -95,7 +100,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     maskSrc: samMaskSrc,
     visible: true,
     accepted: hasFittedSurface,
-  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, samMaskSrc, surface, tileSize]);
+  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, samMaskSrc, shellFloor, surface, tileSize]);
 
   const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
     const next = activeLayerSnapshot();
@@ -109,6 +114,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setActiveLayerId(layer.id);
     setSurface(layer.surface);
     setQuad(layer.quad);
+    setShellFloor(layer.shellFloor);
     setPieceSlug(layer.pieceSlug);
     setTileSize(layer.tileSize);
     setBlend(layer.blend);
@@ -120,7 +126,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setHasFittedSurface(layer.accepted);
     setSnapMessage(`${layer.label} selected.`);
     buzz(3);
-  }, [setActiveLayerId, setBlend, setCustomColors, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
+  }, [setActiveLayerId, setBlend, setCustomColors, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
 
   /* Without a kind the desk picks the next natural surface, as before.
      The guided session names the kind it wants and reads the boolean to
@@ -162,6 +168,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       groutLight,
       customColors: null,
       maskSrc: null,
+      shellFloor: null,
       visible: true,
       accepted: true,
     };
@@ -169,6 +176,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setActiveLayerId(id);
     setSurface(nextSurface);
     setQuad(nextLayer.quad);
+    setShellFloor(null);
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
     setSamMask(null);
@@ -181,6 +189,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       activeLayerId: id,
       surface: nextSurface,
       quad: nextLayer.quad,
+      shellFloor: null,
       pieceSlug: nextPieceSlug,
       tileSize: nextLayer.tileSize,
       prepMode: "primer",
@@ -207,6 +216,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setActiveLayerId(nextActive.id);
     setSurface(nextActive.surface);
     setQuad(nextActive.quad);
+    setShellFloor(nextActive.shellFloor);
     setPieceSlug(nextActive.pieceSlug);
     setTileSize(nextActive.tileSize);
     setBlend(nextActive.blend);
@@ -221,6 +231,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       activeLayerId: nextActive.id,
       surface: nextActive.surface,
       quad: nextActive.quad,
+      shellFloor: nextActive.shellFloor,
       pieceSlug: nextActive.pieceSlug,
       tileSize: nextActive.tileSize,
       blend: nextActive.blend,

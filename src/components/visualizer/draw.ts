@@ -250,6 +250,7 @@ function drawSurfaceLayer({
   piece,
   mask,
   finish,
+  clipMaskToQuad,
 }: {
   ctx: CanvasRenderingContext2D;
   origCtx: CanvasRenderingContext2D;
@@ -262,6 +263,7 @@ function drawSurfaceLayer({
   piece: Piece;
   mask?: CanvasImageSource | null;
   finish?: boolean;
+  clipMaskToQuad?: boolean;
 }) {
   if (!layer.visible) return;
   const tileColors = layer.customColors && layer.customColors.length > 0 ? layer.customColors : (piece.colors || ["#3aa9d6"]);
@@ -272,6 +274,31 @@ function drawSurfaceLayer({
      surface shape the model found. Shape from the mask, angle from the
      corners. */
   const q = layer.quad.map((p) => ({ x: p.x * width, y: p.y * height }));
+
+  /* A shell face shares the layer's one mask with its four siblings, so
+     the mask is cut to this face's quad before it shapes anything. Left
+     whole, each face's prep coat and finish would stamp the entire mask
+     region and wash out the faces laid before it. A mask that will not
+     draw leaves the quad alone shaping the face. */
+  let shapeMask: CanvasImageSource | null = mask ?? null;
+  if (mask && clipMaskToQuad) {
+    const cut = document.createElement("canvas");
+    cut.width = width;
+    cut.height = height;
+    const cx = cut.getContext("2d");
+    if (cx) {
+      cx.fillStyle = "#000";
+      fillQuadPath(cx, q);
+      try {
+        cx.globalCompositeOperation = "destination-in";
+        cx.drawImage(mask, 0, 0, width, height);
+      } catch {
+        /* the quad fill stays; the face still renders */
+      }
+      cx.globalCompositeOperation = "source-over";
+      shapeMask = cut;
+    }
+  }
 
   /* The prep coat hides whatever the surface wore before, since the tiles
      land with multiply and old grout would ghost through. One painter
@@ -292,7 +319,7 @@ function drawSurfaceLayer({
   };
 
   if (layer.prepMode !== "none") {
-    if (mask) {
+    if (shapeMask) {
       /* Cut the coat to the mask the same way finishSurface stamps its
          veils. A mask that will not draw leaves the photo untouched. */
       const prep = document.createElement("canvas");
@@ -303,7 +330,7 @@ function drawSurfaceLayer({
         paintPrep(px);
         try {
           px.globalCompositeOperation = "destination-in";
-          px.drawImage(mask, 0, 0, width, height);
+          px.drawImage(shapeMask, 0, 0, width, height);
           px.globalCompositeOperation = "source-over";
           ctx.drawImage(prep, 0, 0);
         } catch {
@@ -341,10 +368,10 @@ function drawSurfaceLayer({
   /* Keep the warped tiles only where the mask is opaque, so the mosaic
      lands on the exact surface shape the model found and nowhere else.
      A failed mask draw is swallowed, leaving the full-frame tiles. */
-  if (mask) {
+  if (shapeMask) {
     try {
       octx.globalCompositeOperation = "destination-in";
-      octx.drawImage(mask, 0, 0, width, height);
+      octx.drawImage(shapeMask, 0, 0, width, height);
       octx.globalCompositeOperation = "source-over";
     } catch {
       /* leave the overlay as it is */
@@ -357,7 +384,7 @@ function drawSurfaceLayer({
   ctx.drawImage(overlay, 0, 0);
   ctx.restore();
 
-  if (!mask) {
+  if (!shapeMask) {
     ctx.save();
     clipQuad(ctx, q);
     ctx.globalCompositeOperation = "soft-light";
@@ -372,7 +399,7 @@ function drawSurfaceLayer({
 
   /* Settle the laid tiles into the photo's light. Skipped mid-drag so the
      corners stay quick; it lands the moment the corner is let go. */
-  if (finish !== false) finishSurface(ctx, width, height, q, mask ?? null);
+  if (finish !== false) finishSurface(ctx, width, height, q, shapeMask);
 }
 
 export { drawTriangle, makePattern, clipQuad, sampleQuadColor, drawBlurredPhoto, drawSource, drawSurfaceLayer };

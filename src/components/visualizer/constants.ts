@@ -67,6 +67,7 @@ export const QUICK_SURFACES: SurfaceId[] = ["pool", "wall", "backsplash", "showe
 export const DEFAULT_PIECE = "classic-pool-blues";
 export const STORE_KEY = "aumosaic.viz";
 export const CORNER_LABELS = ["Top left", "Top right", "Bottom right", "Bottom left"] as const;
+export const SHELL_CORNER_LABELS = ["Floor top left", "Floor top right", "Floor bottom right", "Floor bottom left"] as const;
 export const FIRST_LAYER_ID = "surface-1";
 export const LAYER_LABELS: Record<SurfaceId, string> = {
   pool: "Pool",

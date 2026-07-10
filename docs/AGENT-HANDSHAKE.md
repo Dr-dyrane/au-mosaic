@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-10 - Claude - Visualizer pool shell lane (Phase 4b, slice 1) - open
+## 2026-07-10 - Claude - Visualizer pool shell lane (Phase 4b, slice 1) - done
 
 Owner-directed first slice of the pool shell from the horizon: hand
 draggable shells, no AI. The design keeps the rim as the existing quad,
@@ -46,7 +46,21 @@ docs/QA.md, and this handshake. Gate is tsc, eslint, npm run test, next
 build, the dash scan, and a live proof: toggle the shell on the empty
 pool starter, four tiled faces and the wireframe visible, auto-find
 clipping the shell to the basin mask, the shell surviving a chip switch
-and a reload. Rollback point is 4f43609.
+and a reload. Rollback point is 4f43609. CLOSED same day, with the
+owner's modularity directive folded into the lane: the orchestrator
+fell from about 1100 lines to 689 via parts/Stage.tsx,
+hooks/usePhotoDesk.ts, and hooks/useShareDownload.ts, and fit.ts split
+to 119 over fitMask.ts and fitQuad.ts with the untouched fit suite as
+the API proof, every move verified verbatim. The loop earned its keep
+three times: the review had each face's finish veils cut to its own
+quad (they washed the basin five times), flagged the stranded shell on
+retag (a third retag path surfaced during the fix), and the live reload
+proof exposed that the shaped floor did not survive like the rim,
+closed by joining the default load's keep-what-the-browser-remembered
+discipline. All proofs green: the box reads on the starter, auto-find
+clips the shell to the basin, four stones on the wall and eight back on
+the pool, eight again after a full reload. 56 tests. Evidence in
+docs/QA.md.
 
 ## 2026-07-09 - Claude - Visualizer plan and horizon docs lane - done
 
