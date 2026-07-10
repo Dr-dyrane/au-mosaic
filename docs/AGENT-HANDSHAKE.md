@@ -16,6 +16,33 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Visualizer shell derivation lane (Phase 4b, slice 2) - open
+
+Owner-directed second slice: the shell derives itself from what the
+finder already sees, no new dependency (the in-browser depth model
+needs one, so depth stays the owner-gated 4c decision). A pure new
+src/components/visualizer/shellFit.ts reads the basin mask and the
+photo's luminance at the same small grid: the rim comes from the mask
+outline through the existing wall ladder in fitQuad, and the floor from
+the interior crease lines (Sobel gradient inside the mask with the
+boundary eroded away so the rim's own edges stay out, then the same
+Hough machinery, candidate intersections filtered strictly inside the
+rim, ordered, validated, confidence from crease coverage). No confident
+quad means null and the hand-set or default floor stands. The magic
+only engages where the visitor already chose the shell: useSamAutofind
+derives the floor when the active pool layer has its shell on, and the
+flag-gated guided walk turns a pool surface's shell on before its find
+so one Tile it yields a fitted basin. The bare manual flow is untouched
+by design; two same-day rollbacks taught the house not to ship
+unrequested magic. My files: src/components/visualizer/shellFit.ts
+(new), hooks/useSamAutofind.ts, hooks/useSurfaceSession.ts,
+tests/visualizer-shellfit.test.ts (new), docs/QA.md, and this
+handshake. Gate is tsc, eslint, npm run test, next build, the dash
+scan, the size budget, and a live proof: shell plus auto-find on the
+empty pool starter snapping the floor to the basin creases, the guided
+walk auto-shelling the pool, and the fallback standing when creases
+cannot be trusted. Rollback point is 0a9a0c1.
+
 ## 2026-07-10 - Claude - Visualizer pool shell lane (Phase 4b, slice 1) - done
 
 Owner-directed first slice of the pool shell from the horizon: hand
