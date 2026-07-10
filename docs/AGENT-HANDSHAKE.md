@@ -404,7 +404,15 @@ photo, auto-find, drag a corner, swap a piece, edit the palette, step Back and
 Forward, share and download. Gate is tsc, eslint, and the dash scan;
 object-push my files only with the origin guard.
 
-## 2026-07-09 - Claude - Visualizer refine disclosure lane - open
+## 2026-07-09 - Claude - Visualizer refine disclosure lane - done
+
+Marked done 2026-07-10 (L0b in the deploy blueprint). The
+progressive-disclosure RefinePanel shipped at 269a7c8 and is live in
+production; parts/RefinePanel.tsx and the exposedRefinement assemblies
+are released. The studio UI lane touches RefinePanel only additively (an
+optional icon slot), never restructured. Original claim below.
+
+## 2026-07-09 - Claude - Visualizer refine disclosure lane - open (superseded, see done above)
 
 Owner-gated redesign of the public studio's refine controls to progressive
 disclosure: the panel rests as three summary rows (Surface, Colourway,

@@ -327,7 +327,10 @@ they serialize; the order is chosen so each builds on finished data.
 
 - L0a Close the depth oracle lane (4c slice 1). DONE at this writing.
 - L0b Close the open RefinePanel disclosure lane, releasing RefinePanel
-  and the exposedRefinement assemblies for the studio UI.
+  and the exposedRefinement assemblies for the studio UI. DONE
+  2026-07-10: the disclosure work shipped at 269a7c8, so the lane is a
+  stale claim now marked done; the studio UI touches RefinePanel
+  additively only.
 - L1 Types and fit-engine export foundation, one additive commit:
   types.ts gains faceMasks, ShellFaceId, the scan shape and faces types,
   CornerCandidate, SnapState; fitQuad widens exports; constants gains the
@@ -345,7 +348,14 @@ they serialize; the order is chosen so each builds on finished data.
   per enumerated face into a faceMasks map, sequential and cap-aware
   (keep the faces landed if the cap trips); draw.ts uses each face's own
   mask; the guided walk branches on shape. This retires the ambiguous
-  single-shell mask and the soft crease derivation.
+  single-shell mask and the soft crease derivation. It also solves the
+  CORNER-CORRESPONDENCE problem the owner named (2026-07-10): when one
+  shell mask returns and the fit flattens, the corners scatter and
+  nothing says which point belongs to which side. Per-face masks make
+  each corner's side unambiguous by construction, because the left-wall
+  mask's corners ARE the left wall's corners. shellFaceFit reconciles
+  the eight shared points from the four masks, so every point knows its
+  side before the hand ever touches it.
 - L5 Depth geometry (flag NEXT_PUBLIC_VIZ_DEPTH): RANSAC plane fit from
   the depth map inside a mask gives a face its perspective quad where it
   beats the fit engine; carveOcclusion subtracts nearer-than-plane pixels
@@ -360,7 +370,15 @@ they serialize; the order is chosen so each builds on finished data.
   isFlatFit or a null derivation, fitRecover repositions and marks
   recovered; stones render numbers 1-8 (4 flat) and magnet to candidate
   corners (Hough, contour, extremes, creases, and depth corners) with a
-  snap radius, reduced motion respected.
+  snap radius, reduced motion respected. The NUMBER IS THE CORNER'S
+  IDENTITY, not decoration (owner insight, 2026-07-10): at the moment a
+  mask returns, each reconciled point is assigned its side by its angle
+  around the centroid (tl, tr, br, bl per face) and numbered left to
+  right, so both the auto-alignment and the hand know which stone is
+  which side even when the raw fit flattened. assignStoneNumbers writes
+  that identity; the geometry routes each point to its edge by it. L4
+  supplies the per-face correspondence, L6 makes it legible and
+  draggable; together they end the flattened-scatter confusion.
 - L7 Studio full-bleed layout and the icon module: drop the page
   max-width so the stage eats width; a visualizer/icons.tsx mirroring the
   back office (viewBox 24, stroke currentColor 1.6), re-exporting the
