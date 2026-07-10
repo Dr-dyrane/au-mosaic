@@ -16,6 +16,34 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Shell goes pure geometry, SAM reserved for single surfaces - done
+
+Owner call: the per-face shell masking is not worth it (the points muffle, the
+back wall dissolves into the floor), but the shell IDEA and its initial geometry
+work; reserve SAM for single surfaces. So the shell is now pure geometry. Find on
+a pool raises the eight-stone box on the current rim (defaultShellFloor), clears
+any mask, and hands the stones over to be dragged to fit; each face tiles on its
+own quad under the scene's own light and the square-tile fix, no segmentation, no
+corner model. PROVEN by eye: the geometric box tiles into a clean 3D basin (floor
+and three walls, square glass, real light), the same result the tuned default
+gives; the bent-panel that per-face masking used to hide was the model
+mis-placing the box, not the geometry. REMOVED as now-orphaned: the whole per-face
+walk, fragmentation guard, quadSilhouette, segmentAtPoint, maskToBits, centroid,
+fetchShellCorners in useSamAutofind (568 -> 388 lines); src/lib/visualizer-ai.ts
+(the corner finder), src/app/api/visualizer/analyze/route.ts (its only caller,
+now dead), tests/visualizer-scan.test.ts. The shell no longer spends a cent, so
+the NEXT_PUBLIC_VIZ_SCAN gate came off Find (const + .env.example line removed);
+Find on a pool always raises the box, any other surface arms the single tap
+(runSam, untouched, still SAM). Stones stay up after Find (no auto-preview): the
+shell is a fit task, so Adjust is the live mode and Preview is the clean look when
+done. My files: .env.example, Visualizer.tsx, hooks/useSamAutofind.ts, three
+deleted server/test files, docs. Rollback point is 4ee86f4. Gates: tsc, eslint
+zero, 70 tests, next build clean. CARRIED (follow-up): the faceMasks
+infrastructure (SurfaceLayer.faceMasks, the render's per-face branch, the fold in
+useSurfaceLayers/useSnapshots, the persist strip) is now dead code since nothing
+sets a non-null faceMask; harmless (the render falls to the geometric path) but a
+clean sweep across ~6 files is worth doing next. Evidence in docs/QA.md.
+
 ## 2026-07-10 - Claude - Post-find is workable: clean result, square tiles - done
 
 The owner sent a screenshot of the state right after Find and asked, as a clueless

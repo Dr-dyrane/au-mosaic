@@ -6,21 +6,10 @@ import { track } from "@vercel/analytics";
 import type { Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
-import { largestComponent, solidity } from "../fitMask";
-import { isValidQuad } from "../geometry";
-import { buildShellFaces, defaultShellFloor } from "../shell";
-import { deriveShellFloor, floorTrapezoidFromMask, wallTrapezoidFromMask } from "../shellFit";
+import { defaultShellFloor } from "../shell";
+import { deriveShellFloor } from "../shellFit";
 import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
-
-/* A plain word per shell face for the finder's running message. */
-const FACE_WORD: Record<ShellFaceId, string> = {
-  back: "back wall",
-  left: "left wall",
-  right: "right wall",
-  near: "near wall",
-  floor: "floor",
-};
 
 type SegmentPayload = {
   ok?: boolean;
@@ -136,116 +125,6 @@ async function ensureAlphaMask(
   ctx.putImageData(pixels, 0, 0);
   const src = canvas.toDataURL("image/png");
   return { img: await loadMaskImage(src), src };
-}
-
-/* One paid round trip for one point: send the untouched photo and the
-   point, bring back the segment as an alpha-true mask image plus its
-   data URI. Throws on any miss, so a per-face loop can skip a face the
-   finder could not read and carry on. The single-surface finder keeps
-   its own inline copy with its own per-outcome messaging. */
-async function segmentAtPoint(
-  orig: HTMLCanvasElement,
-  point: Pt,
-  notifyWaking: () => void,
-): Promise<{ img: HTMLImageElement; maskSrc: string }> {
-  const shot = canvasToJpeg(orig, 768);
-  if (!shot) throw new Error("no-ctx");
-  const data = await submitAndAwaitMask(
-    JSON.stringify({
-      image: shot.base64,
-      mediaType: "image/jpeg",
-      x: Math.round(point.x * shot.width),
-      y: Math.round(point.y * shot.height),
-    }),
-    notifyWaking,
-  );
-  if (!(data.ok && typeof data.mask === "string")) throw new Error("finder-failed");
-  let maskSrc: string = data.mask;
-  let img = await loadMaskImage(maskSrc);
-  const ensured = await ensureAlphaMask(img);
-  img = ensured.img;
-  if (ensured.src) maskSrc = ensured.src;
-  return { img, maskSrc };
-}
-
-/* Downscale a decoded mask to a small grid and threshold its alpha into
-   the bit mask the geometry engine reads. Null when the canvas will not
-   paint. */
-function maskToBits(img: HTMLImageElement, long = 192): { data: Uint8Array; width: number; height: number } | null {
-  if (!(img.naturalWidth > 0 && img.naturalHeight > 0)) return null;
-  const longest = Math.max(1, img.naturalWidth, img.naturalHeight);
-  const down = Math.min(1, long / longest);
-  const mw = Math.max(1, Math.round(img.naturalWidth * down));
-  const mh = Math.max(1, Math.round(img.naturalHeight * down));
-  const mc = document.createElement("canvas");
-  mc.width = mw;
-  mc.height = mh;
-  const mx = mc.getContext("2d");
-  if (!mx) return null;
-  mx.drawImage(img, 0, 0, mw, mh);
-  const d = mx.getImageData(0, 0, mw, mh).data;
-  const bits = new Uint8Array(mw * mh);
-  for (let i = 0; i < bits.length; i += 1) if (d[i * 4 + 3] > 12) bits[i] = 1;
-  return { data: bits, width: mw, height: mh };
-}
-
-/* The mean of a quad's corners: a point that sits inside the face, so
-   the segmenter has an anchor squarely on it. */
-function centroid(quad: Pt[]): Pt {
-  const n = quad.length || 1;
-  return {
-    x: quad.reduce((sum, p) => sum + p.x, 0) / n,
-    y: quad.reduce((sum, p) => sum + p.y, 0) / n,
-  };
-}
-
-/* A face's own quad, painted solid, as a mask data URI. When the
-   segmenter cannot cut a thin face cleanly (the far back wall, most
-   often), the snapped geometry still bounds it, so the tiles fill that
-   shared-vertex band and cannot spill past it. Alpha carries the shape,
-   so the colour is immaterial. */
-function quadSilhouette(quad: Pt[], w: number, h: number): string | null {
-  if (!(w > 0 && h > 0)) return null;
-  const c = document.createElement("canvas");
-  c.width = w;
-  c.height = h;
-  const x = c.getContext("2d");
-  if (!x) return null;
-  x.fillStyle = "#fff";
-  x.beginPath();
-  x.moveTo(quad[0].x * w, quad[0].y * h);
-  for (let i = 1; i < quad.length; i += 1) x.lineTo(quad[i].x * w, quad[i].y * h);
-  x.closePath();
-  x.fill();
-  try {
-    return c.toDataURL("image/png");
-  } catch {
-    return null;
-  }
-}
-
-/* Ask the corner finder where the pool's rim and floor sit, so the
-   stones can snap onto the real basin before the masks tighten them.
-   Null when the eye is off, over budget, or unsure; the caller keeps the
-   geometry it has. */
-async function fetchShellCorners(orig: HTMLCanvasElement): Promise<{ rim: Pt[]; floor: Pt[] } | null> {
-  const shot = canvasToJpeg(orig, 768);
-  if (!shot) return null;
-  try {
-    const res = await fetch("/api/visualizer/analyze", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ image: shot.base64, mediaType: "image/jpeg", surface: "pool", width: shot.width, height: shot.height }),
-    });
-    const data = (await res.json()) as { ok?: boolean; available?: boolean; corners?: { shape?: string; rim?: Pt[]; floor?: Pt[] } };
-    const c = data.corners;
-    if (data.ok && data.available && c?.shape === "shell" && Array.isArray(c.rim) && c.rim.length === 4 && Array.isArray(c.floor) && c.floor.length === 4) {
-      return { rim: c.rim, floor: c.floor };
-    }
-  } catch {
-    /* silent: the corners are a convenience, the geometry still stands */
-  }
-  return null;
 }
 
 interface UseSamAutofindParams {
@@ -460,131 +339,34 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     return false;
   };
 
-  /* The no-tap shell walk. Read the corners, snap the eight stones onto
-     the real basin, then send one point per visible face and paint each
-     in as its segment lands, so the visitor watches the basin fill wall
-     by wall with no tap. A face the finder cannot read is skipped, not
-     fatal; the floor's mask also sets the basin floor, so the walls that
-     share its far corners recede with it. One snapshot at the end holds
-     the whole box for undo. Resolves true if at least one face landed.
-     Everything after the lock is inside the try, so no throw can leave
-     the finder stuck busy. */
-  const autoFindShell = async (): Promise<boolean> => {
-    const orig = originalRef.current;
-    if (!orig || inFlightRef.current) return false;
-    inFlightRef.current = true;
-    setSamBusy(true);
-    buzz(4);
-    const found: Partial<Record<ShellFaceId, FaceMask>> = {};
-    let landed = 0;
-    let fittedFloor: Pt[] | null = null;
-    try {
-      /* Read the corners first and snap onto the real basin, so the
-         per-face points land on the true faces instead of a default
-         guess. A declined read keeps the geometry the visitor has. */
-      setSnapMessage("Reading the pool.");
-      const corners = await fetchShellCorners(orig);
-      const rim = corners?.rim ?? quadRef.current;
-      const floor = corners?.floor ?? defaultShellFloor(rim);
-      setQuad(rim);
-      setShellFloor(floor);
-      /* The visible faces of the snapped box; the near wall is under the
-         camera and never tiled, so it drops out here. Each face keeps its
-         own quad so a face the segmenter cannot cut can still fall back
-         to its geometry. */
-      const shellFaces = buildShellFaces(rim, floor).filter((face) => face.visible);
-      for (const face of shellFaces) {
-        setSnapMessage(`Fitting the ${FACE_WORD[face.id]}.`);
-        try {
-          const { img, maskSrc } = await segmentAtPoint(orig, centroid(face.quad), () =>
-            setSnapMessage("Still looking. The finder is waking."));
-          const bits = maskToBits(img);
-          /* A face whose segment is not one solid region (a stray point
-             caught speckle, or the back wall dissolved into the floor)
-             clips the tiles into a moth-eaten mess, worse than bare
-             concrete. Keep only faces whose mask reads as a single
-             cohesive, filled shape; skip the rest, and fit the geometry
-             from the cleaned island so a stray speck cannot skew it. */
-          let clean = bits;
-          if (bits) {
-            const island = largestComponent(bits);
-            const total = bits.data.reduce((sum, v) => sum + v, 0);
-            const cohesion = island ? island.data.reduce((sum, v) => sum + v, 0) / (total || 1) : 0;
-            if (!island || total < bits.width * bits.height * 0.01 || cohesion < 0.7 || solidity(island) < 0.5) {
-              continue;
-            }
-            clean = island;
-          }
-          let faceQuad: Pt[] | undefined;
-          if (face.id === "floor") {
-            /* The floor's own mask sets the basin floor as a clean
-               receding trapezoid (top and bottom extents joined), so the
-               tiles cover the whole floor in true perspective and the
-               walls that share its far corners recede with it. A thin or
-               ambiguous mask declines and the geometric floor stands.
-               (fitMask's floor regime skewed this plane into a degenerate
-               fan, so the extent read is used instead.) The floor rides
-               the shell floor, not a per-face quad. */
-            const derived = clean ? floorTrapezoidFromMask(clean) : null;
-            if (derived) fittedFloor = derived;
-          } else {
-            /* A wall's shared-vertex geometry is a thin sliver that
-               cannot cover a real receding wall, so the wall carries its
-               own fitted quad from the mask's column extents (tall near,
-               short far). fitMask's Hough regime flattened the wall into
-               an axis-aligned box that streaked under the gloss, so the
-               extent read is used instead. A degenerate read is dropped
-               and the wall stays bare rather than streaked. */
-            const wall = clean ? wallTrapezoidFromMask(clean) : null;
-            if (wall) faceQuad = wall;
-          }
-          found[face.id] = { src: maskSrc, quad: faceQuad };
-          seedMask(maskSrc, img);
-          landed += 1;
-          /* Commit this face the moment it lands: the render folds the
-             live faceMasks onto the active layer, so the basin fills one
-             face at a time. */
-          setFaceMasks({ ...found });
-          if (fittedFloor) setShellFloor(fittedFloor);
-        } catch {
-          /* one unreadable face is not the whole shell; carry on */
-        }
-      }
-      /* Complete the box: the far back wall is a thin foreshortened band
-         the segmenter rarely cuts cleanly, so once its neighbours have
-         landed and given the geometry credibility, tile it from its own
-         snapped quad. Bounded by the shared-vertex band, it cannot spill,
-         and its top and bottom edges already meet the walls and floor. */
-      const backFace = shellFaces.find((face) => face.id === "back");
-      if (landed > 0 && backFace && !found.back && isValidQuad(backFace.quad)) {
-        const sil = quadSilhouette(backFace.quad, orig.width, orig.height);
-        if (sil) {
-          found.back = { src: sil };
-          landed += 1;
-          setFaceMasks({ ...found });
-        }
-      }
-      if (landed > 0) {
-        setHasFittedSurface(true);
-        pushSnapshot("Auto shell", {
-          quad: rim,
-          shellFloor: fittedFloor ?? floor,
-          faceMasks: { ...found },
-          hasFittedSurface: true,
-        });
-        setSnapMessage(
-          "Here is your pool. Swap the colour on the right, or send it. Tap Adjust to nudge a corner.",
-        );
-        buzz(8);
-        track("viz_shell_faces", { landed, asked: shellFaces.length });
-        return true;
-      }
-      setSnapMessage("Could not read the pool. Drag the corners instead.");
-      return false;
-    } finally {
-      inFlightRef.current = false;
-      setSamBusy(false);
-    }
+  /* The pool is a shell: a connected eight-stone box the visitor fits to
+     their own basin. No segmentation, no corner model. The masks muffled
+     the box more than they helped, and the geometry alone, tiled under
+     the scene's own light, is the idea that works. So Find just raises
+     the box on the current rim and hands the stones over to be dragged;
+     the finder is reserved for single surfaces. */
+  const autoFindShell = (): Promise<boolean> => {
+    const rim = quadRef.current;
+    const floor = shellFloorRef.current ?? defaultShellFloor(rim);
+    setShellFloor(floor);
+    setSamMask(null);
+    setSamMaskSrc(null);
+    setFaceMasks(null);
+    setHasFittedSurface(true);
+    pushSnapshot("Shell", {
+      quad: rim,
+      shellFloor: floor,
+      samMask: null,
+      samMaskSrc: null,
+      faceMasks: null,
+      hasFittedSurface: true,
+    });
+    setSnapMessage(
+      "Drag the eight stones onto your pool's edges to fit the box, then Preview or send it.",
+    );
+    buzz(6);
+    track("viz_shell_place", {});
+    return Promise.resolve(true);
   };
 
   const armSam = () => {

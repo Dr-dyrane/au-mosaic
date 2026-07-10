@@ -41,9 +41,6 @@ import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
 import { usePhotoDesk } from "./visualizer/hooks/usePhotoDesk";
 import { useShareDownload } from "./visualizer/hooks/useShareDownload";
 
-/* The guided scan ships dark until the owner demos it on a real phone.
-   NEXT_PUBLIC vars inline at build, so this is a constant. */
-const scanFlag = process.env.NEXT_PUBLIC_VIZ_SCAN === "on";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -393,17 +390,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
      The pool's AI walk stays behind the scan flag until the owner demos
      it on a phone; with the flag off, a pool arms the tap like the rest. */
   const armFind = () => {
-    if (scanFlag && surface === "pool" && photo) {
-      /* A pool tiles itself, then shows the clean result: the moment the
-         faces land, drop the brass stones and their lines off the stage
-         so the visitor sees a finished pool, not a wireframe. Adjust
-         brings the stones back for anyone who wants to nudge. */
-      void autoFindShell().then((ok) => {
-        if (ok) setPreviewMode(true);
-      });
+    if (previewMode) setPreviewMode(false);
+    if (surface === "pool" && photo) {
+      /* A pool raises its geometric box, then leaves the eight stones up
+         so the visitor fits them to their own basin: the shell is
+         geometry, not a cut mask, so the fit is the stones. It costs
+         nothing (no model), so it needs no flag. Any other surface arms
+         the single-tap finder. */
+      void autoFindShell();
       return;
     }
-    if (previewMode) setPreviewMode(false);
     armSam();
   };
 
