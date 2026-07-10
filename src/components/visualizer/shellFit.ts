@@ -201,3 +201,122 @@ export function deriveShellFloor(mask: BinaryMask, luma: Uint8Array, rim: Pt[]):
   if (!best) return null;
   return normalizeQuad(best.quad, mask.width, mask.height);
 }
+
+/* A floor's own mask gives a clean receding trapezoid without any crease
+   guess: read the mask's left and right extent at its far (top) edge and
+   its near (bottom) edge, and join the four. A single tip row is noise,
+   so the far and near edges are read a short way in from the extremes and
+   each extent is the median of a small band of rows. Convex by
+   construction (two horizontal edges, sides between), so the tile
+   homography never fans. Null when the mask is too thin or too short to
+   trust; the caller keeps the geometric floor. Corner order is the app's
+   own tl, tr, br, bl, returned normalised 0..1. */
+export function floorTrapezoidFromMask(mask: BinaryMask): Pt[] | null {
+  const { data, width, height } = mask;
+  const minRun = Math.max(3, Math.round(width * 0.04));
+  const rows: number[] = [];
+  for (let y = 0; y < height; y += 1) {
+    let count = 0;
+    for (let x = 0; x < width; x += 1) if (data[y * width + x]) count += 1;
+    if (count >= minRun) rows.push(y);
+  }
+  if (rows.length < Math.max(6, Math.round(height * 0.05))) return null;
+  const top = rows[0];
+  const bottom = rows[rows.length - 1];
+  if (bottom - top < height * 0.06) return null;
+
+  /* Read each edge a short inset in from the tip, and take the widest
+     band row so a ragged single scanline cannot pinch the trapezoid. */
+  const inset = Math.max(1, Math.round((bottom - top) * 0.06));
+  const extentOf = (y: number): [number, number] | null => {
+    let l = -1;
+    let r = -1;
+    for (let x = 0; x < width; x += 1) {
+      if (data[y * width + x]) {
+        if (l < 0) l = x;
+        r = x;
+      }
+    }
+    return l < 0 ? null : [l, r];
+  };
+  const widestNear = (center: number): [number, number] | null => {
+    let best: [number, number] | null = null;
+    for (let y = center - inset; y <= center + inset; y += 1) {
+      if (y < 0 || y >= height) continue;
+      const e = extentOf(y);
+      if (e && (!best || e[1] - e[0] > best[1] - best[0])) best = e;
+    }
+    return best;
+  };
+  const far = widestNear(top + inset);
+  const near = widestNear(bottom - inset);
+  if (!far || !near) return null;
+  /* A believable floor is wider near the camera than far; if the mask
+     reads the other way the plane is ambiguous, so decline. */
+  if (near[1] - near[0] < (far[1] - far[0]) * 0.8) return null;
+
+  const quad: Pt[] = [
+    { x: far[0] / width, y: (top + inset) / height },
+    { x: far[1] / width, y: (top + inset) / height },
+    { x: near[1] / width, y: (bottom - inset) / height },
+    { x: near[0] / width, y: (bottom - inset) / height },
+  ];
+  return isValidQuad(quad) ? quad : null;
+}
+
+/* A wall recedes across the frame, so its mask reads as a band whose
+   height falls off toward the far end. Transpose the floor read: take the
+   mask's top and bottom extent at its left column and its right column,
+   and join the four. The result follows the wall's vertical
+   foreshortening (tall near, short far) far better than an axis-aligned
+   box, which lays flat tiles that streak under the gloss. Null on a mask
+   too thin or too short to trust; corner order tl, tr, br, bl. */
+export function wallTrapezoidFromMask(mask: BinaryMask): Pt[] | null {
+  const { data, width, height } = mask;
+  const minRun = Math.max(3, Math.round(height * 0.04));
+  const cols: number[] = [];
+  for (let x = 0; x < width; x += 1) {
+    let count = 0;
+    for (let y = 0; y < height; y += 1) if (data[y * width + x]) count += 1;
+    if (count >= minRun) cols.push(x);
+  }
+  if (cols.length < Math.max(6, Math.round(width * 0.05))) return null;
+  const left = cols[0];
+  const right = cols[cols.length - 1];
+  if (right - left < width * 0.06) return null;
+
+  const inset = Math.max(1, Math.round((right - left) * 0.06));
+  const extentOf = (x: number): [number, number] | null => {
+    let t = -1;
+    let b = -1;
+    for (let y = 0; y < height; y += 1) {
+      if (data[y * width + x]) {
+        if (t < 0) t = y;
+        b = y;
+      }
+    }
+    return t < 0 ? null : [t, b];
+  };
+  const tallestNear = (center: number): [number, number] | null => {
+    let best: [number, number] | null = null;
+    for (let x = center - inset; x <= center + inset; x += 1) {
+      if (x < 0 || x >= width) continue;
+      const e = extentOf(x);
+      if (e && (!best || e[1] - e[0] > best[1] - best[0])) best = e;
+    }
+    return best;
+  };
+  const lb = tallestNear(left + inset);
+  const rb = tallestNear(right - inset);
+  if (!lb || !rb) return null;
+
+  const lx = (left + inset) / width;
+  const rx = (right - inset) / width;
+  const quad: Pt[] = [
+    { x: lx, y: lb[0] / height },
+    { x: rx, y: rb[0] / height },
+    { x: rx, y: rb[1] / height },
+    { x: lx, y: lb[1] / height },
+  ];
+  return isValidQuad(quad) ? quad : null;
+}

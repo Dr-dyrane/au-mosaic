@@ -1,4 +1,4 @@
-import type { Pt } from "./types";
+import type { Pt, ShellFaceId } from "./types";
 import { clamp } from "./geometry";
 
 /* The pool shell, as geometry only. The rim IS the layer quad; the floor
@@ -7,7 +7,7 @@ import { clamp } from "./geometry";
    so the tests can hold it without a browser. */
 
 export type ShellFace = {
-  id: "back" | "left" | "right" | "near" | "floor";
+  id: ShellFaceId;
   quad: Pt[];
   visible: boolean;
 };

@@ -16,6 +16,45 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - No-tap per-face pool shell (L2 + L4) - done
+
+The owner's headline priority: remove the manual "tap the wall", and for
+a pool shell segment every interior face automatically until the whole
+basin is tiled, judged at an Apple bar. Shipped, behind
+NEXT_PUBLIC_VIZ_SCAN (the per-face walk lives inside the guided session,
+so the existing flag gates it; no new flag). The scan (visualizer-ai.ts)
+returns a shape tag (surface or shell, shell is a pool trait only) and a
+point per visible interior face; the guided walk (useSamAutofind
+runShellFaces, wired through useSurfaceSession) loops the face points,
+one point-SAM call each, empty prompt, each face landing into a new
+per-face faceMasks slot; the floor rides a clean trapezoid read from its
+own mask far/near width and each wall a trapezoid from its mask near/far
+height (shellFit.ts floorTrapezoidFromMask + wallTrapezoidFromMask, which
+decline a bad read so it never streaks); the scan offer starts a shell
+pool selected alone so Tile it dresses the basin, not the deck. My files:
+src/lib/visualizer-ai.ts, tests/visualizer-scan.test.ts,
+src/components/visualizer/types.ts, shell.ts, shellFit.ts,
+tests/visualizer-shellfit.test.ts, hooks/useSamAutofind.ts,
+useSurfaceSession.ts, useSurfaceLayers.ts, useSnapshots.ts,
+usePhotoDesk.ts, usePersistedControls.ts, parts/ScanOffer.tsx,
+Visualizer.tsx, docs/QA.md, docs/VISUALIZER-BUILD-LOG.md, this handshake.
+Rollback point is ab2c699. PROVEN LIVE end to end in a headless chromium
+(the in-app preview browser was gone this session and the extension
+browser could not reach localhost, so I installed playwright --no-save
+and drove the real flow): the starter pool, uploaded and Tile-it, tiles
+its floor and both side walls in true perspective with NO tap, mosaic
+clipped to each real face. Six fal smoke calls first proved the base
+case: one point per face segments cleanly, text prompts do not, point +
+text is worse (see the build log and [[visualizer-per-face-sam-proof]]).
+Gates: tsc, eslint zero, 75 tests, next build, dash scan clean. Honest
+carried limits: the back wall stays bare when the scan cannot see it; a
+wall whose mask reads flat falls back to bare; the deck-as-floor default
+quad still lands as a foreground slab (why the pool now starts alone; a
+separate lane fixes arbitrary floors). Advisory: useSamAutofind.ts is 508
+lines (8 over the ~500 budget, the SAM round-trip helpers are the natural
+extraction); Visualizer.tsx stays at 725 (inherited). Evidence in
+docs/QA.md.
+
 ## 2026-07-10 - Claude - Visualizer studio UI lane (L7 and L8) - done (phone), desktop rough
 
 Owner-directed, and the one visible non-flagged change: the studio look

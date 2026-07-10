@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import type { Pt, PrepMode, SurfaceId, SurfaceLayer } from "../types";
+import type { Pt, PrepMode, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
 import { buzz } from "../helpers";
 
 /* A saved look. Everything the stage needs to reproduce a view, the AI
@@ -25,6 +25,7 @@ export type VizSnapshot = {
   hasFittedSurface: boolean;
   samMask: HTMLImageElement | null;
   samMaskSrc: string | null;
+  faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
 };
 
 const MAX_SNAPSHOTS = 12;
@@ -45,6 +46,7 @@ interface UseSnapshotsParams {
   hasFittedSurface: boolean;
   samMask: HTMLImageElement | null;
   samMaskSrc: string | null;
+  faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
   setLayers: Dispatch<SetStateAction<SurfaceLayer[]>>;
   setActiveLayerId: Dispatch<SetStateAction<string>>;
   setSurface: Dispatch<SetStateAction<SurfaceId>>;
@@ -59,6 +61,7 @@ interface UseSnapshotsParams {
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
+  setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
 }
 
@@ -83,6 +86,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     hasFittedSurface,
     samMask,
     samMaskSrc,
+    faceMasks,
     setLayers,
     setActiveLayerId,
     setSurface,
@@ -97,6 +101,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setHasFittedSurface,
     setSamMask,
     setSamMaskSrc,
+    setFaceMasks,
     setSnapMessage,
   } = params;
 
@@ -112,6 +117,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
       ...l,
       quad: l.quad.map((p) => ({ ...p })),
       shellFloor: l.shellFloor ? l.shellFloor.map((p) => ({ ...p })) : null,
+      faceMasks: l.faceMasks ? { ...l.faceMasks } : null,
     })),
     activeLayerId: over.activeLayerId ?? activeLayerId,
     surface: over.surface ?? surface,
@@ -126,7 +132,8 @@ export function useSnapshots(params: UseSnapshotsParams) {
     hasFittedSurface: over.hasFittedSurface ?? hasFittedSurface,
     samMask: over.samMask !== undefined ? over.samMask : samMask,
     samMaskSrc: over.samMaskSrc !== undefined ? over.samMaskSrc : samMaskSrc,
-  }), [layers, activeLayerId, surface, quad, shellFloor, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask, samMaskSrc]);
+    faceMasks: over.faceMasks !== undefined ? over.faceMasks : faceMasks,
+  }), [layers, activeLayerId, surface, quad, shellFloor, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask, samMaskSrc, faceMasks]);
 
   /* Append a checkpoint, dropping anything ahead of the cursor (a new
      move after stepping back forks a fresh line) and holding the stack to
@@ -156,7 +163,8 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setHasFittedSurface(snap.hasFittedSurface);
     setSamMask(snap.samMask);
     setSamMaskSrc(snap.samMaskSrc);
-  }, [setLayers, setActiveLayerId, setSurface, setQuad, setShellFloor, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setHasFittedSurface, setSamMask, setSamMaskSrc]);
+    setFaceMasks(snap.faceMasks ? { ...snap.faceMasks } : null);
+  }, [setLayers, setActiveLayerId, setSurface, setQuad, setShellFloor, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setHasFittedSurface, setSamMask, setSamMaskSrc, setFaceMasks]);
 
   const stepHistory = useCallback((dir: -1 | 1) => {
     const target = history.i + dir;

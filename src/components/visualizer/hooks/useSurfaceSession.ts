@@ -2,9 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import type { LoadSource, Pt, SurfaceId } from "../types";
+import type { LoadSource, Pt, ShellFaceId, SurfaceId } from "../types";
 import { canvasToJpeg } from "../helpers";
 import { defaultShellFloor } from "../shell";
+
+/* One point per visible basin face, as the analyze route promises it. */
+export type VisualizerScanFace = {
+  id: ShellFaceId;
+  point: { x: number; y: number };
+};
 
 /* The scene scan, exactly as the analyze route promises it. The server
    stream owns the other side of this contract. */
@@ -12,6 +18,8 @@ export type VisualizerScanSurface = {
   kind: SurfaceId;
   name: string;
   tap: { x: number; y: number };
+  shape: "surface" | "shell";
+  faces: VisualizerScanFace[];
   occluders: string[];
   confidence: number;
 };
@@ -52,6 +60,7 @@ interface UseSurfaceSessionParams {
   addSurfaceLayer: (kind?: SurfaceId) => boolean;
   activateLayerKind: (kind: SurfaceId) => boolean;
   runSam: (point: Pt) => Promise<boolean>;
+  runShellFaces: (faces: { id: ShellFaceId; point: Pt }[]) => Promise<boolean>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
 }
 
@@ -161,6 +170,11 @@ export function useSurfaceSession(params: UseSurfaceSessionParams) {
       if (!ready) continue;
       helpers.setSnapMessage(`Finding ${surface.name}.`);
       await settle();
+      /* A pool the scan read as a shell tiles itself face by face: seed
+         the geometric floor so the walls have somewhere to stand, then
+         send one point per face, no tap. Any other surface, or a pool the
+         scan saw as one plane, keeps the single-point find. */
+      const asShell = surface.kind === "pool" && surface.shape === "shell" && surface.faces.length > 0;
       if (surface.kind === "pool") {
         /* The shell goes on before the find: the finder only derives a
            basin floor when a floor is already live, so the walk seeds
@@ -168,7 +182,9 @@ export function useSurfaceSession(params: UseSurfaceSessionParams) {
         live.current.setShellFloor(defaultShellFloor(live.current.quad));
         await settle();
       }
-      const landed = await live.current.runSam(surface.tap);
+      const landed = asShell
+        ? await live.current.runShellFaces(surface.faces)
+        : await live.current.runSam(surface.tap);
       setSteps((prev) => prev.map((step) => (
         step.kind === surface.kind ? { ...step, state: landed ? "done" : "failed" } : step
       )));

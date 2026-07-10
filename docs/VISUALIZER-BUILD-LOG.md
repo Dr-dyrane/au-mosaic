@@ -56,6 +56,72 @@ Owner rules that bind every session:
 
 Read newest first. Each entry: commit, outcome, lesson.
 
+### No-tap per-face pool shell - SHIPPED, the whole basin tiles itself
+Owner priority delivered: no tap anywhere, and a pool the scan reads as a
+shell tiles every interior face automatically, one at a time, until the
+whole basin wears its mosaic. Behind NEXT_PUBLIC_VIZ_SCAN (the per-face
+walk rides inside the guided session, so the existing flag gates it). The
+build, in order, each step proven before the next:
+- **Scan meta tag + per-face points (L2, `visualizer-ai.ts`).** Haiku now
+  returns, per surface, a `shape` of `surface` or `shell` (shell is a
+  pool trait only) and, for a shell, a point on each visible interior
+  face (floor/back/left/right; it skips what it cannot see). Live proof
+  on the starter: pool read as a shell with floor, left, right points;
+  the patio and courtyard wall read as plain surfaces.
+- **No-tap per-face walk (L4, `useSamAutofind.runShellFaces`).** The
+  guided walk, for a shell pool, loops the face points and sends one
+  point-SAM call each (empty prompt), each face's segment landing into
+  the layer's new per-face `faceMasks` slot as it arrives, so the basin
+  fills wall by wall before the eye. A face the finder cannot read is
+  skipped, not fatal.
+- **Per-face geometry that does not streak.** The floor rides a clean
+  receding trapezoid read from its own mask's far and near width
+  (`floorTrapezoidFromMask`); each wall rides a trapezoid from its mask's
+  near and far height (`wallTrapezoidFromMask`). Both decline a shape too
+  thin or read the wrong way, so a bad frame leaves the face bare rather
+  than fanning the tiles into streaks. Five node tests hold the
+  invariants.
+- **The pool is the hero of its scene.** The scan offer now starts a
+  shell pool selected alone, so Tile it dresses the whole basin; the deck
+  and a far wall are opted in by a tap rather than laid over the pool.
+**Live proof (headless chromium, driven end to end): the starter pool,
+uploaded and Tile-it, tiles its floor and both side walls in true
+perspective with no tap, the mosaic clipped to each real face.** Judged
+at the owner's Apple bar and it reads as a real tiled pool. Honest
+limits carried: the back wall stays bare when the scan cannot see it; a
+wall whose mask reads flat falls back to bare rather than risk a streak;
+the deck-as-floor default quad still lands as a foreground slab, which is
+why the pool now starts alone (a separate lane fixes arbitrary floors).
+75 tests, gates clean.
+
+**The earlier base-case proof that made this safe to build:** six fal
+smoke calls on `visualizer-empty-pool-day.jpg` settled the one question
+the whole vision rests on.
+**Proven, honestly, with eyes on every mask:**
+- **A single point per face segments each face cleanly.** One point on
+  the floor, the left wall, the right wall, and the thin foreshortened
+  back wall each returned the correct face with correct perspective.
+  Every visible face of the basin, from one point each, in 2 to 5
+  seconds warm.
+- **Text prompts are unreliable.** "swimming pool floor" and "left wall"
+  grounded; "swimming pool", "back wall", and "right wall" returned an
+  empty mask. Text grounding fails silently on thin, shadowed, or
+  occluded faces.
+- **Point plus text is WORSE than point alone.** Adding a text prompt to
+  a good point returned nothing: the text acts as a hard filter that
+  vetoes the point when it cannot ground. So the finder must send the
+  point with an empty prompt.
+**What this means for the build:** the current app shows "a single
+floor" only because it sends ONE point (the floor). The fix is one point
+per face. The point machinery already exists (Phase 3); the new work is
+the scan returning a shell meta tag with a point per visible face (L2),
+and the guided walk looping those points, each face landing its own mask
+into the shell (L4). Masks in scratchpad, eye-verified.
+**Lesson (again): smoke the real vendor before wiring.** Six cents of
+fal calls turned the owner's "four calls to fal" instinct from a
+hopeful plan into a proven one, and killed the text-prompt design before
+a line of it was written.
+
 ### Phase 4c slice 1 (in flight) - depth oracle base case
 Lane open at `7187552`. The flagship's first runtime ML dependency
 (transformers.js), Depth Anything V2 small in a Web Worker, flag-gated
@@ -177,11 +243,13 @@ The forward order, owner-approved, detail in `docs/VISUALIZER-STUDIO.md`
 1. **4c depth oracle** (in flight, slice 1). Slice 2: RANSAC plane fit
    from depth replaces the crease guess, and gives true nearness
    occlusion.
-2. **Per-face masks and the meta tag.** The Haiku scan returns a shape
-   field (single surface vs shell) and enumerates faces; the
-   orchestrator makes one SAM call per face (text or tap prompt), and
-   each face fits to its own clean mask. This is what makes the shell
-   derivation reliable.
+2. **Per-face masks and the meta tag (in flight, base case proven).**
+   The Haiku scan returns a shape field (single surface vs shell) and,
+   for a shell, a point on each visible interior face. The guided walk
+   makes one SAM call per face point (empty text prompt: points are
+   reliable, text is not, point plus text is worse), and each face lands
+   its own clean mask into the shell. No manual tap. This is what turns
+   "a single floor" into a whole tiled basin.
 3. **Numbered snap points.** When a fit flattens, reposition the stones
    to a sane default, label them 1 to 8 for a shell and 1 to 4 for a
    surface so they read left to right, and magnet them to corners

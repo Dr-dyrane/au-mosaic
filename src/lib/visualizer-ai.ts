@@ -4,15 +4,31 @@ const VERSION = "2023-06-01";
 
 const SURFACES = ["pool", "wall", "backsplash", "shower", "floor"] as const;
 const PREP_MODES = ["primer", "blur", "none"] as const;
+/* The interior faces of a pool basin the finder can tile, each found by
+   its own point (proven: one point per face segments cleanly, text
+   prompts do not). The near wall sits under the camera and is never
+   tiled, so it is not offered. */
+const FACE_IDS = ["floor", "back", "left", "right"] as const;
 
 export type VisualizerSurface = (typeof SURFACES)[number];
 export type VisualizerPrepMode = (typeof PREP_MODES)[number];
+export type VisualizerFaceId = (typeof FACE_IDS)[number];
 export type VisualizerPoint = { x: number; y: number };
+
+/* One point per visible basin face. The shape tag says whether this
+   surface is one plane or a whole shell, so the walk knows to send one
+   point or a point per face. */
+export type VisualizerScanFace = {
+  id: VisualizerFaceId;
+  point: VisualizerPoint;
+};
 
 export type VisualizerScanSurface = {
   kind: VisualizerSurface;
   name: string;
   tap: VisualizerPoint;
+  shape: "surface" | "shell";
+  faces: VisualizerScanFace[];
   occluders: string[];
   confidence: number;
 };
@@ -71,6 +87,26 @@ function normalizeConfidence(value: unknown): number {
   return clamp(Number.isFinite(confidence) ? confidence : 0.45, 0, 1);
 }
 
+function isFaceId(value: unknown): value is VisualizerFaceId {
+  return typeof value === "string" && (FACE_IDS as readonly string[]).includes(value);
+}
+
+/* One point per face, at most one point per id, floor first. A face with
+   no readable point is simply dropped; the walk falls back to geometry
+   for it. */
+function normalizeFaces(value: unknown): VisualizerScanFace[] {
+  if (!Array.isArray(value)) return [];
+  const byId = new Map<VisualizerFaceId, VisualizerScanFace>();
+  for (const raw of value) {
+    if (!isRecord(raw) || !isFaceId(raw.id) || byId.has(raw.id)) continue;
+    const point = normalizePoint(raw.point);
+    if (!point) continue;
+    byId.set(raw.id, { id: raw.id, point });
+  }
+  const order: VisualizerFaceId[] = ["floor", "back", "left", "right"];
+  return order.filter((id) => byId.has(id)).map((id) => byId.get(id)!);
+}
+
 function normalizeSurface(value: unknown): VisualizerScanSurface | null {
   if (!isRecord(value) || !isSurface(value.kind)) return null;
   const tap = normalizePoint(value.tap);
@@ -81,7 +117,12 @@ function normalizeSurface(value: unknown): VisualizerScanSurface | null {
     .map((item) => item.trim().slice(0, 40))
     .filter(Boolean)
     .slice(0, 4);
-  return { kind: value.kind, name, tap, occluders, confidence: normalizeConfidence(value.confidence) };
+  /* A shell is a pool trait only: a basin whose interior faces read
+     apart. Any other kind, or a pool the model read as one plane, stays
+     a single surface with no faces. */
+  const shape = value.shape === "shell" && value.kind === "pool" ? "shell" : "surface";
+  const faces = shape === "shell" ? normalizeFaces(value.faces) : [];
+  return { kind: value.kind, name, tap, shape, faces, occluders, confidence: normalizeConfidence(value.confidence) };
 }
 
 export function normalizeScan(input: unknown): VisualizerScan {
@@ -146,6 +187,28 @@ export async function scanVisualizerScene(args: VisualizerScanArgs): Promise<Vis
                     },
                     required: ["x", "y"],
                   },
+                  shape: { type: "string", enum: ["surface", "shell"] },
+                  faces: {
+                    type: "array",
+                    maxItems: 4,
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      properties: {
+                        id: { type: "string", enum: FACE_IDS },
+                        point: {
+                          type: "object",
+                          additionalProperties: false,
+                          properties: {
+                            x: { type: "number", minimum: 0, maximum: 1 },
+                            y: { type: "number", minimum: 0, maximum: 1 },
+                          },
+                          required: ["x", "y"],
+                        },
+                      },
+                      required: ["id", "point"],
+                    },
+                  },
                   occluders: {
                     type: "array",
                     maxItems: 4,
@@ -153,7 +216,7 @@ export async function scanVisualizerScene(args: VisualizerScanArgs): Promise<Vis
                   },
                   confidence: { type: "number", minimum: 0, maximum: 1 },
                 },
-                required: ["kind", "name", "tap", "occluders", "confidence"],
+                required: ["kind", "name", "tap", "shape", "faces", "occluders", "confidence"],
               },
             },
             prepMode: { type: "string", enum: PREP_MODES },
@@ -184,6 +247,9 @@ export async function scanVisualizerScene(args: VisualizerScanArgs): Promise<Vis
               "Name the scene in one terse sentence.",
               "List up to five distinct tileable surfaces, at most one per kind.",
               "For each, give a tap point that sits on the surface well away from ladders, rails, furniture, or people.",
+              "Set shape to 'shell' ONLY for an empty pool or basin whose interior floor and walls read as separate faces from this angle; every other surface, and a pool you see as one flat plane, is 'surface'.",
+              "When shape is 'shell', in faces give one point per interior face you can actually see: 'floor', and any of 'back', 'left', 'right' walls. Put each point in the clear middle of that face, away from steps, fittings, rails, and the hard edge of a shadow. Skip any face you cannot see; never guess a hidden face.",
+              "When shape is 'surface', faces is an empty list.",
               "List visible obstacles per surface.",
               "Be conservative with confidence and use low values when unsure.",
               "The note is one plain sentence for the customer.",

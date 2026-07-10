@@ -4,7 +4,7 @@ import { useCallback, useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
 import type { Piece } from "@/lib/products";
-import type { Pt, PrepMode, SurfaceId, SurfaceLayer } from "../types";
+import type { Pt, PrepMode, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
 import { buzz, pieceSlugForSurface } from "../helpers";
 import { SURFACES, LAYER_LABELS, NEXT_SURFACE } from "../constants";
 import type { VizSnapshot } from "./useSnapshots";
@@ -37,6 +37,8 @@ interface UseSurfaceLayersParams {
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   samMaskSrc: string | null;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
+  faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
+  setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
   pushSnapshot: (note: string, over?: Partial<VizSnapshot>) => void;
   pieces: Piece[];
@@ -78,6 +80,8 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setSamMask,
     samMaskSrc,
     setSamMaskSrc,
+    faceMasks,
+    setFaceMasks,
     setSnapMessage,
     pushSnapshot,
     pieces,
@@ -98,9 +102,10 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     groutLight,
     customColors,
     maskSrc: samMaskSrc,
+    faceMasks,
     visible: true,
     accepted: hasFittedSurface,
-  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, samMaskSrc, shellFloor, surface, tileSize]);
+  }), [activeLayerId, blend, customColors, faceMasks, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, samMaskSrc, shellFloor, surface, tileSize]);
 
   const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
     const next = activeLayerSnapshot();
@@ -123,10 +128,11 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setCustomColors(layer.customColors);
     setSamMask(null);
     setSamMaskSrc(layer.maskSrc);
+    setFaceMasks(layer.faceMasks);
     setHasFittedSurface(layer.accepted);
     setSnapMessage(`${layer.label} selected.`);
     buzz(3);
-  }, [setActiveLayerId, setBlend, setCustomColors, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
+  }, [setActiveLayerId, setBlend, setCustomColors, setFaceMasks, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
 
   /* Without a kind the desk picks the next natural surface, as before.
      The guided session names the kind it wants and reads the boolean to
@@ -169,6 +175,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       customColors: null,
       maskSrc: null,
       shellFloor: null,
+      faceMasks: null,
       visible: true,
       accepted: true,
     };
@@ -181,6 +188,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setCustomColors(null);
     setSamMask(null);
     setSamMaskSrc(null);
+    setFaceMasks(null);
     setTileSize(nextLayer.tileSize);
     setPrepMode("primer");
     setHasFittedSurface(true);
@@ -196,6 +204,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       customColors: null,
       samMask: null,
       samMaskSrc: null,
+      faceMasks: null,
       hasFittedSurface: true,
     });
     setSnapMessage(`Added ${nextLayer.label}. Drag its corners to place it.`);
@@ -225,6 +234,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setCustomColors(nextActive.customColors);
     setSamMask(null);
     setSamMaskSrc(nextActive.maskSrc);
+    setFaceMasks(nextActive.faceMasks);
     setHasFittedSurface(nextActive.accepted);
     pushSnapshot(`Removed ${removedLabel}`, {
       layers: remaining,
@@ -240,6 +250,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       customColors: nextActive.customColors,
       samMask: null,
       samMaskSrc: nextActive.maskSrc,
+      faceMasks: nextActive.faceMasks,
       hasFittedSurface: nextActive.accepted,
     });
     setSnapMessage(`Removed ${removedLabel}. ${nextActive.label} selected.`);

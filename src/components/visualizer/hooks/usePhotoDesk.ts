@@ -4,7 +4,7 @@ import { useCallback, useRef } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
 import type { Piece } from "@/lib/products";
-import type { LoadSource, PrepMode, Pt, SurfaceId, SurfaceLayer } from "../types";
+import type { LoadSource, PrepMode, Pt, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
 import { CONTEXTS, FIRST_LAYER_ID, LAYER_LABELS, SURFACES } from "../constants";
 import { buzz, pieceSlugForSurface, suggestionText } from "../helpers";
 import { useCamera } from "./useCamera";
@@ -33,6 +33,7 @@ interface UsePhotoDeskParams {
   setCustomColors: Dispatch<SetStateAction<string[] | null>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
+  setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
   setLayers: Dispatch<SetStateAction<SurfaceLayer[]>>;
   setActiveLayerId: Dispatch<SetStateAction<string>>;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
@@ -70,6 +71,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
     setCustomColors,
     setSamMask,
     setSamMaskSrc,
+    setFaceMasks,
     setLayers,
     setActiveLayerId,
     setHasFittedSurface,
@@ -116,6 +118,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
       setCustomColors(null);
       setSamMask(null);
       setSamMaskSrc(null);
+      setFaceMasks(null);
       setPrepMode(targetPrep);
       setQuad(targetQuad);
       setShellFloor(targetShellFloor);
@@ -135,6 +138,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
           customColors: null,
           maskSrc: null,
           shellFloor: targetShellFloor,
+          faceMasks: null,
           visible: true,
           accepted: true,
         },
@@ -151,7 +155,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
       revokeObjectUrl(src);
     };
     img.src = src;
-  }, [blend, groutLight, piece, pieceSlug, pieces, prepMode, revokeObjectUrl, shellFloor, surface, setActiveLayerId, setCustomColors, setHasFittedSurface, setLayers, setPhoto, setPhotoSource, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize]);
+  }, [blend, groutLight, piece, pieceSlug, pieces, prepMode, revokeObjectUrl, shellFloor, surface, setActiveLayerId, setCustomColors, setFaceMasks, setHasFittedSurface, setLayers, setPhoto, setPhotoSource, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize]);
 
   const { cameraOpen, cameraError, clearCameraError, openCamera, snapCamera, stopCamera } = useCamera({
     videoRef,
@@ -171,6 +175,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
     setCustomColors(null);
     setSamMask(null);
     setSamMaskSrc(null);
+    setFaceMasks(null);
     setPrepMode("primer");
     setQuad(SURFACES[id].quad);
     setShellFloor(null);
@@ -196,6 +201,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
     setCustomColors(null);
     setSamMask(null);
     setSamMaskSrc(null);
+    setFaceMasks(null);
     setPrepMode("primer");
     setQuad(next.quad);
     /* A retag folds the shell flat: the Shell toggle only lives on pool,

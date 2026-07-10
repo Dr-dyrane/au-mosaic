@@ -3,12 +3,21 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
-import type { Pt, SurfaceId } from "../types";
+import type { Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
-import { deriveShellFloor } from "../shellFit";
+import { deriveShellFloor, floorTrapezoidFromMask, wallTrapezoidFromMask } from "../shellFit";
 import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
+
+/* A plain word per shell face for the finder's running message. */
+const FACE_WORD: Record<ShellFaceId, string> = {
+  back: "back wall",
+  left: "left wall",
+  right: "right wall",
+  near: "near wall",
+  floor: "floor",
+};
 
 type SegmentPayload = {
   ok?: boolean;
@@ -126,6 +135,57 @@ async function ensureAlphaMask(
   return { img: await loadMaskImage(src), src };
 }
 
+/* One paid round trip for one point: send the untouched photo and the
+   point, bring back the segment as an alpha-true mask image plus its
+   data URI. Throws on any miss, so a per-face loop can skip a face the
+   finder could not read and carry on. The single-surface finder keeps
+   its own inline copy with its own per-outcome messaging. */
+async function segmentAtPoint(
+  orig: HTMLCanvasElement,
+  point: Pt,
+  notifyWaking: () => void,
+): Promise<{ img: HTMLImageElement; maskSrc: string }> {
+  const shot = canvasToJpeg(orig, 768);
+  if (!shot) throw new Error("no-ctx");
+  const data = await submitAndAwaitMask(
+    JSON.stringify({
+      image: shot.base64,
+      mediaType: "image/jpeg",
+      x: Math.round(point.x * shot.width),
+      y: Math.round(point.y * shot.height),
+    }),
+    notifyWaking,
+  );
+  if (!(data.ok && typeof data.mask === "string")) throw new Error("finder-failed");
+  let maskSrc: string = data.mask;
+  let img = await loadMaskImage(maskSrc);
+  const ensured = await ensureAlphaMask(img);
+  img = ensured.img;
+  if (ensured.src) maskSrc = ensured.src;
+  return { img, maskSrc };
+}
+
+/* Downscale a decoded mask to a small grid and threshold its alpha into
+   the bit mask the geometry engine reads. Null when the canvas will not
+   paint. */
+function maskToBits(img: HTMLImageElement, long = 192): { data: Uint8Array; width: number; height: number } | null {
+  if (!(img.naturalWidth > 0 && img.naturalHeight > 0)) return null;
+  const longest = Math.max(1, img.naturalWidth, img.naturalHeight);
+  const down = Math.min(1, long / longest);
+  const mw = Math.max(1, Math.round(img.naturalWidth * down));
+  const mh = Math.max(1, Math.round(img.naturalHeight * down));
+  const mc = document.createElement("canvas");
+  mc.width = mw;
+  mc.height = mh;
+  const mx = mc.getContext("2d");
+  if (!mx) return null;
+  mx.drawImage(img, 0, 0, mw, mh);
+  const d = mx.getImageData(0, 0, mw, mh).data;
+  const bits = new Uint8Array(mw * mh);
+  for (let i = 0; i < bits.length; i += 1) if (d[i * 4 + 3] > 12) bits[i] = 1;
+  return { data: bits, width: mw, height: mh };
+}
+
 interface UseSamAutofindParams {
   originalRef: RefObject<HTMLCanvasElement | null>;
   surface: SurfaceId;
@@ -135,6 +195,8 @@ interface UseSamAutofindParams {
   setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
+  faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
+  setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
   pushSnapshot: (note: string, over?: Partial<VizSnapshot>) => void;
@@ -151,6 +213,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
   samBeta: boolean;
   samBusy: boolean;
   runSam: (point: Pt) => Promise<boolean>;
+  runShellFaces: (faces: { id: ShellFaceId; point: Pt }[]) => Promise<boolean>;
   armSam: () => void;
   clearSam: () => void;
 } {
@@ -163,6 +226,8 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     setShellFloor,
     setSamMask,
     setSamMaskSrc,
+    faceMasks,
+    setFaceMasks,
     setHasFittedSurface,
     setSnapMessage,
     pushSnapshot,
@@ -186,6 +251,14 @@ export function useSamAutofind(params: UseSamAutofindParams): {
   useEffect(() => {
     shellFloorRef.current = shellFloor;
   }, [shellFloor]);
+
+  /* The per-face loop accumulates onto whatever faces the active layer
+     already carries, so a second run tops up rather than wipes; the ref
+     keeps the latest committed set under the many awaits. */
+  const faceMasksRef = useRef(faceMasks);
+  useEffect(() => {
+    faceMasksRef.current = faceMasks;
+  }, [faceMasks]);
 
   /* The learned auto-find (beta, opt-in). Arm it, then one tap sends the
      untouched photo and the tapped point to the segment endpoint; the mask
@@ -334,6 +407,88 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     return false;
   };
 
+  /* The no-tap shell walk. Given one point per visible basin face (from
+     the scene scan), send them one at a time and paint each face in as
+     its own segment lands, so the visitor watches the basin fill wall by
+     wall with no tap. A face the finder cannot read is skipped, not
+     fatal. The floor's mask also sets the basin floor, so the walls that
+     share its far corners recede with it. One snapshot at the end holds
+     every face for undo. Resolves true if at least one face landed. */
+  const runShellFaces = async (faces: { id: ShellFaceId; point: Pt }[]): Promise<boolean> => {
+    const orig = originalRef.current;
+    if (!orig || inFlightRef.current || faces.length === 0) return false;
+    inFlightRef.current = true;
+    setSamBusy(true);
+    buzz(4);
+    const found: Partial<Record<ShellFaceId, FaceMask>> = { ...(faceMasksRef.current ?? {}) };
+    let landed = 0;
+    let fittedFloor: Pt[] | null = null;
+    try {
+      for (const face of faces) {
+        setSnapMessage(`Fitting the ${FACE_WORD[face.id]}.`);
+        try {
+          const { img, maskSrc } = await segmentAtPoint(orig, face.point, () =>
+            setSnapMessage("Still looking. The finder is waking."));
+          const bits = maskToBits(img);
+          let faceQuad: Pt[] | undefined;
+          if (face.id === "floor") {
+            /* The floor's own mask sets the basin floor as a clean
+               receding trapezoid (top and bottom extents joined), so the
+               tiles cover the whole floor in true perspective and the
+               walls that share its far corners recede with it. A thin or
+               ambiguous mask declines and the geometric floor stands.
+               (fitMask's floor regime skewed this plane into a degenerate
+               fan, so the extent read is used instead.) The floor rides
+               the shell floor, not a per-face quad. */
+            const derived = bits ? floorTrapezoidFromMask(bits) : null;
+            if (derived) fittedFloor = derived;
+          } else {
+            /* A wall's shared-vertex geometry is a thin sliver that
+               cannot cover a real receding wall, so the wall carries its
+               own fitted quad from the mask's column extents (tall near,
+               short far). fitMask's Hough regime flattened the wall into
+               an axis-aligned box that streaked under the gloss, so the
+               extent read is used instead. A degenerate read is dropped
+               and the wall stays bare rather than streaked. */
+            const wall = bits ? wallTrapezoidFromMask(bits) : null;
+            if (wall) faceQuad = wall;
+          }
+          found[face.id] = { src: maskSrc, quad: faceQuad };
+          seedMask(maskSrc, img);
+          landed += 1;
+          /* Commit this face the moment it lands: the render folds the
+             live faceMasks onto the active layer, so the basin fills one
+             face at a time. */
+          setFaceMasks({ ...found });
+          if (fittedFloor) setShellFloor(fittedFloor);
+        } catch {
+          /* one unreadable face is not the whole shell; carry on */
+        }
+      }
+      if (landed > 0) {
+        setHasFittedSurface(true);
+        pushSnapshot("Shell faces", {
+          faceMasks: { ...found },
+          hasFittedSurface: true,
+          ...(fittedFloor ? { shellFloor: fittedFloor } : {}),
+        });
+        setSnapMessage(
+          landed === faces.length
+            ? "Shell tiled, face by face. Nudge any stone to refine."
+            : `Tiled ${landed} of ${faces.length} faces. Nudge any stone, or tap a face to add it.`,
+        );
+        buzz(8);
+        track("viz_shell_faces", { landed, asked: faces.length });
+        return true;
+      }
+      setSnapMessage("Could not read the shell. Drag the corners instead.");
+      return false;
+    } finally {
+      inFlightRef.current = false;
+      setSamBusy(false);
+    }
+  };
+
   const armSam = () => {
     if (samBusy) return;
     setSamBeta(true);
@@ -349,5 +504,5 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     buzz(3);
   };
 
-  return { samBeta, samBusy, runSam, armSam, clearSam };
+  return { samBeta, samBusy, runSam, runShellFaces, armSam, clearSam };
 }

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { creaseEdges, deriveShellFloor, erodeMask, floorQuad } from "../src/components/visualizer/shellFit";
+import { creaseEdges, deriveShellFloor, erodeMask, floorQuad, floorTrapezoidFromMask, wallTrapezoidFromMask } from "../src/components/visualizer/shellFit";
 import type { BinaryMask } from "../src/components/visualizer/fitMask";
 import type { Pt } from "../src/components/visualizer/types";
 
@@ -245,4 +245,49 @@ test("floorQuad keeps a candidate whose corners sit inside the rim", () => {
     assert.ok(Math.abs(got.quad[i].x - floor[i].x) <= 1, `corner ${i} x drifted`);
     assert.ok(Math.abs(got.quad[i].y - floor[i].y) <= 1, `corner ${i} y drifted`);
   }
+});
+
+/* The extent reads: a face's own mask gives a clean tile frame without
+   any crease guess. The floor reads its far and near width; the wall
+   reads its near and far height. Both must decline a shape they cannot
+   trust, since a bad frame streaks the tiles across the whole face. */
+
+test("a receding floor mask reads a trapezoid, far edge narrower than near", () => {
+  const m = blank(100, 100);
+  fillQuad(m, [{ x: 40, y: 18 }, { x: 60, y: 18 }, { x: 90, y: 82 }, { x: 10, y: 82 }]);
+  const q = floorTrapezoidFromMask(m);
+  assert.ok(q, "a clean floor mask should fit");
+  const topW = q![1].x - q![0].x;
+  const botW = q![2].x - q![3].x;
+  assert.ok(botW > topW, "near edge should read wider than far");
+  assert.ok(q![0].y < q![3].y, "far edge should sit above near edge");
+});
+
+test("a floor mask read wider far than near is declined", () => {
+  const m = blank(100, 100);
+  fillQuad(m, [{ x: 10, y: 18 }, { x: 90, y: 18 }, { x: 60, y: 82 }, { x: 40, y: 82 }]);
+  assert.equal(floorTrapezoidFromMask(m), null);
+});
+
+test("a sliver too short to trust is declined", () => {
+  const m = blank(100, 100);
+  fillRect(m, 20, 48, 80, 51);
+  assert.equal(floorTrapezoidFromMask(m), null);
+});
+
+test("a receding wall mask reads a trapezoid, near edge taller than far", () => {
+  const m = blank(100, 100);
+  /* Tall on the left (near), short on the right (far). */
+  fillQuad(m, [{ x: 15, y: 15 }, { x: 85, y: 42 }, { x: 85, y: 58 }, { x: 15, y: 85 }]);
+  const q = wallTrapezoidFromMask(m);
+  assert.ok(q, "a clean wall mask should fit");
+  const leftH = q![3].y - q![0].y;
+  const rightH = q![2].y - q![1].y;
+  assert.ok(leftH > rightH, "near (left) edge should read taller than far (right)");
+});
+
+test("a wall mask too narrow to trust is declined", () => {
+  const m = blank(100, 100);
+  fillRect(m, 48, 20, 51, 80);
+  assert.equal(wallTrapezoidFromMask(m), null);
 });

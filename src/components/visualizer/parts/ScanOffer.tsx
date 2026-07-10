@@ -29,10 +29,15 @@ const PRESELECT_CONFIDENCE = 0.45;
    through it. */
 export default function ScanOffer({ scan, steps, running, onAccept, onDismiss }: Props) {
   /* Seeded once per mount: a new photo closes the offer before a new
-     scan can open it, so every scan arrives on a fresh mount. */
-  const [selected, setSelected] = useState<SurfaceId[]>(() =>
-    scan.surfaces.filter((s) => s.confidence >= PRESELECT_CONFIDENCE).map((s) => s.kind)
-  );
+     scan can open it, so every scan arrives on a fresh mount. A pool
+     shell is the hero of its scene: it starts alone so Tile it dresses
+     the whole basin, and the deck or a wall is opted into by a tap
+     rather than laid over the pool by default. */
+  const [selected, setSelected] = useState<SurfaceId[]>(() => {
+    const shell = scan.surfaces.find((s) => s.kind === "pool" && s.shape === "shell");
+    if (shell) return [shell.kind];
+    return scan.surfaces.filter((s) => s.confidence >= PRESELECT_CONFIDENCE).map((s) => s.kind);
+  });
 
   const toggle = (kind: SurfaceId) =>
     setSelected((prev) => (prev.includes(kind) ? prev.filter((k) => k !== kind) : [...prev, kind]));

@@ -35,8 +35,49 @@ test("a clean scan passes through untouched", () => {
   assert.equal(out.note, "We found the pool.");
   assert.equal(out.confidence, 0.85);
   assert.deepEqual(out.surfaces, [
-    { kind: "pool", name: "the pool", tap: { x: 0.5, y: 0.6 }, occluders: [], confidence: 0.8 },
+    { kind: "pool", name: "the pool", tap: { x: 0.5, y: 0.6 }, shape: "surface", faces: [], occluders: [], confidence: 0.8 },
   ]);
+});
+
+test("a pool marked as a shell keeps its per-face points, floor first", () => {
+  const out = normalizeScan(scan({
+    surfaces: [surface({
+      shape: "shell",
+      faces: [
+        { id: "left", point: { x: 0.15, y: 0.5 } },
+        { id: "floor", point: { x: 0.45, y: 0.7 } },
+        { id: "back", point: { x: 0.5, y: 0.35 } },
+      ],
+    })],
+  }));
+  assert.equal(out.surfaces[0].shape, "shell");
+  assert.deepEqual(out.surfaces[0].faces.map((f) => f.id), ["floor", "back", "left"]);
+  assert.deepEqual(out.surfaces[0].faces[0].point, { x: 0.45, y: 0.7 });
+});
+
+test("only a pool may be a shell; other kinds fall back to one surface", () => {
+  const out = normalizeScan(scan({
+    surfaces: [surface({ kind: "wall", shape: "shell", faces: [{ id: "floor", point: { x: 0.4, y: 0.7 } }] })],
+  }));
+  assert.equal(out.surfaces[0].shape, "surface");
+  assert.deepEqual(out.surfaces[0].faces, []);
+});
+
+test("a shell drops made-up faces, duplicates, and out-of-band points", () => {
+  const out = normalizeScan(scan({
+    surfaces: [surface({
+      shape: "shell",
+      faces: [
+        { id: "ceiling", point: { x: 0.5, y: 0.5 } },
+        { id: "floor", point: { x: 0.45, y: 0.7 } },
+        { id: "floor", point: { x: 0.1, y: 0.1 } },
+        { id: "right", point: { x: 1.4, y: -0.3 } },
+      ],
+    })],
+  }));
+  assert.deepEqual(out.surfaces[0].faces.map((f) => f.id), ["floor", "right"]);
+  assert.deepEqual(out.surfaces[0].faces[0].point, { x: 0.45, y: 0.7 });
+  assert.deepEqual(out.surfaces[0].faces[1].point, { x: 0.98, y: 0.02 });
 });
 
 test("a surface with a made-up kind is dropped", () => {

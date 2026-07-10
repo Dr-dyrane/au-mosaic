@@ -6,7 +6,7 @@ import { IconClose } from "@/app/admin/(panel)/icons";
 import { track } from "@vercel/analytics";
 import { VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
-import type { Pt, SurfaceId, LoadSource, PrepMode, SurfaceLayer } from "./visualizer/types";
+import type { Pt, SurfaceId, LoadSource, PrepMode, SurfaceLayer, ShellFaceId, FaceMask } from "./visualizer/types";
 import {
   DEFAULT_QUAD,
   SAMPLE_POOL_QUAD,
@@ -96,6 +96,10 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [depthShown, setDepthShown] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
   const [samMaskSrc, setSamMaskSrc] = useState<string | null>(null);
+  /* The active shelled pool's per-face segments, one data URI per face.
+     Lives beside samMaskSrc and folds into the active layer the same
+     way, so a shell's four faces travel with its undo and its select. */
+  const [faceMasks, setFaceMasks] = useState<Partial<Record<ShellFaceId, FaceMask>> | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
   const [hasFittedSurface, setHasFittedSurface] = useState(false);
@@ -113,6 +117,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       customColors: null,
       maskSrc: null,
       shellFloor: storedShellFloor(),
+      faceMasks: null,
       visible: true,
       accepted: false,
     },
@@ -168,6 +173,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     hasFittedSurface,
     samMask,
     samMaskSrc,
+    faceMasks,
     setLayers,
     setActiveLayerId,
     setSurface,
@@ -182,6 +188,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setHasFittedSurface,
     setSamMask,
     setSamMaskSrc,
+    setFaceMasks,
     setSnapMessage,
   });
 
@@ -213,12 +220,14 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSamMask,
     samMaskSrc,
     setSamMaskSrc,
+    faceMasks,
+    setFaceMasks,
     setSnapMessage,
     pushSnapshot,
     pieces,
   });
 
-  const { samBeta, samBusy, runSam, armSam, clearSam } = useSamAutofind({
+  const { samBeta, samBusy, runSam, runShellFaces, armSam, clearSam } = useSamAutofind({
     originalRef,
     surface,
     quad,
@@ -227,6 +236,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setShellFloor,
     setSamMask,
     setSamMaskSrc,
+    faceMasks,
+    setFaceMasks,
     setHasFittedSurface,
     setSnapMessage,
     pushSnapshot,
@@ -244,6 +255,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     addSurfaceLayer,
     activateLayerKind,
     runSam,
+    runShellFaces,
     setSnapMessage,
   });
 
@@ -256,7 +268,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     withActiveLayer, objectUrl, revokeObjectUrl, videoRef,
     setPhoto, setPhotoSource, setSurface, setQuad, setShellFloor,
     setTileSize, setPieceSlug, setPrepMode, setCustomColors, setSamMask,
-    setSamMaskSrc, setLayers, setActiveLayerId, setHasFittedSurface, setSnapMessage,
+    setSamMaskSrc, setFaceMasks, setLayers, setActiveLayerId, setHasFittedSurface, setSnapMessage,
   });
 
   /* The feature opens on its own before-state. User photos are chosen,
@@ -305,13 +317,26 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       const layerPiece = pieceMap.get(layer.pieceSlug) ?? piece;
       const mask = layer.id === activeLayerId ? (samMask ?? hydrateMask(layer.maskSrc, schedulePaint)) : hydrateMask(layer.maskSrc, schedulePaint);
       if (layer.shellFloor) {
-        /* A shelled pool is five quads sharing eight points. Each face
-           draws as its own surface under the layer's one mask, so a SAM
-           basin cut-out dresses the whole shell. The mask is cut to each
-           face's quad on the way in, or every face's prep and finish
-           would stamp the whole basin and bury its siblings. */
+        /* A shelled pool is five quads sharing eight points. When the
+           walk has given each face its own segment, that face draws to
+           its true shape (no quad clip: the mask IS the face). A face
+           with no segment, or the whole legacy path with only one basin
+           mask, falls back to the shared mask cut to the face's quad, so
+           each face's prep and finish stamp only its own slice. */
+        const perFace = !!layer.faceMasks && Object.keys(layer.faceMasks).length > 0;
         buildShellFaces(layer.quad, layer.shellFloor).forEach((face) => {
-          if (!face.visible || !isValidQuad(face.quad)) return;
+          if (!face.visible) return;
+          const fm = perFace ? layer.faceMasks?.[face.id] : undefined;
+          /* In per-face mode only the faces the walk actually segmented
+             tile; a face the scan never pointed at stays bare rather than
+             wearing a maskless geometric guess. */
+          if (perFace && !fm) return;
+          /* Each face draws on its own fitted quad when it has one (the
+             walls, whose shared-vertex geometry is too thin), the shell
+             geometry otherwise (the floor, which rides the shell floor). */
+          const faceQuad = fm?.quad ?? face.quad;
+          if (!isValidQuad(faceQuad)) return;
+          const faceMask = perFace ? (fm ? hydrateMask(fm.src, schedulePaint) : null) : mask;
           drawSurfaceLayer({
             ctx,
             origCtx,
@@ -320,11 +345,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             sourceH,
             width: W,
             height: Hh,
-            layer: { ...layer, quad: face.quad },
+            layer: { ...layer, quad: faceQuad },
             piece: layerPiece,
-            mask,
+            mask: faceMask,
             finish: draggingRef.current === null,
-            clipMaskToQuad: true,
+            clipMaskToQuad: !perFace,
           });
         });
         return;
