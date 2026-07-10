@@ -16,6 +16,18 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Verify ritual route count lane - done
+
+The verify ritual's parenthetical had gone stale twice over: AGENTS.md
+still read `npx next build` (24 routes) while the build now emits far
+more, and recent lanes below cite 57 routes. Rather than pin a third
+number that will drift again, I dropped the count for `npx next build`
+(the route table compiles), which states what the check is actually
+for. Only AGENTS.md carried the hardcoded count; docs/GIT.md's build
+line names no number, so it needed no touch. My files: AGENTS.md and
+this handshake. No code, and no open lane touched; the shell derivation
+lane owns shellFit.ts and its hooks, not this line.
+
 ## 2026-07-10 - Claude - Visualizer shell derivation lane (Phase 4b, slice 2) - open
 
 Owner-directed second slice: the shell derives itself from what the

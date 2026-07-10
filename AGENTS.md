@@ -29,9 +29,9 @@ document map. The short version of the culture:
   in `public/media` (three-plus canonical files, everything else
   gitignored), eye-verified before shipping, compressed under ~400KB
   for stills. Every WhatsApp CTA carries a `data-wa` placement source.
-- Verify ritual, every pass: `npx next build` (24 routes),
-  `npx eslint src --max-warnings=0`, update `docs/QA.md`, commit with
-  a story-telling message.
+- Verify ritual, every pass: `npx next build` (the route table
+  compiles), `npx eslint src --max-warnings=0`, update `docs/QA.md`,
+  commit with a story-telling message.
 - Accessibility floor: WCAG AA measured, focus rings, skip link,
   reduced motion respected by every animation.
 - Git: before any sync, reset, recovery, commit, or push, read
