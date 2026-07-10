@@ -16,6 +16,44 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Visualizer studio UI lane (L7 and L8) - open
+
+Owner-directed, and the one visible non-flagged change: the studio look
+the plan named but never built. The visualizer stops being a max-w-6xl
+magazine block with a wall of text links and becomes a full-bleed
+studio where the stage is the hero. Three moves, no flag, deploys and
+shows at once. (1) Full-bleed: drop the max-w-6xl cap on the Visualizer
+wrapper (Visualizer.tsx around line 531) to w-full with px-5 sm:px-8
+gutters and an ultrawide safety cap max-w-[1760px]; keep the hero prose
+in page.tsx constrained; constrain the Your space upload panel to a
+readable band; the workspace grid keeps its two-column shape but the
+1fr stage column eats the width, the refine rail stays a fixed column;
+the stage keeps its 26px squircle (full-bleed means uses-every-pixel,
+not touches-the-glass, per DESIGN.md). A modest render-clamp bump
+(track displayed width times DPR, capped near 2000) keeps the mosaic
+sharp at width; the owner's eye sets the final number. (2) A new
+src/components/visualizer/icons.tsx mirroring the back office icon
+conventions (Svg viewBox 24, stroke currentColor 1.6), gold via
+currentColor when active. (3) A new parts/ToolRail.tsx replacing the
+link-hair button wall and the bottom action row: desktop an inline
+capsule row with the gold Send the single loud action, undo/redo a
+paired arrow group; mobile a floating glass capsule, icons at rest,
+the active tool showing its word; a Refine tool opens the existing
+Dialog rendering RefinePanel. Extracting the button wall drops
+Visualizer.tsx below its inherited 745, paying the modularity budget.
+DESIGN.md is the law and the owner's eye is the final design gate: I
+build a strong first pass and prove it renders clean at phone, 1280,
+and 1920, then present it for the owner's eye. The refine disclosure
+lane's work shipped at 269a7c8, so RefinePanel is touched only
+additively (an optional icon slot), never restructured. My files:
+src/components/Visualizer.tsx, src/app/(site)/visualizer/page.tsx,
+src/components/visualizer/icons.tsx (new), parts/ToolRail.tsx (new),
+parts/RefinePanel.tsx (additive icon slot only), parts/Stage.tsx (the
+Preview chip icon), docs/QA.md, and this handshake. Gate is tsc,
+eslint, npm run test, next build, the dash scan, the size budget, and a
+live proof at three widths plus a phone with no horizontal overflow and
+every prior action reachable. Rollback point is 761c158.
+
 ## 2026-07-10 - Claude - Visualizer depth oracle lane (Phase 4c, slice 1) - done
 
 Owner-approved depth oracle, and with it the first runtime ML
