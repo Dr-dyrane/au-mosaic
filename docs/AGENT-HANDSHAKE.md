@@ -16,6 +16,33 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Pool render to photoreal (light, glass, edges, back wall) - done
+
+Owner directive: make it perfect and realistic, operate to the goal without
+micro-instruction. The tiles read pasted-on because they never wore the pool's
+own light, so four render moves in draw.ts and useSamAutofind.ts, each proven
+by eye against a live render. (1) LIGHT TRANSFER: a masked face now takes a
+soft-light coat of the photo's own luminance cut to the mask, so the pool's real
+shadows and sunlit stretches fall across the tiles (the shadowed right wall goes
+dark, the lit left wall stays bright); gated by finish so a drag stays quick, the
+unmasked path unchanged. (2) EDGE FEATHER: the shape mask alpha is blurred a few
+pixels before every coat clips to it, so the mosaic melts into the concrete
+instead of ending on the segment's hard cut line. (3) GLASS TILES: makePattern
+gives each tile a deterministic brightness variation, a depth gradient, and a
+soft specular, so it reads as real glass mosaic, not flat graphic squares (still
+cached, still recolourable, no random). (4) BACK WALL: a thin far face the
+segmenter rarely cuts is completed from its own snapped quad (quadSilhouette),
+bounded by the shared-vertex band so it cannot spill. My files:
+src/components/visualizer/draw.ts, hooks/useSamAutofind.ts, docs. Rollback point
+is 3a5adbc. An adversarial review agent checked the render for correctness, perf,
+and memory. PROVEN by eye across several live renders: floor and both walls tile
+in true perspective, the tiles wear the pool's light and read like glass, edges
+melt in, and the result is CLEAN AND CONSISTENT run to run. Gates: tsc, eslint
+zero, 70 tests, next build clean. Honest limits: still deterministic tiling of the
+real SKU colours (no generative relight, per the fidelity law); the back wall is
+genuinely thin on the sample so its fill is a sliver; realism proven on the
+starter pool, real customer photos are the owner's phone demo. Evidence in docs/QA.md.
+
 ## 2026-07-10 - Claude - Context-aware Auto + corner point-snapping, Tile it removed - done
 
 The owner's geometry redesign, built in one proven pass on their call (AI

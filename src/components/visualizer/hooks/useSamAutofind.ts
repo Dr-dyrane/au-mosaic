@@ -7,6 +7,7 @@ import type { Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
 import { largestComponent, solidity } from "../fitMask";
+import { isValidQuad } from "../geometry";
 import { buildShellFaces, defaultShellFloor } from "../shell";
 import { deriveShellFloor, floorTrapezoidFromMask, wallTrapezoidFromMask } from "../shellFit";
 import { seedMask } from "../maskCache";
@@ -196,6 +197,31 @@ function centroid(quad: Pt[]): Pt {
     x: quad.reduce((sum, p) => sum + p.x, 0) / n,
     y: quad.reduce((sum, p) => sum + p.y, 0) / n,
   };
+}
+
+/* A face's own quad, painted solid, as a mask data URI. When the
+   segmenter cannot cut a thin face cleanly (the far back wall, most
+   often), the snapped geometry still bounds it, so the tiles fill that
+   shared-vertex band and cannot spill past it. Alpha carries the shape,
+   so the colour is immaterial. */
+function quadSilhouette(quad: Pt[], w: number, h: number): string | null {
+  if (!(w > 0 && h > 0)) return null;
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const x = c.getContext("2d");
+  if (!x) return null;
+  x.fillStyle = "#fff";
+  x.beginPath();
+  x.moveTo(quad[0].x * w, quad[0].y * h);
+  for (let i = 1; i < quad.length; i += 1) x.lineTo(quad[i].x * w, quad[i].y * h);
+  x.closePath();
+  x.fill();
+  try {
+    return c.toDataURL("image/png");
+  } catch {
+    return null;
+  }
 }
 
 /* Ask the corner finder where the pool's rim and floor sit, so the
@@ -462,15 +488,15 @@ export function useSamAutofind(params: UseSamAutofindParams): {
       const floor = corners?.floor ?? defaultShellFloor(rim);
       setQuad(rim);
       setShellFloor(floor);
-      /* One point per visible face from the snapped box; the near wall is
-         under the camera and never tiled, so it drops out here. */
-      const faces = buildShellFaces(rim, floor)
-        .filter((face) => face.visible)
-        .map((face) => ({ id: face.id, point: centroid(face.quad) }));
-      for (const face of faces) {
+      /* The visible faces of the snapped box; the near wall is under the
+         camera and never tiled, so it drops out here. Each face keeps its
+         own quad so a face the segmenter cannot cut can still fall back
+         to its geometry. */
+      const shellFaces = buildShellFaces(rim, floor).filter((face) => face.visible);
+      for (const face of shellFaces) {
         setSnapMessage(`Fitting the ${FACE_WORD[face.id]}.`);
         try {
-          const { img, maskSrc } = await segmentAtPoint(orig, face.point, () =>
+          const { img, maskSrc } = await segmentAtPoint(orig, centroid(face.quad), () =>
             setSnapMessage("Still looking. The finder is waking."));
           const bits = maskToBits(img);
           /* A face whose segment is not one solid region (a stray point
@@ -524,6 +550,20 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           /* one unreadable face is not the whole shell; carry on */
         }
       }
+      /* Complete the box: the far back wall is a thin foreshortened band
+         the segmenter rarely cuts cleanly, so once its neighbours have
+         landed and given the geometry credibility, tile it from its own
+         snapped quad. Bounded by the shared-vertex band, it cannot spill,
+         and its top and bottom edges already meet the walls and floor. */
+      const backFace = shellFaces.find((face) => face.id === "back");
+      if (landed > 0 && backFace && !found.back && isValidQuad(backFace.quad)) {
+        const sil = quadSilhouette(backFace.quad, orig.width, orig.height);
+        if (sil) {
+          found.back = { src: sil };
+          landed += 1;
+          setFaceMasks({ ...found });
+        }
+      }
       if (landed > 0) {
         setHasFittedSurface(true);
         pushSnapshot("Auto shell", {
@@ -533,12 +573,12 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           hasFittedSurface: true,
         });
         setSnapMessage(
-          landed === faces.length
+          landed >= shellFaces.length
             ? "Pool tiled, face by face. Nudge any stone to refine."
-            : `Tiled ${landed} of ${faces.length} faces. Nudge any stone to refine.`,
+            : `Tiled ${landed} of ${shellFaces.length} faces. Nudge any stone to refine.`,
         );
         buzz(8);
-        track("viz_shell_faces", { landed, asked: faces.length });
+        track("viz_shell_faces", { landed, asked: shellFaces.length });
         return true;
       }
       setSnapMessage("Could not read the pool. Drag the corners instead.");

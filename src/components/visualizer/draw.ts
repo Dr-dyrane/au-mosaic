@@ -41,17 +41,43 @@ function makePattern(colors: string[], tile: number, groutLight: boolean) {
   ctx.fillStyle = groutLight ? "#e9e4da" : "#242019";
   ctx.fillRect(0, 0, size, size);
   const g = Math.max(1, tile * 0.06);
+  const iw = tile - 2 * g;
+  const radius = tile * 0.14;
   for (let r = 0; r < cols; r++) {
     for (let q = 0; q < cols; q++) {
       const i = r * cols + q;
+      const x = q * tile;
+      const y = r * tile;
+      const roundTile = () => {
+        ctx.beginPath();
+        ctx.roundRect(x + g, y + g, iw, iw, radius);
+      };
+      /* The base colour, drawn from the palette. */
       ctx.fillStyle = colors[(i * 13 + 5) % colors.length];
-      const x = q * tile, y = r * tile;
-      ctx.beginPath();
-      ctx.roundRect(x + g, y + g, tile - 2 * g, tile - 2 * g, tile * 0.12);
+      roundTile();
       ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.22)";
+      /* Real glass mosaic is never one flat blue: each tile fires a
+         little lighter or darker than its neighbour. A deterministic
+         hash of the tile index gives that variation without any random,
+         so the cache stays valid. */
+      const hash = ((i * 2654435761) >>> 0) % 1000 / 1000 - 0.5;
+      ctx.fillStyle = hash > 0 ? `rgba(255,255,255,${hash * 0.22})` : `rgba(0,0,0,${-hash * 0.2})`;
+      roundTile();
+      ctx.fill();
+      /* Glass has depth: a sheen down the face, light at the top edge
+         where the sky catches it, a touch of shade at the bottom. */
+      const grad = ctx.createLinearGradient(0, y + g, 0, y + g + iw);
+      grad.addColorStop(0, "rgba(255,255,255,0.20)");
+      grad.addColorStop(0.5, "rgba(255,255,255,0)");
+      grad.addColorStop(1, "rgba(0,0,0,0.14)");
+      ctx.fillStyle = grad;
+      roundTile();
+      ctx.fill();
+      /* One soft specular in the top-left corner, the glint of a wet
+         tile. */
+      ctx.fillStyle = "rgba(255,255,255,0.26)";
       ctx.beginPath();
-      ctx.roundRect(x + g * 1.6, y + g * 1.6, (tile - 2 * g) * 0.5, (tile - 2 * g) * 0.28, tile * 0.1);
+      ctx.roundRect(x + g * 1.7, y + g * 1.7, iw * 0.42, iw * 0.24, tile * 0.1);
       ctx.fill();
     }
   }
@@ -300,6 +326,30 @@ function drawSurfaceLayer({
     }
   }
 
+  /* Feather the shape's edge a hair, so the mosaic melts into the
+     surface instead of ending on the hard cut line a segment draws. A
+     few pixels of blur on the mask alpha reads as a real grouted edge,
+     not a sticker. Every downstream coat clips to this softened mask, so
+     the fade is consistent. A settled-frame touch like the light and the
+     finish: mid-drag the tiles clip to the hard mask so the corners stay
+     quick, and the edge softens the moment the stone is let go. */
+  if (shapeMask && finish !== false) {
+    const soft = document.createElement("canvas");
+    soft.width = width;
+    soft.height = height;
+    const sx = soft.getContext("2d");
+    if (sx) {
+      sx.filter = `blur(${Math.max(1, Math.round(Math.hypot(width, height) * 0.0028))}px)`;
+      try {
+        sx.drawImage(shapeMask, 0, 0, width, height);
+        sx.filter = "none";
+        shapeMask = soft;
+      } catch {
+        sx.filter = "none";
+      }
+    }
+  }
+
   /* The prep coat hides whatever the surface wore before, since the tiles
      land with multiply and old grout would ghost through. One painter
      feeds both the quad-clipped path and the mask-cut path so the two
@@ -384,7 +434,41 @@ function drawSurfaceLayer({
   ctx.drawImage(overlay, 0, 0);
   ctx.restore();
 
-  if (!shapeMask) {
+  /* The light transfer, the difference between tiles that sit in the
+     scene and tiles that read pasted on. The photo's own luminance is
+     laid back over the laid mosaic with soft-light, so the pool's real
+     shadows and sunlit stretches fall across the tiles. A masked face
+     carries the whole basin's light, so its coat runs stronger and is
+     cut to the exact face; a bare quad clips to its corners as before.
+     The masked coat is a settled-frame touch (like the finish), so a
+     corner drag stays quick and it lands the moment the stone is let go. */
+  if (shapeMask) {
+    if (finish !== false) {
+      const light = document.createElement("canvas");
+      light.width = width;
+      light.height = height;
+      const lx = light.getContext("2d");
+      if (lx) {
+        if (layer.prepMode === "none") {
+          drawSource(lx, photo, sourceW, sourceH, width, height, false);
+        } else {
+          drawBlurredPhoto(lx, photo, sourceW, sourceH, width, height, 10, false);
+        }
+        try {
+          lx.globalCompositeOperation = "destination-in";
+          lx.drawImage(shapeMask, 0, 0, width, height);
+          lx.globalCompositeOperation = "source-over";
+          ctx.save();
+          ctx.globalCompositeOperation = "soft-light";
+          ctx.globalAlpha = layer.blend * (layer.prepMode === "none" ? 0.62 : 0.5);
+          ctx.drawImage(light, 0, 0);
+          ctx.restore();
+        } catch {
+          /* no light coat rather than a flood */
+        }
+      }
+    }
+  } else {
     ctx.save();
     clipQuad(ctx, q);
     ctx.globalCompositeOperation = "soft-light";
