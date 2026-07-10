@@ -16,6 +16,36 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Studio teardown: full-bleed revert, depth removed, auto exits preview - done
+
+On the owner's direct call after seeing the deployed studio: the full-bleed
+max-width "made it uglier", depth "sucks", and clicking auto in Preview did
+nothing. Three moves, all owner-requested. (1) Reverted the full-bleed layout
+to the centered max-w-6xl column (Visualizer.tsx wrapper + upload-panel cap,
+Stage.tsx dropped the lg:w-fit / lg:max-h stage-fit rules, render clamp back to
+a flat 1400) while KEEPING the drawn icons and the ToolRail (those "made it look
+nicer"). (2) Fully removed the Depth feature: deleted useDepth.ts,
+depth.worker.ts, empty.ts; stripped depthShown/depthShownRef/useDepth/toggleDepth
+and the render guard from Visualizer.tsx; dropped the Depth tool + IconDepth from
+ToolRail/icons; removed the next.config.ts turbopack resolveAlias block (it existed
+only for depth) and the @huggingface/transformers dependency (npm install
+regenerated the lockfile, transitive onnxruntime-node gone); dropped the VIZ_DEPTH
+env lines. (3) Auto-find now exits Preview before arming (armFind wrapper in
+Visualizer.tsx wired to the ToolRail Auto button), because Preview unmounts the
+tap overlay so a find-tap landed on nothing. Exhaustively mapped first by a
+4-agent read-only workflow before editing. My files: .env.example, next.config.ts,
+package.json, package-lock.json, Visualizer.tsx, icons.tsx, parts/Stage.tsx,
+parts/ToolRail.tsx, three deleted depth files, docs/QA.md, this handshake.
+Rollback point is 34e0f33. Gates: tsc, eslint zero, 75 tests, next build clean, no
+depth deps (npm ls onnxruntime-node empty), no leftover depth refs. Live-proven in
+headless chromium: desktop is a centered max-w-6xl column again (1152px, centered),
+phone full-width, NO Depth button either width, icons kept. NOT YET DONE (the
+owner's bigger ask, next lane): remove "Tile it" and make Auto context-aware
+(pool -> shell per-face, wall -> single SAM), AI corner point-snapping p0-p7 /
+p0-p3 (a smoke test confirmed Haiku places usable 8 pool corners), and fix
+shell-mask-returns-one-surface. "Tile it" stays FOR NOW because it is the only
+trigger of the beloved shell; it goes when Auto re-triggers the shell.
+
 ## 2026-07-10 - Claude - No-tap per-face pool shell (L2 + L4) - done
 
 The owner's headline priority: remove the manual "tap the wall", and for

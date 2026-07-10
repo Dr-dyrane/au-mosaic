@@ -20,7 +20,6 @@
     "test": "tsc -p tsconfig.tests.json && node --test \".tests-out/tests/*.test.js\""
   },
   "dependencies": {
-    "@huggingface/transformers": "3.8.1",
     "@neondatabase/serverless": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.18",
     "@vercel/analytics": "^2.0.1",

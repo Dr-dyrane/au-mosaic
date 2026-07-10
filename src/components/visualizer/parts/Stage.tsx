@@ -65,11 +65,9 @@ export default function Stage({
   return (
     <div
       ref={wrapRef}
-      className="relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px] lg:mx-auto lg:w-fit"
+      className="relative -mx-5 w-[calc(100%+2.5rem)] min-w-0 overflow-hidden rounded-none sm:mx-0 sm:w-full sm:max-w-full sm:rounded-[26px]"
     >
-      {/* Contain the stage: a landscape photo fills the column, a tall
-          portrait fits the viewport height so it never overflows the fold. */}
-      <canvas ref={canvasRef} className="block h-auto w-full max-w-full lg:mx-auto lg:w-auto lg:max-h-[calc(100vh-8rem)]" />
+      <canvas ref={canvasRef} className="block h-auto w-full max-w-full" />
       <div key={tick} className="viz-sweep pointer-events-none absolute inset-0" aria-hidden />
       <p id="viz-corner-help" className="sr-only">
         Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.

@@ -8,7 +8,6 @@ import {
   IconClear,
   IconAddSurface,
   IconShell,
-  IconDepth,
   IconRemove,
   IconRefine,
   IconPin,
@@ -36,10 +35,6 @@ interface ToolRailProps {
   surface: SurfaceId;
   toggleShell: () => void;
   shellFloor: Pt[] | null;
-  depthFlag: boolean;
-  toggleDepth: () => void;
-  depthBusy: boolean;
-  depthShown: boolean;
   removeSurfaceLayer: () => void;
   layersLength: number;
   pinLook: () => void;
@@ -69,10 +64,6 @@ export default function ToolRail({
   surface,
   toggleShell,
   shellFloor,
-  depthFlag,
-  toggleDepth,
-  depthBusy,
-  depthShown,
   removeSurfaceLayer,
   layersLength,
   pinLook,
@@ -81,7 +72,7 @@ export default function ToolRail({
   openRefine,
 }: ToolRailProps) {
   /* One source of truth for both breakpoints. Order is the old wall's:
-     find or clear, add, shell, depth, remove, refine, pin. The undo pair
+     find or clear, add, shell, remove, refine, pin. The undo pair
      is drawn on its own below, since it carries a count between arrows. */
   const candidates: (Tool | null)[] = [
     !samMaskSrc && !samBusy
@@ -108,17 +99,6 @@ export default function ToolRail({
           aria: shellFloor ? "Lie the surface flat" : "Fold the pool into a shell",
           onClick: toggleShell,
           active: !!shellFloor,
-        }
-      : null,
-    depthFlag
-      ? {
-          key: "depth",
-          icon: <IconDepth />,
-          label: depthShown ? "Hide" : "Depth",
-          aria: depthShown ? "Hide the depth map" : "Show the depth map",
-          onClick: toggleDepth,
-          active: depthShown,
-          disabled: depthBusy,
         }
       : null,
     layersLength > 1
@@ -235,16 +215,6 @@ export default function ToolRail({
         </div>
       </div>
 
-      {/* Depth is a flagged diagnostic; its waking status announces once. */}
-      {depthFlag && depthBusy && (
-        <span
-          className="chip-glass mt-3 inline-flex text-[11px] font-semibold uppercase tracking-[0.22em] text-ink"
-          role="status"
-          aria-live="polite"
-        >
-          Reading depth
-        </span>
-      )}
     </>
   );
 }

@@ -42,15 +42,10 @@ import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
 import { useSurfaceSession } from "./visualizer/hooks/useSurfaceSession";
 import { usePhotoDesk } from "./visualizer/hooks/usePhotoDesk";
 import { useShareDownload } from "./visualizer/hooks/useShareDownload";
-import { useDepth, paintDepthMap } from "./visualizer/hooks/useDepth";
 
 /* The guided scan ships dark until the owner demos it on a real phone.
    NEXT_PUBLIC vars inline at build, so this is a constant. */
 const scanFlag = process.env.NEXT_PUBLIC_VIZ_SCAN === "on";
-
-/* Depth reads a diagnostic map in the browser, off until proven on
-   device. Same build-time inlining as the scan flag. */
-const depthFlag = process.env.NEXT_PUBLIC_VIZ_DEPTH === "on";
 
 export default function Visualizer({ initialPiece, pieces }: { initialPiece?: string; pieces: Piece[] }) {
   const startingPieceSlug = () => {
@@ -91,9 +86,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [tick, setTick] = useState(0);
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  /* The depth overlay is a diagnostic paint over the stage; it never
-     touches a layer. Off unless flagged. */
-  const [depthShown, setDepthShown] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
   const [samMaskSrc, setSamMaskSrc] = useState<string | null>(null);
   /* The active shelled pool's per-face segments, one data URI per face.
@@ -134,9 +126,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
      through the same refs. */
   const draggingRef = useRef<number | null>(null);
   const holdingRef = useRef(false);
-  /* Read inside render so the depth overlay is not overpainted by the
-     mosaic. A ref, not state, so render need not list it as a dep. */
-  const depthShownRef = useRef(false);
 
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
   const pieceMap = useMemo(() => new Map(pieces.map((item) => [item.slug, item])), [pieces]);
@@ -150,10 +139,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   }, []);
 
   const { objectUrl, revokeObjectUrl } = useObjectUrls();
-
-  /* Lazy: the worker and the model only wake on the first Depth press,
-     so with the flag off nothing here ever runs. */
-  const { runDepth, depthBusy } = useDepth();
 
   /* The undo memory lives in its own hook now; it reads these live
      controls to checkpoint and writes them back to restore. */
@@ -284,16 +269,9 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !photo) return;
-    /* Hold the depth paint: while it shows, the mosaic must not repaint. */
-    if (depthShownRef.current) return;
     const sourceW = photo.naturalWidth;
     const sourceH = photo.naturalHeight;
-    /* Track the shown stage width times the device pixels, so the mosaic
-       stays crisp when the studio runs wide. Floored at 1400 so the fit
-       never softens, capped at 2000 to spare a cheap phone. SSR-safe. */
-    const shownW = wrapRef.current?.clientWidth || 1400;
-    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    const maxW = Math.max(1400, Math.min(2000, Math.round(shownW * dpr)));
+    const maxW = 1400;
     const scale = Math.min(1, maxW / sourceW);
     const W = Math.round(sourceW * scale);
     const Hh = Math.round(sourceH * scale);
@@ -416,37 +394,20 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     buzz(4);
   };
 
-  /* First press reads the map and paints it over the stage; the mosaic
-     is untouched underneath. Hide returns the normal render. Any read
-     failure leaves the mosaic as is. */
-  const toggleDepth = async () => {
-    if (depthShown) {
-      depthShownRef.current = false;
-      setDepthShown(false);
-      schedulePaint();
-      buzz(4);
-      return;
-    }
-    if (!photo) return;
-    buzz(4);
-    const map = await runDepth(photo);
-    const canvas = canvasRef.current;
-    if (!map || !canvas) {
-      setSnapMessage("Could not read depth. The mosaic stays as is.");
-      return;
-    }
-    depthShownRef.current = true;
-    setDepthShown(true);
-    paintDepthMap(canvas, map);
-    track("viz_depth", {});
-  };
-
   /* Preview just clears the drag controls off the stage so the mosaic
      reads clean, in place. Tap again to bring the corners back. */
   const togglePreview = () => {
     setPreviewMode((p) => !p);
     buzz(4);
     track("viz_preview", {});
+  };
+
+  /* Arming auto-find must leave Preview first: Preview unmounts the tap
+     overlay, so a tap to find a surface would land on nothing. Adjust
+     brings the overlay back, then the arm takes the next tap. */
+  const armFind = () => {
+    if (previewMode) setPreviewMode(false);
+    armSam();
   };
 
   /* The visitor's own colourway, laid over the piece. Null means the
@@ -551,10 +512,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1760px] px-5 sm:px-8">
-      {/* The upload panel stays a readable band even when the studio runs
-          wide: only the stage should eat the extra pixels. */}
-      <div className="panel mb-7 flex max-w-3xl flex-col items-start gap-6 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mx-auto max-w-6xl px-5 sm:px-8">
+      <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="eyebrow">Your space</p>
           <p className="font-serif mt-2 text-[20px]">Photo or camera.</p>
@@ -629,7 +588,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                   </div>
                   <div className="mt-4 flex flex-col gap-3">
                     <ToolRail
-                      armSam={armSam}
+                      armSam={armFind}
                       clearSam={clearSam}
                       samBeta={samBeta}
                       samBusy={samBusy}
@@ -639,10 +598,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                       surface={surface}
                       toggleShell={toggleShell}
                       shellFloor={shellFloor}
-                      depthFlag={depthFlag}
-                      toggleDepth={toggleDepth}
-                      depthBusy={depthBusy}
-                      depthShown={depthShown}
                       removeSurfaceLayer={removeSurfaceLayer}
                       layersLength={layers.length}
                       pinLook={pinLook}

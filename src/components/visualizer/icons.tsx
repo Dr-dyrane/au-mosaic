@@ -65,16 +65,6 @@ export function IconShell({ className }: IconProps) {
   );
 }
 
-/* Two stacked planes: near reads bright, far recedes. */
-export function IconDepth({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M12 3.2 20 8l-8 4.8L4 8z" />
-      <path d="M4 12l8 4.8 8-4.8" />
-    </Svg>
-  );
-}
-
 /* A calm minus in a squircle: take a surface back off. No trash can. */
 export function IconRemove({ className }: IconProps) {
   return (
