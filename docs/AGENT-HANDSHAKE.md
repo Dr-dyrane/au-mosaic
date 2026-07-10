@@ -16,6 +16,47 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Visualizer per-layer masks lane (Phase 1) - open
+
+Owner-directed start of the visualizer reconstruction (plan recorded
+2026-07-09): each surface layer owns its SAM mask, so adding or
+selecting a surface appends instead of replacing. Root cause traced and
+reproduced live: samMask is one shared slot (Visualizer.tsx:69), the
+layer record has no mask field, and add, select, and remove all null it
+while render dresses only the active layer (Visualizer.tsx:332). The
+fix: SurfaceLayer gains maskSrc (the fal data URI), committed and
+restored through withActiveLayer exactly like quad and colours, a small
+decode cache hydrates masks at draw time, snapshots mirror a flat
+samMaskSrc, localStorage strips maskSrc for quota, and loadImage now
+resets layers so old surfaces stop haunting a new photo. My files:
+src/components/visualizer/types.ts, src/components/visualizer/maskCache.ts
+(new), hooks/useSurfaceLayers.ts, hooks/useSamAutofind.ts,
+hooks/useSnapshots.ts, hooks/usePersistedControls.ts, and
+src/components/Visualizer.tsx (state, render mask line, loadImage; the
+RefinePanel and camera assemblies are untouched). The owner's word
+outranks the two standing visualizer claims per protocol; the Stage-part
+extraction and the camera dialog remain theirs. Gate is tsc, eslint,
+next build, the dash scan, and a live browser proof: pool SAM fit, add
+wall, both masks visible; chip switches and undo keep masks. Rollback
+point is f2d1942.
+
+## 2026-07-09 - Claude - Visualizer env prep lane - done
+
+Owner-directed preparation for the visualizer reconstruction (per-layer
+masks, deterministic fit, SAM 3 migration, guided multi-surface session;
+plan recorded 2026-07-09). `.env.example` now carries every key that
+plan reads: FAL_KEY, which was live in .env but absent from the
+template, so a fresh clone shipped with segmentation silently off; the
+Upstash Redis pair that will back the durable daily spend cap;
+VISUALIZER_DAILY_CAP; and the optional CLAUDE_VISUALIZER_MODEL pin,
+commented. The owner added the Upstash credentials to the local .env;
+I added VISUALIZER_DAILY_CAP=200 beside them. No code reads the new
+names yet; the coming src/lib/visualizer-limits.ts claims them in the
+server-hardening phase. My files: .env (local, untracked),
+.env.example, .claude/launch.json (the dev-server launch config for the
+browser test harness), and this handshake. No code touched, both open
+visualizer lanes honored. Dash scan and git diff --check clean.
+
 ## 2026-07-09 - Claude - Visualizer modularization, Phase 3 hooks - open
 
 Continuing the behaviour-preserving split in docs/VISUALIZER-MODULARIZATION.md,
