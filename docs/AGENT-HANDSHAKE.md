@@ -16,6 +16,31 @@ note. Newest on top.
 
 ---
 
+## 2026-07-09 - Claude - Visualizer deterministic fit lane (Phase 2) - open
+
+Owner-directed Phase 2 of the reconstruction: the mask-to-quad fit
+becomes a real geometry engine, pure TypeScript, zero per-use cost. A
+new src/components/visualizer/fit.ts works on a plain binary mask (no
+DOM), in two regimes chosen by convex-hull solidity: wall-like masks
+get largest component, morphological cleanup, boundary trace, Hough
+boundary lines intersected into a quad (min-area fallback, then the
+old extreme-corners heuristic as the last resort); occluded floor-like
+masks are never outline-fitted, the quad stays the plane basis and the
+mask clips (the verified production pattern). useSamAutofind swaps its
+inline extremes scan for the engine and reads the live quad through a
+ref so a drag during the model call can no longer checkpoint a stale
+quad. draw.ts hygiene the per-layer masks exposed: prep now runs inside
+the mask region instead of being skipped when a mask exists (old tile
+stops ghosting through the multiply), and tile patterns are cached by
+colour, size, and grout instead of rebuilt every frame per layer. Unit
+tests land in tests/visualizer-fit.test.ts on the house node:test
+layout with synthetic fixtures (clean rect, noisy trapezoid, holed
+wall, furniture-bitten floor, L-room, speckle). My files: fit.ts (new),
+tests/visualizer-fit.test.ts (new), hooks/useSamAutofind.ts, draw.ts,
+docs/QA.md, and this handshake. Gate is tsc, eslint, npm run test, next
+build, the dash scan, and a live browser proof on the pool and blank
+wall starters. Rollback point is b4b12bd.
+
 ## 2026-07-09 - Claude - Visualizer per-layer masks lane (Phase 1) - done
 
 Owner-directed start of the visualizer reconstruction (plan recorded
