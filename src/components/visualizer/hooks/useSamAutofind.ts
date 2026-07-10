@@ -6,6 +6,7 @@ import { track } from "@vercel/analytics";
 import type { Pt } from "../types";
 import { buzz } from "../helpers";
 import { clamp, isValidQuad } from "../geometry";
+import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
 
 interface UseSamAutofindParams {
@@ -13,6 +14,7 @@ interface UseSamAutofindParams {
   quad: Pt[];
   setQuad: Dispatch<SetStateAction<Pt[]>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
+  setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
   pushSnapshot: (note: string, over?: Partial<VizSnapshot>) => void;
@@ -37,6 +39,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     quad,
     setQuad,
     setSamMask,
+    setSamMaskSrc,
     setHasFittedSurface,
     setSnapMessage,
     pushSnapshot,
@@ -86,6 +89,8 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         const img = new Image();
         img.onload = () => {
           setSamMask(img);
+          setSamMaskSrc(data.mask as string);
+          seedMask(data.mask as string, img);
           setHasFittedSurface(true);
           let fittedQuad = quad;
           /* Fit the four corners to the shape's own extreme corners, not
@@ -131,7 +136,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           }
           /* Save the AI result the moment it lands, so a re-find, a clear,
              or a fresh tap can never lose the segment we paid for. */
-          pushSnapshot("AI find", { samMask: img, quad: fittedQuad, hasFittedSurface: true });
+          pushSnapshot("AI find", { samMask: img, samMaskSrc: data.mask as string, quad: fittedQuad, hasFittedSurface: true });
           setSnapMessage("Surface found and angled. Nudge a corner to refine.");
           buzz(8);
         };
@@ -160,6 +165,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
 
   const clearSam = () => {
     setSamMask(null);
+    setSamMaskSrc(null);
     setSnapMessage("Auto-find cleared. The tiles fill the frame again.");
     buzz(3);
   };

@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-09 - Claude - Visualizer per-layer masks lane (Phase 1) - open
+## 2026-07-09 - Claude - Visualizer per-layer masks lane (Phase 1) - done
 
 Owner-directed start of the visualizer reconstruction (plan recorded
 2026-07-09): each surface layer owns its SAM mask, so adding or
@@ -38,7 +38,15 @@ outranks the two standing visualizer claims per protocol; the Stage-part
 extraction and the camera dialog remain theirs. Gate is tsc, eslint,
 next build, the dash scan, and a live browser proof: pool SAM fit, add
 wall, both masks visible; chip switches and undo keep masks. Rollback
-point is f2d1942.
+point is f2d1942. CLOSED same day: implemented by a surgical agent from
+the traced spec, one adversarial review round fixed two missed clears
+(surface preset chips and the starter picker also null the new mask
+state), and the latent repaint hook became real (renderRef schedules a
+true frame for late-decoded masks). Live proof on localhost against
+real fal: basin stays masked through Add surface, the chip switch back
+restores the pool's mask with the wall still drawn, and a new photo
+resets the desk to one layer. tsc, eslint, dash scan, and the
+production build clean; evidence in docs/QA.md.
 
 ## 2026-07-09 - Claude - Visualizer env prep lane - done
 

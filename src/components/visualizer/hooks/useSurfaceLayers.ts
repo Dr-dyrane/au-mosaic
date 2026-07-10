@@ -33,6 +33,8 @@ interface UseSurfaceLayersParams {
   hasFittedSurface: boolean;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
+  samMaskSrc: string | null;
+  setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
   pushSnapshot: (note: string, over?: Partial<VizSnapshot>) => void;
   pieces: Piece[];
@@ -70,6 +72,8 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     hasFittedSurface,
     setHasFittedSurface,
     setSamMask,
+    samMaskSrc,
+    setSamMaskSrc,
     setSnapMessage,
     pushSnapshot,
     pieces,
@@ -88,9 +92,10 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     prepMode,
     groutLight,
     customColors,
+    maskSrc: samMaskSrc,
     visible: true,
     accepted: hasFittedSurface,
-  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, surface, tileSize]);
+  }), [activeLayerId, blend, customColors, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, samMaskSrc, surface, tileSize]);
 
   const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
     const next = activeLayerSnapshot();
@@ -111,10 +116,11 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setGroutLight(layer.groutLight);
     setCustomColors(layer.customColors);
     setSamMask(null);
+    setSamMaskSrc(layer.maskSrc);
     setHasFittedSurface(layer.accepted);
     setSnapMessage(`${layer.label} selected.`);
     buzz(3);
-  }, [setActiveLayerId, setBlend, setCustomColors, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
+  }, [setActiveLayerId, setBlend, setCustomColors, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
 
   const addSurfaceLayer = () => {
     const committedLayers = withActiveLayer(layers);
@@ -146,6 +152,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       prepMode: "primer",
       groutLight,
       customColors: null,
+      maskSrc: null,
       visible: true,
       accepted: true,
     };
@@ -156,6 +163,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
     setSamMask(null);
+    setSamMaskSrc(null);
     setTileSize(nextLayer.tileSize);
     setPrepMode("primer");
     setHasFittedSurface(true);
@@ -169,6 +177,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       prepMode: "primer",
       customColors: null,
       samMask: null,
+      samMaskSrc: null,
       hasFittedSurface: true,
     });
     setSnapMessage(`Added ${nextLayer.label}. Drag its corners to place it.`);
@@ -195,6 +204,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setGroutLight(nextActive.groutLight);
     setCustomColors(nextActive.customColors);
     setSamMask(null);
+    setSamMaskSrc(nextActive.maskSrc);
     setHasFittedSurface(nextActive.accepted);
     pushSnapshot(`Removed ${removedLabel}`, {
       layers: remaining,
@@ -208,6 +218,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       groutLight: nextActive.groutLight,
       customColors: nextActive.customColors,
       samMask: null,
+      samMaskSrc: nextActive.maskSrc,
       hasFittedSurface: nextActive.accepted,
     });
     setSnapMessage(`Removed ${removedLabel}. ${nextActive.label} selected.`);

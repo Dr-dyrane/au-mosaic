@@ -33,7 +33,9 @@ export function usePersistedControls({
       try {
         localStorage.setItem(
           STORE_KEY,
-          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers: withActiveLayer(layers) })
+          /* Masks are data URIs far past the localStorage quota; the
+             quads persist, the segments are found again per photo. */
+          JSON.stringify({ quad, tileSize, blend, prepMode, groutLight, pieceSlug, customColors, layers: withActiveLayer(layers).map((l) => ({ ...l, maskSrc: null })) })
         );
       } catch {}
     }, 600);

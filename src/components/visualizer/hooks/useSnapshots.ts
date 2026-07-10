@@ -23,6 +23,7 @@ export type VizSnapshot = {
   customColors: string[] | null;
   hasFittedSurface: boolean;
   samMask: HTMLImageElement | null;
+  samMaskSrc: string | null;
 };
 
 const MAX_SNAPSHOTS = 12;
@@ -41,6 +42,7 @@ interface UseSnapshotsParams {
   customColors: string[] | null;
   hasFittedSurface: boolean;
   samMask: HTMLImageElement | null;
+  samMaskSrc: string | null;
   setLayers: Dispatch<SetStateAction<SurfaceLayer[]>>;
   setActiveLayerId: Dispatch<SetStateAction<string>>;
   setSurface: Dispatch<SetStateAction<SurfaceId>>;
@@ -53,6 +55,7 @@ interface UseSnapshotsParams {
   setCustomColors: Dispatch<SetStateAction<string[] | null>>;
   setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
+  setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
 }
 
@@ -75,6 +78,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     customColors,
     hasFittedSurface,
     samMask,
+    samMaskSrc,
     setLayers,
     setActiveLayerId,
     setSurface,
@@ -87,6 +91,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setCustomColors,
     setHasFittedSurface,
     setSamMask,
+    setSamMaskSrc,
     setSnapMessage,
   } = params;
 
@@ -110,7 +115,8 @@ export function useSnapshots(params: UseSnapshotsParams) {
     customColors: over.customColors !== undefined ? over.customColors : customColors,
     hasFittedSurface: over.hasFittedSurface ?? hasFittedSurface,
     samMask: over.samMask !== undefined ? over.samMask : samMask,
-  }), [layers, activeLayerId, surface, quad, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask]);
+    samMaskSrc: over.samMaskSrc !== undefined ? over.samMaskSrc : samMaskSrc,
+  }), [layers, activeLayerId, surface, quad, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask, samMaskSrc]);
 
   /* Append a checkpoint, dropping anything ahead of the cursor (a new
      move after stepping back forks a fresh line) and holding the stack to
@@ -138,7 +144,8 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setCustomColors(snap.customColors);
     setHasFittedSurface(snap.hasFittedSurface);
     setSamMask(snap.samMask);
-  }, [setLayers, setActiveLayerId, setSurface, setQuad, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setHasFittedSurface, setSamMask]);
+    setSamMaskSrc(snap.samMaskSrc);
+  }, [setLayers, setActiveLayerId, setSurface, setQuad, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setHasFittedSurface, setSamMask, setSamMaskSrc]);
 
   const stepHistory = useCallback((dir: -1 | 1) => {
     const target = history.i + dir;

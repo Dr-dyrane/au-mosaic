@@ -25,6 +25,9 @@ export type SurfaceLayer = {
   prepMode: PrepMode;
   groutLight: boolean;
   customColors: string[] | null;
+  /* The fal segment rides the layer as a data URI, so every surface
+     keeps its own shape. */
+  maskSrc: string | null;
   visible: boolean;
   accepted: boolean;
 };

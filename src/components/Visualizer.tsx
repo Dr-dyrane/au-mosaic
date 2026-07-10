@@ -20,6 +20,7 @@ import {
   LAYER_LABELS,
 } from "./visualizer/constants";
 import { drawSource, drawSurfaceLayer } from "./visualizer/draw";
+import { hydrateMask } from "./visualizer/maskCache";
 import { buzz, pieceSlugForSurface, suggestionText, readStore } from "./visualizer/helpers";
 import PaletteEditor from "./visualizer/parts/PaletteEditor";
 import PieceOptions from "./visualizer/parts/PieceOptions";
@@ -67,6 +68,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [refineOpen, setRefineOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
+  const [samMaskSrc, setSamMaskSrc] = useState<string | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
   const [hasFittedSurface, setHasFittedSurface] = useState(false);
@@ -82,6 +84,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       prepMode: readStore().prepMode === "none" || readStore().prepMode === "blur" ? (readStore().prepMode as PrepMode) : "primer",
       groutLight: typeof readStore().groutLight === "boolean" ? (readStore().groutLight as boolean) : true,
       customColors: null,
+      maskSrc: null,
       visible: true,
       accepted: false,
     },
@@ -103,6 +106,14 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const piece = pieces.find((p) => p.slug === pieceSlug)!;
   const pieceMap = useMemo(() => new Map(pieces.map((item) => [item.slug, item])), [pieces]);
 
+  /* A mask decoding late needs exactly one more paint. The canvas only
+     repaints when render runs, so the paint effect keeps the latest
+     render in this ref and the mask cache schedules one frame from it. */
+  const renderRef = useRef<() => void>(() => {});
+  const schedulePaint = useCallback(() => {
+    requestAnimationFrame(() => renderRef.current());
+  }, []);
+
   const { objectUrl, revokeObjectUrl } = useObjectUrls();
 
   /* The undo memory lives in its own hook now; it reads these live
@@ -121,6 +132,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     customColors,
     hasFittedSurface,
     samMask,
+    samMaskSrc,
     setLayers,
     setActiveLayerId,
     setSurface,
@@ -133,6 +145,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setCustomColors,
     setHasFittedSurface,
     setSamMask,
+    setSamMaskSrc,
     setSnapMessage,
   });
 
@@ -160,6 +173,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     hasFittedSurface,
     setHasFittedSurface,
     setSamMask,
+    samMaskSrc,
+    setSamMaskSrc,
     setSnapMessage,
     pushSnapshot,
     pieces,
@@ -170,6 +185,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     quad,
     setQuad,
     setSamMask,
+    setSamMaskSrc,
     setHasFittedSurface,
     setSnapMessage,
     pushSnapshot,
@@ -202,14 +218,36 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       const suggestion = suggestionText(targetSurface, targetPrep, targetPiece.name);
       /* No auto-detect: the mosaic lands on the surface's default frame
          and the four corners drag it onto the wall or floor. */
+      const targetQuad = nextQuad ?? SURFACES[targetSurface].quad;
       setHasFittedSurface(true);
       setSurface(targetSurface);
       setTileSize(targetTileSize);
       setPieceSlug(targetPieceSlug);
       setCustomColors(null);
       setSamMask(null);
+      setSamMaskSrc(null);
       setPrepMode(targetPrep);
-      setQuad(nextQuad ?? SURFACES[targetSurface].quad);
+      setQuad(targetQuad);
+      /* A new photo means a new desk: one fresh layer mirroring the flat
+         controls just set, so the last photo's surfaces cannot haunt it. */
+      setLayers([
+        {
+          id: FIRST_LAYER_ID,
+          label: LAYER_LABELS[targetSurface],
+          surface: targetSurface,
+          quad: targetQuad,
+          pieceSlug: targetPieceSlug,
+          tileSize: targetTileSize,
+          blend,
+          prepMode: targetPrep,
+          groutLight,
+          customColors: null,
+          maskSrc: null,
+          visible: true,
+          accepted: true,
+        },
+      ]);
+      setActiveLayerId(FIRST_LAYER_ID);
       setSnapMessage(suggestion);
       setPhoto(img);
       if (from !== "default") track("viz_photo", { source: from });
@@ -220,7 +258,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       revokeObjectUrl(src);
     };
     img.src = src;
-  }, [piece, pieceSlug, pieces, prepMode, revokeObjectUrl, surface]);
+  }, [blend, groutLight, piece, pieceSlug, pieces, prepMode, revokeObjectUrl, surface]);
 
   const { cameraOpen, cameraError, clearCameraError, openCamera, snapCamera, stopCamera } = useCamera({
     videoRef,
@@ -249,6 +287,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
     setSamMask(null);
+    setSamMaskSrc(null);
     setPrepMode("primer");
     setQuad(SURFACES[id].quad);
     setHasFittedSurface(true);
@@ -272,6 +311,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setPieceSlug(nextPieceSlug);
     setCustomColors(null);
     setSamMask(null);
+    setSamMaskSrc(null);
     setPrepMode("primer");
     setQuad(next.quad);
     setHasFittedSurface(true);
@@ -329,14 +369,15 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
         height: Hh,
         layer,
         piece: layerPiece,
-        mask: layer.id === activeLayerId ? samMask : null,
+        mask: layer.id === activeLayerId ? (samMask ?? hydrateMask(layer.maskSrc, schedulePaint)) : hydrateMask(layer.maskSrc, schedulePaint),
         finish: draggingRef.current === null,
       });
     });
     setTick((t) => t + 1);
-  }, [activeLayerId, layers, photo, piece, pieceMap, samMask, withActiveLayer]);
+  }, [activeLayerId, layers, photo, piece, pieceMap, samMask, schedulePaint, withActiveLayer]);
 
   useEffect(() => {
+    renderRef.current = render;
     const frame = requestAnimationFrame(render);
     return () => cancelAnimationFrame(frame);
   }, [render]);
@@ -726,12 +767,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                   </div>
                   <div className="mt-4 flex flex-col gap-3">
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                      {!samMask && !samBusy && (
+                      {!samMaskSrc && !samBusy && (
                         <button type="button" onClick={armSam} className="link-hair font-semibold text-ink">
                           {samBeta ? "Tap the wall now" : "Auto-find the surface"}
                         </button>
                       )}
-                      {samMask && (
+                      {samMaskSrc && (
                         <button type="button" onClick={clearSam} className="link-hair text-dusk">
                           Clear auto-find
                         </button>

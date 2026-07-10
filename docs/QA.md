@@ -499,3 +499,24 @@ across the entire maison.
 | craft-hands + craft-day | PAIRED. Honest work at ten in the morning; the adhesive ridges throw crisp daylight shadows. |
 | dark-bath | stays dark in both themes by identity |
 | borders, villa-palms, private-pool, pool-blues | already daylight, no pair needed |
+
+## Per-layer masks: adding a wall stops erasing the floor
+
+Phase 1 of the visualizer reconstruction is closed. Each surface layer
+now owns its SAM mask (maskSrc, the fal data URI), committed and
+restored through withActiveLayer exactly like quad and colours; a small
+decode cache dresses every layer each frame; snapshots mirror a flat
+samMaskSrc; localStorage strips masks for quota; and a new photo resets
+the desk to one fresh layer. Proof ran live against fal on localhost:
+pool auto-find masked the basin, Add surface kept the basin masked
+while the wall rectangle appeared, the chip switch back to Pool
+restored its mask with the wall still drawn, and reloading the starter
+collapsed the desk to one layer. Zero failed requests, zero console
+errors; tsc, eslint at zero warnings, the dash scan, and the production
+build are clean. One adversarial review round found and fixed two
+missed clears (surface preset and starter picker); one latent repaint
+hook was made real (renderRef schedules a true frame for late-decoded
+masks). Noted for the server pass: the fal SAM 2 worker's cold start
+measured 90 seconds against the route's 30 second abort, so the first
+find of a quiet day still fails politely; the queue API or a warm-up
+ping is the Phase 3 answer.
