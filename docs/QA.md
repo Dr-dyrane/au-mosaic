@@ -789,3 +789,42 @@ a stone is mid-drag. The route and the AI module reviewed clean.
 Gates: eslint zero warnings across `src`, the Turbopack production build
 compiles the full route table (76 of 76 static pages), and the fit is
 proven by eye on the live stage, before and after, no lies.
+
+## The box learns perspective: the floor recedes, the walls lean back
+
+The owner put a manual placement next to the autofit and named the gap in
+one line: the manual box foreshortens (far edge pinched, side walls leaning
+toward the back, floor receding to the horizon) while the autofit sat flat,
+its far edge as wide as its near edge, a frame stamped on the photo instead
+of a basin sunk into it. Geometry that acknowledges the 3D world was
+missing.
+
+We chased it honestly before choosing. The corner model CAN foreshorten
+when told to (far-over-near width ratios came back 0.56 to 0.78, well under
+one), but it could not reliably do it at full extent: asked to converge, it
+pulled the far edge down to mid-pool and lost the back wall; asked to reach
+the back, it flattened to a rectangle. And an eight-corner read (rim plus
+floor from the model) tangled, the two quads overlapping with crossed walls.
+Overlays with reference gridlines proved each failure rather than trusting
+the eye.
+
+So the answer was not to ask the model for more, but to let geometry carry
+the perspective on top of the one thing the model reads reliably: the
+full-extent rim. `defaultShellFloor` was rewritten from a symmetric shrink
+toward the centre (which read flat, the floor a small frame in the middle)
+into a directional recede: the far pair pulled well in and dropped just under
+the back wall, the near pair barely moved and lifted off the near coping, so
+the floor is narrow and high at the back, wide and low at the front. A new
+`perspectiveRim` gives a nearly rectangular read a gentle recede, pulling
+only its far pair onto the narrower back coping while the front lip the
+finder found stays put; a read that already narrows is trusted as it is.
+Both are deterministic geometry, so the box is stable run to run.
+
+Proven live on the sample: the floor now recedes (the tiles shrink toward
+the back), the side walls converge, the back wall is a true trapezoid, and
+the box reads as a basin going away from the camera, close to the owner's
+own manual placement. Honest note kept: this delivers the perspective
+through geometry, not a model-detected floor, because the model floor was
+unreliable, which is exactly the "geometry with acknowledgement of the 3D
+world" the owner asked for. Gates: eslint clean across `src`, the Turbopack
+build compiles, deterministic across headless runs.

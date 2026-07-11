@@ -7,7 +7,7 @@ import type { Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
 import { isValidQuad } from "../geometry";
-import { defaultShellFloor } from "../shell";
+import { defaultShellFloor, perspectiveRim } from "../shell";
 import { deriveShellFloor } from "../shellFit";
 import { seedMask } from "../maskCache";
 import type { VizSnapshot } from "./useSnapshots";
@@ -392,7 +392,9 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     try {
       setSnapMessage("Reading the pool.");
       const read = orig ? await fetchPoolRim(orig) : null;
-      const fitted = read && plausibleRim(read) ? read : null;
+      /* A plausible read gets a gentle recede so a flat, rectangular rim
+         narrows toward the back coping and the box reads in perspective. */
+      const fitted = read && plausibleRim(read) ? perspectiveRim(read) : null;
       const rim = fitted ?? quadRef.current;
       /* A fresh fit re-derives the floor to match its new rim. A declined
          read keeps the box the visitor has, so it holds any floor stones

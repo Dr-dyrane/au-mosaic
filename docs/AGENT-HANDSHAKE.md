@@ -16,6 +16,25 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - The pool box learns perspective (geometry, not model floor) - done
+
+Sequel to the rim-only auto-fit below. Owner compared his manual placement (a real
+perspective box: far edge pinched, walls leaning back, floor receding) to the autofit
+(a flat rectangle) and named the gap. Proven: the corner model CAN foreshorten (width
+ratios 0.56-0.78) but not at full extent (trades reach for convergence), and an
+8-corner rim+floor read tangles. So perspective is carried by GEOMETRY on the stable
+full-extent rim, not by asking the model for the floor. Changes:
+`src/components/visualizer/shell.ts`: defaultShellFloor rewritten from a symmetric
+centroid-shrink to a DIRECTIONAL recede (far pair pulled in 0.3 + dropped 0.12h under
+the back wall; near pair 0.1 + lifted 0.1h off the coping, so the floor is narrow+high
+at the back, wide+low at the front); new perspectiveRim gives a near-rectangular read a
+gentle far-pair recede (guard farW/nearW<0.9), near pair untouched.
+`src/components/visualizer/hooks/useSamAutofind.ts`: autoFindShell applies perspectiveRim
+to the fitted rim. No API change (still rim-only). defaultShellFloor is also used by
+toggleShell (Visualizer.tsx), which now gets the same perspective floor. PROVEN by eye +
+gridline overlays: floor recedes, walls converge, close to the manual placement,
+deterministic across runs. Does not touch the back-office shell lane.
+
 ## 2026-07-10 - Claude - Find auto-fits the pool (rim-only corner read, guarded) - done
 
 Sequel to the pure-geometry entry below. The owner asked to test auto-fit
