@@ -18,23 +18,26 @@ const nextConfig: NextConfig = {
     },
   },
   /* The SAM2 weights (public/models/sam2) and the onnxruntime runtime
-     assets (public/ort) are large and immutable: when a model or the
-     runtime is upgraded the whole pair is replaced, so the browser may
-     hold them for a year. No isolation headers here: WebGPU needs no
-     cross origin isolation, and COOP or COEP would break the Vercel
-     Blob piece photos served through next/image. */
+     assets (public/ort) are large, so they are cached, but NOT immutable:
+     an immutable year-long cache also pins a 404, so a browser that once
+     hit a deploy missing one of these files kept failing for a year even
+     after the file returned. A day of freshness plus a week of
+     stale-while-revalidate keeps them fast and lets a bad response heal.
+     No isolation headers here: WebGPU needs no cross origin isolation, and
+     COOP or COEP would break the Vercel Blob piece photos through
+     next/image. */
   async headers() {
     return [
       {
         source: "/models/sam2/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
         ],
       },
       {
         source: "/ort/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
         ],
       },
     ];
