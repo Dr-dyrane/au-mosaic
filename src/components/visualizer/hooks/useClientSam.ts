@@ -191,6 +191,18 @@ function readEncodeRgba(
   }
 }
 
+/* Surface a worker failure on the main thread. A worker error is otherwise
+   swallowed: ready stays false and every tap falls to fal with no clue why.
+   Load and encode errors arrive with no id, so they must be recorded here
+   and not only used to reject a pending decode. Both a console line and a
+   window array, so it can be read live during a deploy check. */
+function recordClientSamError(where: string, message: string, extra?: Record<string, unknown>): void {
+  if (typeof window === "undefined") return;
+  const w = window as unknown as { __clientSamErrors?: unknown[] };
+  (w.__clientSamErrors ??= []).push({ where, message, ...(extra ?? {}) });
+  console.error("[client-sam]", where, message, extra ?? "");
+}
+
 function post(worker: Worker, message: ClientSamRequest, transfer?: Transferable[]): void {
   if (transfer && transfer.length > 0) worker.postMessage(message, transfer);
   else worker.postMessage(message);
@@ -296,11 +308,13 @@ export function useClientSam(params: UseClientSamParams): ClientSam {
           break;
         }
         case "error": {
+          const detail = message.message ?? "client-sam-error";
+          recordClientSamError(typeof message.id === "number" ? "decode" : "load-or-encode", detail);
           if (typeof message.id === "number") {
             const entry = pendingRef.current.get(message.id);
             if (entry) {
               pendingRef.current.delete(message.id);
-              entry.reject(new Error(message.message ?? "client-sam-error"));
+              entry.reject(new Error(detail));
             }
           }
           break;
@@ -340,7 +354,10 @@ export function useClientSam(params: UseClientSamParams): ClientSam {
     }
     workerRef.current = worker;
     worker.onmessage = (ev: MessageEvent) => messageRef.current(ev.data as ClientSamResponse);
-    worker.onerror = () => errorRef.current();
+    worker.onerror = (ev: ErrorEvent) => {
+      recordClientSamError("onerror", ev.message || "worker-onerror", { filename: ev.filename, lineno: ev.lineno });
+      errorRef.current();
+    };
     post(worker, { type: "load" });
     return () => {
       worker.terminate();
