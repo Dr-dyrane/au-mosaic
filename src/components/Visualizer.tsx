@@ -36,6 +36,7 @@ import { useObjectUrls } from "./visualizer/hooks/useObjectUrls";
 import { usePersistedControls } from "./visualizer/hooks/usePersistedControls";
 import { useSnapshots } from "./visualizer/hooks/useSnapshots";
 import { useSamAutofind } from "./visualizer/hooks/useSamAutofind";
+import { useClientSam } from "./visualizer/hooks/useClientSam";
 import { useCornerDrag } from "./visualizer/hooks/useCornerDrag";
 import { useSurfaceLayers } from "./visualizer/hooks/useSurfaceLayers";
 import { usePhotoDesk } from "./visualizer/hooks/usePhotoDesk";
@@ -223,6 +224,12 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSnapMessage,
     pushSnapshot,
   });
+
+  /* Mount the client-side SAM bridge. When the opt-in flag is on and the
+     browser has WebGPU, it spawns the worker, encodes each photo once, and
+     registers itself so runSam decodes the mask on the GPU. Off by default,
+     so it stays inert and runSam keeps the fal path exactly as before. */
+  useClientSam({ originalRef, photo });
 
   /* How photos arrive and what a retag does; the camera rides inside. */
   const {
