@@ -173,18 +173,17 @@ async function encode(msg: EncodeMsg): Promise<void> {
   post({ type: "encoded", id: msg.id });
 }
 
-/* Special decoder inputs, matched by name so an export that renames the
-   feature tensors still receives its point, mask, and size feeds. */
-const RE_POINT_COORDS = /point_coord/i;
-const RE_POINT_LABELS = /point_label/i;
-const RE_MASK_INPUT = /mask_input/i;
-const RE_HAS_MASK = /has_mask/i;
-const RE_ORIG_SIZE = /orig_im_size|orig_size|image_size/i;
-
-/* Build the decoder feeds against the graph's real input names. Feature
-   tensors come from the encode cache: by exact name first, then by order
-   among whatever the cache has left, so a name mismatch across exports
-   still connects encoder output to decoder input. */
+/* Build the decoder feeds against the graph's REAL input names, verified
+   against onnx-community/sam2-hiera-tiny-ONNX:
+     input_points  [batch, 1, K, 2]   the tap, in the 1024 encode frame
+     input_labels  [batch, 1, K]       1 foreground, 0 background
+     input_boxes   [batch, B, 4]        empty here: points only
+     image_embeddings.0/1/2             the encoder outputs, by exact name
+   The three embeddings match the cache by name; points/labels/boxes match
+   by pattern with the export's own ranks. Anything unrecognised is left
+   UNFED on purpose: the previous handing of a spare encoder tensor to an
+   unmatched input is what fed input_points a [1,32,256,256] embedding and
+   made the decode throw on the shape. */
 function buildFeeds(
   session: ort.InferenceSession,
   cache: Record<string, ort.Tensor>,
@@ -193,48 +192,23 @@ function buildFeeds(
   label: 0 | 1,
 ): Record<string, ort.Tensor> {
   const feeds: Record<string, ort.Tensor> = {};
-
-  const pointCoords = new ort.Tensor(
-    "float32",
-    new Float32Array([nx * SIDE, ny * SIDE]),
-    [1, 1, 2],
-  );
-  const pointLabels = new ort.Tensor("float32", new Float32Array([label]), [1, 1]);
-  const maskInput = new ort.Tensor("float32", new Float32Array(256 * 256), [1, 1, 256, 256]);
-  const hasMask = new ort.Tensor("float32", new Float32Array([0]), [1]);
-  const origSize = new ort.Tensor("float32", new Float32Array([origH, origW]), [2]);
-
-  const cacheNames = Object.keys(cache);
-  const usedCache = new Set<string>();
+  const points = new ort.Tensor("float32", new Float32Array([nx * SIDE, ny * SIDE]), [1, 1, 1, 2]);
+  /* input_labels is int64 on this export, not float: onnxruntime-web takes a
+     BigInt64Array for that. Feeding float32 threw "expected: tensor(int64)". */
+  const labels = new ort.Tensor("int64", BigInt64Array.from([BigInt(label)]), [1, 1, 1]);
+  const boxes = new ort.Tensor("float32", new Float32Array(0), [1, 0, 4]);
 
   for (const name of session.inputNames) {
-    if (RE_POINT_COORDS.test(name)) {
-      feeds[name] = pointCoords;
-    } else if (RE_POINT_LABELS.test(name)) {
-      feeds[name] = pointLabels;
-    } else if (RE_HAS_MASK.test(name)) {
-      /* Before mask_input: "has_mask_input" contains "mask_input", so the
-         flag must be matched first or it would be fed the mask tensor and
-         the decoder would throw on the rank-1 shape. */
-      feeds[name] = hasMask;
-    } else if (RE_MASK_INPUT.test(name)) {
-      feeds[name] = maskInput;
-    } else if (RE_ORIG_SIZE.test(name)) {
-      /* Only some exports take this; when they do, they upsample the mask
-         to this size and the postprocess resample below becomes identity. */
-      feeds[name] = origSize;
-    } else if (cache[name]) {
+    if (cache[name]) {
       feeds[name] = cache[name];
-      usedCache.add(name);
-    } else {
-      const spare = cacheNames.find((c) => !usedCache.has(c));
-      if (spare) {
-        feeds[name] = cache[spare];
-        usedCache.add(spare);
-      }
+    } else if (/label/i.test(name)) {
+      feeds[name] = labels;
+    } else if (/point|coord/i.test(name)) {
+      feeds[name] = points;
+    } else if (/box/i.test(name)) {
+      feeds[name] = boxes;
     }
   }
-
   return feeds;
 }
 
@@ -247,8 +221,10 @@ function pickOutputs(out: Record<string, ort.Tensor>): {
   let masks: ort.Tensor | null = null;
   let iou: ort.Tensor | null = null;
   for (const [name, tensor] of Object.entries(out)) {
-    if (/iou|score/i.test(name)) iou = iou ?? tensor;
-    else if (/mask|low_res|logit/i.test(name)) masks = masks ?? tensor;
+    /* Tight names for this export: pred_masks and iou_scores. Not /score/
+       or /logit/, or object_score_logits would be taken for one of them. */
+    if (/iou/i.test(name)) iou = iou ?? tensor;
+    else if (/mask/i.test(name)) masks = masks ?? tensor;
   }
   if (!masks) {
     for (const tensor of Object.values(out)) {
@@ -272,6 +248,8 @@ function pickOutputs(out: Record<string, ort.Tensor>): {
 
 /* [.., C, H, W] with or without the batch axis. */
 function maskShape(dims: readonly number[]): { count: number; mh: number; mw: number } {
+  /* pred_masks is [batch, points, masks, H, W] on this export. */
+  if (dims.length === 5) return { count: dims[2], mh: dims[3], mw: dims[4] };
   if (dims.length === 4) return { count: dims[1], mh: dims[2], mw: dims[3] };
   if (dims.length === 3) return { count: dims[0], mh: dims[1], mw: dims[2] };
   if (dims.length === 2) return { count: 1, mh: dims[0], mw: dims[1] };
