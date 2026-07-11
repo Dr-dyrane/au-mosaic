@@ -67,13 +67,13 @@ function main() {
     return;
   }
 
-  // Only the wasm runtime files ORT fetches at wasmPaths are served from
-  // here; the ort.*.mjs entry bundles are compiled into the app by the
-  // bundler, not loaded from public/ort. The worker runs the WebGPU
-  // (jsep) build, so keep the jsep wasm plus the base wasm fallback and
-  // drop the asyncify and jspi variants the WebGPU path never loads. This
-  // trims the staged runtime from ~97MB to under 40MB.
-  const KEEP = /^ort-wasm-simd-threaded\.(jsep\.)?(wasm|mjs)$/;
+  // Only the ort-wasm-* runtime files ORT fetches from wasmPaths are served
+  // here; the ort.*.mjs entry bundles (~21MB) are compiled into the app by
+  // the bundler, never loaded from public/ort, so they are dropped. Keep
+  // ALL the wasm variants: the WebGPU build resolves its backend at runtime
+  // (the asyncify variant on this version), and guessing one broke init
+  // with "no available backend found". This stages ~76MB.
+  const KEEP = /^ort-wasm-/;
   const assets = readdirSync(distDir).filter((name) => KEEP.test(name));
   if (assets.length === 0) {
     console.log(
