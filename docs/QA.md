@@ -863,3 +863,45 @@ with the worker chunk, and the flag verified OFF by default so the app is
 byte-identical to today. The one thing the sandbox cannot prove, WebGPU
 per-tap speed, is validated on the owner's own machine on the deployed
 preview: mask quality and capability are already green.
+
+## The pool gets a ruler: owner gold, mask evidence, one joint shell
+
+The owner's manual starter-pool fit is now measurable truth instead of a
+screenshot comparison. The second live Safari tab still held the corrected
+eight-stone box. Its handle centres were measured and mapped back to the
+1122 by 1402 source photo through a 248-inlier image transform, then saved in
+`tests/fixtures/visualizer/starter-pool.json`. The deployed auto result was
+captured the same way. It misses all eight points beyond the initial 1.5%
+image-diagonal tolerance: mean corner error 12.80%, worst corner 24.06%, and
+mean corresponding-face IoU 28.16%. A test proves its floor is exactly the
+fixed-percentage `defaultShellFloor` derivation, so the benchmark names the
+real shortcut rather than a vague visual complaint.
+
+The local SAM2 export was then run once on the untouched starter photo with
+the deployed shell's four face centroids. One positive point plus the other
+three faces as negative points raises the floor mask from IoU 0.338 to 0.808;
+the resulting four masks cleanly separate the back, left, right, and floor
+planes while keeping the steps and fittings visible. The repeatable lab is
+`scripts/visualizer-sam-lab.py`; its compact RLE evidence fixture is 5KB, so
+the tests do not depend on the ignored 75MB model files. The worker decoder
+now accepts multiple labelled points while preserving every existing
+single-point message.
+
+`poolShellSolver.ts` treats those masks as evidence, not finished geometry.
+It fits three observed rim edges, the three shared face-to-floor seams, and
+the near floor edge, then reconciles one eight-point shell. Occluded corners
+come from intersecting visible seams, never fixed offsets. On the real starter
+mask fixture it reduces mean corner error to 1.96% and the worst corner to
+7.69%, a 6.5x and 3.1x improvement respectively; six of eight owner-reference
+points clear the 1.5% tolerance. The two remaining disagreements are at the
+near-left wall-floor boundary, where the pixel mask follows the real seam and
+the manual box deliberately reached farther left. This is not claimed as the
+final gate yet: the live Find path still uses rim plus fixed floor, and the
+benchmark remains red until image-line or geometry evidence resolves the
+owner-reference disagreement and the integration is proven in the browser.
+
+Evidence: 78 of 78 node tests pass, including exact polygon IoU, gold and
+baseline witnesses, clean synthetic-shell recovery, real SAM-mask recovery,
+determinism, and missing-face refusal. ESLint is clean across `src`, `tests`,
+and the benchmark script. The Next 16.2.10 Turbopack production build compiles
+the full route table and all 76 static pages.

@@ -16,6 +16,41 @@ note. Newest on top.
 
 ---
 
+## 2026-07-11 - CODEX - Visualizer benchmark and shell solver - done
+
+Building the measurable accuracy foundation for the active visualizer goal.
+First lane is new benchmark fixtures, evaluator tests, new pure pool-shell
+solver modules, and the backward-compatible multi-point decoder input in
+`sam/sam2.worker.ts`. I will not edit `Visualizer.tsx`, existing visualizer
+hooks, or parts while the older modularization claim remains open. The starter pool's
+owner-corrected eight points are the first gold result; current rim-plus-fixed-
+floor geometry is the baseline. Later integration will open a separate claim.
+Closed with the owner fit recovered from Safari, exact production baseline,
+multi-point SAM evidence, a pure joint mask-to-shell solver, compact fixtures,
+and 78 passing tests. The real starter mean corner error drops from 12.80% to
+1.96%. ESLint, the Next 16.2.10 production build, dash scan, and diff check are
+clean. Live integration remains a separate lane and the active goal remains
+open.
+
+## 2026-07-11 - CODEX - Visualizer accuracy roadmap - done
+
+Planning and benchmark lane only. I am defining measurable acceptance criteria
+for automatic pool alignment, reviewing the existing visualizer research and
+geometry pipeline, and producing the staged goal plan. No visualizer source
+files are being edited in this lane. Root cause confirmed: production auto-fit
+reads only the top rim, then derives the floor from fixed percentages. The
+roadmap replaces that shortcut with per-face masks, a joint shared-corner
+solver, independent geometry evidence, confidence gating, and a benchmark led
+by the owner's saved manual fit.
+
+## 2026-07-11 - CODEX - Visualizer review lane - done
+
+Review-only pass over the current visualizer changes. I am reading the
+dirty diff, build gates, and visualizer docs for findings. No source
+edits made beyond this handshake note. Reviewed the client-SAM bridge,
+worker, shell auto-fit path, and integration points. `npm run test`,
+`npx eslint src --max-warnings=0`, and `npx next build` passed.
+
 ## 2026-07-10 - Claude - Client-side SAM2 mask-first, behind a flag (Phase 1) - done (flag off), pending live WebGPU proof
 
 Owner authorized building the mask-first direction (research + Phase 0 proved it; see

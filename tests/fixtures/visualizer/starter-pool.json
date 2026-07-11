@@ -1,0 +1,46 @@
+{
+  "id": "starter-empty-pool-owner-fit",
+  "image": {
+    "path": "public/media/visualizer-empty-pool-day.jpg",
+    "width": 1122,
+    "height": 1402
+  },
+  "source": {
+    "date": "2026-07-11",
+    "method": "Owner manual fit recovered from the second live Safari tab. Handle centres were measured in the screenshot and mapped back to source pixels with a 248-inlier image transform."
+  },
+  "acceptance": {
+    "cornerToleranceDiagonal": 0.015,
+    "minFaceIoU": 0.95,
+    "minMeanFaceIoU": 0.97
+  },
+  "gold": {
+    "rim": [
+      { "x": 0.300704, "y": 0.348638 },
+      { "x": 0.575681, "y": 0.348177 },
+      { "x": 0.979221, "y": 0.399155 },
+      { "x": 0.019344, "y": 0.494852 }
+    ],
+    "floor": [
+      { "x": 0.305783, "y": 0.428960 },
+      { "x": 0.568167, "y": 0.426093 },
+      { "x": 0.977734, "y": 0.719543 },
+      { "x": 0.022739, "y": 0.719124 }
+    ]
+  },
+  "productionBaseline": {
+    "method": "Rim-only corner read followed by defaultShellFloor fixed percentages.",
+    "rim": [
+      { "x": 0.198561, "y": 0.349628 },
+      { "x": 0.800280, "y": 0.319520 },
+      { "x": 0.819285, "y": 0.679514 },
+      { "x": 0.179595, "y": 0.699244 }
+    ],
+    "floor": [
+      { "x": 0.288822, "y": 0.395195 },
+      { "x": 0.710025, "y": 0.365087 },
+      { "x": 0.787300, "y": 0.641542 },
+      { "x": 0.211579, "y": 0.661272 }
+    ]
+  }
+}

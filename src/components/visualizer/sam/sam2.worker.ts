@@ -57,11 +57,13 @@ type EncodeMsg = {
   h: number;
   id?: number;
 };
+type PromptPoint = { nx: number; ny: number; label?: 0 | 1 };
 type SegmentMsg = {
   type: "segment";
-  nx: number;
-  ny: number;
+  nx?: number;
+  ny?: number;
   label?: 0 | 1;
+  points?: PromptPoint[];
   id?: number;
 };
 type InMsg = LoadMsg | EncodeMsg | SegmentMsg;
@@ -187,15 +189,22 @@ async function encode(msg: EncodeMsg): Promise<void> {
 function buildFeeds(
   session: ort.InferenceSession,
   cache: Record<string, ort.Tensor>,
-  nx: number,
-  ny: number,
-  label: 0 | 1,
+  prompts: Array<{ nx: number; ny: number; label: 0 | 1 }>,
 ): Record<string, ort.Tensor> {
   const feeds: Record<string, ort.Tensor> = {};
-  const points = new ort.Tensor("float32", new Float32Array([nx * SIDE, ny * SIDE]), [1, 1, 1, 2]);
+  const pointValues = new Float32Array(prompts.length * 2);
+  for (let i = 0; i < prompts.length; i += 1) {
+    pointValues[i * 2] = prompts[i].nx * SIDE;
+    pointValues[i * 2 + 1] = prompts[i].ny * SIDE;
+  }
+  const points = new ort.Tensor("float32", pointValues, [1, 1, prompts.length, 2]);
   /* input_labels is int64 on this export, not float: onnxruntime-web takes a
      BigInt64Array for that. Feeding float32 threw "expected: tensor(int64)". */
-  const labels = new ort.Tensor("int64", BigInt64Array.from([BigInt(label)]), [1, 1, 1]);
+  const labels = new ort.Tensor(
+    "int64",
+    BigInt64Array.from(prompts.map((prompt) => BigInt(prompt.label))),
+    [1, 1, prompts.length],
+  );
   const boxes = new ort.Tensor("float32", new Float32Array(0), [1, 0, 4]);
 
   for (const name of session.inputNames) {
@@ -341,8 +350,16 @@ async function segment(msg: SegmentMsg): Promise<void> {
   if (!embed) throw new Error("encode-first");
   if (!origW || !origH) throw new Error("encode-first");
 
-  const label: 0 | 1 = msg.label === 0 ? 0 : 1;
-  const feeds = buildFeeds(decoder, embed, msg.nx, msg.ny, label);
+  const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+  const raw = Array.isArray(msg.points) && msg.points.length > 0
+    ? msg.points.slice(0, 12)
+    : [{ nx: msg.nx ?? 0.5, ny: msg.ny ?? 0.5, label: msg.label }];
+  const prompts = raw.map((prompt) => ({
+    nx: clamp01(Number.isFinite(prompt.nx) ? prompt.nx : 0.5),
+    ny: clamp01(Number.isFinite(prompt.ny) ? prompt.ny : 0.5),
+    label: prompt.label === 0 ? 0 as const : 1 as const,
+  }));
+  const feeds = buildFeeds(decoder, embed, prompts);
   const out = await decoder.run(feeds);
 
   const { masks, iou } = pickOutputs(out);
