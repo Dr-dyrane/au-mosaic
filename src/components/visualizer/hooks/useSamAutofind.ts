@@ -10,6 +10,7 @@ import { isValidQuad } from "../geometry";
 import { defaultShellFloor, perspectiveRim } from "../shell";
 import { deriveShellFloor } from "../shellFit";
 import { seedMask } from "../maskCache";
+import { clientSam, clientSamAvailable } from "./useClientSam";
 import type { VizSnapshot } from "./useSnapshots";
 
 type SegmentPayload = {
@@ -255,18 +256,25 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     try {
       const shot = canvasToJpeg(orig, 768);
       if (!shot) throw new Error("no-ctx");
-      /* One call covers both moods: a warm model answers with the mask
-         in the POST, a cold one hands back a ticket and the helper
-         polls the free endpoint while samBusy holds the stage. */
-      const data = await submitAndAwaitMask(
-        JSON.stringify({
-          image: shot.base64,
-          mediaType: "image/jpeg",
-          x: Math.round(point.x * shot.width),
-          y: Math.round(point.y * shot.height),
-        }),
-        () => setSnapMessage("Still looking. The finder is waking."),
-      );
+      /* Two transports, one contract. When the client SAM path is turned
+         on for the build and its worker is ready, the browser cuts the
+         mask on the spot; otherwise the tap goes to the fal finder, warm
+         in the POST or cold behind a ticket the helper polls while
+         samBusy holds the stage. The flag is off by default, so this is
+         the fal path exactly as before unless a build opts in, and the
+         reply shape is the same either way. */
+      const data: SegmentPayload =
+        clientSamAvailable() && clientSam.ready
+          ? await clientSam.segment(point)
+          : await submitAndAwaitMask(
+              JSON.stringify({
+                image: shot.base64,
+                mediaType: "image/jpeg",
+                x: Math.round(point.x * shot.width),
+                y: Math.round(point.y * shot.height),
+              }),
+              () => setSnapMessage("Still looking. The finder is waking."),
+            );
       if (data.ok && typeof data.mask === "string") {
         let maskSrc: string = data.mask;
         let img = await loadMaskImage(maskSrc);

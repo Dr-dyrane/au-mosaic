@@ -828,3 +828,38 @@ through geometry, not a model-detected floor, because the model floor was
 unreliable, which is exactly the "geometry with acknowledgement of the 3D
 world" the owner asked for. Gates: eslint clean across `src`, the Turbopack
 build compiles, deterministic across headless runs.
+
+## The eye moves into the browser: client-side SAM, behind a flag
+
+The research said stop guessing corners and segment a mask instead; Phase 0
+proved it on real photos; this lands the segmenter in the browser. Two gates
+were cleared before a line of the integration was trusted. First, quality:
+SAM2-tiny (the browser-sized model) was run on CPU against the three real
+pools and compared to fal's Hiera-Large (the largest checkpoint the paid
+route uses), and the masks matched at IoU 0.968, 0.985, and 0.975, the ladder
+cutout and the figure-8 waist and all, so the small model is good enough to
+replace the paid call for this step. Second, capability: the owner's own
+Chrome was read directly and reported full WebGPU (AMD RDNA-3, shader-f16,
+2GB buffers), so the fast path exists on the target machine.
+
+The build is deliberately inert until asked for. A Web Worker
+(`sam/sam2.worker.ts`) runs SAM2-tiny through onnxruntime-web on WebGPU,
+encode once per photo then decode per tap, and hands back the exact
+`{ mask, maskKind, width, height }` shape the fal route returns. A
+capability bridge (`useClientSam.ts`) gates the whole path behind a WebGPU
+check AND an explicit opt-in flag (`NEXT_PUBLIC_VIZ_CLIENT_SAM` or a
+localStorage key), OFF by default. `runSam` swaps only the transport: flag on
+and worker ready, the browser cuts the mask; otherwise the existing fal
+finder carries the tap, exactly as before. Everything after the mask arrives
+is untouched, because the mask-to-corners engine already existed
+(`fit.ts`), so opencv.js was not needed at all.
+
+A prebuild step copies the onnxruntime runtime into `public/ort` and fetches
+the tiny weights into `public/models/sam2` (both gitignored, both fail-safe:
+a missing runtime or a failed download just leaves the fal path as the
+floor). No COOP or COEP, so the Vercel Blob photos keep loading. Gates:
+eslint clean across `src`, the Turbopack build compiles the full route table
+with the worker chunk, and the flag verified OFF by default so the app is
+byte-identical to today. The one thing the sandbox cannot prove, WebGPU
+per-tap speed, is validated on the owner's own machine on the deployed
+preview: mask quality and capability are already green.

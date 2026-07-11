@@ -16,6 +16,27 @@ note. Newest on top.
 
 ---
 
+## 2026-07-10 - Claude - Client-side SAM2 mask-first, behind a flag (Phase 1) - done (flag off), pending live WebGPU proof
+
+Owner authorized building the mask-first direction (research + Phase 0 proved it; see
+[[visualizer-mask-first-research]]). Landed CLIENT-SIDE SAM2, flag-gated OFF by default,
+so the app is byte-identical today. Gates cleared first: H1 (SAM2-tiny masks match fal's
+Hiera-Large at IoU 0.968/0.985/0.975 on the 3 real test pools, run on CPU onnxruntime) and
+WebGPU capability (read the owner's own Chrome via claude-in-chrome: AMD RDNA-3, shader-f16,
+2GB buffers).
+NEW FILES: src/components/visualizer/sam/sam2.worker.ts (onnxruntime-web WebGPU SAM2-tiny worker,
+encode-once/decode-per-tap, returns the fal {mask,maskKind,width,height} shape),
+sam/onnxruntime-web-webgpu.d.ts, hooks/useClientSam.ts (WebGPU+flag capability bridge, flag
+NEXT_PUBLIC_VIZ_CLIENT_SAM or localStorage, OFF default), scripts/copy-ort.mjs (predev/prebuild:
+ORT wasm -> public/ort), scripts/fetch-sam-model.mjs (prebuild: tiny weights -> public/models/sam2).
+EDITS: hooks/useSamAutofind.ts (runSam transport swap only, fal fallback), package.json (predev/
+prebuild), next.config.ts (cache headers for /ort + /models/sam2, NO COOP/COEP so Vercel Blob
+images keep working). onnxruntime-web@^1.27.0 added. public/ort + public/models gitignored (large,
+fetched). NO opencv.js: fit.ts already does mask->corners. homography + shell + draw.ts UNCHANGED.
+Gates: eslint clean, next build compiles the worker chunk, flag verified OFF. NOT yet proven: WebGPU
+per-tap SPEED on real hardware (validate on the owner's Chrome against a deployed preview; fal is the
+fallback floor). Does not touch the back-office shell lane.
+
 ## 2026-07-10 - Claude - The pool box learns perspective (geometry, not model floor) - done
 
 Sequel to the rim-only auto-fit below. Owner compared his manual placement (a real

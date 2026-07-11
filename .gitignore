@@ -174,3 +174,7 @@ invoices/
 
 # Compiled test output, never shipped
 .tests-out/
+
+# Client-side SAM2: onnxruntime assets (copied by scripts/copy-ort.mjs) and model weights (fetched, not committed)
+/public/ort/
+/public/models/
