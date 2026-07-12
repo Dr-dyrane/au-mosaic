@@ -29,6 +29,22 @@ const REQUEST_ID = /^[A-Za-z0-9_-]{8,80}$/;
    with nothing leaked about why. */
 const FALLBACK = { ok: true as const, available: false as const, message: "Place it by hand." };
 
+type PromptPoint = { x: number; y: number; label: 0 | 1 };
+
+function parsePromptPoints(value: unknown): PromptPoint[] | null {
+  if (!Array.isArray(value) || value.length === 0 || value.length > 12) return null;
+  const points: PromptPoint[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object") return null;
+    const point = entry as Record<string, unknown>;
+    const x = typeof point.x === "number" && Number.isFinite(point.x) ? point.x : NaN;
+    const y = typeof point.y === "number" && Number.isFinite(point.y) ? point.y : NaN;
+    if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y < 0) return null;
+    points.push({ x, y, label: point.label === 0 ? 0 : 1 });
+  }
+  return points;
+}
+
 export async function POST(req: Request) {
   let body: Record<string, unknown>;
   try {
@@ -44,20 +60,27 @@ export async function POST(req: Request) {
       : "image/jpeg";
   const x = typeof body.x === "number" && Number.isFinite(body.x) ? body.x : NaN;
   const y = typeof body.y === "number" && Number.isFinite(body.y) ? body.y : NaN;
-  const label = body.label === 0 ? 0 : 1;
+  const label: 0 | 1 = body.label === 0 ? 0 : 1;
+  const points: PromptPoint[] | null = body.points === undefined
+    ? Number.isFinite(x) && Number.isFinite(y) && x >= 0 && y >= 0
+      ? [{ x, y, label }]
+      : null
+    : parsePromptPoints(body.points);
 
   if (!image || image.length > MAX_IMAGE_CHARS || !/^[a-zA-Z0-9+/=]+$/.test(image)) {
     return Response.json({ ok: false, message: "Place it by hand." }, { status: 413 });
   }
-  if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y < 0) {
+  if (!points) {
     return Response.json({ ok: false, message: "Place it by hand." }, { status: 400 });
   }
 
   /* A tap outside the photo is a client bug, not a model question. */
   const size = readImageSize(image, mediaType);
-  if (size && (x >= size.width || y >= size.height)) {
+  if (size && points.some((point) => point.x >= size.width || point.y >= size.height)) {
     return Response.json({ ok: false, message: "Place it by hand." }, { status: 400 });
   }
+
+  const first = points[0];
 
   if (!visualizerSamConfigured()) {
     return Response.json(FALLBACK);
@@ -75,8 +98,22 @@ export async function POST(req: Request) {
 
   if (samProvider() === "sam2") {
     try {
-      const result = await segmentSurface({ image, mediaType, x, y, label });
-      return Response.json({ ok: true, available: true, mask: result.mask, width: result.width, height: result.height });
+      const result = await segmentSurface({
+        image,
+        mediaType,
+        x: first.x,
+        y: first.y,
+        label: first.label,
+        points,
+      });
+      return Response.json({
+        ok: true,
+        available: true,
+        mask: result.mask,
+        width: result.width,
+        height: result.height,
+        maskKind: result.maskKind,
+      });
     } catch {
       return Response.json({ ok: false, message: "Place it by hand." }, { status: 502 });
     }
@@ -86,7 +123,14 @@ export async function POST(req: Request) {
      a warm model in this same breath. A cold one gets a ticket back
      and the client polls GET below while the model wakes. */
   try {
-    const { requestId } = await segmentSubmit({ image, mediaType, x, y, label });
+    const { requestId } = await segmentSubmit({
+      image,
+      mediaType,
+      x: first.x,
+      y: first.y,
+      label: first.label,
+      points,
+    });
     for (let i = 0; i < 2; i += 1) {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       const poll = await segmentPoll(requestId);

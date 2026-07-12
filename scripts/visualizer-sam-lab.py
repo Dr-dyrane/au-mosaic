@@ -9,9 +9,11 @@ multi-point face prompts against the owner-corrected shell fixture.
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 from pathlib import Path
 from typing import Iterable
+import zlib
 
 import cv2
 import numpy as np
@@ -32,6 +34,15 @@ def centroid(points: Iterable[dict[str, float]]) -> tuple[float, float]:
     return (
         sum(point["x"] for point in values) / len(values),
         sum(point["y"] for point in values) / len(values),
+    )
+
+
+def outside_prompt(face: str, quad: list[dict[str, float]], centre: tuple[float, float]) -> tuple[float, float]:
+    first, second = (quad[2], quad[3]) if face == "floor" else (quad[0], quad[1])
+    edge = ((first["x"] + second["x"]) / 2, (first["y"] + second["y"]) / 2)
+    return (
+        float(np.clip(edge[0] * 2 - centre[0], 0.01, 0.99)),
+        float(np.clip(edge[1] * 2 - centre[1], 0.01, 0.99)),
     )
 
 
@@ -182,8 +193,9 @@ def solve_shell(masks: dict[str, np.ndarray]) -> dict[str, list[dict[str, float]
     back_top_points = envelope(masks["back"], "top")
     left_top_points = envelope(masks["left"], "top")
     right_top_points = envelope(masks["right"], "top")
-    floor_top_points = envelope(masks["floor"], "top")
     floor_bottom_points = envelope(masks["floor"], "bottom")
+    left_near_points = envelope(masks["left"], "left")
+    right_near_points = envelope(masks["right"], "right")
 
     back_top = robust_line(back_top_points)
     left_top = robust_line(left_top_points)
@@ -191,6 +203,8 @@ def solve_shell(masks: dict[str, np.ndarray]) -> dict[str, list[dict[str, float]
     back_floor = robust_line(contact_boundary(masks["back"], masks["floor"]))
     left_floor = robust_line(contact_boundary(masks["left"], masks["floor"]))
     right_floor = robust_line(contact_boundary(masks["right"], masks["floor"]))
+    left_near = robust_line(left_near_points)
+    right_near = robust_line(right_near_points)
     near_floor = robust_line(floor_bottom_points)
 
     rim = [
@@ -208,8 +222,8 @@ def solve_shell(masks: dict[str, np.ndarray]) -> dict[str, list[dict[str, float]
     floor = [
         line_intersection(back_floor, left_floor),
         line_intersection(back_floor, right_floor),
-        line_intersection(near_floor, right_floor),
-        line_intersection(near_floor, left_floor),
+        line_intersection(near_floor, right_near),
+        line_intersection(near_floor, left_near),
     ]
     height, width = masks["floor"].shape
 
@@ -371,11 +385,12 @@ def main() -> None:
             height,
         )
         negatives = [seeds[name] for name in FACE_ORDER if name != face]
+        coping_or_deck = outside_prompt(face, seed_faces[face], positive)
         multi_mask, multi_scores, multi_best = decode(
             decoder,
             embeddings,
-            [positive, *negatives],
-            [1, *([0] * len(negatives))],
+            [positive, *negatives, coping_or_deck],
+            [1, *([0] * (len(negatives) + 1))],
             width,
             height,
         )
@@ -410,10 +425,18 @@ def main() -> None:
             "width": width,
             "height": height,
             "model": "sam2-hiera-tiny-onnx-fp16",
-            "promptStrategy": "One positive baseline-face centroid. The other three baseline-face centroids are negative points.",
+            "promptStrategy": "One positive face centre. The other face centres and the reflected coping or deck point are negative.",
             "masks": {
                 face: {"counts": encode_rle(selected_masks[face])}
                 for face in FACE_ORDER
+            },
+            "luma": {
+                "encoding": "deflate-base64",
+                "data": base64.b64encode(zlib.compress(np.rint(
+                    preview[:, :, 2] * 0.2126 +
+                    preview[:, :, 1] * 0.7152 +
+                    preview[:, :, 0] * 0.0722
+                ).astype(np.uint8).tobytes(), 9)).decode("ascii"),
             },
         }
         fixture_out.write_text(json.dumps(mask_fixture, separators=(",", ":")) + "\n")

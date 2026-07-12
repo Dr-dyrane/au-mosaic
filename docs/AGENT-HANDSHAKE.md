@@ -16,6 +16,30 @@ note. Newest on top.
 
 ---
 
+## 2026-07-11 - CODEX - Visualizer multi-face live integration - done
+
+Connecting the committed benchmark and joint shell solver to the live pool
+Find flow behind the existing client-SAM flag. Claimed files:
+`hooks/useClientSam.ts`, `hooks/useSamAutofind.ts`, `Visualizer.tsx`,
+`sam/sam2.worker.ts`, and additive pool prompt or mask helpers. The path will
+encode once, decode four faces with positive and negative points, solve one
+shared shell, preserve per-face masks for clipping, and fall back to the
+current geometry on any incomplete or low-confidence read. The stale 2026-07-09
+modularization claim is closed below: every named hook and Stage extraction
+landed long ago and multiple later completed lanes already built on them.
+Closed with the four-face browser path, shared shell reconstruction, occluded
+near-corner recovery, guarded luma rim refinement, multi-point SAM2 and SAM3
+server support, and a server-only canary mode. The starter benchmark moves from
+12.80% to 0.47% mean corner error and from 24.06% to 0.84% worst error; all
+eight owner-reference points clear the 1.5% tolerance. Repeated client runs
+rendered all four planes in 2.2 to 4.5 seconds with no worker or console errors.
+The no-key server canary sent four parallel jobs and returned calmly to geometry
+without spend. The strict 97% mean face-overlap gate remains open at 92.55%, as
+do the paid cold batch and phone viewport passes, so the overall accuracy goal
+is still active. The hook is 483 lines after transport extraction. Final gates:
+82 tests, ESLint, production build, theme check, diff check, and punctuation
+scan.
+
 ## 2026-07-11 - CODEX - Visualizer benchmark and shell solver - done
 
 Building the measurable accuracy foundation for the active visualizer goal.
@@ -685,7 +709,7 @@ server-hardening phase. My files: .env (local, untracked),
 browser test harness), and this handshake. No code touched, both open
 visualizer lanes honored. Dash scan and git diff --check clean.
 
-## 2026-07-09 - Claude - Visualizer modularization, Phase 3 hooks - open
+## 2026-07-09 - Claude - Visualizer modularization, Phase 3 hooks - done
 
 Continuing the behaviour-preserving split in docs/VISUALIZER-MODULARIZATION.md,
 lifting the orchestrator's stateful clusters into hooks so Visualizer.tsx
@@ -702,6 +726,9 @@ src/components/visualizer/hooks and parts. Smoke test after each: load a
 photo, auto-find, drag a corner, swap a piece, edit the palette, step Back and
 Forward, share and download. Gate is tsc, eslint, and the dash scan;
 object-push my files only with the origin guard.
+Closed as stale on 2026-07-11. Every named extraction is present in the current
+tree, and the later completed visualizer lanes repeatedly modified and verified
+the extracted hooks, parts, and orchestrator.
 
 ## 2026-07-09 - Claude - Visualizer refine disclosure lane - done
 

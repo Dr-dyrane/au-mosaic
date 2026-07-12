@@ -29,6 +29,8 @@ type PoolShellLineId =
   | "backFloor"
   | "leftFloor"
   | "rightFloor"
+  | "leftNear"
+  | "rightNear"
   | "nearFloor";
 
 const FACE_IDS: VisiblePoolFaceId[] = ["back", "left", "right", "floor"];
@@ -289,6 +291,8 @@ export function solvePoolShellFromMasks(masks: PoolFaceMasks): PoolShellSolveRes
     backFloor: contactBoundary(prepared.back, prepared.floor),
     leftFloor: contactBoundary(prepared.left, prepared.floor),
     rightFloor: contactBoundary(prepared.right, prepared.floor),
+    leftNear: envelope(prepared.left, "left"),
+    rightNear: envelope(prepared.right, "right"),
     nearFloor: floorBottomPoints,
   };
   const lines = {} as Record<PoolShellLineId, Line>;
@@ -318,8 +322,8 @@ export function solvePoolShellFromMasks(masks: PoolFaceMasks): PoolShellSolveRes
   const rawFloor = [
     intersection(lines.backFloor, lines.leftFloor),
     intersection(lines.backFloor, lines.rightFloor),
-    intersection(lines.nearFloor, lines.rightFloor),
-    intersection(lines.nearFloor, lines.leftFloor),
+    intersection(lines.nearFloor, lines.rightNear),
+    intersection(lines.nearFloor, lines.leftNear),
   ];
   const rim = rawRim.map((point) => normalized(point, size.width, size.height));
   const floor = rawFloor.map((point) => normalized(point, size.width, size.height));

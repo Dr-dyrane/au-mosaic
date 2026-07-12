@@ -30,8 +30,15 @@ export type SamArgs = {
   x: number; // pixel coordinate in the sent image
   y: number;
   label?: 0 | 1; // 1 for the thing under the tap, 0 for background
+  points?: SamPoint[]; // labelled multi-point prompt; falls back to x, y
   prompt?: string; // SAM 3 text prompt, pass-through for Phase 4; sam2 ignores it
   negativePrompt?: string; // held for Phase 4; SAM 3's image endpoint has no field for it yet
+};
+
+export type SamPoint = {
+  x: number;
+  y: number;
+  label?: 0 | 1;
 };
 
 export type SamMaskKind = "alpha" | "luma";
@@ -67,6 +74,15 @@ function toDataUri(args: SamArgs): string {
     : `data:${args.mediaType};base64,${args.image}`;
 }
 
+export function samPromptPoints(args: SamArgs): Array<{ x: number; y: number; label: 0 | 1 }> {
+  const source = args.points?.length ? args.points.slice(0, 12) : [args];
+  return source.map((point) => ({
+    x: Math.max(0, Math.round(point.x)),
+    y: Math.max(0, Math.round(point.y)),
+    label: point.label === 0 ? 0 : 1,
+  }));
+}
+
 async function falFetch(url: string, key: string, init: RequestInit, timeoutMs: number): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -92,13 +108,7 @@ export async function segmentSurface(args: SamArgs): Promise<SamResult> {
 
   const body = {
     image_url: toDataUri(args),
-    prompts: [
-      {
-        x: Math.max(0, Math.round(args.x)),
-        y: Math.max(0, Math.round(args.y)),
-        label: args.label === 0 ? 0 : 1,
-      },
-    ],
+    prompts: samPromptPoints(args),
     apply_mask: true,
     sync_mode: true,
     output_format: "png",
@@ -135,13 +145,7 @@ export async function segmentSubmit(args: SamArgs): Promise<{ requestId: string 
     /* SAM 3 defaults its text prompt to "wheel"; an empty string keeps
        the tap point in charge unless Phase 4 sends real words. */
     prompt: typeof args.prompt === "string" ? args.prompt : "",
-    point_prompts: [
-      {
-        x: Math.max(0, Math.round(args.x)),
-        y: Math.max(0, Math.round(args.y)),
-        label: args.label === 0 ? 0 : 1,
-      },
-    ],
+    point_prompts: samPromptPoints(args),
     apply_mask: true,
     output_format: "png",
   };

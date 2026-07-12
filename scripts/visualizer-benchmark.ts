@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { inflateSync } from "node:zlib";
 import type { BinaryMask } from "../src/components/visualizer/fitMask";
 import {
   solvePoolShellFromMasks,
@@ -11,6 +12,7 @@ import {
   type PoolShell,
   type PoolShellAcceptance,
 } from "../src/components/visualizer/poolAccuracy";
+import { refinePoolRimWithLuma } from "../src/components/visualizer/poolRimRefiner";
 
 type StarterFixture = {
   image: { width: number; height: number };
@@ -23,6 +25,7 @@ type MaskFixture = {
   width: number;
   height: number;
   masks: Record<VisiblePoolFaceId, { counts: number[] }>;
+  luma: { encoding: "deflate-base64"; data: string };
 };
 
 const root = join(__dirname, "..");
@@ -54,6 +57,13 @@ const masks = Object.fromEntries(
 ) as PoolFaceMasks;
 const solved = solvePoolShellFromMasks(masks);
 if (!solved) throw new Error("starter-shell-not-solved");
+const luma = new Uint8Array(inflateSync(Buffer.from(maskFixture.luma.data, "base64")));
+if (luma.length !== maskFixture.width * maskFixture.height) throw new Error("starter-luma-length");
+const refined = refinePoolRimWithLuma(solved.shell, {
+  data: luma,
+  width: maskFixture.width,
+  height: maskFixture.height,
+});
 
 const baseline = scorePoolShell(
   starter.productionBaseline,
@@ -62,7 +72,7 @@ const baseline = scorePoolShell(
   starter.acceptance,
 );
 const candidate = scorePoolShell(
-  solved.shell,
+  refined.shell,
   starter.gold,
   starter.image,
   starter.acceptance,
@@ -78,8 +88,10 @@ console.log(JSON.stringify({
     passes: baseline.passes,
   },
   maskJointSolver: {
-    shell: solved.shell,
+    shell: refined.shell,
     confidence: solved.confidence.toFixed(3),
+    refinedSides: refined.refinedSides,
+    edgeStrength: refined.strength.toFixed(2),
     meanCornerError: percent(candidate.meanCornerError),
     maxCornerError: percent(candidate.maxCornerError),
     cornersOutsideTolerance: candidate.cornersOutsideTolerance,

@@ -38,13 +38,25 @@ export type ClientSamResult = {
   height: number;
 };
 
+export type ClientSamPoint = {
+  point: Pt;
+  label: 0 | 1;
+};
+
 /* The worker protocol, mirrored from sam/sam2.worker.ts so the two hands
    cannot drift. The worker also posts an "info" message with the export's
    real I/O names right before "ready"; the bridge ignores it. */
 export type ClientSamRequest =
   | { type: "load" }
   | { type: "encode"; id: number; rgba: Uint8ClampedArray; w: number; h: number }
-  | { type: "segment"; id: number; nx: number; ny: number; label: 0 | 1 };
+  | {
+      type: "segment";
+      id: number;
+      nx?: number;
+      ny?: number;
+      label?: 0 | 1;
+      points?: Array<{ nx: number; ny: number; label: 0 | 1 }>;
+    };
 
 export type ClientSamResponse =
   | { type: "ready" }
@@ -72,6 +84,7 @@ export type ClientSam = {
   available: boolean;
   ready: boolean;
   segment: (point: Pt) => Promise<ClientSamResult>;
+  segmentPoints: (points: ClientSamPoint[]) => Promise<ClientSamResult>;
 };
 
 /* The longest side the encode carries. The worker squashes whatever it
@@ -93,10 +106,10 @@ function truthyFlag(value: string | null | undefined): boolean {
 }
 
 /* The opt-in, off by default. The env flag sets the build-wide default,
-   localStorage lets a tester flip it on one device. Either one on means
-   on. SSR reads false, since window is absent there. */
+   localStorage lets a tester flip it on one device. The special server
+   value enables the enhanced flow while forcing its paid fallback lane. */
 function flagEnabled(): boolean {
-  if (truthyFlag(ENV_FLAG)) return true;
+  if (truthyFlag(ENV_FLAG) || ENV_FLAG === "server") return true;
   if (typeof window === "undefined") return false;
   try {
     return truthyFlag(window.localStorage.getItem(LS_KEY));
@@ -105,11 +118,15 @@ function flagEnabled(): boolean {
   }
 }
 
-/* The gate: a WebGPU browser and the opt-in, both required. Any SSR
-   context, any browser without navigator.gpu, or the flag left off, all
-   read false, so the caller keeps the fal path. */
+export function clientSamEnabled(): boolean {
+  return flagEnabled();
+}
+
+/* The browser gate: WebGPU and the opt-in are both required. Server-only
+   mode deliberately reads false here while clientSamEnabled stays true. */
 export function clientSamAvailable(): boolean {
   if (typeof navigator === "undefined") return false;
+  if (ENV_FLAG === "server") return false;
   if (!("gpu" in navigator)) return false;
   return flagEnabled();
 }
@@ -120,6 +137,7 @@ export function clientSamAvailable(): boolean {
 type SamBridge = {
   ready: () => boolean;
   segment: (point: Pt) => Promise<ClientSamResult>;
+  segmentPoints: (points: ClientSamPoint[]) => Promise<ClientSamResult>;
 };
 
 let bridge: SamBridge | null = null;
@@ -138,6 +156,10 @@ export const clientSam = {
   segment(point: Pt): Promise<ClientSamResult> {
     if (!bridge) return Promise.reject(new Error("client-sam-unavailable"));
     return bridge.segment(point);
+  },
+  segmentPoints(points: ClientSamPoint[]): Promise<ClientSamResult> {
+    if (!bridge) return Promise.reject(new Error("client-sam-unavailable"));
+    return bridge.segmentPoints(points);
   },
 };
 
@@ -377,21 +399,27 @@ export function useClientSam(params: UseClientSamParams): ClientSam {
     refreshEncode();
   }, [photo, refreshEncode]);
 
-  /* One tap, one decode. Rejects when the lane is not ready so the caller
-     can take the fal path; the tap rides in as a 0..1 fraction. */
-  const segment = useCallback((point: Pt): Promise<ClientSamResult> => {
+  /* One or more labelled points, one decode. Negative points let a caller
+     separate adjacent surfaces while reusing the same photo embedding. */
+  const segmentPoints = useCallback((points: ClientSamPoint[]): Promise<ClientSamResult> => {
     const worker = workerRef.current;
     if (!worker || !readyRef.current) {
       return Promise.reject(new Error("client-sam-not-ready"));
     }
+    if (points.length === 0) {
+      return Promise.reject(new Error("client-sam-needs-point"));
+    }
     const id = segSeqRef.current + 1;
     segSeqRef.current = id;
-    const nx = clamp01(point.x);
-    const ny = clamp01(point.y);
+    const prompts = points.slice(0, 12).map(({ point, label }) => ({
+      nx: clamp01(point.x),
+      ny: clamp01(point.y),
+      label,
+    }));
     return new Promise<ClientSamResult>((resolve, reject) => {
       pendingRef.current.set(id, { resolve, reject });
       try {
-        post(worker, { type: "segment", id, nx, ny, label: 1 });
+        post(worker, { type: "segment", id, points: prompts });
       } catch (err) {
         pendingRef.current.delete(id);
         reject(err instanceof Error ? err : new Error("client-sam-post"));
@@ -399,16 +427,22 @@ export function useClientSam(params: UseClientSamParams): ClientSam {
     });
   }, []);
 
+  /* Preserve the established one-tap API for every non-pool surface. */
+  const segment = useCallback(
+    (point: Pt): Promise<ClientSamResult> => segmentPoints([{ point, label: 1 }]),
+    [segmentPoints],
+  );
+
   /* Publish the live bridge for the singleton `clientSam` runSam reads.
      One stable object, its methods reading the hook's own refs, torn down
      on unmount so a stale bridge never outlives the worker. */
   useEffect(() => {
-    const live: SamBridge = { ready: () => readyRef.current, segment };
+    const live: SamBridge = { ready: () => readyRef.current, segment, segmentPoints };
     registerClientSam(live);
     return () => {
       if (bridge === live) registerClientSam(null);
     };
-  }, [segment]);
+  }, [segment, segmentPoints]);
 
-  return { available, ready, segment };
+  return { available, ready, segment, segmentPoints };
 }

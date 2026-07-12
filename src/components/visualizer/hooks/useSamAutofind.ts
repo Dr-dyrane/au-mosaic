@@ -10,124 +10,22 @@ import { isValidQuad } from "../geometry";
 import { defaultShellFloor, perspectiveRim } from "../shell";
 import { deriveShellFloor } from "../shellFit";
 import { seedMask } from "../maskCache";
-import { clientSam, clientSamAvailable } from "./useClientSam";
+import { buildPoolFacePrompts, VISIBLE_POOL_FACE_IDS } from "../poolFacePrompts";
+import { refinePoolRimWithLuma } from "../poolRimRefiner";
+import { solvePoolShellFromMasks } from "../poolShellSolver";
+import type { PoolFaceMasks } from "../poolShellSolver";
+import {
+  canvasToLuma,
+  ensureAlphaMask,
+  loadMaskImage,
+  maskImageToBinary,
+  submitAndAwaitMask,
+} from "../segmentClient";
+import type { SegmentPayload } from "../segmentClient";
+import { clientSam, clientSamAvailable, clientSamEnabled } from "./useClientSam";
 import type { VizSnapshot } from "./useSnapshots";
 
-type SegmentPayload = {
-  ok?: boolean;
-  available?: boolean;
-  pending?: boolean;
-  id?: string;
-  mask?: string;
-  maskKind?: "alpha" | "luma";
-  width?: number;
-  height?: number;
-  message?: string;
-};
-
-/* The same shape the server accepts, checked before any poll leaves. */
-const TICKET = /^[A-Za-z0-9_-]{8,80}$/;
-
-/* POST the tap, and when the server answers with a ticket instead of a
-   mask, poll the free endpoint until the mask lands or patience runs
-   out at 110 seconds from submit. Module scope on purpose: the wall
-   clock lives out here, away from render. */
-async function submitAndAwaitMask(
-  payload: string,
-  notifyWaking: () => void,
-): Promise<SegmentPayload> {
-  const submittedAt = Date.now();
-  const res = await fetch("/api/visualizer/segment", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: payload,
-  });
-  const data = (await res.json()) as SegmentPayload;
-  if (data.ok && data.pending === true && typeof data.id === "string" && TICKET.test(data.id)) {
-    /* Past a successful submit every miss belongs to the finder:
-       offline mid-poll or a non-JSON body must not read as generic
-       busyness. */
-    try {
-      return await pollForMask(data.id, submittedAt, notifyWaking);
-    } catch (err) {
-      if (err instanceof Error && err.message === "finder-timeout") throw err;
-      throw new Error("finder-failed");
-    }
-  }
-  return data;
-}
-
-/* Bring the ticket back every 1.5 seconds. After eight seconds of
-   waiting the desk says why, once; past 110 seconds the hand takes
-   over. */
-async function pollForMask(
-  id: string,
-  submittedAt: number,
-  notifyWaking: () => void,
-): Promise<SegmentPayload> {
-  let hinted = false;
-  while (Date.now() - submittedAt < 110_000) {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    if (!hinted && Date.now() - submittedAt > 8000) {
-      notifyWaking();
-      hinted = true;
-    }
-    const res = await fetch(`/api/visualizer/segment?id=${encodeURIComponent(id)}`);
-    const data = (await res.json()) as SegmentPayload;
-    if (data.ok && data.pending === true) continue;
-    if (data.ok && typeof data.mask === "string") return data;
-    throw new Error("finder-failed");
-  }
-  throw new Error("finder-timeout");
-}
-
-function loadMaskImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("mask-decode"));
-    img.src = src;
-  });
-}
-
-/* The one guardian of the alpha invariant: everything downstream clips
-   by alpha. The server's maskKind is a hint only; the pixels decide.
-   Sample the decoded mask's alpha on a stride: if every sample is
-   opaque the shape can only live in luminance, so copy each pixel's
-   brightness (the brightest of r, g, b) into its alpha and hand back a
-   re-decoded image. If alpha varies, the mask is used as is. Any
-   failure to read or rewrite the pixels throws mask-decode, exactly
-   like a mask that never decoded. */
-async function ensureAlphaMask(
-  img: HTMLImageElement,
-): Promise<{ img: HTMLImageElement; src: string | null }> {
-  const w = img.naturalWidth;
-  const h = img.naturalHeight;
-  if (!w || !h) throw new Error("mask-decode");
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("mask-decode");
-  ctx.drawImage(img, 0, 0);
-  const pixels = ctx.getImageData(0, 0, w, h);
-  const d = pixels.data;
-  const stride = Math.max(1, Math.floor((w * h) / 4096)) * 4;
-  let alphaVaries = false;
-  for (let i = 3; i < d.length; i += stride) {
-    if (d[i] <= 250) {
-      alphaVaries = true;
-      break;
-    }
-  }
-  if (alphaVaries) return { img, src: null };
-  for (let i = 0; i < d.length; i += 4) {
-    d[i + 3] = Math.max(d[i], d[i + 1], d[i + 2]);
-  }
-  ctx.putImageData(pixels, 0, 0);
-  const src = canvas.toDataURL("image/png");
-  return { img: await loadMaskImage(src), src };
-}
+const POOL_POLL_INTERVAL_MS = 5000;
 
 /* Ask the corner finder for the pool's rim (its top opening). One vision
    call, no per-face segmentation. We take only the rim: the floor is
@@ -263,18 +161,28 @@ export function useSamAutofind(params: UseSamAutofindParams): {
          samBusy holds the stage. The flag is off by default, so this is
          the fal path exactly as before unless a build opts in, and the
          reply shape is the same either way. */
-      const data: SegmentPayload =
-        clientSamAvailable() && clientSam.ready
-          ? await clientSam.segment(point)
-          : await submitAndAwaitMask(
-              JSON.stringify({
-                image: shot.base64,
-                mediaType: "image/jpeg",
-                x: Math.round(point.x * shot.width),
-                y: Math.round(point.y * shot.height),
-              }),
-              () => setSnapMessage("Still looking. The finder is waking."),
-            );
+      const serverPayload = JSON.stringify({
+        image: shot.base64,
+        mediaType: "image/jpeg",
+        x: Math.round(point.x * shot.width),
+        y: Math.round(point.y * shot.height),
+      });
+      const serverFind = () => submitAndAwaitMask(
+        serverPayload,
+        () => setSnapMessage("Still looking. The finder is waking."),
+      );
+      let data: SegmentPayload;
+      if (clientSamAvailable() && clientSam.ready) {
+        try {
+          data = await clientSam.segment(point);
+        } catch {
+          /* A warm browser worker can still lose its device. The paid
+             finder remains the floor for the established one-tap path. */
+          data = await serverFind();
+        }
+      } else {
+        data = await serverFind();
+      }
       if (data.ok && typeof data.mask === "string") {
         let maskSrc: string = data.mask;
         let img = await loadMaskImage(maskSrc);
@@ -384,13 +292,11 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     return false;
   };
 
-  /* The pool is a shell: a connected eight-stone box. Auto-fit reads the
-     rim (the top opening) from the corner finder and derives the floor
-     from it, so the box is placed on the real pool yet can never collapse
-     the way an eight-corner read did. No per-face segmentation; the tiles
-     ride the geometry under the scene's own light. Whatever the fit
-     lands, the eight stones stay up to nudge, and any other surface keeps
-     the single-tap finder. A declined read keeps the box the visitor has. */
+  /* A pool is four visible planes joined by seven shared lines. The corner
+     read gives SAM safe prompts; four labelled decodes separate the faces;
+     the joint solver reconciles them into one eight-stone shell. The learned
+     result is accepted only when every face is present and confidence clears
+     the gate. Otherwise the established geometry fit carries the request. */
   const autoFindShell = async (): Promise<boolean> => {
     const orig = originalRef.current;
     if (inFlightRef.current) return false;
@@ -408,6 +314,132 @@ export function useSamAutofind(params: UseSamAutofindParams): {
          read keeps the box the visitor has, so it holds any floor stones
          they already nudged instead of snapping them back to default. */
       const floor = fitted ? defaultShellFloor(rim) : (shellFloorRef.current ?? defaultShellFloor(rim));
+
+      const clientCapable = clientSamAvailable();
+      const clientReady = clientCapable && clientSam.ready;
+      const serverOnly = clientSamEnabled() && !clientCapable;
+      if (orig && (clientReady || serverOnly)) {
+        try {
+          setSnapMessage("Separating the pool surfaces.");
+          let serverShot: ReturnType<typeof canvasToJpeg> | undefined;
+          const serverFind = async (points: ReturnType<typeof buildPoolFacePrompts>["back"]) => {
+            serverShot ??= canvasToJpeg(orig, 768) ?? undefined;
+            if (!serverShot) throw new Error("pool-server-image");
+            const data = await submitAndAwaitMask(
+              JSON.stringify({
+                image: serverShot.base64,
+                mediaType: "image/jpeg",
+                points: points.map(({ point, label }) => ({
+                  x: Math.round(point.x * serverShot!.width),
+                  y: Math.round(point.y * serverShot!.height),
+                  label,
+                })),
+              }),
+              () => setSnapMessage("Still looking. The finder is waking."),
+              POOL_POLL_INTERVAL_MS,
+            );
+            if (!data.ok || typeof data.mask !== "string") {
+              throw new Error("pool-server-face");
+            }
+            return data;
+          };
+
+          const segmentFaces = async (
+            seedRim: Pt[],
+            seedFloor: Pt[],
+            lane: "client" | "server",
+          ) => {
+            const prompts = buildPoolFacePrompts(seedRim, seedFloor);
+            const solverMasks = {} as PoolFaceMasks;
+            const renderMasks: Partial<Record<ShellFaceId, FaceMask>> = {};
+            let maskSize = { width: 0, height: 0 };
+
+            const decodeFace = async (faceId: (typeof VISIBLE_POOL_FACE_IDS)[number]) => ({
+              faceId,
+              result: lane === "client"
+                ? await clientSam.segmentPoints(prompts[faceId])
+                : await serverFind(prompts[faceId]),
+            });
+            const decoded = [] as Awaited<ReturnType<typeof decodeFace>>[];
+            if (lane === "client") {
+              /* One decoder session reuses the photo embedding sequentially. */
+              for (const faceId of VISIBLE_POOL_FACE_IDS) decoded.push(await decodeFace(faceId));
+            } else {
+              /* Queue all paid faces together so one cold wake serves the shell. */
+              decoded.push(...await Promise.all(VISIBLE_POOL_FACE_IDS.map(decodeFace)));
+            }
+
+            for (const { faceId, result } of decoded) {
+              if (typeof result.mask !== "string") throw new Error(`pool-face-${faceId}`);
+              let maskSrc = result.mask;
+              let maskImage = await loadMaskImage(maskSrc);
+              const ensured = await ensureAlphaMask(maskImage);
+              maskImage = ensured.img;
+              if (ensured.src) maskSrc = ensured.src;
+              const binary = maskImageToBinary(maskImage);
+              if (!binary) throw new Error(`pool-face-${faceId}`);
+              solverMasks[faceId] = binary;
+              maskSize = { width: binary.width, height: binary.height };
+              renderMasks[faceId] = { src: maskSrc };
+              seedMask(maskSrc, maskImage);
+            }
+
+            const solved = solvePoolShellFromMasks(solverMasks);
+            if (!solved) throw new Error("pool-shell-incomplete");
+            if (solved.confidence < 0.75) throw new Error("pool-shell-low-confidence");
+            return { solved, renderMasks, maskSize };
+          };
+
+          let lane: "client" | "server" = clientReady ? "client" : "server";
+          let result: Awaited<ReturnType<typeof segmentFaces>>;
+          try {
+            result = await segmentFaces(rim, floor, lane);
+          } catch (err) {
+            if (lane !== "client" || !clientSamEnabled()) throw err;
+            lane = "server";
+            setSnapMessage("Finishing the pool in the finder.");
+            result = await segmentFaces(rim, floor, lane);
+          }
+
+          const { solved, renderMasks, maskSize } = result;
+          const luma = canvasToLuma(orig, maskSize.width, maskSize.height);
+          const edgeRefined = luma
+            ? refinePoolRimWithLuma(solved.shell, luma)
+            : { shell: solved.shell, refinedSides: 0, strength: 0 };
+          const finalShell = edgeRefined.shell;
+
+          setQuad(finalShell.rim);
+          setShellFloor(finalShell.floor);
+          setSamMask(null);
+          setSamMaskSrc(null);
+          setFaceMasks(renderMasks);
+          setHasFittedSurface(true);
+          pushSnapshot("Auto-fit pool faces", {
+            quad: finalShell.rim,
+            shellFloor: finalShell.floor,
+            samMask: null,
+            samMaskSrc: null,
+            faceMasks: renderMasks,
+            hasFittedSurface: true,
+          });
+          setSnapMessage("Pool fitted. Each plane follows its edge. Nudge only if needed.");
+          buzz(8);
+          track("viz_shell_face_fit", {
+            ok: true,
+            confidence: Number(solved.confidence.toFixed(3)),
+            refinedSides: edgeRefined.refinedSides,
+            edgeStrength: Number(edgeRefined.strength.toFixed(2)),
+            lane,
+          });
+          return true;
+        } catch (err) {
+          track("viz_shell_face_fit", {
+            ok: false,
+            reason: err instanceof Error ? err.message : "unknown",
+          });
+        }
+      }
+
       setQuad(rim);
       setShellFloor(floor);
       setSamMask(null);

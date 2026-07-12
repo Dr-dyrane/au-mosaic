@@ -905,3 +905,53 @@ baseline witnesses, clean synthetic-shell recovery, real SAM-mask recovery,
 determinism, and missing-face refusal. ESLint is clean across `src`, `tests`,
 and the benchmark script. The Next 16.2.10 Turbopack production build compiles
 the full route table and all 76 static pages.
+
+## The pool closes its seams: live four-face fit and guarded fallback
+
+The benchmark now runs the same complete path as the browser. Each face gets
+one positive point, the other three face centres as negatives, and one more
+negative reflected across its rim onto the coping or near deck. The shared
+solver uses the outer wall boundaries to recover floor corners hidden by steps
+or shadow. A final luma refiner searches only the narrow band below SAM's side
+rim and accepts a stronger inner architectural edge only when it clears a
+contrast gate. Flat or ambiguous photos keep the mask result. The regenerated
+fixture carries four RLE masks plus compressed 307 by 384 luminance evidence in
+192KB, with no model or network dependency in tests.
+
+On the owner-corrected starter pool, the complete offline result moves mean
+corner error from 12.80% to 0.47% and worst-corner error from 24.06% to 0.84%,
+improvements of 27.0x and 28.7x. All eight points now clear the 1.5%
+image-diagonal tolerance. Mean face IoU rises from 28.16% to 92.55%. The
+deliberately severe 97% mean-face gate remains red, mostly because the small
+back plane magnifies a few-pixel disagreement. The wider goal therefore stays
+open even though the starter no longer needs a corrective drag by the corner
+criterion.
+
+The client lane is live-proven behind `NEXT_PUBLIC_VIZ_CLIENT_SAM=1`. Fresh
+browser runs completed in 2.2 to 4.5 seconds, segmented the back, left, right,
+and floor planes, kept the steps and fittings visible, joined every shared
+seam, and reported no worker or console errors. One measured run scored 0.48%
+mean and 0.87% worst-corner error, with all eight points inside tolerance. The
+render showed square mosaics on all four planes under the photograph's own
+light. The established single-surface path now retries the paid finder if a
+warm browser worker loses its device instead of falling into a generic error.
+
+The paid fallback now accepts the same labelled point array through both SAM2
+and SAM3. `NEXT_PUBLIC_VIZ_CLIENT_SAM=server` is an explicit server-only canary;
+normal `1` stays client first, and flag off keeps today's geometry. Four pool
+jobs submit together, then poll every five seconds so a 70 to 97 second cold
+model remains under the existing free-poll limiter. A no-key canary proved one
+vision read, four parallel segment requests, calm geometry fallback, and no
+console errors, without spending. A paid cold batch is still an open canary.
+
+The browser transport, polling, alpha normalization, and pixel conversion now
+live in `segmentClient.ts`; `useSamAutofind.ts` is back under the local
+approximately 500-line budget at 483 lines. Evidence: 82 of 82 node tests pass,
+including real mask plus luma recovery, synthetic inner-edge acceptance and
+flat-image refusal, server multi-point preservation, determinism, and
+missing-face refusal. Strict ESLint across `src`, `tests`, and the benchmark,
+the full Next 16.2.10 production build with 76 generated pages, the six-house
+theme matrix, Python syntax, diff check, and punctuation scan all pass. The
+mobile viewport rerun remains open because the browser controller blocked the
+later localhost reload at its URL safety boundary; no alternate browser path
+was used.

@@ -2,15 +2,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { inflateSync } from "node:zlib";
 import type { Pt } from "../src/components/visualizer/types";
 import type { BinaryMask } from "../src/components/visualizer/fitMask";
 import { pointInQuad } from "../src/components/visualizer/geometry";
 import { buildShellFaces } from "../src/components/visualizer/shell";
 import {
+  buildPoolFacePrompts,
+  VISIBLE_POOL_FACE_IDS,
+} from "../src/components/visualizer/poolFacePrompts";
+import {
   solvePoolShellFromMasks,
   type PoolFaceMasks,
   type VisiblePoolFaceId,
 } from "../src/components/visualizer/poolShellSolver";
+import { refinePoolRimWithLuma } from "../src/components/visualizer/poolRimRefiner";
 import {
   scorePoolShell,
   type PoolShell,
@@ -21,6 +27,7 @@ type MaskFixture = {
   width: number;
   height: number;
   masks: Record<VisiblePoolFaceId, { counts: number[] }>;
+  luma: { encoding: "deflate-base64"; data: string };
 };
 
 type StarterFixture = {
@@ -61,6 +68,12 @@ function fixtureMasks(fixture: MaskFixture): PoolFaceMasks {
   ) as PoolFaceMasks;
 }
 
+function fixtureLuma(fixture: MaskFixture) {
+  const data = new Uint8Array(inflateSync(Buffer.from(fixture.luma.data, "base64")));
+  assert.equal(data.length, fixture.width * fixture.height, "luma fixture length drifted");
+  return { data, width: fixture.width, height: fixture.height };
+}
+
 function rasterQuad(quad: Pt[], width: number, height: number): BinaryMask {
   const data = new Uint8Array(width * height);
   for (let y = 0; y < height; y += 1) {
@@ -83,6 +96,26 @@ function masksFromShell(shell: PoolShell, width = 240, height = 300): PoolFaceMa
 
 const starter = readJson<StarterFixture>("starter-pool.json");
 const samFixture = readJson<MaskFixture>("starter-pool-sam2.json");
+
+test("each pool decode names one face and rejects its neighbours", () => {
+  const prompts = buildPoolFacePrompts(starter.productionBaseline.rim, starter.productionBaseline.floor);
+  const faces = Object.fromEntries(
+    buildShellFaces(starter.productionBaseline.rim, starter.productionBaseline.floor)
+      .filter((face) => face.visible)
+      .map((face) => [face.id, face.quad]),
+  );
+  for (const faceId of VISIBLE_POOL_FACE_IDS) {
+    const facePrompts = prompts[faceId];
+    assert.equal(facePrompts.length, 5);
+    assert.equal(facePrompts.filter((prompt) => prompt.label === 1).length, 1);
+    const positive = facePrompts.find((prompt) => prompt.label === 1);
+    assert.ok(positive);
+    assert.ok(pointInQuad(positive.point, faces[faceId]));
+    for (const negative of facePrompts.filter((prompt) => prompt.label === 0)) {
+      assert.equal(pointInQuad(negative.point, faces[faceId]), false);
+    }
+  }
+});
 
 test("a clean four-face mask reconstructs one shared shell", () => {
   const shell: PoolShell = {
@@ -113,15 +146,17 @@ test("a clean four-face mask reconstructs one shared shell", () => {
 test("the starter SAM masks beat the production fixed-floor baseline", () => {
   const solved = solvePoolShellFromMasks(fixtureMasks(samFixture));
   assert.ok(solved);
-  const candidate = scorePoolShell(solved.shell, starter.gold, starter.image, starter.acceptance);
+  const refined = refinePoolRimWithLuma(solved.shell, fixtureLuma(samFixture));
+  const candidate = scorePoolShell(refined.shell, starter.gold, starter.image, starter.acceptance);
   const baseline = scorePoolShell(
     starter.productionBaseline,
     starter.gold,
     starter.image,
     starter.acceptance,
   );
-  assert.ok(candidate.meanCornerError < 0.03);
-  assert.ok(candidate.maxCornerError < 0.08);
+  assert.ok(candidate.meanCornerError < 0.01);
+  assert.ok(candidate.maxCornerError < 0.015);
+  assert.equal(candidate.cornersOutsideTolerance, 0);
   assert.ok(candidate.meanCornerError < baseline.meanCornerError * 0.25);
   assert.ok(candidate.maxCornerError < baseline.maxCornerError * 0.35);
   assert.ok(solved.confidence > 0.45);

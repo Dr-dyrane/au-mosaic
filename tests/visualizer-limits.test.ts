@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { dayKey, makeRateLimiter } from "../src/lib/visualizer-limits";
-import { readImageSize } from "../src/lib/visualizer-sam";
+import { readImageSize, samPromptPoints } from "../src/lib/visualizer-sam";
 
 /* The meters on the paid doors. A caller gets a window, the shop gets
    a window, and the day gets a name in UTC so every box turns the page
@@ -118,4 +118,23 @@ test("readImageSize refuses what it cannot read", () => {
   assert.equal(readImageSize("bm90IGFuIGltYWdl", "image/jpeg"), null);
   assert.equal(readImageSize(minimalPng(100, 100), "image/webp"), null);
   assert.equal(readImageSize(syntheticJpeg(10, 10), "image/png"), null);
+});
+
+test("server SAM preserves a labelled multi-point prompt", () => {
+  assert.deepEqual(
+    samPromptPoints({
+      image: "",
+      mediaType: "image/png",
+      x: 1,
+      y: 2,
+      points: [
+        { x: 10.4, y: 20.6, label: 1 },
+        { x: 30.8, y: 40.2, label: 0 },
+      ],
+    }),
+    [
+      { x: 10, y: 21, label: 1 },
+      { x: 31, y: 40, label: 0 },
+    ],
+  );
 });
