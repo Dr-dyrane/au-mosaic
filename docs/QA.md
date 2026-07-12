@@ -915,7 +915,7 @@ solver uses the outer wall boundaries to recover floor corners hidden by steps
 or shadow. A final luma refiner searches only the narrow band below SAM's side
 rim and accepts a stronger inner architectural edge only when it clears a
 contrast gate. Flat or ambiguous photos keep the mask result. The regenerated
-fixture carries four RLE masks plus compressed 307 by 384 luminance evidence in
+fixture carries four RLE masks plus compressed 384 by 480 luminance evidence in
 192KB, with no model or network dependency in tests.
 
 On the owner-corrected starter pool, the complete offline result moves mean
@@ -955,3 +955,43 @@ theme matrix, Python syntax, diff check, and punctuation scan all pass. The
 mobile viewport rerun remains open because the browser controller blocked the
 later localhost reload at its URL safety boundary; no alternate browser path
 was used.
+
+## The pool clears the face-overlap gate
+
+The final few pixels now come from evidence instead of a lower threshold.
+`poolEdgeRefiner.ts` compares the current back rim with a narrow inward luma
+band. It acts only when the inner line is at least 1.5 times stronger and has
+consistent contrast. When that gate clears, the back face receives a tiny
+resolution-scaled convex inset. Left and right amounts come from each mask
+boundary's deviation from its fitted perspective line, so the stepped side can
+move farther than an already regular edge. The near floor seam is aligned to
+the back face's cross-pool direction, with every new corner recomputed from
+shared lines. Flat light or clean geometry remains byte-for-byte untouched.
+
+The locked owner benchmark is green without changing acceptance. Mean corner
+error is 0.22%, worst-corner error is 0.39%, and all eight corners clear the
+1.5% diagonal tolerance. Face IoU is 95.94% back, 96.49% left, 98.02% right,
+and 98.33% floor. Mean face IoU is 97.19%, minimum face IoU is 95.94%, so the
+97% mean and 95% per-face gates both pass. The production baseline remains
+recorded at 12.80% mean corner error, 24.06% worst error, and 28.16% mean face
+IoU.
+
+A second owned pool photograph now guards the low-light case. The night masks
+produce a valid 0.855-confidence face set whose outer rim is temporarily thin.
+The solver marks that state as requiring refinement instead of rejecting four
+otherwise valid planes; both side edges then expand from luma, and the complete
+shell must pass the full five-face geometry check before it can reach the
+canvas. A 2x mask-resolution replay stays within 0.2% normalized drift, and a
+clean synthetic shell under flat light proves the inset declines when it has no
+evidence.
+
+The live four-face path now carries the back mask into this final refinement
+and records top, left, and right inset values plus near-edge alignment in its
+analytics. Evidence: 84 of 84 Node tests pass, strict ESLint is clean across
+`src`, the Next 16.2.10 production build compiles all 76 static pages, the six
+house contrast matrix passes, Python lab syntax passes with its cache directed
+to the sandbox, and diff plus punctuation scans are clean. The earlier desktop
+client-SAM proof remains valid. This pass could not reopen localhost after the
+browser controller entered its blocked local-URL error state; its policy also
+forbade another browser mechanism. No workaround was used, so the phone
+viewport and paid cold-batch canaries remain explicitly open.

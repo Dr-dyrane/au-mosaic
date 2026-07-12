@@ -16,6 +16,30 @@ note. Newest on top.
 
 ---
 
+## 2026-07-12 - CODEX - Visualizer final accuracy and device gate - done
+
+Closing the remaining production-grade evidence gap without lowering the
+owner-reference thresholds. Claimed files: `poolRimRefiner.ts`,
+`poolShellSolver.ts`, additive pool edge helpers, visualizer benchmark and lab
+scripts, visualizer accuracy fixtures and tests, `docs/QA.md`, and this
+handshake. The lane will first recover the small back plane from constrained
+photo edges, then add varied real-pool cases, then run desktop and phone
+regression plus client and fallback canaries. `useSamAutofind.ts` remains
+outside the claim unless a proven pure helper must be wired into the live path.
+Closed with the locked starter benchmark green: 0.22% mean and 0.39% worst
+corner error, all eight corners in tolerance, 95.94% minimum face IoU, and
+97.19% mean face IoU. A confidence-gated edge stabilizer uses luma strength and
+mask-line deviation, declines flat clean geometry, and stays stable at double
+mask resolution. A second owned night-pool fixture exposed and fixed the thin
+pre-refinement rim rejection at 0.855 solver confidence. The live hook carries
+the final mask evidence and refuses any shell that is not fully valid after
+refinement. Final gates: 84 tests, strict source lint, production build, theme
+matrix, Python syntax, diff check, and punctuation scan. The browser controller
+blocked localhost after entering its local-URL error page and forbade another
+browser mechanism, so phone viewport proof remains open without a workaround;
+the paid cold batch remains open too. The overall goal stays active for those
+external canaries.
+
 ## 2026-07-11 - CODEX - Visualizer multi-face live integration - done
 
 Connecting the committed benchmark and joint shell solver to the live pool

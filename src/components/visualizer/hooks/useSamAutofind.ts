@@ -12,6 +12,7 @@ import { deriveShellFloor } from "../shellFit";
 import { seedMask } from "../maskCache";
 import { buildPoolFacePrompts, VISIBLE_POOL_FACE_IDS } from "../poolFacePrompts";
 import { refinePoolRimWithLuma } from "../poolRimRefiner";
+import { isStablePoolShell, stabilizePoolShellEdges } from "../poolEdgeRefiner";
 import { solvePoolShellFromMasks } from "../poolShellSolver";
 import type { PoolFaceMasks } from "../poolShellSolver";
 import {
@@ -387,7 +388,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
             const solved = solvePoolShellFromMasks(solverMasks);
             if (!solved) throw new Error("pool-shell-incomplete");
             if (solved.confidence < 0.75) throw new Error("pool-shell-low-confidence");
-            return { solved, renderMasks, maskSize };
+            return { solved, renderMasks, solverMasks, maskSize };
           };
 
           let lane: "client" | "server" = clientReady ? "client" : "server";
@@ -401,12 +402,19 @@ export function useSamAutofind(params: UseSamAutofindParams): {
             result = await segmentFaces(rim, floor, lane);
           }
 
-          const { solved, renderMasks, maskSize } = result;
+          const { solved, renderMasks, solverMasks, maskSize } = result;
           const luma = canvasToLuma(orig, maskSize.width, maskSize.height);
-          const edgeRefined = luma
+          const rimRefined = luma
             ? refinePoolRimWithLuma(solved.shell, luma)
             : { shell: solved.shell, refinedSides: 0, strength: 0 };
+          const edgeRefined = stabilizePoolShellEdges(
+            rimRefined.shell,
+            maskSize,
+            solverMasks.back,
+            luma ?? undefined,
+          );
           const finalShell = edgeRefined.shell;
+          if (!isStablePoolShell(finalShell)) throw new Error("pool-shell-unrefined");
 
           setQuad(finalShell.rim);
           setShellFloor(finalShell.floor);
@@ -427,8 +435,12 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           track("viz_shell_face_fit", {
             ok: true,
             confidence: Number(solved.confidence.toFixed(3)),
-            refinedSides: edgeRefined.refinedSides,
-            edgeStrength: Number(edgeRefined.strength.toFixed(2)),
+            refinedSides: rimRefined.refinedSides,
+            edgeStrength: Number(rimRefined.strength.toFixed(2)),
+            backTopInset: Number(edgeRefined.backInsetsPx.top.toFixed(2)),
+            backLeftInset: Number(edgeRefined.backInsetsPx.left.toFixed(2)),
+            backRightInset: Number(edgeRefined.backInsetsPx.right.toFixed(2)),
+            nearAligned: edgeRefined.nearAligned,
             lane,
           });
           return true;

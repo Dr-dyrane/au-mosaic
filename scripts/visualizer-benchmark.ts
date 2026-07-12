@@ -13,6 +13,7 @@ import {
   type PoolShellAcceptance,
 } from "../src/components/visualizer/poolAccuracy";
 import { refinePoolRimWithLuma } from "../src/components/visualizer/poolRimRefiner";
+import { stabilizePoolShellEdges } from "../src/components/visualizer/poolEdgeRefiner";
 
 type StarterFixture = {
   image: { width: number; height: number };
@@ -64,6 +65,14 @@ const refined = refinePoolRimWithLuma(solved.shell, {
   width: maskFixture.width,
   height: maskFixture.height,
 });
+const stabilized = stabilizePoolShellEdges(refined.shell, {
+  width: maskFixture.width,
+  height: maskFixture.height,
+}, masks.back, {
+  data: luma,
+  width: maskFixture.width,
+  height: maskFixture.height,
+});
 
 const baseline = scorePoolShell(
   starter.productionBaseline,
@@ -72,7 +81,7 @@ const baseline = scorePoolShell(
   starter.acceptance,
 );
 const candidate = scorePoolShell(
-  refined.shell,
+  stabilized.shell,
   starter.gold,
   starter.image,
   starter.acceptance,
@@ -88,14 +97,20 @@ console.log(JSON.stringify({
     passes: baseline.passes,
   },
   maskJointSolver: {
-    shell: refined.shell,
+    shell: stabilized.shell,
     confidence: solved.confidence.toFixed(3),
     refinedSides: refined.refinedSides,
     edgeStrength: refined.strength.toFixed(2),
+    backInsetsPx: stabilized.backInsetsPx,
+    nearAligned: stabilized.nearAligned,
     meanCornerError: percent(candidate.meanCornerError),
     maxCornerError: percent(candidate.maxCornerError),
     cornersOutsideTolerance: candidate.cornersOutsideTolerance,
+    faceIoU: Object.fromEntries(
+      Object.entries(candidate.faceIoU).map(([face, value]) => [face, percent(value)]),
+    ),
     meanFaceIoU: percent(candidate.meanFaceIoU),
+    minFaceIoU: percent(candidate.minFaceIoU),
     passes: candidate.passes,
   },
   improvement: {

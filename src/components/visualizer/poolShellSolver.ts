@@ -12,6 +12,7 @@ export type PoolShellSolveResult = {
   shell: PoolShell;
   confidence: number;
   lineConfidence: Record<PoolShellLineId, number>;
+  requiresRefinement: boolean;
 };
 
 type Line = {
@@ -329,13 +330,16 @@ export function solvePoolShellFromMasks(masks: PoolFaceMasks): PoolShellSolveRes
   const floor = rawFloor.map((point) => normalized(point, size.width, size.height));
   if (rim.some((point) => !point) || floor.some((point) => !point)) return null;
   const shell: PoolShell = { rim: rim as Pt[], floor: floor as Pt[] };
-  if (!isValidQuad(shell.rim) || !isValidQuad(shell.floor)) return null;
-  if (buildShellFaces(shell.rim, shell.floor).some((face) => face.visible && !isValidQuad(face.quad))) return null;
+  if (!isValidQuad(shell.floor)) return null;
+  if (buildShellFaces(shell.rim, shell.floor).some((face) => !isValidQuad(face.quad))) {
+    return null;
+  }
+  const requiresRefinement = !isValidQuad(shell.rim);
 
   const lineConfidence = Object.fromEntries(
     (Object.keys(lines) as PoolShellLineId[]).map((id) => [id, lines[id].confidence]),
   ) as Record<PoolShellLineId, number>;
   const confidence = Object.values(lineConfidence).reduce((sum, value) => sum + value, 0) /
     Object.values(lineConfidence).length;
-  return { shell, confidence, lineConfidence };
+  return { shell, confidence, lineConfidence, requiresRefinement };
 }

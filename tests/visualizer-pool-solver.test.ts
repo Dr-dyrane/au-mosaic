@@ -18,6 +18,10 @@ import {
 } from "../src/components/visualizer/poolShellSolver";
 import { refinePoolRimWithLuma } from "../src/components/visualizer/poolRimRefiner";
 import {
+  isStablePoolShell,
+  stabilizePoolShellEdges,
+} from "../src/components/visualizer/poolEdgeRefiner";
+import {
   scorePoolShell,
   type PoolShell,
   type PoolShellAcceptance,
@@ -94,8 +98,35 @@ function masksFromShell(shell: PoolShell, width = 240, height = 300): PoolFaceMa
   return masks;
 }
 
+function scaleMask(mask: BinaryMask, factor: number): BinaryMask {
+  const width = mask.width * factor;
+  const height = mask.height * factor;
+  const data = new Uint8Array(width * height);
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      data[y * width + x] = mask.data[Math.floor(y / factor) * mask.width + Math.floor(x / factor)];
+    }
+  }
+  return { data, width, height };
+}
+
+function scaleLuma(luma: ReturnType<typeof fixtureLuma>, factor: number) {
+  const width = luma.width * factor;
+  const height = luma.height * factor;
+  const data = new Uint8Array(width * height);
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      data[y * width + x] = luma.data[
+        Math.floor(y / factor) * luma.width + Math.floor(x / factor)
+      ];
+    }
+  }
+  return { data, width, height };
+}
+
 const starter = readJson<StarterFixture>("starter-pool.json");
 const samFixture = readJson<MaskFixture>("starter-pool-sam2.json");
+const nightSamFixture = readJson<MaskFixture>("starter-pool-night-sam2.json");
 
 test("each pool decode names one face and rejects its neighbours", () => {
   const prompts = buildPoolFacePrompts(starter.productionBaseline.rim, starter.productionBaseline.floor);
@@ -132,22 +163,44 @@ test("a clean four-face mask reconstructs one shared shell", () => {
       { x: 0.12, y: 0.76 },
     ],
   };
-  const solved = solvePoolShellFromMasks(masksFromShell(shell));
+  const masks = masksFromShell(shell);
+  const solved = solvePoolShellFromMasks(masks);
   assert.ok(solved);
-  const score = scorePoolShell(solved.shell, shell, { width: 240, height: 300 }, {
+  const stabilized = stabilizePoolShellEdges(
+    solved.shell,
+    { width: 240, height: 300 },
+    masks.back,
+    { data: new Uint8Array(240 * 300).fill(128), width: 240, height: 300 },
+  );
+  assert.deepEqual(stabilized.shell, solved.shell);
+  assert.equal(stabilized.backInsetsPx.top, 0);
+  const score = scorePoolShell(stabilized.shell, shell, { width: 240, height: 300 }, {
     cornerToleranceDiagonal: 0.015,
     minFaceIoU: 0.9,
     minMeanFaceIoU: 0.94,
   });
   assert.ok(score.meanCornerError < 0.012);
   assert.ok(score.maxCornerError < 0.025);
+  assert.ok(score.passes);
 });
 
 test("the starter SAM masks beat the production fixed-floor baseline", () => {
-  const solved = solvePoolShellFromMasks(fixtureMasks(samFixture));
+  const masks = fixtureMasks(samFixture);
+  const solved = solvePoolShellFromMasks(masks);
   assert.ok(solved);
   const refined = refinePoolRimWithLuma(solved.shell, fixtureLuma(samFixture));
-  const candidate = scorePoolShell(refined.shell, starter.gold, starter.image, starter.acceptance);
+  const stabilized = stabilizePoolShellEdges(
+    refined.shell,
+    { width: samFixture.width, height: samFixture.height },
+    masks.back,
+    fixtureLuma(samFixture),
+  );
+  const candidate = scorePoolShell(
+    stabilized.shell,
+    starter.gold,
+    starter.image,
+    starter.acceptance,
+  );
   const baseline = scorePoolShell(
     starter.productionBaseline,
     starter.gold,
@@ -157,6 +210,9 @@ test("the starter SAM masks beat the production fixed-floor baseline", () => {
   assert.ok(candidate.meanCornerError < 0.01);
   assert.ok(candidate.maxCornerError < 0.015);
   assert.equal(candidate.cornersOutsideTolerance, 0);
+  assert.ok(candidate.minFaceIoU >= starter.acceptance.minFaceIoU);
+  assert.ok(candidate.meanFaceIoU >= starter.acceptance.minMeanFaceIoU);
+  assert.ok(candidate.passes);
   assert.ok(candidate.meanCornerError < baseline.meanCornerError * 0.25);
   assert.ok(candidate.maxCornerError < baseline.maxCornerError * 0.35);
   assert.ok(solved.confidence > 0.45);
@@ -165,6 +221,48 @@ test("the starter SAM masks beat the production fixed-floor baseline", () => {
 test("the mask solver is deterministic", () => {
   const masks = fixtureMasks(samFixture);
   assert.deepEqual(solvePoolShellFromMasks(masks), solvePoolShellFromMasks(masks));
+});
+
+test("edge stabilization is stable across mask resolutions", () => {
+  const masks = fixtureMasks(samFixture);
+  const solved = solvePoolShellFromMasks(masks);
+  assert.ok(solved);
+  const luma = fixtureLuma(samFixture);
+  const regular = stabilizePoolShellEdges(
+    solved.shell,
+    { width: samFixture.width, height: samFixture.height },
+    masks.back,
+    luma,
+  ).shell;
+  const doubled = stabilizePoolShellEdges(
+    solved.shell,
+    { width: samFixture.width * 2, height: samFixture.height * 2 },
+    scaleMask(masks.back, 2),
+    scaleLuma(luma, 2),
+  ).shell;
+  const regularPoints = [...regular.rim, ...regular.floor];
+  const doubledPoints = [...doubled.rim, ...doubled.floor];
+  const drift = regularPoints.map((point, index) =>
+    Math.hypot(point.x - doubledPoints[index].x, point.y - doubledPoints[index].y));
+  assert.ok(Math.max(...drift) < 0.002);
+});
+
+test("the night pool expands a thin mask rim before it reaches the canvas", () => {
+  const masks = fixtureMasks(nightSamFixture);
+  const solved = solvePoolShellFromMasks(masks);
+  assert.ok(solved);
+  assert.equal(solved.requiresRefinement, true);
+  assert.ok(solved.confidence > 0.75);
+  const luma = fixtureLuma(nightSamFixture);
+  const rimRefined = refinePoolRimWithLuma(solved.shell, luma);
+  assert.equal(rimRefined.refinedSides, 2);
+  const stabilized = stabilizePoolShellEdges(
+    rimRefined.shell,
+    { width: nightSamFixture.width, height: nightSamFixture.height },
+    masks.back,
+    luma,
+  );
+  assert.ok(isStablePoolShell(stabilized.shell));
 });
 
 test("a missing face cannot claim a complete pool shell", () => {

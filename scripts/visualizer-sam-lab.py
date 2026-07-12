@@ -338,11 +338,15 @@ def main() -> None:
     )
     parser.add_argument("--long-edge", type=int, default=480)
     parser.add_argument("--fixture-out", type=Path)
+    parser.add_argument("--image", type=Path)
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
     fixture = json.loads(FIXTURE.read_text())
-    image = cv2.imread(str(ROOT / fixture["image"]["path"]))
+    image_path = args.image or Path(fixture["image"]["path"])
+    if not image_path.is_absolute():
+        image_path = ROOT / image_path
+    image = cv2.imread(str(image_path))
     if image is None:
         raise SystemExit("starter image missing")
     scale = min(1.0, args.long_edge / max(image.shape[:2]))
@@ -421,7 +425,7 @@ def main() -> None:
             fixture_out = ROOT / fixture_out
         fixture_out.parent.mkdir(parents=True, exist_ok=True)
         mask_fixture = {
-            "id": "starter-empty-pool-sam2-multipoint",
+            "id": f"{image_path.stem}-sam2-multipoint",
             "width": width,
             "height": height,
             "model": "sam2-hiera-tiny-onnx-fp16",
