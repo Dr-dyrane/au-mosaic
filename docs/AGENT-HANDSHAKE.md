@@ -16,6 +16,16 @@ note. Newest on top.
 
 ---
 
+## 2026-07-12 - CODEX - Visualizer production canaries - active
+
+Publishing the three verified visualizer commits and closing the remaining
+production evidence on the real HTTPS site. Claimed files are this handshake
+and `docs/QA.md`; visualizer source remains unclaimed unless a desktop, phone,
+or guarded server-fallback canary exposes a reproducible defect. The lane will
+verify the deployed commit and model assets, run client alignment at desktop
+and phone sizes, inspect canvas pixels and browser errors, then audit the full
+goal against direct evidence.
+
 ## 2026-07-12 - CODEX - Visualizer final accuracy and device gate - done
 
 Closing the remaining production-grade evidence gap without lowering the
