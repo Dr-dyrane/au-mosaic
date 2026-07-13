@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-12 - CODEX - Visualizer production canaries - active
+## 2026-07-12 - CODEX - Visualizer production canaries - done
 
 Publishing the three verified visualizer commits and closing the remaining
 production evidence on the real HTTPS site. Claimed files are this handshake
@@ -24,7 +24,16 @@ and `docs/QA.md`; visualizer source remains unclaimed unless a desktop, phone,
 or guarded server-fallback canary exposes a reproducible defect. The lane will
 verify the deployed commit and model assets, run client alignment at desktop
 and phone sizes, inspect canvas pixels and browser errors, then audit the full
-goal against direct evidence.
+goal against direct evidence. Closed on the deployed commit with all model
+assets present and every runtime lane green. Desktop client Find completed in
+2.963 seconds; phone client Find completed in 2.140 seconds at 390 by 844 with
+no page overflow. Both made one analysis request, no paid segment request, and
+logged no browser error. The paid fallback issued exactly four parallel face
+segments in 4.021 to 5.133 seconds and reached the same joined-shell success
+state with no browser error. The tester flag, WebGPU override, viewport, and
+temporary browser tab were all restored or removed after proof. No source
+defect was exposed, so this lane changed only its two claimed records and the
+overall visualizer accuracy goal can close.
 
 ## 2026-07-12 - CODEX - Visualizer final accuracy and device gate - done
 

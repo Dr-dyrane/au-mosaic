@@ -995,3 +995,45 @@ client-SAM proof remains valid. This pass could not reopen localhost after the
 browser controller entered its blocked local-URL error state; its policy also
 forbade another browser mechanism. No workaround was used, so the phone
 viewport and paid cold-batch canaries remain explicitly open.
+
+## Production canaries close the runtime gate
+
+Commit `b963f12c264d364f59ea449efd49481fda119306` reached the production
+deployment successfully. The visualizer returned 200 at
+`https://www.aumosaic.com/visualizer`. Read-only range requests returned 206
+for the SAM2 vision encoder, its external weights, the prompt decoder, and the
+threaded onnxruntime WebAssembly binary. The deployed files measured 314,925,
+67,005,504, 229,799, and 26,827,543 bytes respectively.
+
+The production client lane passed on desktop with the documented per-device
+tester flag. `Find` completed in 2.963 seconds, advanced to the exact success
+state, rendered the back, left, right, and floor as one joined shell, and made
+only one `/api/visualizer/analyze` request. There were no paid segment calls,
+browser warnings, or console errors. The nonblank canvas retained its 1122 by
+1402 source resolution while displaying at 658 by 822 pixels.
+
+The same production flow passed at a 390 by 844 phone viewport in 2.140
+seconds. The document stayed exactly 390 pixels wide with no horizontal page
+overflow. The canvas retained its 1122 by 1402 source resolution while
+displaying at 390 by 487 pixels, and its sampled pixel variance remained
+nonzero. The surface choices remain an intentional horizontal chooser. The
+network again contained one analysis call and no segment calls, with no browser
+warnings or console errors.
+
+The paid fallback then ran once in the production page with WebGPU hidden only
+for that test document while the enhanced-flow flag remained enabled. It
+issued exactly four parallel `/api/visualizer/segment` calls, one for each
+visible pool face. They completed in 4.021 to 5.133 seconds. The page advanced
+to snapshot 3 of 3, showed the exact success state, and rendered all four
+planes at full canvas resolution with no browser warnings or console errors.
+After the canary, the tester flag was removed, WebGPU was restored, the viewport
+override was reset, and the temporary browser tab was closed. A final read
+confirmed the flag was null and WebGPU was available again.
+
+The full starter acceptance contract is now green in repeatable tests and on
+the deployed product: 0.22% mean corner error, 0.39% worst-corner error, all
+eight corners within the 1.5% diagonal tolerance, 95.94% minimum face IoU, and
+97.19% mean face IoU. Desktop client, phone client, and paid server fallback
+all reach the same four-plane success state. The initial visualizer accuracy
+goal is complete; future work can expand the owned-photo fixture set without
+reopening these gates.
