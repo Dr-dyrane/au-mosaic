@@ -1037,3 +1037,34 @@ eight corners within the 1.5% diagonal tolerance, 95.94% minimum face IoU, and
 all reach the same four-plane success state. The initial visualizer accuracy
 goal is complete; future work can expand the owned-photo fixture set without
 reopening these gates.
+
+## The visualizer asks before it believes a fit
+
+Default geometry and automatic geometry are no longer accepted on arrival.
+Each visible surface now owns an explicit `unfitted`, `finding`, `suggested`,
+`adjusting`, or `accepted` state. An automatic result pauses at a focused
+confirmation panel with `Looks right`, `Adjust`, and `Try again`. A manual fit
+reaches acceptance only through `Done`, which writes one meaningful undo
+checkpoint. Switching layers restores that layer's own fit contract instead of
+borrowing confidence from the previous surface.
+
+Every asynchronous find now belongs to one request, photo revision, and layer.
+Changing the photo, selecting another layer, or beginning a manual correction
+cancels the old request and prevents a late response from replacing current
+geometry. Send and download remain hidden until every visible layer is
+accepted. Their hooks enforce the same rule, so the contract cannot be bypassed
+by another caller. Cancelling the native share sheet now ends quietly instead
+of falling through to an unintended download.
+
+The compact tool rail now exposes only the next valid actions for the current
+fit state. Its mobile controls have a 44px interaction floor and respect the
+device safe area. Finding uses a reduced-motion-safe progress treatment, the
+accepted view offers a clear `Adjust` route, and keyboard corner movement now
+enters the same manual-fit contract as pointer movement.
+
+Evidence: TypeScript is clean, strict ESLint is clean across `src`, all 89 Node
+tests pass, and the Next 16.2.10 production build compiles the full route table
+and all 76 static pages. Five focused tests guard provisional defaults,
+suggestion acceptance, manual correction, retry, and stale request ownership.
+A fresh live pointer, mobile safe-area, and native-share canary were not run in
+this pass and remain the final device-level confirmation.

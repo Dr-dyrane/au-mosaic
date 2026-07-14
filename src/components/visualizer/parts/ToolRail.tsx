@@ -1,11 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { Pt, SurfaceId } from "../types";
+import type { FitStatus, Pt, SurfaceId } from "../types";
 import type { VizSnapshot } from "../hooks/useSnapshots";
 import {
   IconAutoFind,
-  IconClear,
   IconAddSurface,
   IconShell,
   IconRemove,
@@ -26,12 +25,11 @@ import {
 
 interface ToolRailProps {
   armSam: () => void;
-  clearSam: () => void;
   samBeta: boolean;
   samBusy: boolean;
-  samMaskSrc: string | null;
   addSurfaceLayer: (kind?: SurfaceId) => boolean;
-  hasFittedSurface: boolean;
+  fitStatus: FitStatus;
+  beginManualFit: () => void;
   surface: SurfaceId;
   toggleShell: () => void;
   shellFloor: Pt[] | null;
@@ -55,12 +53,11 @@ type Tool = {
 
 export default function ToolRail({
   armSam,
-  clearSam,
   samBeta,
   samBusy,
-  samMaskSrc,
   addSurfaceLayer,
-  hasFittedSurface,
+  fitStatus,
+  beginManualFit,
   surface,
   toggleShell,
   shellFloor,
@@ -74,8 +71,10 @@ export default function ToolRail({
   /* One source of truth for both breakpoints. Order is the old wall's:
      find or clear, add, shell, remove, refine, pin. The undo pair
      is drawn on its own below, since it carries a count between arrows. */
+  const fitting = fitStatus === "unfitted" && !samBusy;
+  const accepted = fitStatus === "accepted";
   const candidates: (Tool | null)[] = [
-    !samMaskSrc && !samBusy
+    fitting
       ? {
           key: "find",
           icon: <IconAutoFind />,
@@ -85,13 +84,13 @@ export default function ToolRail({
           active: samBeta,
         }
       : null,
-    samMaskSrc
-      ? { key: "clear", icon: <IconClear />, label: "Clear", aria: "Clear auto-find", onClick: clearSam }
+    fitting
+      ? { key: "manual", icon: <IconRefine />, label: "Manual", aria: "Place the surface by hand", onClick: beginManualFit }
       : null,
-    hasFittedSurface
+    accepted
       ? { key: "add", icon: <IconAddSurface />, label: "Add", aria: "Add surface", onClick: () => addSurfaceLayer() }
       : null,
-    surface === "pool"
+    accepted && surface === "pool"
       ? {
           key: "shell",
           icon: <IconShell />,
@@ -101,19 +100,21 @@ export default function ToolRail({
           active: !!shellFloor,
         }
       : null,
-    layersLength > 1
+    accepted && layersLength > 1
       ? { key: "remove", icon: <IconRemove />, label: "Remove", aria: "Remove surface", onClick: removeSurfaceLayer }
       : null,
-    { key: "refine", icon: <IconRefine />, label: "Refine", aria: "Refine the surface", onClick: openRefine },
-    hasFittedSurface
+    accepted ? { key: "refine", icon: <IconRefine />, label: "Refine", aria: "Refine the surface", onClick: openRefine } : null,
+    accepted
       ? { key: "pin", icon: <IconPin />, label: "Pin", aria: "Pin this look", onClick: pinLook }
       : null,
   ];
   const tools = candidates.filter((tool): tool is Tool => tool !== null);
 
-  const showHistory = history.snaps.length > 1;
+  const showHistory = accepted && history.snaps.length > 1;
   const atStart = history.i <= 0;
   const atEnd = history.i >= history.snaps.length - 1;
+
+  if (tools.length === 0 && !showHistory) return null;
 
   return (
     <>
@@ -128,7 +129,7 @@ export default function ToolRail({
               disabled={tool.disabled}
               aria-label={tool.aria}
               aria-pressed={tool.active}
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 disabled:opacity-40 ${
+              className={`inline-flex min-h-11 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 disabled:opacity-40 ${
                 tool.active ? "text-gold" : "text-dusk hover:text-ink"
               }`}
             >
@@ -167,7 +168,7 @@ export default function ToolRail({
       {/* Phone: the same set floats in the thumb zone, icons at rest, the
           active tool alone speaking its word. Scrolls inside itself if the
           set runs long, so the page body never scrolls sideways. */}
-      <div className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 sm:hidden">
+      <div className="fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 flex justify-center px-3 sm:hidden">
         <div className="no-scrollbar glass flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full px-2 py-1.5">
           {tools.map((tool) => (
             <button
@@ -177,7 +178,7 @@ export default function ToolRail({
               disabled={tool.disabled}
               aria-label={tool.aria}
               aria-pressed={tool.active}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-2 transition-colors duration-300 disabled:opacity-40 ${
+              className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 py-2 transition-colors duration-300 disabled:opacity-40 ${
                 tool.active ? "text-gold" : "text-ink"
               }`}
             >

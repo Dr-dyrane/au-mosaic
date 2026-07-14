@@ -16,6 +16,37 @@ note. Newest on top.
 
 ---
 
+## 2026-07-13 - CODEX - Visualizer fit contract correction - complete
+
+Implementing the accepted independent review as one protected product-flow
+lane. Claimed files: `src/components/Visualizer.tsx`, visualizer `types.ts`, a
+new pure fit-state module and tests, `hooks/useSamAutofind.ts`,
+`hooks/useCornerDrag.ts`, `hooks/useSnapshots.ts`, `hooks/useSurfaceLayers.ts`,
+`hooks/usePhotoDesk.ts`, `hooks/useShareDownload.ts`, `parts/Stage.tsx`,
+`parts/ToolRail.tsx`, `segmentClient.ts`, `docs/QA.md`, and this handshake. The lane will add
+per-layer suggestion and acceptance semantics, bind asynchronous finding to
+the current photo and layer, gate export on accepted geometry, checkpoint
+completed adjustment, and derive one clear fitting action at a time. Pool
+solver, refinement, worker, API, and rendering mathematics are explicitly
+outside the claim.
+
+## 2026-07-13 - CODEX - Visualizer product and engineering audit - done
+
+Read-only review of the visualizer across product idea, UI, UX, state model,
+data flow, rendering architecture, performance, accessibility, privacy, and
+operational risk. No visualizer source files are claimed or edited. This lane
+will inspect the owner's correction brief, current design doctrine, and the
+smallest relevant implementation surface, then return ranked findings. The
+audit confirmed the correction brief's central product diagnosis: automatic
+finding commits and snapshots an unconfirmed result, while every loaded photo
+and added layer is already marked accepted. It also found broader risks in
+cross-layer async ownership, send and download gating, manual-edit history,
+mobile chrome and touch targets, reduced-motion loading, and transient canvas
+memory. Source-driven lighting and keyboard handle movement already ship, so
+those brief items should be preserved rather than rebuilt. No visualizer source
+files were changed and no test or build gates were run for this review-only
+lane.
+
 ## 2026-07-12 - CODEX - Visualizer production canaries - done
 
 Publishing the three verified visualizer commits and closing the remaining

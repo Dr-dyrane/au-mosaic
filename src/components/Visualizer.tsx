@@ -7,6 +7,7 @@ import { track } from "@vercel/analytics";
 import { VISUALIZER_SAMPLE } from "@/lib/images";
 import type { Piece } from "@/lib/products";
 import type { Pt, SurfaceId, LoadSource, PrepMode, SurfaceLayer, ShellFaceId, FaceMask } from "./visualizer/types";
+import { acceptedFit, adjustingFit, canExportFit, createFitState, retryFit } from "./visualizer/fitState";
 import {
   DEFAULT_QUAD,
   SAMPLE_POOL_QUAD,
@@ -83,7 +84,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [customColors, setCustomColors] = useState<string[] | null>(null);
   const [tick, setTick] = useState(0);
   const [refineOpen, setRefineOpen] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false);
   const [samMask, setSamMask] = useState<HTMLImageElement | null>(null);
   const [samMaskSrc, setSamMaskSrc] = useState<string | null>(null);
   /* The active shelled pool's per-face segments, one data URI per face.
@@ -92,7 +92,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const [faceMasks, setFaceMasks] = useState<Partial<Record<ShellFaceId, FaceMask>> | null>(null);
   const [snapMessage, setSnapMessage] = useState<string | null>(null);
   const [activeLayerId, setActiveLayerId] = useState(FIRST_LAYER_ID);
-  const [hasFittedSurface, setHasFittedSurface] = useState(false);
+  const [fitState, setFitState] = useState(createFitState);
+  const [photoRevision, setPhotoRevision] = useState(0);
   const [layers, setLayers] = useState<SurfaceLayer[]>(() => [
     {
       id: FIRST_LAYER_ID,
@@ -109,7 +110,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       shellFloor: storedShellFloor(),
       faceMasks: null,
       visible: true,
-      accepted: false,
+      fit: createFitState(),
     },
   ]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -119,6 +120,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   const wrapRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const restored = useRef(false);
+  const adjustmentActiveRef = useRef(false);
   /* Owned here, above render, because render reads them: which corner is
      live, and whether a press-and-hold compare is on. useCornerDrag writes
      through the same refs. */
@@ -138,6 +140,22 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
 
   const { objectUrl, revokeObjectUrl } = useObjectUrls();
 
+  const { samBeta, samBusy, runSam, autoFindShell, armSam, cancelFind } = useSamAutofind({
+    originalRef,
+    activeLayerId,
+    photoRevision,
+    surface,
+    quad,
+    setQuad,
+    shellFloor,
+    setShellFloor,
+    setSamMask,
+    setSamMaskSrc,
+    setFaceMasks,
+    setFitState,
+    setSnapMessage,
+  });
+
   /* The undo memory lives in its own hook now; it reads these live
      controls to checkpoint and writes them back to restore. */
   const { history, pushSnapshot, stepHistory, pinLook } = useSnapshots({
@@ -153,7 +171,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     prepMode,
     groutLight,
     customColors,
-    hasFittedSurface,
+    fitState,
     samMask,
     samMaskSrc,
     faceMasks,
@@ -168,7 +186,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setPrepMode,
     setGroutLight,
     setCustomColors,
-    setHasFittedSurface,
+    setFitState,
     setSamMask,
     setSamMaskSrc,
     setFaceMasks,
@@ -198,8 +216,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setGroutLight,
     customColors,
     setCustomColors,
-    hasFittedSurface,
-    setHasFittedSurface,
+    fitState,
+    setFitState,
     setSamMask,
     samMaskSrc,
     setSamMaskSrc,
@@ -208,21 +226,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setSnapMessage,
     pushSnapshot,
     pieces,
-  });
-
-  const { samBeta, samBusy, runSam, autoFindShell, armSam, clearSam } = useSamAutofind({
-    originalRef,
-    surface,
-    quad,
-    setQuad,
-    shellFloor,
-    setShellFloor,
-    setSamMask,
-    setSamMaskSrc,
-    setFaceMasks,
-    setHasFittedSurface,
-    setSnapMessage,
-    pushSnapshot,
+    cancelFind,
   });
 
   /* Mount the client-side SAM bridge. When the opt-in flag is on and the
@@ -240,7 +244,8 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     withActiveLayer, objectUrl, revokeObjectUrl, videoRef,
     setPhoto, setPhotoSource, setSurface, setQuad, setShellFloor,
     setTileSize, setPieceSlug, setPrepMode, setCustomColors, setSamMask,
-    setSamMaskSrc, setFaceMasks, setLayers, setActiveLayerId, setHasFittedSurface, setSnapMessage,
+    setSamMaskSrc, setFaceMasks, setLayers, setActiveLayerId, setFitState, setPhotoRevision, setSnapMessage,
+    cancelFind,
   });
 
   /* The feature opens on its own before-state. User photos are chosen,
@@ -342,6 +347,21 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     return () => cancelAnimationFrame(frame);
   }, [render]);
 
+  useEffect(() => {
+    adjustmentActiveRef.current = fitState.status === "adjusting";
+  }, [fitState.status]);
+
+  const beginAdjusting = useCallback(() => {
+    if (adjustmentActiveRef.current) return;
+    adjustmentActiveRef.current = true;
+    cancelFind();
+    if (surface === "pool" && !shellFloor) setShellFloor(defaultShellFloor(quad));
+    if (fitState.status !== "adjusting") track("viz_manual_fit_started", { surface });
+    setFitState((current) => adjustingFit(current));
+    setSnapMessage(surface === "pool" ? "Drag the eight points to match the pool." : "Drag the four points to match the surface.");
+    buzz(4);
+  }, [cancelFind, fitState.status, quad, shellFloor, surface]);
+
   const {
     dragPoint, loupe, setLoupe, holding, pointerPos, holdStart,
     queueCornerDrag, finishDrag, drawLoupe, onCornerKey,
@@ -350,7 +370,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     setQuad,
     shellFloor,
     setShellFloor,
-    setHasFittedSurface,
+    onManualStart: beginAdjusting,
     setSnapMessage,
     render,
     draggingRef,
@@ -368,25 +388,16 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
   /* One tap folds the flat pool into a box interior: the rim keeps its
      four stones, four more shape the floor. Tap again to lie flat. */
   const toggleShell = () => {
+    beginAdjusting();
     if (shellFloor) {
       setShellFloor(null);
-      pushSnapshot("Shell off", { shellFloor: null });
       setSnapMessage("Back to one flat surface.");
     } else {
       const nextFloor = defaultShellFloor(quad);
       setShellFloor(nextFloor);
-      pushSnapshot("Shell on", { shellFloor: nextFloor });
       setSnapMessage("A shell now. Eight stones shape it.");
     }
     buzz(4);
-  };
-
-  /* Preview just clears the drag controls off the stage so the mosaic
-     reads clean, in place. Tap again to bring the corners back. */
-  const togglePreview = () => {
-    setPreviewMode((p) => !p);
-    buzz(4);
-    track("viz_preview", {});
   };
 
   /* Auto-find, smart by context. A pool becomes a shell that tiles every
@@ -402,7 +413,6 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
        of the drag and jump the corner, so ignore it until the stone is set
        down. */
     if (draggingRef.current !== null) return;
-    if (previewMode) setPreviewMode(false);
     if (surface === "pool" && photo) {
       /* A pool raises its geometric box. Auto-fit reads the rim from the
          corner finder and derives the floor, but a read that does not look
@@ -415,6 +425,27 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
       return;
     }
     armSam();
+  };
+
+  const acceptCurrentFit = (adjusted: boolean) => {
+    const nextFit = acceptedFit(fitState);
+    setFitState(nextFit);
+    pushSnapshot(adjusted ? "Manual fit accepted" : "Suggested fit accepted", { fitState: nextFit });
+    setSnapMessage("Fit saved. Choose the mosaic, then send it.");
+    track(adjusted ? "viz_manual_fit_completed" : "viz_find_accepted", {
+      surface,
+      source: nextFit.source,
+      adjustedBeforeAccept: adjusted,
+    });
+    buzz(8);
+  };
+
+  const retryCurrentFit = () => {
+    cancelFind();
+    setFitState((current) => retryFit(current));
+    track("viz_find_retried", { surface });
+    if (surface === "pool") void autoFindShell();
+    else armSam();
   };
 
   /* The visitor's own colourway, laid over the piece. Null means the
@@ -518,6 +549,18 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
     </aside>
   );
 
+  const previewMode = fitState.status === "accepted";
+  const canExport = canExportFit(fitState) && layers.every((layer) => (
+    layer.id === activeLayerId || !layer.visible || canExportFit(layer.fit)
+  ));
+  const fitInstruction = fitState.status === "finding"
+    ? "Finding the surface."
+    : fitState.status === "adjusting"
+      ? surface === "pool" ? "Drag the eight points onto the pool edges." : "Drag the four points onto the surface."
+      : fitState.status === "accepted"
+        ? "The fit is saved. Adjust it any time."
+        : surface === "pool" ? "We'll find the pool. You can adjust it." : "We'll find the surface. You can adjust it.";
+
   return (
     <div className="mx-auto max-w-6xl px-5 sm:px-8">
       <div className="panel mb-7 flex flex-col items-start gap-6 sm:flex-row sm:items-start sm:justify-between">
@@ -525,7 +568,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           <p className="eyebrow">Your space</p>
           <p className="font-serif mt-2 text-[20px]">Photo or camera.</p>
           <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-dusk">
-            Drag the four corners onto your surface.
+            {fitInstruction}
           </p>
         </div>
         <div className="flex w-full min-w-0 flex-col gap-5 sm:w-auto sm:min-w-[420px]">
@@ -572,7 +615,7 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
           {!cameraOpen && (
             <>
               <div
-                className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_390px] xl:gap-10"
+                className={`grid min-w-0 grid-cols-[minmax(0,1fr)] gap-8 ${fitState.status === "accepted" ? "lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_390px] xl:gap-10" : ""}`}
                 data-viz="workspace"
               >
                 <div className="min-w-0">
@@ -581,29 +624,34 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                     draggingRef={draggingRef} dragPoint={dragPoint} tick={tick}
                     quad={quad} shellFloor={shellFloor} holding={holding}
                     loupe={loupe} setLoupe={setLoupe}
-                    previewMode={previewMode} togglePreview={togglePreview}
-                    samBeta={samBeta} samBusy={samBusy} hasFittedSurface={hasFittedSurface}
+                    previewMode={previewMode} fitStatus={fitState.status}
+                    onAdjust={beginAdjusting} onAccept={() => acceptCurrentFit(false)}
+                    onRetry={retryCurrentFit} onDone={() => acceptCurrentFit(true)}
+                    samBeta={samBeta} samBusy={samBusy}
                     pointerPos={pointerPos} runSam={runSam} holdStart={holdStart}
                     queueCornerDrag={queueCornerDrag} finishDrag={finishDrag}
                     drawLoupe={drawLoupe} onCornerKey={onCornerKey}
                   />
-                  <p className="mt-3 text-[13px] leading-relaxed text-mist">
-                    {previewMode
+                  <p className="mt-3 text-[12px] leading-relaxed text-mist">
+                    {fitState.status === "accepted"
                       ? "Press and hold the image to compare with the original."
-                      : "Drag the corners onto your surface. Press and hold to compare."}
+                      : fitState.status === "suggested"
+                        ? "Check the points. Accept the fit or adjust it."
+                        : fitState.status === "adjusting"
+                          ? surface === "pool" ? "Eight points shape the pool." : "Four points shape the surface."
+                          : "Find the surface, or place it by hand."}
                   </p>
-                  <div className="mt-4">
+                  {layers.length > 1 && <div className="mt-4">
                     <LayerChips layers={layers} activeLayerId={activeLayerId} surface={surface} onSelect={selectLayerChip} />
-                  </div>
+                  </div>}
                   <div className="mt-4 flex flex-col gap-3">
                     <ToolRail
                       armSam={armFind}
-                      clearSam={clearSam}
                       samBeta={samBeta}
                       samBusy={samBusy}
-                      samMaskSrc={samMaskSrc}
                       addSurfaceLayer={addSurfaceLayer}
-                      hasFittedSurface={hasFittedSurface}
+                      fitStatus={fitState.status}
+                      beginManualFit={beginAdjusting}
                       surface={surface}
                       toggleShell={toggleShell}
                       shellFloor={shellFloor}
@@ -615,11 +663,11 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
                       openRefine={openRefine}
                     />
                     <p className="text-[12px] leading-relaxed text-mist" aria-live="polite">
-                      {snapMessage ?? "The stones stay editable."}
+                      {snapMessage ?? "The fit stays editable."}
                     </p>
                   </div>
                 </div>
-                {exposedRefinement}
+                {fitState.status === "accepted" ? exposedRefinement : null}
               </div>
             </>
           )}
@@ -649,14 +697,14 @@ export default function Visualizer({ initialPiece, pieces }: { initialPiece?: st
             </Dialog.Portal>
           </Dialog.Root>
 
-          {!cameraOpen && (
+          {!cameraOpen && canExport && (
             <div className="mt-10 flex flex-wrap items-center gap-8">
               <button onClick={share} className="btn-gold" data-wa="visualizer">
                 Send it to the house
               </button>
-              <button onClick={togglePreview} className="link-hair text-dusk">
-                <IconEye open={!previewMode} />
-                {previewMode ? "Adjust" : "Preview"}
+              <button onClick={beginAdjusting} className="link-hair text-dusk">
+                <IconEye open={false} />
+                Adjust
               </button>
               <button onClick={download} className="link-hair text-dusk">
                 <IconDownload />

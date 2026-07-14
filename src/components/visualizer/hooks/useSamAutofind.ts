@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
-import type { Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
+import type { FitRequestContext, FitState, Pt, ShellFaceId, SurfaceId, FaceMask } from "../types";
+import { adjustingFit, findingFit, ownsFitRequest, suggestedFit } from "../fitState";
 import { buzz, canvasToJpeg } from "../helpers";
 import { fitMask } from "../fit";
 import { isValidQuad } from "../geometry";
@@ -24,7 +25,6 @@ import {
 } from "../segmentClient";
 import type { SegmentPayload } from "../segmentClient";
 import { clientSam, clientSamAvailable, clientSamEnabled } from "./useClientSam";
-import type { VizSnapshot } from "./useSnapshots";
 
 const POOL_POLL_INTERVAL_MS = 5000;
 
@@ -32,7 +32,7 @@ const POOL_POLL_INTERVAL_MS = 5000;
    call, no per-face segmentation. We take only the rim: the floor is
    derived from it so the box can never collapse. Null when the eye is
    off, over budget, or unsure; the caller keeps the geometry it has. */
-async function fetchPoolRim(orig: HTMLCanvasElement): Promise<Pt[] | null> {
+async function fetchPoolRim(orig: HTMLCanvasElement, signal: AbortSignal): Promise<Pt[] | null> {
   const shot = canvasToJpeg(orig, 768);
   if (!shot) return null;
   try {
@@ -40,13 +40,15 @@ async function fetchPoolRim(orig: HTMLCanvasElement): Promise<Pt[] | null> {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ image: shot.base64, mediaType: "image/jpeg", surface: "pool", width: shot.width, height: shot.height }),
+      signal,
     });
     const data = (await res.json()) as { ok?: boolean; available?: boolean; corners?: { shape?: string; rim?: Pt[] } };
     const rim = data.corners?.rim;
     if (data.ok && data.available && data.corners?.shape === "shell" && Array.isArray(rim) && rim.length === 4) {
       return rim;
     }
-  } catch {
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
     /* silent: the fit is a convenience, the geometry still stands */
   }
   return null;
@@ -66,6 +68,8 @@ function plausibleRim(rim: Pt[]): boolean {
 
 interface UseSamAutofindParams {
   originalRef: RefObject<HTMLCanvasElement | null>;
+  activeLayerId: string;
+  photoRevision: number;
   surface: SurfaceId;
   quad: Pt[];
   setQuad: Dispatch<SetStateAction<Pt[]>>;
@@ -74,9 +78,8 @@ interface UseSamAutofindParams {
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
   setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
-  setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
+  setFitState: Dispatch<SetStateAction<FitState>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
-  pushSnapshot: (note: string, over?: Partial<VizSnapshot>) => void;
 }
 
 /* The learned auto-find, lifted out of the orchestrator into its own hook. It
@@ -93,9 +96,12 @@ export function useSamAutofind(params: UseSamAutofindParams): {
   autoFindShell: () => Promise<boolean>;
   armSam: () => void;
   clearSam: () => void;
+  cancelFind: () => void;
 } {
   const {
     originalRef,
+    activeLayerId,
+    photoRevision,
     surface,
     quad,
     setQuad,
@@ -104,9 +110,8 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     setSamMask,
     setSamMaskSrc,
     setFaceMasks,
-    setHasFittedSurface,
+    setFitState,
     setSnapMessage,
-    pushSnapshot,
   } = params;
 
   const [samBeta, setSamBeta] = useState(false);
@@ -128,6 +133,15 @@ export function useSamAutofind(params: UseSamAutofindParams): {
     shellFloorRef.current = shellFloor;
   }, [shellFloor]);
 
+  const activeLayerRef = useRef(activeLayerId);
+  const photoRevisionRef = useRef(photoRevision);
+  useEffect(() => {
+    activeLayerRef.current = activeLayerId;
+  }, [activeLayerId]);
+  useEffect(() => {
+    photoRevisionRef.current = photoRevision;
+  }, [photoRevision]);
+
 
   /* The learned auto-find (beta, opt-in). Arm it, then one tap sends the
      untouched photo and the tapped point to the segment endpoint; the mask
@@ -139,18 +153,69 @@ export function useSamAutofind(params: UseSamAutofindParams): {
      read it as false, so the ref is the guard: set synchronously on
      entry, cleared in the finally. */
   const inFlightRef = useRef(false);
+  const requestSeqRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const currentRequest = (): FitRequestContext => ({
+    id: requestSeqRef.current,
+    photoRevision: photoRevisionRef.current,
+    layerId: activeLayerRef.current,
+  });
+
+  const ownsRequest = (request: FitRequestContext) =>
+    ownsFitRequest(request, currentRequest());
+
+  const beginRequest = (): { request: FitRequestContext; signal: AbortSignal } | null => {
+    if (inFlightRef.current) return null;
+    const request = {
+      id: requestSeqRef.current + 1,
+      photoRevision: photoRevisionRef.current,
+      layerId: activeLayerRef.current,
+    };
+    requestSeqRef.current = request.id;
+    const controller = new AbortController();
+    abortRef.current = controller;
+    inFlightRef.current = true;
+    setSamBusy(true);
+    setFitState((current) => findingFit(current, request.id));
+    track("viz_find_started", { surface });
+    return { request, signal: controller.signal };
+  };
+
+  const finishRequest = (request: FitRequestContext) => {
+    if (!ownsRequest(request)) return;
+    abortRef.current = null;
+    inFlightRef.current = false;
+    setSamBusy(false);
+    setSamBeta(false);
+  };
+
+  const cancelFind = useCallback(() => {
+    requestSeqRef.current += 1;
+    abortRef.current?.abort();
+    abortRef.current = null;
+    inFlightRef.current = false;
+    setSamBusy(false);
+    setSamBeta(false);
+  }, []);
+
+  useEffect(() => () => {
+    requestSeqRef.current += 1;
+    abortRef.current?.abort();
+  }, []);
 
   /* Resolves true only after the mask is in state and the snapshot is
      saved, so the guided session can await one surface before moving to
      the next. */
   const runSam = async (point: Pt): Promise<boolean> => {
     const orig = originalRef.current;
-    if (!orig || inFlightRef.current) {
+    if (!orig) {
       setSamBeta(false);
       return false;
     }
-    inFlightRef.current = true;
-    setSamBusy(true);
+    const operation = beginRequest();
+    if (!operation) return false;
+    const { request, signal } = operation;
     buzz(4);
     try {
       const shot = canvasToJpeg(orig, 768);
@@ -171,6 +236,8 @@ export function useSamAutofind(params: UseSamAutofindParams): {
       const serverFind = () => submitAndAwaitMask(
         serverPayload,
         () => setSnapMessage("Still looking. The finder is waking."),
+        1500,
+        signal,
       );
       let data: SegmentPayload;
       if (clientSamAvailable() && clientSam.ready) {
@@ -184,6 +251,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
       } else {
         data = await serverFind();
       }
+      if (!ownsRequest(request)) return false;
       if (data.ok && typeof data.mask === "string") {
         let maskSrc: string = data.mask;
         let img = await loadMaskImage(maskSrc);
@@ -195,9 +263,6 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         setSamMask(img);
         setSamMaskSrc(maskSrc);
         seedMask(maskSrc, img);
-        setHasFittedSurface(true);
-        let fittedQuad = quadRef.current;
-        let fittedFloor: Pt[] | null = null;
         let message = "Surface found. The shape is cut exactly; angle the tiles with the corners.";
         /* Hand the mask to the geometry engine. A floor comes back as a
            receding trapezoid, so the tiles take its perspective and
@@ -226,7 +291,6 @@ export function useSamAutofind(params: UseSamAutofindParams): {
               surface === "pool" || surface === "floor" ? "floor" : "wall",
             );
             if (result.kind === "quad") {
-              fittedQuad = result.quad;
               setQuad(result.quad);
               message = "Surface found and angled. Nudge a corner to refine.";
               /* A pool already wearing its shell gets one more read: the
@@ -249,7 +313,6 @@ export function useSamAutofind(params: UseSamAutofindParams): {
                   const rimPx = result.quad.map((p) => ({ x: p.x * mw, y: p.y * mh }));
                   const derived = deriveShellFloor({ data: bits, width: mw, height: mh }, luma, rimPx);
                   if (derived) {
-                    fittedFloor = derived;
                     setShellFloor(derived);
                     message = "Shell fitted. Nudge any stone.";
                   }
@@ -260,24 +323,20 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         } catch {
           /* leave the current corners; the mask still clips the shape */
         }
-        /* Save the AI result the moment it lands, so a re-find, a clear,
-           or a fresh tap can never lose the segment we paid for. */
-        pushSnapshot("AI find", {
-          samMask: img,
-          samMaskSrc: maskSrc,
-          quad: fittedQuad,
-          hasFittedSurface: true,
-          ...(fittedFloor ? { shellFloor: fittedFloor } : {}),
-        });
-        setSnapMessage(message);
+        setFitState((current) => suggestedFit(current, "segmentation", null));
+        setSnapMessage(`${message} Check it, then choose Looks right or Adjust.`);
         buzz(8);
         track("viz_sam", { ok: true });
+        track("viz_find_suggested", { surface, source: "segmentation", usedFaceMasks: true });
         return true;
       } else {
-        setSnapMessage(data.message ?? "Could not find it there. Drag the corners instead.");
+        setFitState((current) => adjustingFit(current));
+        setSnapMessage(data.message ?? "Place the points around the surface.");
         track("viz_sam", { ok: false });
       }
     } catch (err) {
+      if (!ownsRequest(request)) return false;
+      setFitState((current) => adjustingFit(current));
       if (err instanceof Error && err.message === "mask-decode") {
         setSnapMessage("Could not read the surface. Drag the corners instead.");
       } else if (err instanceof Error && (err.message === "finder-timeout" || err.message === "finder-failed")) {
@@ -286,9 +345,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         setSnapMessage("Auto-find is busy. Drag the corners instead.");
       }
     } finally {
-      inFlightRef.current = false;
-      setSamBusy(false);
-      setSamBeta(false);
+      finishRequest(request);
     }
     return false;
   };
@@ -300,13 +357,15 @@ export function useSamAutofind(params: UseSamAutofindParams): {
      the gate. Otherwise the established geometry fit carries the request. */
   const autoFindShell = async (): Promise<boolean> => {
     const orig = originalRef.current;
-    if (inFlightRef.current) return false;
-    inFlightRef.current = true;
-    setSamBusy(true);
+    if (!orig) return false;
+    const operation = beginRequest();
+    if (!operation) return false;
+    const { request, signal } = operation;
     buzz(4);
     try {
       setSnapMessage("Reading the pool.");
-      const read = orig ? await fetchPoolRim(orig) : null;
+      const read = await fetchPoolRim(orig, signal);
+      if (!ownsRequest(request)) return false;
       /* A plausible read gets a gentle recede so a flat, rectangular rim
          narrows toward the back coping and the box reads in perspective. */
       const fitted = read && plausibleRim(read) ? perspectiveRim(read) : null;
@@ -338,6 +397,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
               }),
               () => setSnapMessage("Still looking. The finder is waking."),
               POOL_POLL_INTERVAL_MS,
+              signal,
             );
             if (!data.ok || typeof data.mask !== "string") {
               throw new Error("pool-server-face");
@@ -396,6 +456,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           try {
             result = await segmentFaces(rim, floor, lane);
           } catch (err) {
+            if (!ownsRequest(request)) return false;
             if (lane !== "client" || !clientSamEnabled()) throw err;
             lane = "server";
             setSnapMessage("Finishing the pool in the finder.");
@@ -415,22 +476,15 @@ export function useSamAutofind(params: UseSamAutofindParams): {
           );
           const finalShell = edgeRefined.shell;
           if (!isStablePoolShell(finalShell)) throw new Error("pool-shell-unrefined");
+          if (!ownsRequest(request)) return false;
 
           setQuad(finalShell.rim);
           setShellFloor(finalShell.floor);
           setSamMask(null);
           setSamMaskSrc(null);
           setFaceMasks(renderMasks);
-          setHasFittedSurface(true);
-          pushSnapshot("Auto-fit pool faces", {
-            quad: finalShell.rim,
-            shellFloor: finalShell.floor,
-            samMask: null,
-            samMaskSrc: null,
-            faceMasks: renderMasks,
-            hasFittedSurface: true,
-          });
-          setSnapMessage("Pool fitted. Each plane follows its edge. Nudge only if needed.");
+          setFitState((current) => suggestedFit(current, "segmentation", solved.confidence));
+          setSnapMessage("Pool found. Check the edges.");
           buzz(8);
           track("viz_shell_face_fit", {
             ok: true,
@@ -443,6 +497,7 @@ export function useSamAutofind(params: UseSamAutofindParams): {
             nearAligned: edgeRefined.nearAligned,
             lane,
           });
+          track("viz_find_suggested", { surface: "pool", source: "segmentation", usedFaceMasks: true });
           return true;
         } catch (err) {
           track("viz_shell_face_fit", {
@@ -452,31 +507,34 @@ export function useSamAutofind(params: UseSamAutofindParams): {
         }
       }
 
+      if (!ownsRequest(request)) return false;
       setQuad(rim);
       setShellFloor(floor);
       setSamMask(null);
       setSamMaskSrc(null);
       setFaceMasks(null);
-      setHasFittedSurface(true);
-      pushSnapshot("Auto-fit shell", {
-        quad: rim,
-        shellFloor: floor,
-        samMask: null,
-        samMaskSrc: null,
-        faceMasks: null,
-        hasFittedSurface: true,
-      });
+      setFitState((current) => suggestedFit(current, fitted ? "analysis" : "default", null));
       setSnapMessage(
         fitted
-          ? "Pool fitted. Nudge any stone to refine, then Preview or send it."
-          : "Drag the eight stones onto your pool's edges to fit the box, then Preview or send it.",
+          ? "Pool found. Check the points."
+          : "A starting fit is ready. Adjust the eight points.",
       );
       buzz(8);
       track("viz_shell_autofit", { fitted: Boolean(fitted) });
+      track("viz_find_suggested", { surface: "pool", source: fitted ? "analysis" : "default", usedFaceMasks: false });
       return true;
+    } catch (error) {
+      if (ownsRequest(request)) {
+        setFitState((current) => adjustingFit(current));
+        setSnapMessage("Place the eight points around your pool.");
+        track("viz_find_failed", {
+          surface: "pool",
+          reason: error instanceof Error ? error.message : "unknown",
+        });
+      }
+      return false;
     } finally {
-      inFlightRef.current = false;
-      setSamBusy(false);
+      finishRequest(request);
     }
   };
 
@@ -491,9 +549,10 @@ export function useSamAutofind(params: UseSamAutofindParams): {
   const clearSam = () => {
     setSamMask(null);
     setSamMaskSrc(null);
+    setFitState((current) => adjustingFit(current));
     setSnapMessage("Auto-find cleared. The tiles fill the frame again.");
     buzz(3);
   };
 
-  return { samBeta, samBusy, runSam, autoFindShell, armSam, clearSam };
+  return { samBeta, samBusy, runSam, autoFindShell, armSam, clearSam, cancelFind };
 }

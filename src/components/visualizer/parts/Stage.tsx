@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { Dispatch, KeyboardEvent, PointerEvent, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
 import { IconEye } from "../icons";
-import type { Pt } from "../types";
+import type { FitStatus, Pt } from "../types";
 import { CORNER_LABELS, SHELL_CORNER_LABELS } from "../constants";
 import { buzz } from "../helpers";
 
@@ -24,10 +25,13 @@ interface StageProps {
   loupe: Pt | null;
   setLoupe: Dispatch<SetStateAction<Pt | null>>;
   previewMode: boolean;
-  togglePreview: () => void;
+  fitStatus: FitStatus;
+  onAdjust: () => void;
+  onAccept: () => void;
+  onRetry: () => void;
+  onDone: () => void;
   samBeta: boolean;
   samBusy: boolean;
-  hasFittedSurface: boolean;
   pointerPos: (e: PointerEvent) => Pt;
   runSam: (point: Pt) => Promise<boolean>;
   holdStart: (e: PointerEvent) => void;
@@ -50,10 +54,13 @@ export default function Stage({
   loupe,
   setLoupe,
   previewMode,
-  togglePreview,
+  fitStatus,
+  onAdjust,
+  onAccept,
+  onRetry,
+  onDone,
   samBeta,
   samBusy,
-  hasFittedSurface,
   pointerPos,
   runSam,
   holdStart,
@@ -62,6 +69,17 @@ export default function Stage({
   drawLoupe,
   onCornerKey,
 }: StageProps) {
+  const confirmationRef = useRef<HTMLButtonElement>(null);
+  const firstHandleRef = useRef<SVGCircleElement>(null);
+  useEffect(() => {
+    if (fitStatus === "suggested") confirmationRef.current?.focus();
+  }, [fitStatus]);
+  const startAdjusting = () => {
+    onAdjust();
+    requestAnimationFrame(() => firstHandleRef.current?.focus());
+  };
+  const handleOpacity = fitStatus === "suggested" ? 0.55 : 0.9;
+
   return (
     <div
       ref={wrapRef}
@@ -72,7 +90,7 @@ export default function Stage({
       <p id="viz-corner-help" className="sr-only">
         Focus a brass corner and use the arrow keys to nudge the surface. Hold shift for a larger move.
       </p>
-      {!previewMode && (
+      {!previewMode && fitStatus !== "finding" && (
       <svg
         className={`absolute inset-0 h-full w-full touch-none ${samBeta ? "cursor-crosshair" : ""}`}
         aria-describedby="viz-corner-help"
@@ -97,7 +115,7 @@ export default function Stage({
               stroke="var(--t-brass)"
               strokeWidth="2"
               strokeDasharray="6 5"
-              opacity={holding ? 0 : 0.9}
+              opacity={holding ? 0 : handleOpacity}
             />
           );
         })}
@@ -137,13 +155,14 @@ export default function Stage({
             key={`c${i}`}
             cx={`${p.x * 100}%`}
             cy={`${p.y * 100}%`}
-            r="14"
-            tabIndex={hasFittedSurface ? 0 : -1}
+            ref={i === 0 ? firstHandleRef : undefined}
+            r="22"
+            tabIndex={0}
             role="button"
             aria-label={`${CORNER_LABELS[i]} surface corner. Use arrow keys to nudge.`}
             aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
             fill="var(--t-brass)"
-            fillOpacity={holding ? 0 : 0.9}
+            fillOpacity={holding ? 0 : handleOpacity}
             stroke="#14110b"
             strokeWidth="2"
             style={{ cursor: "grab" }}
@@ -162,6 +181,7 @@ export default function Stage({
               buzz(6);
               setLoupe(p2);
               requestAnimationFrame(() => drawLoupe(p2));
+              onAdjust();
               track("viz_adjust", { corner: i });
             }}
           />
@@ -171,13 +191,13 @@ export default function Stage({
             key={`fc${i}`}
             cx={`${p.x * 100}%`}
             cy={`${p.y * 100}%`}
-            r="14"
-            tabIndex={hasFittedSurface ? 0 : -1}
+            r="22"
+            tabIndex={0}
             role="button"
             aria-label={`${SHELL_CORNER_LABELS[i]} surface corner. Use arrow keys to nudge.`}
             aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
             fill="var(--t-brass)"
-            fillOpacity={holding ? 0 : 0.9}
+            fillOpacity={holding ? 0 : handleOpacity}
             stroke="#14110b"
             strokeWidth="2"
             style={{ cursor: "grab" }}
@@ -196,6 +216,7 @@ export default function Stage({
               buzz(6);
               setLoupe(p2);
               requestAnimationFrame(() => drawLoupe(p2));
+              onAdjust();
               track("viz_adjust", { corner: 4 + i });
             }}
           />
@@ -218,16 +239,16 @@ export default function Stage({
         </div>
       )}
       {holding && <span className="chip-glass absolute left-1/2 top-4 -translate-x-1/2">Original</span>}
-      {!holding && (
+      {!holding && fitStatus === "accepted" && (
         <button
           type="button"
-          onClick={togglePreview}
+          onClick={startAdjusting}
           aria-pressed={previewMode}
-          aria-label={previewMode ? "Show the drag controls" : "Hide the drag controls to preview"}
+          aria-label="Adjust the accepted fit"
           className="chip-glass absolute right-4 top-4 z-20 font-semibold"
         >
-          <IconEye open={!previewMode} className="h-3.5 w-3.5" />
-          {previewMode ? "Adjust" : "Preview"}
+          <IconEye open={false} className="h-3.5 w-3.5" />
+          Adjust
         </button>
       )}
       {samBusy && (
@@ -238,13 +259,35 @@ export default function Stage({
           aria-busy="true"
         >
           <span className="relative flex h-12 w-12 items-center justify-center" aria-hidden>
-            <span className="absolute h-12 w-12 animate-ping rounded-full bg-gold/25" />
-            <span className="h-11 w-11 animate-spin rounded-full border-2 border-gold/25 border-t-gold" />
+            <span className="absolute h-12 w-12 animate-ping rounded-full bg-gold/25 motion-reduce:animate-none" />
+            <span className="h-11 w-11 animate-spin rounded-full border-2 border-gold/25 border-t-gold motion-reduce:animate-none" />
             <span className="absolute h-2 w-2 rounded-full bg-gold" />
           </span>
           <span className="chip-glass text-[11px] font-semibold uppercase tracking-[0.22em] text-ink">
             Reading the surface
           </span>
+        </div>
+      )}
+      {!samBusy && fitStatus === "suggested" && (
+        <div className="panel absolute inset-x-3 bottom-3 z-20 mx-auto max-w-xl px-4 py-4 sm:inset-x-6 sm:px-5">
+          <p className="font-serif text-[20px] text-ink">Does this match the surface?</p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button ref={confirmationRef} type="button" onClick={onAccept} className="btn-gold min-h-11">
+              Looks right
+            </button>
+            <button type="button" onClick={startAdjusting} className="min-h-11 rounded-full px-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-ink">
+              Adjust
+            </button>
+            <button type="button" onClick={onRetry} className="min-h-11 rounded-full px-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-dusk">
+              Try again
+            </button>
+          </div>
+        </div>
+      )}
+      {!samBusy && fitStatus === "adjusting" && (
+        <div className="chip-glass absolute bottom-3 left-1/2 z-20 flex w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 items-center justify-between gap-4 px-4 py-3">
+          <span className="text-[14px] text-ink">Drag the points to match the surface.</span>
+          <button type="button" onClick={onDone} className="btn-gold min-h-11 shrink-0">Done</button>
         </div>
       )}
     </div>

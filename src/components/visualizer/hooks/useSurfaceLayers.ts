@@ -4,7 +4,8 @@ import { useCallback, useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
 import type { Piece } from "@/lib/products";
-import type { Pt, PrepMode, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
+import type { FitState, Pt, PrepMode, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
+import { adjustingFit, createFitState } from "../fitState";
 import { buzz, pieceSlugForSurface } from "../helpers";
 import { SURFACES, LAYER_LABELS, NEXT_SURFACE } from "../constants";
 import type { VizSnapshot } from "./useSnapshots";
@@ -32,8 +33,8 @@ interface UseSurfaceLayersParams {
   setGroutLight: Dispatch<SetStateAction<boolean>>;
   customColors: string[] | null;
   setCustomColors: Dispatch<SetStateAction<string[] | null>>;
-  hasFittedSurface: boolean;
-  setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
+  fitState: FitState;
+  setFitState: Dispatch<SetStateAction<FitState>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   samMaskSrc: string | null;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
@@ -42,6 +43,7 @@ interface UseSurfaceLayersParams {
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
   pushSnapshot: (note: string, over?: Partial<VizSnapshot>) => void;
   pieces: Piece[];
+  cancelFind: () => void;
 }
 
 /* The surface-layer desk. A preview can hold several surface layers, one
@@ -75,8 +77,8 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setGroutLight,
     customColors,
     setCustomColors,
-    hasFittedSurface,
-    setHasFittedSurface,
+    fitState,
+    setFitState,
     setSamMask,
     samMaskSrc,
     setSamMaskSrc,
@@ -85,6 +87,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setSnapMessage,
     pushSnapshot,
     pieces,
+    cancelFind,
   } = params;
 
   const layerSeq = useRef(1);
@@ -104,8 +107,8 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     maskSrc: samMaskSrc,
     faceMasks,
     visible: true,
-    accepted: hasFittedSurface,
-  }), [activeLayerId, blend, customColors, faceMasks, groutLight, hasFittedSurface, pieceSlug, prepMode, quad, samMaskSrc, shellFloor, surface, tileSize]);
+    fit: fitState.status === "finding" ? adjustingFit(fitState) : fitState,
+  }), [activeLayerId, blend, customColors, faceMasks, fitState, groutLight, pieceSlug, prepMode, quad, samMaskSrc, shellFloor, surface, tileSize]);
 
   const withActiveLayer = useCallback((current: SurfaceLayer[]) => {
     const next = activeLayerSnapshot();
@@ -115,6 +118,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
   }, [activeLayerId, activeLayerSnapshot, surface]);
 
   const selectLayer = useCallback((layer: SurfaceLayer) => {
+    cancelFind();
     setLayers(withActiveLayer);
     setActiveLayerId(layer.id);
     setSurface(layer.surface);
@@ -129,17 +133,17 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setSamMask(null);
     setSamMaskSrc(layer.maskSrc);
     setFaceMasks(layer.faceMasks);
-    setHasFittedSurface(layer.accepted);
+    setFitState({ ...layer.fit });
     setSnapMessage(`${layer.label} selected.`);
     buzz(3);
-  }, [setActiveLayerId, setBlend, setCustomColors, setFaceMasks, setGroutLight, setHasFittedSurface, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
+  }, [cancelFind, setActiveLayerId, setBlend, setCustomColors, setFaceMasks, setFitState, setGroutLight, setLayers, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize, withActiveLayer]);
 
   /* Without a kind the desk picks the next natural surface, as before.
      The guided session names the kind it wants and reads the boolean to
      know whether a layer actually landed. */
   const addSurfaceLayer = (kind?: SurfaceId): boolean => {
     const committedLayers = withActiveLayer(layers);
-    if (!hasFittedSurface) {
+    if (fitState.status !== "accepted") {
       setLayers(committedLayers);
       setSnapMessage(`Place ${LAYER_LABELS[surface]} first.`);
       buzz(2);
@@ -177,7 +181,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       shellFloor: null,
       faceMasks: null,
       visible: true,
-      accepted: true,
+      fit: createFitState(),
     };
     setLayers(committedLayers.concat(nextLayer));
     setActiveLayerId(id);
@@ -191,7 +195,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setFaceMasks(null);
     setTileSize(nextLayer.tileSize);
     setPrepMode("primer");
-    setHasFittedSurface(true);
+    setFitState(nextLayer.fit);
     pushSnapshot(`Added ${nextLayer.label}`, {
       layers: committedLayers.concat(nextLayer),
       activeLayerId: id,
@@ -205,9 +209,9 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       samMask: null,
       samMaskSrc: null,
       faceMasks: null,
-      hasFittedSurface: true,
+      fitState: nextLayer.fit,
     });
-    setSnapMessage(`Added ${nextLayer.label}. Drag its corners to place it.`);
+    setSnapMessage(`Added ${nextLayer.label}. Find it or place it by hand.`);
     buzz(5);
     track("viz_layer_add", { surface: nextSurface });
     return true;
@@ -235,7 +239,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
     setSamMask(null);
     setSamMaskSrc(nextActive.maskSrc);
     setFaceMasks(nextActive.faceMasks);
-    setHasFittedSurface(nextActive.accepted);
+    setFitState({ ...nextActive.fit });
     pushSnapshot(`Removed ${removedLabel}`, {
       layers: remaining,
       activeLayerId: nextActive.id,
@@ -251,7 +255,7 @@ export function useSurfaceLayers(params: UseSurfaceLayersParams) {
       samMask: null,
       samMaskSrc: nextActive.maskSrc,
       faceMasks: nextActive.faceMasks,
-      hasFittedSurface: nextActive.accepted,
+      fitState: nextActive.fit,
     });
     setSnapMessage(`Removed ${removedLabel}. ${nextActive.label} selected.`);
     buzz(4);

@@ -4,7 +4,8 @@ import { useCallback, useRef } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { track } from "@vercel/analytics";
 import type { Piece } from "@/lib/products";
-import type { LoadSource, PrepMode, Pt, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
+import type { FitState, LoadSource, PrepMode, Pt, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
+import { createFitState } from "../fitState";
 import { CONTEXTS, FIRST_LAYER_ID, LAYER_LABELS, SURFACES } from "../constants";
 import { buzz, pieceSlugForSurface, suggestionText } from "../helpers";
 import { useCamera } from "./useCamera";
@@ -36,8 +37,10 @@ interface UsePhotoDeskParams {
   setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
   setLayers: Dispatch<SetStateAction<SurfaceLayer[]>>;
   setActiveLayerId: Dispatch<SetStateAction<string>>;
-  setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
+  setFitState: Dispatch<SetStateAction<FitState>>;
+  setPhotoRevision: Dispatch<SetStateAction<number>>;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
+  cancelFind: () => void;
 }
 
 /* The photo desk, lifted out of the orchestrator: how a photo arrives
@@ -74,8 +77,10 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
     setFaceMasks,
     setLayers,
     setActiveLayerId,
-    setHasFittedSurface,
+    setFitState,
+    setPhotoRevision,
     setSnapMessage,
+    cancelFind,
   } = params;
 
   const loadSeq = useRef(0);
@@ -96,6 +101,8 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
         revokeObjectUrl(src);
         return;
       }
+      cancelFind();
+      const nextFit = createFitState();
       const preferredSlug = nextPieceSlug && pieces.some((item) => item.slug === nextPieceSlug)
         ? nextPieceSlug
         : pieceSlugForSurface(nextSurface, pieces, pieceSlug);
@@ -111,7 +118,8 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
       /* The mount's default load keeps what the browser remembered, the
          shell floor included; a photo a person chose starts flat. */
       const targetShellFloor = from === "default" ? shellFloor : null;
-      setHasFittedSurface(true);
+      setFitState(nextFit);
+      setPhotoRevision((revision) => revision + 1);
       setSurface(targetSurface);
       setTileSize(targetTileSize);
       setPieceSlug(targetPieceSlug);
@@ -140,7 +148,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
           shellFloor: targetShellFloor,
           faceMasks: null,
           visible: true,
-          accepted: true,
+          fit: nextFit,
         },
       ]);
       setActiveLayerId(FIRST_LAYER_ID);
@@ -155,7 +163,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
       revokeObjectUrl(src);
     };
     img.src = src;
-  }, [blend, groutLight, piece, pieceSlug, pieces, prepMode, revokeObjectUrl, shellFloor, surface, setActiveLayerId, setCustomColors, setFaceMasks, setHasFittedSurface, setLayers, setPhoto, setPhotoSource, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize]);
+  }, [blend, cancelFind, groutLight, piece, pieceSlug, pieces, prepMode, revokeObjectUrl, shellFloor, surface, setActiveLayerId, setCustomColors, setFaceMasks, setFitState, setLayers, setPhoto, setPhotoRevision, setPhotoSource, setPieceSlug, setPrepMode, setQuad, setSamMask, setSamMaskSrc, setShellFloor, setSnapMessage, setSurface, setTileSize]);
 
   const { cameraOpen, cameraError, clearCameraError, openCamera, snapCamera, stopCamera } = useCamera({
     videoRef,
@@ -166,6 +174,8 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
   });
 
   const chooseStarterSurface = (id: SurfaceId) => {
+    cancelFind();
+    const nextFit = createFitState();
     const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
     const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
     setLayers(withActiveLayer);
@@ -179,8 +189,8 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
     setPrepMode("primer");
     setQuad(SURFACES[id].quad);
     setShellFloor(null);
-    setHasFittedSurface(true);
-    setSnapMessage(suggestionText(id, "primer", nextPiece.name));
+    setFitState(nextFit);
+    setSnapMessage(`${suggestionText(id, "primer", nextPiece.name)} Find it or place it by hand.`);
     buzz(4);
     track("viz_surface_choice", { surface: id });
   };
@@ -192,6 +202,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
   };
 
   const fitSurface = (id: SurfaceId) => {
+    cancelFind();
     const next = SURFACES[id];
     const nextPieceSlug = pieceSlugForSurface(id, pieces, pieceSlug);
     const nextPiece = pieces.find((item) => item.slug === nextPieceSlug) ?? piece;
@@ -207,8 +218,8 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
     /* A retag folds the shell flat: the Shell toggle only lives on pool,
        so a stranded floor would have no way off the stage. */
     setShellFloor(null);
-    setHasFittedSurface(true);
-    setSnapMessage(suggestionText(id, "primer", nextPiece.name));
+    setFitState(createFitState());
+    setSnapMessage(`${suggestionText(id, "primer", nextPiece.name)} Fit this surface next.`);
     buzz(4);
     track("viz_surface", { surface: id });
   };
@@ -216,6 +227,7 @@ export function usePhotoDesk(params: UsePhotoDeskParams) {
   const loadContext = (id: SurfaceId) => {
     const context = CONTEXTS.find((item) => item.id === id);
     if (!context) return;
+    cancelFind();
     const next = SURFACES[id];
     setSurface(id);
     setTileSize(next.tileSize);

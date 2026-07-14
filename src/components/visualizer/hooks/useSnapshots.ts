@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import type { Pt, PrepMode, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
+import type { FitState, Pt, PrepMode, ShellFaceId, SurfaceId, SurfaceLayer, FaceMask } from "../types";
 import { buzz } from "../helpers";
 
 /* A saved look. Everything the stage needs to reproduce a view, the AI
@@ -22,7 +22,7 @@ export type VizSnapshot = {
   prepMode: PrepMode;
   groutLight: boolean;
   customColors: string[] | null;
-  hasFittedSurface: boolean;
+  fitState: FitState;
   samMask: HTMLImageElement | null;
   samMaskSrc: string | null;
   faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
@@ -43,7 +43,7 @@ interface UseSnapshotsParams {
   prepMode: PrepMode;
   groutLight: boolean;
   customColors: string[] | null;
-  hasFittedSurface: boolean;
+  fitState: FitState;
   samMask: HTMLImageElement | null;
   samMaskSrc: string | null;
   faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
@@ -58,7 +58,7 @@ interface UseSnapshotsParams {
   setPrepMode: Dispatch<SetStateAction<PrepMode>>;
   setGroutLight: Dispatch<SetStateAction<boolean>>;
   setCustomColors: Dispatch<SetStateAction<string[] | null>>;
-  setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
+  setFitState: Dispatch<SetStateAction<FitState>>;
   setSamMask: Dispatch<SetStateAction<HTMLImageElement | null>>;
   setSamMaskSrc: Dispatch<SetStateAction<string | null>>;
   setFaceMasks: Dispatch<SetStateAction<Partial<Record<ShellFaceId, FaceMask>> | null>>;
@@ -83,7 +83,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     prepMode,
     groutLight,
     customColors,
-    hasFittedSurface,
+    fitState,
     samMask,
     samMaskSrc,
     faceMasks,
@@ -98,7 +98,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setPrepMode,
     setGroutLight,
     setCustomColors,
-    setHasFittedSurface,
+    setFitState,
     setSamMask,
     setSamMaskSrc,
     setFaceMasks,
@@ -118,6 +118,7 @@ export function useSnapshots(params: UseSnapshotsParams) {
       quad: l.quad.map((p) => ({ ...p })),
       shellFloor: l.shellFloor ? l.shellFloor.map((p) => ({ ...p })) : null,
       faceMasks: l.faceMasks ? { ...l.faceMasks } : null,
+      fit: { ...l.fit },
     })),
     activeLayerId: over.activeLayerId ?? activeLayerId,
     surface: over.surface ?? surface,
@@ -129,11 +130,11 @@ export function useSnapshots(params: UseSnapshotsParams) {
     prepMode: over.prepMode ?? prepMode,
     groutLight: over.groutLight ?? groutLight,
     customColors: over.customColors !== undefined ? over.customColors : customColors,
-    hasFittedSurface: over.hasFittedSurface ?? hasFittedSurface,
+    fitState: over.fitState ?? fitState,
     samMask: over.samMask !== undefined ? over.samMask : samMask,
     samMaskSrc: over.samMaskSrc !== undefined ? over.samMaskSrc : samMaskSrc,
     faceMasks: over.faceMasks !== undefined ? over.faceMasks : faceMasks,
-  }), [layers, activeLayerId, surface, quad, shellFloor, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, hasFittedSurface, samMask, samMaskSrc, faceMasks]);
+  }), [layers, activeLayerId, surface, quad, shellFloor, pieceSlug, tileSize, blend, prepMode, groutLight, customColors, fitState, samMask, samMaskSrc, faceMasks]);
 
   /* Append a checkpoint, dropping anything ahead of the cursor (a new
      move after stepping back forks a fresh line) and holding the stack to
@@ -160,11 +161,11 @@ export function useSnapshots(params: UseSnapshotsParams) {
     setPrepMode(snap.prepMode);
     setGroutLight(snap.groutLight);
     setCustomColors(snap.customColors);
-    setHasFittedSurface(snap.hasFittedSurface);
+    setFitState({ ...snap.fitState });
     setSamMask(snap.samMask);
     setSamMaskSrc(snap.samMaskSrc);
     setFaceMasks(snap.faceMasks ? { ...snap.faceMasks } : null);
-  }, [setLayers, setActiveLayerId, setSurface, setQuad, setShellFloor, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setHasFittedSurface, setSamMask, setSamMaskSrc, setFaceMasks]);
+  }, [setLayers, setActiveLayerId, setSurface, setQuad, setShellFloor, setPieceSlug, setTileSize, setBlend, setPrepMode, setGroutLight, setCustomColors, setFitState, setSamMask, setSamMaskSrc, setFaceMasks]);
 
   const stepHistory = useCallback((dir: -1 | 1) => {
     const target = history.i + dir;

@@ -29,6 +29,10 @@ export function useShareDownload(params: UseShareDownloadParams) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const currentLayers = withActiveLayer(layers).filter((layer) => layer.visible);
+    if (currentLayers.some((layer) => layer.fit.status !== "accepted")) {
+      setSnapMessage("Finish each surface before sending the preview.");
+      return;
+    }
     const layerSummary = currentLayers.map((layer) => {
       const layerPiece = pieceMap.get(layer.pieceSlug) ?? piece;
       return `${layer.label}: ${layerPiece.name}`;
@@ -46,7 +50,9 @@ export function useShareDownload(params: UseShareDownloadParams) {
         try {
           await navigator.share({ files: [file], text: `${shareText} · ${SITE.url.replace(/^https?:\/\//, "")}` });
           return;
-        } catch {}
+        } catch (error) {
+          if (error instanceof DOMException && error.name === "AbortError") return;
+        }
       }
       const a = document.createElement("a");
       const url = URL.createObjectURL(blob);
@@ -63,6 +69,10 @@ export function useShareDownload(params: UseShareDownloadParams) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const currentLayers = withActiveLayer(layers).filter((layer) => layer.visible);
+    if (currentLayers.some((layer) => layer.fit.status !== "accepted")) {
+      setSnapMessage("Finish each surface before downloading the preview.");
+      return;
+    }
     const primaryLayer = currentLayers.find((layer) => layer.id === activeLayerId) ?? currentLayers[0];
     const primaryPiece = primaryLayer ? pieceMap.get(primaryLayer.pieceSlug) ?? piece : piece;
     const fileName = currentLayers.length > 1 ? "au-mosaic-visualizer-surfaces.png" : `au-mosaic-${primaryPiece.slug}.png`;

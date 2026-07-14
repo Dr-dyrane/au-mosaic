@@ -12,7 +12,7 @@ interface UseCornerDragParams {
   setQuad: Dispatch<SetStateAction<Pt[]>>;
   shellFloor: Pt[] | null;
   setShellFloor: Dispatch<SetStateAction<Pt[] | null>>;
-  setHasFittedSurface: Dispatch<SetStateAction<boolean>>;
+  onManualStart: () => void;
   setSnapMessage: Dispatch<SetStateAction<string | null>>;
   render: () => void;
   draggingRef: RefObject<number | null>;
@@ -38,7 +38,7 @@ export function useCornerDrag(params: UseCornerDragParams) {
     setQuad,
     shellFloor,
     setShellFloor,
-    setHasFittedSurface,
+    onManualStart,
     setSnapMessage,
     render,
     draggingRef,
@@ -120,6 +120,7 @@ export function useCornerDrag(params: UseCornerDragParams) {
   };
 
   const queueCornerDrag = (index: number, point: Pt) => {
+    onManualStart();
     dragPoint.current = point;
     setLoupe(point);
     if (dragFrame.current !== null) return;
@@ -139,8 +140,7 @@ export function useCornerDrag(params: UseCornerDragParams) {
     }
     if (draggingRef.current !== null && dragPoint.current) {
       updateCorner(draggingRef.current, dragPoint.current);
-      setHasFittedSurface(true);
-      setSnapMessage("Fit updated. Add another surface when ready.");
+      setSnapMessage("Fit updated. Choose Done when it matches.");
     }
     if (draggingRef.current !== null) buzz(4);
     draggingRef.current = null;
@@ -154,8 +154,8 @@ export function useCornerDrag(params: UseCornerDragParams) {
     if (!current) return;
     const next = { x: clamp(current.x + dx, 0.02, 0.98), y: clamp(current.y + dy, 0.02, 0.98) };
     updateCorner(index, next);
-    setHasFittedSurface(true);
-    setSnapMessage("Fit updated. Add another surface when ready.");
+    onManualStart();
+    setSnapMessage("Fit updated. Choose Done when it matches.");
     setLoupe(next);
     requestAnimationFrame(() => drawLoupe(next));
     buzz(2);

@@ -21,17 +21,19 @@ export async function submitAndAwaitMask(
   payload: string,
   notifyWaking: () => void,
   pollIntervalMs = 1500,
+  signal?: AbortSignal,
 ): Promise<SegmentPayload> {
   const submittedAt = Date.now();
   const res = await fetch("/api/visualizer/segment", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: payload,
+    signal,
   });
   const data = (await res.json()) as SegmentPayload;
   if (data.ok && data.pending === true && typeof data.id === "string" && TICKET.test(data.id)) {
     try {
-      return await pollForMask(data.id, submittedAt, notifyWaking, pollIntervalMs);
+      return await pollForMask(data.id, submittedAt, notifyWaking, pollIntervalMs, signal);
     } catch (err) {
       if (err instanceof Error && err.message === "finder-timeout") throw err;
       throw new Error("finder-failed");
@@ -45,15 +47,26 @@ async function pollForMask(
   submittedAt: number,
   notifyWaking: () => void,
   pollIntervalMs: number,
+  signal?: AbortSignal,
 ): Promise<SegmentPayload> {
   let hinted = false;
   while (Date.now() - submittedAt < 110_000) {
-    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    await new Promise<void>((resolve, reject) => {
+      if (signal?.aborted) {
+        reject(new DOMException("Aborted", "AbortError"));
+        return;
+      }
+      const timer = window.setTimeout(resolve, pollIntervalMs);
+      signal?.addEventListener("abort", () => {
+        window.clearTimeout(timer);
+        reject(new DOMException("Aborted", "AbortError"));
+      }, { once: true });
+    });
     if (!hinted && Date.now() - submittedAt > 8000) {
       notifyWaking();
       hinted = true;
     }
-    const res = await fetch(`/api/visualizer/segment?id=${encodeURIComponent(id)}`);
+    const res = await fetch(`/api/visualizer/segment?id=${encodeURIComponent(id)}`, { signal });
     const data = (await res.json()) as SegmentPayload;
     if (data.ok && data.pending === true) continue;
     if (data.ok && typeof data.mask === "string") return data;

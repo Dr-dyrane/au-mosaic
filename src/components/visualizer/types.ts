@@ -9,6 +9,20 @@ export type ShellFaceId = "back" | "left" | "right" | "near" | "floor";
 export type FaceMask = { src: string; quad?: Pt[] };
 export type LoadSource = "upload" | "sample" | "default" | "camera";
 export type PrepMode = "primer" | "blur" | "none";
+export type FitStatus = "unfitted" | "finding" | "suggested" | "adjusting" | "accepted";
+export type FitSource = "default" | "analysis" | "segmentation" | "manual";
+export type FitState = {
+  status: FitStatus;
+  source: FitSource;
+  confidence: number | null;
+  requestId: number | null;
+  adjusted: boolean;
+};
+export type FitRequestContext = {
+  id: number;
+  photoRevision: number;
+  layerId: string;
+};
 export type Homography = {
   a: number;
   b: number;
@@ -45,5 +59,5 @@ export type SurfaceLayer = {
      floor. Null or empty means the shell falls back to geometry. */
   faceMasks: Partial<Record<ShellFaceId, FaceMask>> | null;
   visible: boolean;
-  accepted: boolean;
+  fit: FitState;
 };
