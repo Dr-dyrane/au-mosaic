@@ -1095,3 +1095,29 @@ unmount-on-close sheet, so PhotoPanel walks it back by hand). Gates: eslint
 zero warnings, 89 of 89 tests, the production build compiles. The delete
 bar's live drive waits for the final regression pass; its change is four
 reviewed strings on an untouched flow.
+
+## The seams close: the admin passes the bar its tokens always promised
+
+Batch two of the remediation, the accessibility seams. A skip link now
+stands first in the admin (the primitive existed; the admin never used it),
+jumping past the fifteen rail stops into the room; the room content carries
+the focus target, and every page keeps exactly one main because the rooms
+already own theirs. The Tour stops claiming what it does not do: point
+steps and the chapter menu now truly trap Tab in both directions (a hand
+trap, because do steps must leave the page live for the lesson, and a
+Radix modal would seal it), do steps drop the aria-modal claim, and the
+spotlight stops gliding for reduced-motion eyes. A failed save stops
+wearing gold: Sentence now says "Not saved." in ink before the reason, so
+the difference between success and failure survives any eye, and the one
+announcement path (focus plus role status) stays single. Every hairline
+link accepts a 44px tap through an invisible overlay that costs zero
+layout; the Pager's dead ends shrink back below its live links and drop
+the opacity that composed to 2.3 to 1; the nav's count pill takes the
+button metal's own recipe.
+
+Proven live: first Tab lands on the skip link and Enter lands in the room;
+h1 leads the outline on the phone where the context summary used to jump
+the queue; the order record reads h1 then real h2 sections; a point 8px
+above a hairline still hits it; the tour menu takes focus, holds Tab
+through twelve presses, and leaves on Escape. Gates: eslint zero warnings,
+89 of 89 tests, the build compiles.

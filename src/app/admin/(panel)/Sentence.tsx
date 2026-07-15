@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from "react";
 /* The sentence that answers a save. It takes focus so VoiceOver
    hears it the moment it lands; successes make their point and fade,
    failures stay until he acts. Opacity only, so reduced motion has
-   nothing to object to. */
+   nothing to object to. Failure speaks in words, not colour: "Not
+   saved." leads and the ink stays ink, never gold, so the two answers
+   read apart without any eye for hue. */
 
 type State = { ok: boolean; message: string } | null;
 
@@ -32,10 +34,10 @@ export default function Sentence({ state }: { state: State }) {
       tabIndex={-1}
       role="status"
       className={`text-[14px] outline-none transition-opacity duration-500 ${
-        state.ok ? "text-dusk" : "text-gold"
+        state.ok ? "text-dusk" : "text-ink"
       } ${gone ? "opacity-0" : "opacity-100"}`}
     >
-      {gone ? "" : state.message}
+      {gone ? "" : state.ok ? state.message : `Not saved. ${state.message}`}
     </p>
   );
 }

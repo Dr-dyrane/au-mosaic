@@ -21,7 +21,7 @@ export default function Pager({
           Newer
         </Link>
       ) : (
-        <span className="text-[14px] text-mist/60">Newer</span>
+        <span className="text-[12px] text-mist">Newer</span>
       )}
       <span className="text-[11px] uppercase tracking-[0.18em] text-mist">
         Page {page} of {pages}
@@ -31,7 +31,7 @@ export default function Pager({
           Older
         </Link>
       ) : (
-        <span className="text-[14px] text-mist/60">Older</span>
+        <span className="text-[12px] text-mist">Older</span>
       )}
     </nav>
   );

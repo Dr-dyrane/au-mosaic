@@ -208,8 +208,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           left, payments on the right, law 6 side by side. The phone
           keeps the single file it always read. */}
       <div className="mt-10 grid max-w-3xl items-start gap-x-10 gap-y-12 xl:max-w-none xl:grid-cols-2">
+        {/* Section titles are h2 so the record reads as an outline:
+            the customer's name, then each part of the sale. */}
         <section className="panel xl:col-span-2">
-          <p className="font-serif text-[20px]">Where it stands</p>
+          <h2 className="font-serif text-[20px]">Where it stands</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-3">
             <div>
               <p className="eyebrow">Billed</p>
@@ -233,7 +235,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         </section>
 
         <section data-tour="order-lines">
-          <p className="eyebrow">The items</p>
+          <h2 className="eyebrow">The items</h2>
           {lines.length === 0 && (
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">
               No items yet.
@@ -299,7 +301,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         </section>
 
         <section>
-          <p className="eyebrow">Payments</p>
+          <h2 className="eyebrow">Payments</h2>
           {pays.length === 0 && (
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">
               Nothing recorded yet.

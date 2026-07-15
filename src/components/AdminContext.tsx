@@ -363,9 +363,12 @@ function ContextBody({
   return (
     <>
       <p className="eyebrow">{ctx.eyebrow}</p>
-      <h2 className={`font-serif mt-3 ${compact ? "text-[20px]" : "text-[26px]"} leading-tight`}>
+      {/* A styled p, not a heading: this panel is chrome, and on the
+          phone it sits above the page h1, where a heading would break
+          the document outline. */}
+      <p className={`font-serif mt-3 ${compact ? "text-[20px]" : "text-[26px]"} leading-tight`}>
         {ctx.title}
-      </h2>
+      </p>
       <p className="mt-3 text-[14px] leading-relaxed text-dusk">{ctx.line || calm}</p>
       {ctx.metrics.length > 0 && (
         <dl className="mt-7 space-y-4">

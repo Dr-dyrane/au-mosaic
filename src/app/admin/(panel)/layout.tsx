@@ -30,6 +30,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const mode = await getDataMode();
   return (
     <div className="admin-rooms mx-auto grid min-h-svh w-full max-w-[1540px] grid-cols-1 px-5 pb-36 tabular-nums sm:px-8 sm:pb-36 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:gap-8 xl:px-8 xl:pb-8">
+      {/* First stop for the keyboard: past the rail, straight to the room. */}
+      <a href="#admin-main" className="skip-link">
+        Skip to the room
+      </a>
       <aside className="layer-admin-nav hidden xl:sticky xl:top-0 xl:flex xl:h-svh xl:flex-col xl:overflow-y-auto xl:py-6">
         <div className="glass liquid-glass flex min-h-[calc(100svh-48px)] flex-col rounded-[32px] p-5">
           <Link href="/admin" className="flex shrink-0 items-center gap-2.5" aria-label="Back office home">
@@ -91,7 +95,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </header>
         <AdminMobileContext pulse={pulse} />
-        <div>{children}</div>
+        {/* The skip link lands here. A div, not a main: every room page
+           brings its own landmark, and one main per page is the law. */}
+        <div id="admin-main" tabIndex={-1} className="outline-none">
+          {children}
+        </div>
         <footer className="mt-24 flex flex-wrap items-center justify-between gap-5 pt-8 xl:hidden">
           <p className="text-[11px] uppercase tracking-[0.18em] text-mist">
             The back office · AU Mosaic

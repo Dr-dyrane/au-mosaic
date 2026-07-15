@@ -644,6 +644,18 @@ p { text-wrap: pretty; }
   color: var(--color-ink);
   padding-bottom: 6px;
 }
+/* The hairline stays a whisper, but a thumb needs a full door:
+   an invisible 44px band widens the touch target without moving
+   a single pixel of layout. ::after is busy holding the line. */
+.link-hair::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}
 .link-hair::after {
   content: "";
   position: absolute;

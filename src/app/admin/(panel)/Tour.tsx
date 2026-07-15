@@ -540,6 +540,39 @@ export default function Tour() {
     if (menu) menuCard.current?.focus({ preventScroll: true });
   }, [menu]);
 
+  /* The hand trap: while the scrim holds the whole room, Tab cycles
+     inside the card instead of walking into covered furniture. The
+     menu and every point step trap; a do step never does, because
+     its live window is the lesson and the hand must reach it. */
+  useEffect(() => {
+    const pointStep = !!(step && step.kind !== "do" && box);
+    if (!menu && !pointStep) return;
+    const onTab = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const root = menu ? menuCard.current : card.current;
+      if (!root) return;
+      const focusables = [
+        ...root.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, [tabindex]:not([tabindex="-1"])'
+        ),
+      ].filter((el) => el.offsetWidth > 0 || el.offsetHeight > 0);
+      if (focusables.length === 0) return;
+      e.preventDefault();
+      const at = focusables.indexOf(document.activeElement as HTMLElement);
+      /* Landing on the card itself (at is -1) steps to an edge. */
+      const next = e.shiftKey
+        ? at <= 0
+          ? focusables.length - 1
+          : at - 1
+        : at === -1 || at === focusables.length - 1
+          ? 0
+          : at + 1;
+      focusables[next].focus();
+    };
+    window.addEventListener("keydown", onTab, true);
+    return () => window.removeEventListener("keydown", onTab, true);
+  }, [menu, step, box]);
+
   return (
     <>
       {menu && (
@@ -608,7 +641,7 @@ export default function Tour() {
           )}
           <div
             aria-hidden
-            className="pointer-events-none fixed layer-admin-highlight rounded-[22px] transition-all duration-500"
+            className="pointer-events-none fixed layer-admin-highlight rounded-[22px] transition-all duration-500 motion-reduce:transition-none"
             style={{
               top: box.top,
               left: box.left,
@@ -621,7 +654,9 @@ export default function Tour() {
             ref={card}
             tabIndex={-1}
             role="dialog"
-            aria-modal="true"
+            /* aria-modal only where the trap truly holds; a do step
+               leaves the page live, so it must not claim modality. */
+            aria-modal={step.kind === "do" ? undefined : true}
             aria-label={step.title}
             className="glass fixed inset-x-5 bottom-[calc(96px+env(safe-area-inset-bottom))] layer-admin-tour-card rounded-[28px] p-5 outline-none sm:inset-x-auto sm:bottom-10 sm:left-1/2 sm:w-[22rem] sm:-translate-x-1/2"
           >

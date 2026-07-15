@@ -80,11 +80,13 @@ function useChromeCompact() {
   return compact;
 }
 
-/* A quiet gold count beside a room's name: how many people owe. */
+/* A count beside a room's name: how many people owe. It wears the
+   btn-gold metal, brass with ink, so the number reads AA in both
+   themes; a tinted wash could not carry an 11px digit that far. */
 function CountPill({ n }: { n: number }) {
   if (n <= 0) return null;
   return (
-    <span aria-label={`${n} owing`} className="ml-1 inline-flex min-w-4 items-center justify-center rounded-full bg-gold/15 px-1 text-[11px] font-semibold leading-4 text-gold">
+    <span aria-label={`${n} owing`} className="ml-1 inline-flex min-w-4 items-center justify-center rounded-full bg-[var(--t-brass)] px-1 text-[11px] font-semibold leading-4 text-[#14110b]">
       {n}
     </span>
   );
