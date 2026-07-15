@@ -205,7 +205,11 @@ function contextActionsFor(
   }
   if (/^\/admin\/(orders|customers|pieces)\/(?!new$)[^/]+/.test(pathname)) {
     const primary = pageAction ?? routeAction;
-    return uniqueActions(primary ? [primary, ...extraActions] : extraActions);
+    const merged = uniqueActions(primary ? [primary, ...extraActions] : extraActions);
+    /* The order record's Payments section owns its own trigger now,
+       so the rail stands down from that verb: one owner per action.
+       The phone dock's gold is resolved elsewhere and keeps it. */
+    return merged.filter((action) => action.intent !== ADMIN_ACTION_INTENTS.orderPayment);
   }
   return ctx.actions;
 }

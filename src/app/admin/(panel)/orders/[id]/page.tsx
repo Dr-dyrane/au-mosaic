@@ -303,11 +303,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
         <section>
           <h2 className="eyebrow">Payments</h2>
-          {pays.length === 0 && (
-            <p className="mt-4 max-w-md text-[14px] leading-relaxed text-dusk">
-              Nothing recorded yet.
-            </p>
-          )}
           {pays.length > 0 && (
             <div className="mt-4 grid gap-4">
               {pays.map((p) => (
@@ -341,7 +336,20 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               )}
             </div>
           )}
-          <OrderPaymentAction orderId={order.id} />
+          {/* The section carries its own trigger, so recording money
+              never means hunting the rail. The chip dress keeps the
+              screen's one gold where it already lives: the phone dock's
+              Add payment, and the open panel's Record button. */}
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
+            {pays.length === 0 && (
+              <p className="text-[14px] leading-relaxed text-dusk">Nothing recorded yet.</p>
+            )}
+            <OrderPaymentAction
+              orderId={order.id}
+              showTrigger
+              className="chip-solid min-h-11"
+            />
+          </div>
           {returnOptions.length > 0 && (
             <OrderReturnAction orderId={order.id} lines={returnOptions} />
           )}

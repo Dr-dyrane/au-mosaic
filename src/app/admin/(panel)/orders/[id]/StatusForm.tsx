@@ -7,11 +7,12 @@ import { PIPELINE, STATUS_LABEL, type OrderStatus as Step } from "../pipeline";
 import Sentence from "../../Sentence";
 import { buzz } from "@/lib/backoffice";
 
-/* The one lever on the record: where the order stands. Optimistic on
-   purpose: the chip moves the instant he saves, the server confirms
-   behind it, and on failure the chip walks back with a sentence. The
-   save whispers in link-hair; the gold on this page belongs to the
-   lines, where the money is.
+/* The one lever on the record: where the order stands, and the
+   pipeline chips are the control. Tap a step and the order moves
+   there. Optimistic on purpose: the chip rises the instant he taps,
+   the server confirms behind it, and on failure the chip walks back
+   with a sentence. No gold here; the gold on this page belongs to
+   the lines, where the money is.
 
    One exception earns a pause. Crossing the door, into Delivered or
    Settled or back out of them, physically moves stock, so the house
@@ -19,9 +20,6 @@ import { buzz } from "@/lib/backoffice";
    unit. Gold proceeds, Not yet stays, and the chip does not move
    until he says yes. Confirms are for consequence, never ceremony:
    steps that move nothing still move in one tap. */
-
-const field =
-  "w-full rounded-[18px] bg-shell/60 px-5 py-3.5 text-[14px] text-ink outline-none placeholder:text-mist focus:bg-shell transition-colors duration-300";
 
 type Movement = { name: string; qty: number; unit: string };
 
@@ -112,10 +110,11 @@ export default function StatusForm({
     });
   };
 
-  const submit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const next = form.get("status") as Step;
+  const move = (next: Step) => {
+    buzz(5);
+    const form = new FormData();
+    form.set("id", orderId);
+    form.set("status", next);
     const crosses = OUT.includes(next) !== OUT.includes(status);
     if (crosses && movements.length > 0) {
       buzz(3);
@@ -127,46 +126,26 @@ export default function StatusForm({
 
   return (
     <div data-tour="order-status">
-      {/* The pipeline: the chip under his thumb moves immediately. */}
-      <div className="mt-5 flex flex-wrap gap-2">
+      <p className="eyebrow mt-5">Move it to</p>
+      {/* The pipeline is the control: the chip under his thumb moves immediately. */}
+      <div className="mt-2.5 flex flex-wrap gap-2">
         {PIPELINE.map((step) => (
-          <span key={step} className={`chip-solid ${step === shown ? "is-on" : ""}`}>
+          <button
+            key={step}
+            type="button"
+            onClick={() => move(step)}
+            disabled={pending || step === shown}
+            aria-current={step === shown ? "step" : undefined}
+            aria-label={`Move to ${STATUS_LABEL[step]}`}
+            className={`chip-solid min-h-11 ${step === shown ? "is-on" : ""}`}
+          >
             {STATUS_LABEL[step]}
-          </span>
+          </button>
         ))}
       </div>
-      <form onSubmit={submit} className="mt-6 grid gap-4 sm:max-w-xs">
-        <input type="hidden" name="id" value={orderId} />
-        <div>
-          <label htmlFor="status" className="eyebrow mb-2.5 block">
-            Move it to
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={status}
-            aria-label="Order status"
-            className={field}
-          >
-            {PIPELINE.map((s) => (
-              <option key={s} value={s}>
-                {STATUS_LABEL[s]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-6">
-          <button
-            type="submit"
-            disabled={pending}
-            onClick={() => buzz(5)}
-            className="link-hair text-[12px] disabled:opacity-60"
-          >
-            {pending ? "Saving..." : "Save the step"}
-          </button>
-          <Sentence state={state} />
-        </div>
-      </form>
+      <div className="mt-4 flex items-center gap-6">
+        <Sentence state={state} />
+      </div>
       {ask && (
         <Consequence
           next={ask.next}

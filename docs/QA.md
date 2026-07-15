@@ -1173,3 +1173,30 @@ audit counted roughly 150 before the first number); no definition notes,
 no aphorisms, no duplicate navigation at 1440; the first number sits at
 y=715 on a 390px phone, above the fold. Gates: eslint zero warnings, 89
 of 89 tests, the build compiles.
+
+## Taps do what they look like: the controls stop lying
+
+Batch five, honest controls. The order pipeline chips became the real
+control: five buttons in the chip dress, the current step disabled and
+marked aria-current, every other step one tap away through the exact
+submit path the old select used, the Consequence sheet still standing
+guard wherever stock moves. The select and its "Save the step" retired.
+Recording a payment stopped hiding in the rail: a visible capsule sits at
+the Payments section's foot, adjacent to the empty line when nothing is
+recorded yet, rendering once at a stable position so the first payment
+cannot remount it. The phone FAB now says what it does, icon plus the
+registered action's own word in a capsule that grows to fit; external
+actions wear the share glyph, so the WhatsApp reminder on Owed reads
+Remind oldest and looks like a departure. The owed count pill keys on the
+room id instead of a display string, surviving any rename. And the enquiry
+row folded four identical word buttons into one primary verb (Attach when
+unmatched, Replied when matched) plus a three-dot overflow opening the
+house sheet, where Close enquiry and Archive enquiry finally mean
+different things and every action names its sender for the screen reader.
+
+Proven live on a real order: chips render as buttons at 44px, tapping
+Move to Delivered opened the consequence sheet and Not yet declined
+safely; Record a payment visible in context; the FAB measured 116 by 56
+with its word after clearing a stale Turbopack cache that had been
+serving old CSS (the cache, not the code; noted for the record). Gates:
+eslint zero warnings, 89 of 89 tests, the build compiles.

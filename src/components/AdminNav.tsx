@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   IconAdd,
   IconDeliveries,
+  IconShare,
   IconHome,
   IconInsights,
   IconOrders,
@@ -59,9 +60,10 @@ function RoomGlyph({ room, className }: { room: AdminRoom; className?: string })
 }
 
 function ActionGlyph({ action }: { action: RoomAction }) {
+  if (action.external) return <IconShare className="h-5 w-5 shrink-0" />;
   const addAction = /^(Add|New)\b/.test(action.label);
-  if (addAction) return <IconAdd className="h-5 w-5" />;
-  return <RoomGlyph room={action.room} className="h-5 w-5" />;
+  if (addAction) return <IconAdd className="h-5 w-5 shrink-0" />;
+  return <RoomGlyph room={action.room} className="h-5 w-5 shrink-0" />;
 }
 
 function useChromeCompact() {
@@ -111,7 +113,7 @@ export function AdminRailNav({ owed = 0 }: { owed?: number }) {
               <RoomGlyph room={r} className={`h-5 w-5 shrink-0 ${on ? "text-gold" : "text-mist group-hover:text-dusk"}`} />
               <span className="truncate">{r.label}</span>
             </span>
-            {r.label === "Owed" && <CountPill n={owed} />}
+            {r.id === "owed" && <CountPill n={owed} />}
           </Link>
         );
       })}
@@ -163,12 +165,11 @@ export function AdminTabBar() {
               event.preventDefault();
               dispatchAdminActionIntent(action.intent, action);
             }}
-            aria-label={action.label}
-            title={action.label}
             data-tour={action.tour}
             className="btn-gold admin-fab pointer-events-auto shadow-lift"
           >
             <ActionGlyph action={action} />
+            <span>{action.label}</span>
           </Link>
         )}
       </div>

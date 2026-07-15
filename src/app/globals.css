@@ -706,13 +706,15 @@ p { text-wrap: pretty; }
 .btn-danger:hover { transform: translateY(-1px); opacity: 0.9; }
 .btn-danger:active { transform: translateY(0) scale(0.97); }
 
+/* The phone's one gold verb: a capsule that says what it does. The
+   glyph gives the eye a shape; the word carries the meaning. */
 .admin-fab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  padding: 0;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 20px;
   border-radius: 999px;
 }
 

@@ -1,5 +1,5 @@
 /* The thumb verbs, drawn once by the house: back, eye, filter, close,
-   share, refresh, and add. Typography stays the identity; these
+   share, refresh, add, and more. Typography stays the identity; these
    stand only where a word would slow the hand. Stroke rides
    currentColor, so each icon dresses in the ink of its line. */
 
@@ -83,6 +83,16 @@ export function IconAdd({ className }: IconProps) {
     <Svg className={className}>
       <path d="M12 5v14" />
       <path d="M5 12h14" />
+    </Svg>
+  );
+}
+
+export function IconMore({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="5" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1.1" fill="currentColor" stroke="none" />
     </Svg>
   );
 }
