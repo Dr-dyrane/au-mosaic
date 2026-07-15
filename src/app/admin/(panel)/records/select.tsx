@@ -230,7 +230,7 @@ export function SelectBar() {
               type="button"
               onClick={askDelete}
               disabled={pending}
-              className="link-hair text-[12px] text-gold disabled:opacity-60"
+              className="link-hair text-[12px] text-dusk disabled:opacity-60"
             >
               {pending ? "Working..." : "Delete"}
             </button>
@@ -240,7 +240,7 @@ export function SelectBar() {
           </>
         ) : (
           <>
-            <span className="text-[12px] text-gold">Delete {ids.length} for good?</span>
+            <span className="text-[12px] text-ink">Delete {ids.length} for good?</span>
             {cascade && <span className="text-[12px] text-dusk">{cascade}</span>}
             <button
               type="button"
@@ -249,9 +249,9 @@ export function SelectBar() {
                 run(() => deleteRecords(entity, ids, true));
               }}
               disabled={pending}
-              className="btn-gold text-[12px] disabled:opacity-60"
+              className="btn-danger text-[12px] disabled:opacity-60"
             >
-              {pending ? "Deleting..." : "Yes, delete"}
+              {pending ? "Deleting..." : `Delete ${ids.length} for good`}
             </button>
             <button
               type="button"
@@ -266,7 +266,7 @@ export function SelectBar() {
           </>
         )}
         {msg && (
-          <span role="status" className="text-[12px] text-gold">
+          <span role="status" className="text-[12px] text-dusk">
             {msg}
           </span>
         )}

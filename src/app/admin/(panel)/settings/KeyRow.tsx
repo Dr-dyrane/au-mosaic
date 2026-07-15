@@ -25,7 +25,7 @@ export default function KeyRow({
       <div className="min-w-0">
         <p className="truncate text-[14px] text-ink">{name}</p>
         <p className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-mist">
-          {active ? "Key turns" : "Key taken back"}
+          {active ? "Active" : "Disabled"}
         </p>
       </div>
       <form onSubmit={keepValues(action)} className="flex shrink-0 items-center gap-5">
@@ -35,9 +35,10 @@ export default function KeyRow({
           type="submit"
           onClick={() => buzz(4)}
           disabled={pending}
+          aria-label={`${active ? "Disable" : "Restore"} access for ${name}`}
           className="link-hair text-dusk text-[12px] disabled:opacity-60"
         >
-          {pending ? "A moment..." : active ? "Take back the key" : "Hand it back"}
+          {pending ? "A moment..." : active ? "Disable access" : "Restore access"}
         </button>
         {state && !state.ok && <Sentence state={state} />}
       </form>

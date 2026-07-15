@@ -16,6 +16,22 @@ note. Newest on top.
 
 ---
 
+## 2026-07-14 - Claude - Back-office UX remediation (audit-governed) - open
+
+The owner approved the back-office UX audit (134 findings, artifact of record)
+and commissioned its implementation: safety first, then accessibility seams,
+canonical terminology, prose reduction, home simplification, honest controls,
+workflow efficiency, consolidation. Not a redesign: the design law, one-gold
+discipline, Teach/Tour, Consequence, and URL-backed filters are preserved and
+extended. Claimed files: the admin tree `src/app/admin/**` (rooms, login,
+offline), `src/components/AdminNav.tsx`, `AdminContext.tsx`, `AdminSheet.tsx`,
+`src/lib/admin-rooms.ts`, the admin blocks of `src/app/globals.css`,
+`docs/QA.md`, and this handshake. Explicitly outside: all visualizer files,
+`src/lib` data modules, schemas, server actions' logic (only labels and
+placement move; payloads and validation stay). Batches land as separate story
+commits, each gated (tests, eslint zero warnings, build). CODEX: please hold
+these files until this entry is marked done.
+
 ## 2026-07-13 - CODEX - Visualizer fit contract correction - complete
 
 Implementing the accepted independent review as one protected product-flow

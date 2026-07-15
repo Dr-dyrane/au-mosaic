@@ -1068,3 +1068,30 @@ and all 76 static pages. Five focused tests guard provisional defaults,
 suggestion acceptance, manual correction, retry, and stale request ownership.
 A fresh live pointer, mobile safe-area, and native-share canary were not run in
 this pass and remain the final device-level confirmation.
+
+## The four traps are defused: destruction stops dressing like Save
+
+The audit's four critical findings, all fixed and all proven live with the
+confirms cancelled so nothing real moved. Archive left the sticky save
+capsule: it now stands alone at the form's end and asks first, naming the
+piece and the true consequence ("It leaves the site and the working list;
+Restore brings it back"), with focus landing on Keep it so a repeated Enter
+cannot archive, and walking back to the trigger on cancel. Taking a live
+photo off the site now opens the house consequence sheet (AdminSheet,
+alertdialog) that names the exact face and the honest operation, detach and
+archive, never delete: "This takes the night photo off the site now. The
+image is kept in Photos, archived." Permanent deletion took off Save's gold:
+a new btn-danger capsule, solid ink on sand in any palette, carries "Delete
+{n} for good", and every failure message in the selection bar dropped gold
+for dusk. The key rack speaks plainly: state reads Active or Disabled, the
+verbs are Disable access and Restore access, and the screen reader hears the
+person's name.
+
+Proven live against the dev server with playwright, thirteen assertions
+green: capsule structure at desktop and phone widths, question wording,
+focus discipline in both directions, alertdialog semantics, Escape, and
+focus restoration (one fix found live: Radix cannot restore focus across an
+unmount-on-close sheet, so PhotoPanel walks it back by hand). Gates: eslint
+zero warnings, 89 of 89 tests, the production build compiles. The delete
+bar's live drive waits for the final regression pass; its change is four
+reviewed strings on an untouched flow.

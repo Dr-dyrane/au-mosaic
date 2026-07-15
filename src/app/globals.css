@@ -675,6 +675,25 @@ p { text-wrap: pretty; }
 .btn-gold:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--t-brass) 86%, white); }
 .btn-gold:active { transform: translateY(0) scale(0.97); }
 
+/* Destruction never wears the house gold. It wears ink, the heaviest
+   metal: a full-value inversion beside brass in either theme, so the
+   difference survives any eye. The dress is never the only signal;
+   a danger button always names its verb and its object. */
+.btn-danger {
+  display: inline-block;
+  background: var(--t-ink);
+  color: var(--t-sand);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 16px 30px;
+  border-radius: 999px;
+  transition: transform 0.3s var(--ease-glide), opacity 0.3s var(--ease-glide);
+}
+.btn-danger:hover { transform: translateY(-1px); opacity: 0.9; }
+.btn-danger:active { transform: translateY(0) scale(0.97); }
+
 .admin-fab {
   display: inline-flex;
   align-items: center;

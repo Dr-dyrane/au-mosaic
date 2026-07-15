@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import AdminPhotoViewer from "@/components/AdminPhotoViewer";
+import AdminSheet from "@/components/AdminSheet";
 import { removePhoto, uploadPhoto, type SaveState } from "../actions";
 import { refineForTheWindow } from "../refine";
 import Sentence from "../../Sentence";
@@ -37,7 +38,19 @@ function Slot({
   const [rmState, rmAction, rmPending] = useActionState<SaveState, FormData>(removePhoto, null);
   const [gate, setGate] = useState<SaveState>(null);
   const [refining, setRefining] = useState(false);
+  const [asking, setAsking] = useState(false);
   const upRef = useRef<HTMLFormElement>(null);
+  const rmRef = useRef<HTMLFormElement>(null);
+  const rmTriggerRef = useRef<HTMLButtonElement>(null);
+
+  /* Radix cannot restore focus across this unmount-on-close sheet, so
+     the hand does it: a declined question walks focus back onto the
+     trigger. A confirmed removal skips this; the Sentence takes focus
+     when the answer lands. */
+  const closeAsking = (submitted: boolean) => {
+    setAsking(false);
+    if (!submitted) requestAnimationFrame(() => rmTriggerRef.current?.focus());
+  };
   const state = gate ?? upState ?? rmState;
   const isBlob = current?.includes("blob.vercel-storage.com");
 
@@ -68,6 +81,18 @@ function Slot({
     }
     form.set("photo", refined.blob, "photograph.jpg");
     startTransition(() => upAction(form));
+  };
+
+  /* The confirm names the exact face it takes down. */
+  const face =
+    slot === "card" ? (which === "night" ? "dark card" : "light card") : `${which} photo`;
+
+  /* Only a yes in the sheet reaches the server, with the very
+     fields the hidden form holds. */
+  const goRemove = () => {
+    const form = rmRef.current ? new FormData(rmRef.current) : null;
+    closeAsking(true);
+    if (form) startTransition(() => rmAction(form));
   };
 
   return (
@@ -120,14 +145,50 @@ function Slot({
         </button>
       </form>
       {current && (
-        <form action={rmAction} className="mt-2.5">
+        /* Taking a live photo down deserves a question, not a reflex.
+           The button only opens the sheet; the sheet names what
+           happens; a yes sends the same fields the old one-tap form
+           carried, so the server sees nothing new. */
+        <form ref={rmRef} className="mt-2.5">
           <input type="hidden" name="slug" value={slug} />
           <input type="hidden" name="slot" value={slot} />
           <input type="hidden" name="which" value={which} />
-          <button type="submit" disabled={rmPending} className="link-hair text-mist text-[12px] disabled:opacity-60">
-            {rmPending ? "Taking down..." : "Take it down"}
+          <button
+            ref={rmTriggerRef}
+            type="button"
+            onClick={() => setAsking(true)}
+            disabled={rmPending}
+            className="link-hair inline-flex min-h-11 items-center text-mist text-[12px] disabled:opacity-60"
+          >
+            {rmPending ? "Taking it off..." : "Take it off the site"}
           </button>
         </form>
+      )}
+      {asking && (
+        <AdminSheet
+          open
+          onOpenChange={(open) => {
+            if (!open) closeAsking(false);
+          }}
+          title="Before it comes down"
+          description={`This takes the ${face} off the site now. The image is kept in Photos, archived.`}
+          id={`photo-remove-${slot}-${which}`}
+          compactOnly={false}
+          role="alertdialog"
+        >
+          <div className="mt-5 flex items-center gap-6">
+            <button type="button" onClick={goRemove} className="btn-danger">
+              Take it off the site
+            </button>
+            <button
+              type="button"
+              onClick={() => closeAsking(false)}
+              className="link-hair text-dusk text-[12px]"
+            >
+              Keep it
+            </button>
+          </div>
+        </AdminSheet>
       )}
       <div className="mt-3">
         <Sentence state={state} />

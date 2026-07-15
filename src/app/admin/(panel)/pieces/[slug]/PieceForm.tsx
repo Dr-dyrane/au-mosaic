@@ -259,7 +259,12 @@ export default function PieceForm({ piece, ranges, stock }: Props) {
           {pending ? "Saving..." : "Save the piece"}
         </button>
         <Sentence state={state} />
-        <ArchiveButton entity="piece" id={piece.slug} label="Archive the piece" />
+      </div>
+
+      {/* Archive lives apart from Save, alone at the form's end, so a
+          save gesture can never land on it. It asks before it acts. */}
+      <div className="mt-10">
+        <ArchiveButton entity="piece" id={piece.slug} label="Archive the piece" confirm={piece.name} />
       </div>
     </form>
   );
