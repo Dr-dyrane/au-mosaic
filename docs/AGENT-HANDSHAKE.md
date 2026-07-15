@@ -16,7 +16,7 @@ note. Newest on top.
 
 ---
 
-## 2026-07-14 - Claude - Back-office UX remediation (audit-governed) - open
+## 2026-07-14 - Claude - Back-office UX remediation (audit-governed) - done
 
 The owner approved the back-office UX audit (134 findings, artifact of record)
 and commissioned its implementation: safety first, then accessibility seams,

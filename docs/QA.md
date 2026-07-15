@@ -1228,3 +1228,23 @@ appears exactly once (an earlier probe misread the page: the eyebrows
 render uppercase and the case-sensitive check missed them; the screenshot
 settled it). Gates: eslint zero warnings, 89 of 89 tests, the build
 compiles.
+
+## The remediation closes: seven batches, six commits, one regression pass
+
+Batch seven chose restraint over abstraction: after six batches the
+semantic consolidation already existed (one status dictionary, one filter
+grammar, one empty-state pattern, .money, .btn-danger), so no new shared
+components were minted; the brief's own law against premature abstraction
+governed. The final sweep drove all nine rooms at five breakpoints, 45
+renders: h1 leads every visible outline, exactly one main landmark
+everywhere, one gold action per room at desktop, zero icon-only controls
+without an accessible name, the 44px hairline overlay measured present on
+every link, a reduced-motion session's first Tab still lands on the skip
+link, a 25-tab keyboard walk never drops to body, and the deferred
+delete-bar drive finally ran live: btn-danger, the count, "for good", and
+Keep cancelling clean. One console error surfaced across the 45 renders:
+a 401 from the offline mirror's snapshot fetch racing session
+establishment at login, pre-existing code untouched by this lane,
+recorded as outside scope. Net across the lane: 45 files, 949 insertions,
+486 deletions, six story commits, each gated by eslint zero warnings, 89
+of 89 tests, and the production build.
