@@ -101,7 +101,7 @@ export default async function CustomersPage({
         <div>
           <p className="eyebrow">People</p>
           <h1 className="font-serif text-display-section mt-3">
-            {showArchived ? "Archived people." : "The customers."}
+            {showArchived ? "Archived people." : "People."}
           </h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
             {showArchived ? (
@@ -156,7 +156,7 @@ export default async function CustomersPage({
           The chat itself lives in WhatsApp; this remembers it began. */}
       {fresh.length > 0 && (
         <section className="panel mt-8 max-w-2xl" data-tour="fresh">
-          <p className="font-serif text-[20px]">Fresh from the window</p>
+          <p className="font-serif text-[20px]">New enquiries</p>
           <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
             <Teach until="people">Site taps. Check the chat, then clear.</Teach>
             {freshTotal > ENQ_PER_PAGE && ` ${freshTotal} waiting.`}

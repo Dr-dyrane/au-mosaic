@@ -63,7 +63,7 @@ export default async function SharePage({
 
   return (
     <main>
-      <Back href="/admin" label="The glance" />
+      <Back href="/admin" label="Home" />
       <p className="eyebrow mt-6">The bridge</p>
       <h1 className="mt-3 font-serif text-display-section">From WhatsApp.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">

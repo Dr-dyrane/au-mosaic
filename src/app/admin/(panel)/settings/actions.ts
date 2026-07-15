@@ -98,7 +98,7 @@ export async function savePushSubscription(_prev: SaveState, form: FormData): Pr
   } catch {
     return {
       ok: false,
-      message: "The morning tap is not ready yet. Turn on notification keys, then try again.",
+      message: "Notifications are not ready yet. Turn on notification keys, then try again.",
     };
   }
   await logAction("asked this phone to be told");

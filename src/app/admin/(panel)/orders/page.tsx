@@ -95,7 +95,7 @@ export default async function OrdersPage({
       <span hidden data-admin-context-action data-href="/admin/export/orders.csv" data-label="Export orders" />
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
-          <p className="eyebrow">Ledger</p>
+          <p className="eyebrow">Orders</p>
           <h1 className="mt-3 font-serif text-display-section">{showArchived ? "Archived orders." : "The orders."}</h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
             {showArchived

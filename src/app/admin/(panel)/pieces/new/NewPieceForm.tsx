@@ -24,10 +24,10 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
         <input id="name" name="name" required aria-label="Piece name" placeholder="Emerald pool blend" className={field} />
       </div>
       <div data-tour="np-shelf">
-        <label htmlFor="rangeSlug" className={label}>Its shelf</label>
-        <select id="rangeSlug" name="rangeSlug" required aria-label="Range" className={field} defaultValue="">
+        <label htmlFor="rangeSlug" className={label}>Shelf</label>
+        <select id="rangeSlug" name="rangeSlug" required aria-label="Shelf" className={field} defaultValue="">
           <option value="" disabled>
-            Choose a range
+            Choose a shelf
           </option>
           {ranges.map((r) => (
             <option key={r.slug} value={r.slug}>
@@ -43,10 +43,10 @@ export default function NewPieceForm({ ranges }: { ranges: { slug: string; name:
       <ColorsField initial={[]} />
       <label className="flex cursor-pointer items-center justify-between" data-tour="np-window">
         <span>
-          <span className="block text-[14px] font-medium">Put it in the window now</span>
+          <span className="block text-[14px] font-medium">Show on the site</span>
           <Teach until="stockroom">
             <span className="mt-1 block text-[14px] text-dusk">
-              Off means it stays in the book until you are ready.
+              Off means it stays off the site until you are ready.
             </span>
           </Teach>
         </span>

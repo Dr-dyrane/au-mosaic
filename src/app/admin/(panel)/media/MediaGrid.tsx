@@ -6,14 +6,8 @@ import AdminPhotoViewer from "@/components/AdminPhotoViewer";
 import InfiniteList, { type Batch } from "@/components/InfiniteList";
 import { MediaAssetControls, type PieceOption } from "./MediaForms";
 import type { MediaListRow } from "./media-list";
+import { labelStatus } from "./media-filter-model";
 import { RowCheckbox, useSelect } from "../records/select";
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: "Draft",
-  approved: "Approved",
-  wired: "Live",
-  archived: "Archived",
-};
 
 const ROLE_LABELS: Record<string, string> = {
   card: "Product display",
@@ -26,12 +20,8 @@ const ROLE_LABELS: Record<string, string> = {
 const SUN_LABELS: Record<string, string> = {
   day: "Day",
   night: "Night",
-  single: "Single",
+  single: "No pair",
 };
-
-function labelStatus(value: string) {
-  return STATUS_LABELS[value] ?? value.replace(/_/g, " ");
-}
 
 function labelRole(value: string) {
   return ROLE_LABELS[value] ?? value.replace(/_/g, " ");

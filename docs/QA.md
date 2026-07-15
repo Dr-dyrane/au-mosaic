@@ -1121,3 +1121,25 @@ the queue; the order record reads h1 then real h2 sections; a point 8px
 above a hairline still hits it; the tour menu takes focus, holds Tab
 through twelve presses, and leaves on Escape. Gates: eslint zero warnings,
 89 of 89 tests, the build compiles.
+
+## One name per thing: the private vocabulary retires
+
+Batch three, the canon. The rail's own labels became law across every
+room: Stock stopped answering to Inventory, The book, and the stockroom;
+Owed stopped being The ledger and Who owes what; Deliveries' terminal
+group says Delivered like the pipeline does; the publish toggle says Show
+on the site in both forms; the shelf control uses one word from the first
+screen a piece exists on. Settings speaks function first: Notifications,
+Staff access, Address, Master key, with the key metaphor surviving only in
+supporting copy. The customer record's status chips now render the
+pipeline's own STATUS_LABEL instead of raw database values, the media room
+shares one status dictionary instead of redeclaring it, every debt row
+carries the same verb (Remind on WhatsApp), and the share room's back
+control says Home. Order detail gained the same eyebrow-then-title rhythm
+as its list, and payment methods render capitalized.
+
+Proven live across nine rooms in one sweep: eyebrows and titles match the
+rail, the metaphor headings are gone (two survivors found in body copy and
+renamed: the morning tap became the morning summary in a permission line
+and Notifications in a server message). Gates: eslint zero warnings, 89 of
+89 tests, the build compiles.

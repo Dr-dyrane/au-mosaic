@@ -181,7 +181,7 @@ export default async function MediaPage({
                 {status === "archived" ? "Nothing archived." : "No photos here yet."}
               </p>
               <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                {status === "archived" ? "Photos you set aside land here." : "Add prepared photos to begin."}
+                {status === "archived" ? "Photos you set aside land here." : "Upload once, then decide whether it is a product display, room example, or showroom photo."}
               </p>
             </div>
           )}

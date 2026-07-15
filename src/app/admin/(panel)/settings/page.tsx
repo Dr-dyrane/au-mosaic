@@ -54,7 +54,7 @@ export default async function SettingsPage() {
           <div className="grid gap-8">
             {isOwner && (
               <div className="panel">
-                <p className="font-serif text-[20px]">The keys to the door</p>
+                <p className="font-serif text-[20px]">Staff access</p>
                 <Teach>
                   <p className="mt-2 text-[14px] leading-relaxed text-dusk">
                     Named keys for the people who help.
@@ -96,7 +96,7 @@ export default async function SettingsPage() {
 
             {!isOwner && (
               <div className="panel">
-                <p className="font-serif text-[20px]">The morning tap</p>
+                <p className="font-serif text-[20px]">Notifications</p>
                 <Teach>
                   <p className="mt-2 text-[14px] leading-relaxed text-dusk">
                     The glance, on your phone each morning.
@@ -111,7 +111,7 @@ export default async function SettingsPage() {
         <div className="grid items-start gap-8 lg:grid-cols-2">
           {isOwner && (
             <div className="panel h-full">
-              <p className="font-serif text-[20px]">The morning tap</p>
+              <p className="font-serif text-[20px]">Notifications</p>
               <Teach>
                 <p className="mt-2 text-[14px] leading-relaxed text-dusk">
                   The glance, on your phone each morning.

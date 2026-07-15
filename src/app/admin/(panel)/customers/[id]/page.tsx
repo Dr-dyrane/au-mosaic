@@ -11,6 +11,7 @@ import FoldTwins, { type Twin } from "./FoldTwins";
 import ForgetCustomer from "./ForgetCustomer";
 import SalesMotions from "./SalesMotions";
 import Back from "../../Back";
+import { STATUS_LABEL } from "../../orders/pipeline";
 import { Touch } from "../../touched";
 
 /* The customer record: who they are, what they ordered, what is still
@@ -322,7 +323,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                   className="panel group block transition-transform duration-300 active:scale-[0.99]"
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <span className="chip-solid capitalize">{o.status}</span>
+                    <span className="chip-solid">{STATUS_LABEL[o.status] ?? o.status}</span>
                     <p className="text-[14px] text-dusk">{fmtDate(o.createdAt)}</p>
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-4">

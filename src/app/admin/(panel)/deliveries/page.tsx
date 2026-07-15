@@ -106,11 +106,11 @@ export default async function DeliveriesPage({
       key: "delivered",
       title: showArchived
         ? landedTotal > 0
-          ? `Archived · landed · ${landedTotal}`
-          : "Archived · landed"
+          ? `Archived · delivered · ${landedTotal}`
+          : "Archived · delivered"
         : landedTotal > 0
-          ? `Landed · ${landedTotal}`
-          : "Landed",
+          ? `Delivered · ${landedTotal}`
+          : "Delivered",
       items: landed,
     },
   ];
@@ -138,7 +138,7 @@ export default async function DeliveriesPage({
       <DeliveryCreateAction orders={deliveryOrders} />
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
-          <p className="eyebrow">The road</p>
+          <p className="eyebrow">Deliveries</p>
           <h1 className="font-serif text-display-section mt-3">
             {showArchived ? "Archived deliveries." : "Deliveries."}
           </h1>
@@ -207,7 +207,7 @@ export default async function DeliveriesPage({
                         <StatusStep id={d.id} to="delivered" label="Mark it delivered" />
                       )}
                       {d.status === "delivered" && d.deliveredAt && (
-                        <p className="text-[14px] text-dusk">Landed {fmtDate(d.deliveredAt)}</p>
+                        <p className="text-[14px] text-dusk">Delivered {fmtDate(d.deliveredAt)}</p>
                       )}
                     </div>
                   </SelectableRow>

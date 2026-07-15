@@ -29,8 +29,8 @@ export default function SettingsForm({ values }: { values: Record<string, string
         <input id="hours" name="hours" defaultValue={values.hours ?? ""} aria-label="Opening hours" className={field} />
       </div>
       <div>
-        <label htmlFor="location" className={label}>Where the house stands</label>
-        <input id="location" name="location" defaultValue={values.location ?? ""} aria-label="Location" className={field} />
+        <label htmlFor="location" className={label}>Address</label>
+        <input id="location" name="location" defaultValue={values.location ?? ""} aria-label="Address" className={field} />
       </div>
       <div>
         <label htmlFor="instagram" className={label}>Instagram link</label>

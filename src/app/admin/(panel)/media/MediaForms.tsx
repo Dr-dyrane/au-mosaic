@@ -52,7 +52,7 @@ const roles = [
 const suns = [
   ["night", "Night"],
   ["day", "Day"],
-  ["single", "Single"],
+  ["single", "No pair"],
 ] as const;
 
 function PieceSelect({ pieces, current }: { pieces: PieceOption[]; current?: string | null }) {
@@ -170,7 +170,7 @@ export function MediaCreateAction({ pieces }: { pieces: PieceOption[] }) {
       open={surface.sheetOpen}
       onOpenChange={surface.setSheetOpen}
       title="Add photo"
-      description="Upload once, then decide where it belongs."
+      description="Upload once, then decide whether it is a product display, room example, or showroom photo."
       id="media-add-photo"
       compactOnly
     >

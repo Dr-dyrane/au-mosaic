@@ -44,10 +44,10 @@ export default async function RangesPage({
         data-label="New range"
         data-room="stock"
       />
-      <Back href="/admin/pieces" label="The stockroom" />
-      <p className="eyebrow mt-6">Inventory</p>
+      <Back href="/admin/pieces" label="Stock" />
+      <p className="eyebrow mt-6">Stock</p>
       <h1 className="font-serif text-display-section mt-3">
-        {showArchived ? "Archived ranges." : "The ranges."}
+        {showArchived ? "Archived shelves." : "Shelves."}
       </h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         {showArchived

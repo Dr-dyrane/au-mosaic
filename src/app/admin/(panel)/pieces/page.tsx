@@ -122,9 +122,9 @@ export default async function PiecesPage({
           under the thumb. */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-7">
         <div>
-          <p className="eyebrow">Inventory</p>
+          <p className="eyebrow">Stock</p>
           <h1 className="font-serif text-display-section mt-3">
-            {showArchived ? "Archived stock." : "The book."}
+            {showArchived ? "Archived stock." : "Stock."}
           </h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk" data-tour="drafts">
             {showArchived ? "Set aside. Bring back or remove." : "Everything you stock."}
@@ -139,7 +139,7 @@ export default async function PiecesPage({
       <SelectProvider entity="piece" archived={showArchived}>
       <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4" data-tour="stockroom">
         <Link href="/admin/ranges" className="link-hair text-dusk text-[12px]">
-          The ranges
+          Shelves
         </Link>
         <Link href="/admin/media" className="link-hair text-dusk text-[12px]">
           Photos
@@ -302,9 +302,9 @@ export default async function PiecesPage({
 
       {!showArchived && rows.length === 0 && (
         <div className="panel mt-10 max-w-md">
-          <p className="font-serif text-[20px]">The stockroom is empty.</p>
+          <p className="font-serif text-[20px]">No pieces yet.</p>
           <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-            Add the first piece, or bring in the starting catalogue.
+            Add the first piece, or bring in the starting stock.
           </p>
         </div>
       )}

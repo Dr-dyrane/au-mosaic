@@ -163,7 +163,7 @@ export default function NotifyToggle() {
   if (!pub) {
     return (
       <p className="mt-4 text-[14px] leading-relaxed text-dusk">
-        The morning tap is not ready yet. Turn on notification keys, and
+        Notifications are not ready yet. Turn on notification keys, and
         this switch wakes with the next update.
       </p>
     );
@@ -172,6 +172,9 @@ export default function NotifyToggle() {
   return (
     <div className="mt-4">
       <div className="flex flex-wrap items-center gap-6">
+        <p className="text-[14px] leading-relaxed text-ink">
+          {on ? "Notifications: on" : "Notifications: off"}
+        </p>
         <button
           onClick={on ? turnOff : turnOn}
           disabled={busy}
@@ -186,7 +189,7 @@ export default function NotifyToggle() {
         <p className="mt-3 text-[12px] leading-relaxed text-mist">
           {on
             ? "Default on. One digest at eight each morning, plus low-stock delivery taps. Nothing else."
-            : "Default on. Allow this phone once, then it gets the morning tap. On iPhone, install the app to the Home Screen first."}
+            : "Default on. Allow this phone once, then it gets the morning summary. On iPhone, install the app to the Home Screen first."}
         </p>
       </Teach>
     </div>

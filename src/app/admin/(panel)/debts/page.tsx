@@ -55,8 +55,8 @@ export default async function DebtsPage() {
           data-label="Export debts"
         />
       )}
-      <p className="eyebrow">The ledger</p>
-      <h1 className="font-serif text-display-section mt-3" data-tour="debts">Who owes what.</h1>
+      <p className="eyebrow">Owed</p>
+      <h1 className="font-serif text-display-section mt-3" data-tour="debts">Owed.</h1>
       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">
         Unpaid balances, oldest first.
         <Teach> Tap a name to nudge on WhatsApp.</Teach>

@@ -195,7 +195,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         data-value={naira(Math.abs(balance))}
       />
       <Back href="/admin/orders" label="All orders" />
-      <h1 className="font-serif text-display-section mt-6">{customer.name}</h1>
+      <p className="eyebrow mt-6">Orders</p>
+      <h1 className="font-serif text-display-section mt-3">{customer.name}</h1>
       <Touch href={`/admin/orders/${id}`} label={`${customer.name}'s order`} room="Orders" />
       <p className="mt-2 text-[12px] uppercase tracking-[0.14em] text-mist">
         Opened {fmtDate(order.createdAt)} · {STATUS_LABEL[order.status]}
@@ -317,7 +318,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   <div>
                     <p className="font-serif text-[20px] leading-snug">{naira(p.amountKobo)}</p>
                     <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-mist">
-                      {p.amountKobo < 0 ? "refund" : p.method} · {fmtDate(p.paidAt)}
+                      {p.amountKobo < 0
+                        ? "Refund"
+                        : p.method.charAt(0).toUpperCase() + p.method.slice(1)}{" "}
+                      · {fmtDate(p.paidAt)}
                     </p>
                   </div>
                   {p.note && <p className="text-[14px] text-dusk">{p.note}</p>}

@@ -104,7 +104,7 @@ function FilterBody({
   return (
     <>
       <SearchForm current={current} onPick={onPick} idPrefix={idPrefix} />
-      <p className="eyebrow mt-5 px-2">Order</p>
+      <p className="eyebrow mt-5 px-2">Order by</p>
       <div className="mt-3 grid gap-1">
         <Row
           href={customerFilterHref(current, { sort: undefined })}
@@ -154,7 +154,7 @@ export function CustomerFilterPanel({
     <div id={id} data-tour="customer-filter-panel">
       {showHeader && (
         <div className="flex items-center justify-between px-2">
-          <p className="eyebrow">Find people</p>
+          <p className="eyebrow">Filter</p>
           <button
             onClick={onClose}
             aria-label="Close filter"
@@ -205,7 +205,7 @@ export default function CustomerFilterSheet({ current }: { current: CustomerFilt
       <AdminSheet
         open={surface.sheetOpen}
         onOpenChange={surface.setSheetOpen}
-        title="Find people"
+        title="Filter"
         id="customer-filter-panel"
         compactOnly
       >

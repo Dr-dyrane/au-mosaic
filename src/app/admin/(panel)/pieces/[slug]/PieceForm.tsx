@@ -87,7 +87,7 @@ export default function PieceForm({ piece, ranges, stock }: Props) {
       <input type="hidden" name="slug" value={piece.slug} />
 
       <div className="panel grid gap-6" data-tour="words">
-        <p className="font-serif text-[20px]">The words</p>
+        <p className="font-serif text-[20px]">Name and story</p>
         <div>
           <label htmlFor="name" className={label}>Name</label>
           <input id="name" name="name" defaultValue={piece.name} required className={field} />
@@ -231,7 +231,7 @@ export default function PieceForm({ piece, ranges, stock }: Props) {
       </div>
 
       <div className="panel grid gap-6">
-        <p className="font-serif text-[20px]">The stockroom</p>
+        <p className="font-serif text-[20px]">Stock</p>
         <div className="grid gap-6 sm:grid-cols-2">
           <div data-tour="stock-count">
             <label htmlFor="quantitySheets" className={label}>In stock</label>

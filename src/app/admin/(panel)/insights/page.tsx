@@ -52,7 +52,7 @@ export default async function InsightsPage({
             </Link>
             <span className="chip-solid is-on">Insights</span>
           </div>
-          <p className="eyebrow mt-8">The book</p>
+          <p className="eyebrow mt-8">Insights</p>
           <h1 className="font-serif text-display-section mt-3">The business at a glance.</h1>
           <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">Data first. Words only where they help.</p>
         </div>

@@ -5,9 +5,9 @@ import InfiniteList, { type Batch } from "@/components/InfiniteList";
 import { naira, waChat } from "@/lib/backoffice";
 import type { Debtor } from "./debtors-types";
 
-/* The ledger's long list, scrolled not paged: the first debtors paint on
+/* The room's long list, scrolled not paged: the first debtors paint on
    the server, the rest arrive as the reader nears the end. The oldest
-   debt sits at the very top, its reminder named as such. */
+   debt sits at the very top; every row carries the same reminder. */
 
 const STATUS_LABEL: Record<string, string> = {
   quoted: "Quoted",
@@ -39,7 +39,7 @@ export default function DebtorsFeed({
       loadMore={loadMore}
       className="mt-10 grid items-start gap-4 lg:grid-cols-2"
       skeletonCount={2}
-      renderItem={(d, i) => (
+      renderItem={(d) => (
         <section key={d.id} className="panel">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <p className="font-serif text-[20px]">{d.name}</p>
@@ -55,7 +55,7 @@ export default function DebtorsFeed({
               rel="noopener"
               className="link-hair mt-2 text-[12px] text-dusk"
             >
-              {i === 0 ? "Oldest reminder" : "WhatsApp them"}
+              Remind on WhatsApp
             </a>
           )}
           <div className="mt-5 grid gap-3">
