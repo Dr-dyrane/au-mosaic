@@ -44,32 +44,28 @@ function Row({
   );
 }
 
-function SearchForm({
-  current,
-  onPick,
-  idPrefix,
-}: {
-  current: OrderFilters;
-  onPick: () => void;
-  idPrefix: string;
-}) {
+/* The one search field for the order book. It lives at the head of the
+   list, submits by Enter, and writes the same URL the sheet reads. */
+export function OrderSearchField({ current }: { current: OrderFilters }) {
   function submit(event: FormEvent<HTMLFormElement>) {
     buzz(3);
     const q = new FormData(event.currentTarget).get("q")?.toString().trim();
-    if (!q && !current.status) {
+    if (!q) {
       event.preventDefault();
-      window.location.href = "/admin/orders";
+      window.location.href = orderFilterHref(current, { q: undefined });
     }
-    onPick();
   }
 
   return (
-    <form action="/admin/orders" method="GET" onSubmit={submit} className="px-2">
-      <label htmlFor={`${idPrefix}-q`} className="eyebrow mb-2.5 block">
-        Search
-      </label>
+    <form
+      action="/admin/orders"
+      method="GET"
+      role="search"
+      onSubmit={submit}
+      className="w-full sm:w-72"
+      data-tour="orders-search"
+    >
       <input
-        id={`${idPrefix}-q`}
         type="search"
         name="q"
         defaultValue={current.q ?? ""}
@@ -78,12 +74,6 @@ function SearchForm({
         className={field}
       />
       {current.status && <input type="hidden" name="status" value={current.status} />}
-      <button
-        type="submit"
-        className="admin-glass-control mt-3 flex min-h-12 items-center rounded-[18px] px-5 text-[14px] text-ink active:scale-[0.98]"
-      >
-        Search
-      </button>
     </form>
   );
 }
@@ -91,16 +81,13 @@ function SearchForm({
 function FilterBody({
   current,
   onPick,
-  idPrefix,
 }: {
   current: OrderFilters;
   onPick: () => void;
-  idPrefix: string;
 }) {
   return (
     <>
-      <SearchForm current={current} onPick={onPick} idPrefix={idPrefix} />
-      <div className="mt-5 grid gap-1">
+      <div className="grid gap-1">
         <Row
           onPick={onPick}
           href={orderFilterHref(current, { status: undefined })}
@@ -173,7 +160,7 @@ export function OrderFilterPanel({
         </div>
       )}
       <div className={showHeader || active.length > 0 ? "mt-4" : ""}>
-        <FilterBody current={current} onPick={onPick} idPrefix={id ?? "order-filter"} />
+        <FilterBody current={current} onPick={onPick} />
       </div>
     </div>
   );

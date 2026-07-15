@@ -177,15 +177,7 @@ export default async function DeliveriesPage({
               <div className="mt-4 grid gap-4 lg:grid-cols-2">
                 {g.items.map(({ d, customerName }) => (
                   <SelectableRow key={d.id} id={d.id} href={`/admin/orders/${d.orderId}`}>
-                    <div className="flex flex-wrap items-baseline justify-between gap-3">
-                      <p className="font-serif text-[20px]">{customerName}</p>
-                      <Link
-                        href={`/admin/orders/${d.orderId}`}
-                        className="link-hair text-[12px] text-dusk"
-                      >
-                        See the order
-                      </Link>
-                    </div>
+                    <p className="font-serif text-[20px]">{customerName}</p>
                     <p className="mt-2 text-[14px] leading-relaxed text-dusk">{d.address}</p>
                     {(d.driver || (d.status !== "delivered" && d.scheduledFor)) && (
                       <p className="mt-1 text-[14px] text-dusk">
@@ -244,9 +236,23 @@ export default async function DeliveriesPage({
             <div className="panel mt-10 max-w-md">
               <p className="font-serif text-[20px]">Nothing is on the road.</p>
               <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                A delivery hangs off an order: the address, the driver, the
-                day it goes. Start one and this room walks it to the door.
+                A delivery hangs off an order.
               </p>
+              {deliveryOrders.length > 0 ? (
+                <Link
+                  href="/admin/deliveries/new"
+                  className="link-hair mt-4 inline-block text-[12px] text-dusk"
+                >
+                  New delivery
+                </Link>
+              ) : (
+                <Link
+                  href="/admin/orders"
+                  className="link-hair mt-4 inline-block text-[12px] text-dusk"
+                >
+                  Open an order to start one
+                </Link>
+              )}
             </div>
           )
         )}

@@ -282,6 +282,10 @@ p { text-wrap: pretty; }
   color: var(--color-gold);
 }
 
+/* Money sits in columns. Tabular digits keep every figure the same
+   width, so amounts align and scan. Color stays contextual. */
+.money { font-variant-numeric: tabular-nums; }
+
 /* ---- liquid glass and lucent surfaces ------------------------------------------
 
    No lines anywhere. Chrome is glass the page shines through; resting

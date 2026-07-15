@@ -4,6 +4,7 @@ import { getDb, schema } from "@/db";
 import { phone234 } from "@/lib/backoffice";
 import Back from "../Back";
 import KeepEnquiry from "./KeepEnquiry";
+import MatchPanel from "./MatchPanel";
 import ReadChat from "./ReadChat";
 
 /* The bridge from WhatsApp. A share, a paste, or the exported file all
@@ -70,18 +71,7 @@ export default async function SharePage({
         Share or paste a chat. We draft the order.
       </p>
 
-      {match && (
-        <div className="panel mt-8 max-w-md">
-          <p className="eyebrow">The book knows them</p>
-          <p className="mt-3 font-serif text-[26px]">{match.name}</p>
-          <p className="mt-2 text-[14px] text-dusk">
-            {[match.phone, match.area].filter(Boolean).join(" / ")}
-          </p>
-          <Link href={`/admin/customers/${match.id}`} className="link-hair mt-4 inline-block text-[12px] text-dusk">
-            Their record
-          </Link>
-        </div>
-      )}
+      {match && <MatchPanel match={match} />}
 
       <div className="mt-6 max-w-md xl:max-w-none">
         <ReadChat

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import AdminSheet from "@/components/AdminSheet";
 import { ADMIN_ACTION_INTENTS } from "@/components/admin-action-intents";
 import { useAdminSurface } from "@/components/admin-surface-router";
@@ -12,13 +12,16 @@ import { buzz } from "@/lib/backoffice";
 /* Every line carries two prices, list and given. The gap between them
    is the discount, finally a visible number. Given left empty means
    no discount: it takes the list price. A failure keeps what he
-   typed; a success clears the desk for the next line. */
+   typed; a success clears the desk for the next line, puts the hand
+   back on the first field, and counts the tally, so a three-line
+   order is one opening, three saves, one close. */
 
 type Props = {
   orderId: string;
   pieces: { slug: string; name: string }[];
   surface?: "panel" | "plain";
   idPrefix?: string;
+  onDone?: () => void;
 };
 
 const field =
@@ -30,13 +33,25 @@ export default function AddLineForm({
   pieces,
   surface = "panel",
   idPrefix = "line",
+  onDone,
 }: Props) {
-  const [state, action, pending] = useActionState<SaveState, FormData>(addLine, null);
+  const [saved, setSaved] = useState(0);
+  const [state, action, pending] = useActionState<SaveState, FormData>(
+    async (prev, form) => {
+      const answer = await addLine(prev, form);
+      if (answer?.ok) setSaved((n) => n + 1);
+      return answer;
+    },
+    null
+  );
   const ref = useRef<HTMLFormElement>(null);
   const plain = surface === "plain";
 
   useEffect(() => {
-    if (state?.ok) ref.current?.reset();
+    if (!state?.ok) return;
+    ref.current?.reset();
+    const first = ref.current?.elements.namedItem("pieceSlug");
+    if (first instanceof HTMLElement) first.focus({ preventScroll: true });
   }, [state]);
 
   return (
@@ -125,7 +140,7 @@ export default function AddLineForm({
           />
         </div>
       </div>
-      <div className="flex items-center gap-6">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <button
           type="submit"
           disabled={pending}
@@ -134,8 +149,18 @@ export default function AddLineForm({
         >
           {pending ? "Adding..." : "Add the item"}
         </button>
+        {onDone && saved > 0 && (
+          <button type="button" onClick={onDone} className="link-hair text-dusk text-[12px]">
+            Done
+          </button>
+        )}
         <Sentence state={state} />
       </div>
+      {saved > 0 && (
+        <p className="-mt-3 text-[12px] text-mist">
+          {saved === 1 ? "1 item added." : `${saved} items added.`}
+        </p>
+      )}
     </form>
   );
 }
@@ -182,6 +207,7 @@ export function OrderLineAction({
           pieces={pieces}
           surface="plain"
           idPrefix="order-line-sheet"
+          onDone={surface.closeSheet}
         />
       </AdminSheet>
     </>

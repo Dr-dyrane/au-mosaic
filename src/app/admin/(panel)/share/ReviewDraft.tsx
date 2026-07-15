@@ -6,6 +6,7 @@ import type { CreatePayload } from "./draft-types";
 import type { OrderDraft } from "@/lib/ai/types";
 import { naira, parseNaira, buzz } from "@/lib/backoffice";
 import AdminSheet from "@/components/AdminSheet";
+import { useRaiseDraft } from "./MatchPanel";
 
 /* The draft, dressed to the house and adaptive: a detent sheet on the
    phone, and inline beside the intake on a wide screen. One state feeds
@@ -37,7 +38,7 @@ type BodyProps = {
   patch: (i: number, p: Partial<Line>) => void;
   drop: (i: number) => void;
   total: number;
-  missingPrice: boolean;
+  missingCount: number;
   needsName: boolean;
   pending: boolean;
   error: string;
@@ -56,7 +57,7 @@ function ReviewBody(props: BodyProps) {
     patch,
     drop,
     total,
-    missingPrice,
+    missingCount,
     needsName,
     pending,
     error,
@@ -101,9 +102,11 @@ function ReviewBody(props: BodyProps) {
         <div key={i} className="panel grid gap-3">
           <div className="flex items-start justify-between gap-3">
             <p className="font-serif text-[20px]">{l.label}</p>
-            <span className={`chip-glass text-[11px] uppercase tracking-[0.14em] ${l.unknown ? "text-gold" : "text-dusk"}`}>
-              {l.unknown ? "Check this one" : "Sure"}
-            </span>
+            {l.unknown && (
+              <span className="chip-glass text-[11px] uppercase tracking-[0.14em] text-gold">
+                Check this one
+              </span>
+            )}
           </div>
           {l.sourceQuote && (
             <p className="text-[14px] italic leading-relaxed text-dusk">&ldquo;{l.sourceQuote}&rdquo;</p>
@@ -150,8 +153,12 @@ function ReviewBody(props: BodyProps) {
           <p className="eyebrow">Quote so far</p>
           <p className="mt-1 font-serif text-[30px] tabular-nums">{naira(total)}</p>
         </div>
-        {missingPrice && (
-          <p className="max-w-[140px] text-right text-[12px] text-mist">One item still needs your price.</p>
+        {missingCount > 0 && (
+          <p className="max-w-[140px] text-right text-[12px] text-mist">
+            {missingCount === 1
+              ? "One item still needs your price."
+              : `${missingCount} items still need your price.`}
+          </p>
         )}
       </div>
 
@@ -208,13 +215,16 @@ export default function ReviewDraft({
   const [pending, start] = useTransition();
   const [open, setOpen] = useState(true);
 
+  /* While the draft stands, the page's own match panel steps aside. */
+  useRaiseDraft();
+
   const patch = (i: number, p: Partial<Line>) =>
     setLines((prev) => prev.map((l, k) => (k === i ? { ...l, ...p } : l)));
   const drop = (i: number) => setLines((prev) => prev.filter((_, k) => k !== i));
 
   const total = lines.reduce((sum, l) => sum + parseNaira(l.price) * (l.quantity || 0), 0);
   const needsName = !matchedCustomer && !name.trim();
-  const missingPrice = lines.some((l) => !l.price.trim());
+  const missingCount = lines.filter((l) => !l.price.trim()).length;
 
   const create = () => {
     if (lines.length === 0 || needsName) return;
@@ -248,7 +258,7 @@ export default function ReviewDraft({
     patch,
     drop,
     total,
-    missingPrice,
+    missingCount,
     needsName,
     pending,
     error,

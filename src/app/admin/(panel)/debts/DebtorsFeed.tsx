@@ -43,7 +43,7 @@ export default function DebtorsFeed({
         <section key={d.id} className="panel">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <p className="font-serif text-[20px]">{d.name}</p>
-            <p className="font-serif text-[20px]">{naira(d.total)}</p>
+            <p className="money font-serif text-[20px]">{naira(d.total)}</p>
           </div>
           {d.phone && (
             <a
@@ -65,7 +65,7 @@ export default function DebtorsFeed({
                 <span className="chip-solid shrink-0">
                   {STATUS_LABEL[o.status] ?? o.status}
                 </span>
-                <p className="ml-auto text-[14px]">{naira(o.balance)}</p>
+                <p className="money ml-auto text-[14px]">{naira(o.balance)}</p>
                 <Link href={`/admin/orders/${o.id}`} className="link-hair text-[12px]">
                   See the order
                 </Link>

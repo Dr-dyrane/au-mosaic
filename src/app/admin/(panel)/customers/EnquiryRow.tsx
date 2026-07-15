@@ -10,10 +10,10 @@ import {
 import { attachEnquiry, setEnquiryStatus, type SaveState } from "./actions";
 import { archiveRecords } from "../records/actions";
 import AdminSheet from "@/components/AdminSheet";
-import { IconMore } from "../icons";
+import { IconMore, IconShare } from "../icons";
 import Sentence from "../Sentence";
 import { keepValues } from "../keep";
-import { buzz } from "@/lib/backoffice";
+import { buzz, waChat } from "@/lib/backoffice";
 
 /* One fresh enquiry, one verb on the row. A nameless tap leads with
    Attach, so the funnel can count people; a named one leads with
@@ -34,12 +34,14 @@ export default function EnquiryRow({
   line,
   when,
   attached,
+  phone,
   people,
 }: {
   id: string;
   line: string;
   when: string;
   attached?: string;
+  phone?: string;
   people: { id: string; name: string }[];
 }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(setEnquiryStatus, null);
@@ -165,6 +167,22 @@ export default function EnquiryRow({
         description={`${line}. ${when}.`}
       >
         <div className="grid gap-1 px-2">
+          {phone && (
+            <a
+              href={waChat(phone)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => {
+                buzz(3);
+                setMore(false);
+              }}
+              aria-label={`Open chat, for ${who}`}
+              className={`${sheetRow} flex items-center justify-between gap-3`}
+            >
+              Open chat
+              <IconShare className="h-4 w-4 text-mist" />
+            </a>
+          )}
           {canAttach && (
             <button
               type="button"

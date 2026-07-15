@@ -216,15 +216,15 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <div className="mt-5 grid gap-5 sm:grid-cols-3">
             <div>
               <p className="eyebrow">Billed</p>
-              <p className="font-serif mt-2 text-[26px] leading-none">{naira(billed)}</p>
+              <p className="money font-serif mt-2 text-[26px] leading-none">{naira(billed)}</p>
             </div>
             <div>
               <p className="eyebrow">Paid</p>
-              <p className="font-serif mt-2 text-[26px] leading-none">{naira(paid)}</p>
+              <p className="money font-serif mt-2 text-[26px] leading-none">{naira(paid)}</p>
             </div>
             <div>
               <p className="eyebrow">{balance < 0 ? "Credit" : "Balance"}</p>
-              <p className="font-serif mt-2 text-[26px] leading-none">
+              <p className="money font-serif mt-2 text-[26px] leading-none">
                 {balance < 0 ? naira(Math.abs(balance)) : naira(balance)}
               </p>
             </div>
@@ -266,16 +266,20 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                       </p>
                     </div>
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-[14px] text-dusk">
-                        Usual {naira(item.listPriceKobo)} · You gave {naira(item.givenPriceKobo)}
+                      {/* One price when they agree; both only when the
+                          hand moved from the list. */}
+                      <p className="money text-[14px] text-dusk">
+                        {item.listPriceKobo === item.givenPriceKobo
+                          ? naira(item.givenPriceKobo)
+                          : `Usual ${naira(item.listPriceKobo)} · You gave ${naira(item.givenPriceKobo)}`}
                       </p>
                       {isReturn && (
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">
+                        <p className="money text-[11px] font-semibold uppercase tracking-[0.14em] text-mist">
                           Return · {naira(item.givenPriceKobo * item.quantity)}
                         </p>
                       )}
                       {lineGap > 0 && (
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
+                        <p className="money text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
                           {naira(lineGap)} below usual
                         </p>
                       )}
@@ -283,12 +287,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   </div>
                 );
               })}
-            </div>
-          )}
-          {lines.length > 0 && (
-            <div className="mt-5 flex items-baseline justify-between">
-              <p className="eyebrow">Billed</p>
-              <p className="font-serif text-[20px]">{naira(billed)}</p>
             </div>
           )}
           {lines.length > 0 && (
@@ -311,7 +309,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   className="panel flex flex-wrap items-center justify-between gap-4"
                 >
                   <div>
-                    <p className="font-serif text-[20px] leading-snug">{naira(p.amountKobo)}</p>
+                    <p className="money font-serif text-[20px] leading-snug">{naira(p.amountKobo)}</p>
                     <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-mist">
                       {p.amountKobo < 0
                         ? "Refund"
@@ -324,17 +322,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               ))}
             </div>
           )}
-          {(billed > 0 || paid > 0) && (
-            <div className="mt-5">
-              <p className="text-[14px] text-dusk">Paid {naira(paid)}</p>
-              {balance > 0 ? (
-                <p className="mt-2 font-serif text-[26px]">Balance {naira(balance)}</p>
-              ) : balance < 0 ? (
-                <p className="mt-2 font-serif text-[26px]">Credit {naira(Math.abs(balance))}</p>
-              ) : (
-                <p className="mt-2 text-[14px] text-dusk">Settled in full.</p>
-              )}
-            </div>
+          {/* Where it stands owns Billed, Paid, and Balance. This
+              section only lists the payments themselves. */}
+          {billed > 0 && balance === 0 && (
+            <p className="mt-5 text-[14px] text-dusk">Settled in full.</p>
           )}
           {/* The section carries its own trigger, so recording money
               never means hunting the rail. The chip dress keeps the

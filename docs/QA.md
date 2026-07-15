@@ -1200,3 +1200,31 @@ safely; Record a payment visible in context; the FAB measured 116 by 56
 with its word after clearing a stale Turbopack cache that had been
 serving old CSS (the cache, not the code; noted for the record). Gates:
 eslint zero warnings, 89 of 89 tests, the build compiles.
+
+## The daily loops lose their taxes
+
+Batch six, efficiency. Search stepped out of the filter sheets: Orders and
+People each carry one quiet inline field that submits its term to the same
+URL parameter the sheets used, so back and share still behave, the echo
+and Clear still work, and the sheets keep only the advanced filters; sort
+no longer counts as an active filter anywhere. The People field also gave
+the tour an anchor it had been pointing at in vain. Adding order items
+became a loop: the sheet stays open after each save, fields reset, focus
+returns to the first field, a quiet count grows (2 items added), and a
+link-hair Done closes it, so a three item order is one opening and three
+fill-saves. Money learned to line up: a .money primitive (tabular
+numerals) dresses every naira figure on the debts feed, the order record,
+and the customer record; Where it stands owns Billed, Paid, and Balance
+once; equal prices print once; debts dropped the action gold. Empty states
+carry their action: Orders offers New order, Deliveries explains a
+delivery hangs off an order and links the real path, the nested link
+inside delivery rows is gone, the share room shows one match panel at a
+time, the price warning counts its items honestly, and answering an
+enquiry offers Open chat through the house WhatsApp helper.
+
+Proven live: the inline searches filter through the URL; the sheets carry
+no second search; tabular money renders on the record; the money trio
+appears exactly once (an earlier probe misread the page: the eyebrows
+render uppercase and the case-sensitive check missed them; the screenshot
+settled it). Gates: eslint zero warnings, 89 of 89 tests, the build
+compiles.

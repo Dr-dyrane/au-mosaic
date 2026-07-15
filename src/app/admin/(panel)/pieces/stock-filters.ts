@@ -56,8 +56,7 @@ export function activeStockFilterLabels(cur: StockFilters) {
   if (hue) labels.push(hue.label);
   const app = APPLICATION_FILTERS.find((a) => a.key === cur.app);
   if (app) labels.push(app.label);
-  const sort = cleanSort(cur.sort);
-  const sortLabel = SORTS.find((s) => s.key === sort)?.label;
-  if (sortLabel && sort) labels.push(sortLabel);
+  /* Sort is a way of reading the shelf, not a filter on it, so it
+     never counts here. */
   return labels;
 }

@@ -44,34 +44,30 @@ function Row({
   );
 }
 
-function SearchForm({
-  current,
-  onPick,
-  idPrefix,
-}: {
-  current: CustomerFilters;
-  onPick: () => void;
-  idPrefix: string;
-}) {
+/* The one search field for the book of people. It lives at the head of
+   the list, submits by Enter, and writes the same URL the sheet reads. */
+export function CustomerSearchField({ current }: { current: CustomerFilters }) {
   const sort = cleanCustomerSort(current.sort);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     buzz(3);
     const q = new FormData(event.currentTarget).get("q")?.toString().trim();
-    if (!q && sort === "newest") {
+    if (!q) {
       event.preventDefault();
-      window.location.href = "/admin/customers";
+      window.location.href = customerFilterHref(current, { q: undefined });
     }
-    onPick();
   }
 
   return (
-    <form action="/admin/customers" method="GET" onSubmit={submit} className="px-2">
-      <label htmlFor={`${idPrefix}-q`} className="eyebrow mb-2.5 block">
-        Search
-      </label>
+    <form
+      action="/admin/customers"
+      method="GET"
+      role="search"
+      onSubmit={submit}
+      className="w-full sm:w-72"
+      data-tour="people-search"
+    >
       <input
-        id={`${idPrefix}-q`}
         type="search"
         name="q"
         defaultValue={current.q ?? ""}
@@ -80,12 +76,6 @@ function SearchForm({
         className={field}
       />
       {sort === "name" && <input type="hidden" name="sort" value="name" />}
-      <button
-        type="submit"
-        className="admin-glass-control mt-3 flex min-h-12 items-center rounded-[18px] px-5 text-[14px] text-ink active:scale-[0.98]"
-      >
-        Search
-      </button>
     </form>
   );
 }
@@ -93,18 +83,15 @@ function SearchForm({
 function FilterBody({
   current,
   onPick,
-  idPrefix,
 }: {
   current: CustomerFilters;
   onPick: () => void;
-  idPrefix: string;
 }) {
   const sort = cleanCustomerSort(current.sort);
 
   return (
     <>
-      <SearchForm current={current} onPick={onPick} idPrefix={idPrefix} />
-      <p className="eyebrow mt-5 px-2">Order by</p>
+      <p className="eyebrow px-2">Order by</p>
       <div className="mt-3 grid gap-1">
         <Row
           href={customerFilterHref(current, { sort: undefined })}
@@ -177,7 +164,7 @@ export function CustomerFilterPanel({
         </div>
       )}
       <div className={showHeader || active.length > 0 ? "mt-4" : ""}>
-        <FilterBody current={current} onPick={onPick} idPrefix={id ?? "customer-filter"} />
+        <FilterBody current={current} onPick={onPick} />
       </div>
     </div>
   );

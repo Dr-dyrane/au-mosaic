@@ -5,7 +5,7 @@ import { getDataMode, hideDemoByNote, hideDemoBySource } from "@/lib/data-mode";
 import EnquiryRow from "./EnquiryRow";
 import Pager from "../Pager";
 import Teach from "../Teach";
-import CustomerFilterSheet from "./CustomerFilterSheet";
+import CustomerFilterSheet, { CustomerSearchField } from "./CustomerFilterSheet";
 import { activeCustomerFilterLabels } from "./customer-filter-model";
 import { SelectableRow, SelectBar, SelectProvider, SelectToggle } from "../records/select";
 
@@ -14,7 +14,7 @@ const ENQ_PER_PAGE = 12;
 
 /* Everyone he sells to, one search away. Cards lead with the name and
    the number he will tap next, newest people first, A to Z one tap
-   away. The search surface lives with the shell so the list stays calm. */
+   away. Search sits at the head of the list; the sheet keeps the rest. */
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +59,7 @@ export default async function CustomersPage({
       enquiry: schema.enquiries,
       pieceName: schema.pieces.name,
       attachedName: schema.customers.name,
+      attachedPhone: schema.customers.phone,
     })
     .from(schema.enquiries)
     .leftJoin(schema.pieces, eq(schema.pieces.slug, schema.enquiries.pieceSlug))
@@ -121,6 +122,7 @@ export default async function CustomersPage({
 
       <SelectProvider entity="customer" archived={showArchived}>
         <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4" data-tour="people">
+          {!showArchived && <CustomerSearchField current={{ q: q || undefined, sort }} />}
           {!showArchived && <CustomerFilterSheet current={{ q: q || undefined, sort }} />}
           {!showArchived && (
             <Link href="/admin/share" className="link-hair shrink-0 text-dusk text-[12px]">
@@ -162,7 +164,7 @@ export default async function CustomersPage({
             {freshTotal > ENQ_PER_PAGE && ` ${freshTotal} waiting.`}
           </p>
           <div className="mt-4">
-            {fresh.map(({ enquiry, pieceName, attachedName }) => (
+            {fresh.map(({ enquiry, pieceName, attachedName, attachedPhone }) => (
               <EnquiryRow
                 key={enquiry.id}
                 id={enquiry.id}
@@ -178,6 +180,7 @@ export default async function CustomersPage({
                   minute: "2-digit",
                 })}
                 attached={attachedName ?? undefined}
+                phone={attachedPhone || undefined}
                 people={people}
               />
             ))}

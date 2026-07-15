@@ -327,16 +327,24 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                     <span className="chip-solid">{STATUS_LABEL[o.status] ?? o.status}</span>
                     <p className="text-[14px] text-dusk">{fmtDate(o.createdAt)}</p>
                   </div>
+                  {/* One owner per figure. A live order bills; an
+                      enquiry only quotes, so the same sum prints once
+                      under the truer name. */}
                   <div className="mt-4 flex items-center justify-between gap-4">
-                    <p className="text-[14px]">{naira(billed)} billed</p>
                     {isDebtOrder(o) && balance > 0 ? (
-                      <p className="text-[14px] font-semibold text-gold">
-                        {naira(balance)} owing
-                      </p>
+                      <>
+                        <p className="money text-[14px]">{naira(billed)} billed</p>
+                        <p className="money text-[14px] font-semibold text-ink">
+                          {naira(balance)} owing
+                        </p>
+                      </>
                     ) : billed > 0 && balance <= 0 ? (
-                      <p className="text-[14px] text-dusk">Paid in full</p>
+                      <>
+                        <p className="money text-[14px]">{naira(billed)} billed</p>
+                        <p className="text-[14px] text-dusk">Paid in full</p>
+                      </>
                     ) : billed > 0 ? (
-                      <p className="text-[14px] text-dusk">{naira(billed)} quoted</p>
+                      <p className="money text-[14px] text-dusk">{naira(billed)} quoted</p>
                     ) : (
                       <p className="text-[14px] text-dusk">No lines yet</p>
                     )}
@@ -369,11 +377,11 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
             {storyShown.map((e) => (
               <li key={e.key} className="flex items-baseline justify-between gap-4">
                 {e.href ? (
-                  <Link href={e.href} className="link-hair text-[14px]">
+                  <Link href={e.href} className="money link-hair text-[14px]">
                     {e.text}
                   </Link>
                 ) : (
-                  <p className="text-[14px] text-ink">{e.text}</p>
+                  <p className="money text-[14px] text-ink">{e.text}</p>
                 )}
                 <span className="whitespace-nowrap text-[12px] text-mist">{fmtDate(e.at)}</span>
               </li>

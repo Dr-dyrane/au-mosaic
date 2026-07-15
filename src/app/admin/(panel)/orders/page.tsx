@@ -3,7 +3,7 @@ import { and, count, desc, eq, ilike, inArray, isNotNull, isNull, ne, sql, type 
 import { getDb, schema } from "@/db";
 import { hideDemoByNote, getDataMode } from "@/lib/data-mode";
 import { OPEN_STEPS, STATUS_LABEL } from "./pipeline";
-import OrderFilterSheet from "./OrderFilterSheet";
+import OrderFilterSheet, { OrderSearchField } from "./OrderFilterSheet";
 import { activeOrderFilterLabels } from "./order-filter-model";
 import OrderCard, { type OrderRow } from "./OrderCard";
 import { SelectBar, SelectProvider, SelectToggle } from "../records/select";
@@ -107,6 +107,7 @@ export default async function OrdersPage({
 
       <SelectProvider entity="order" archived={showArchived}>
         <div className="mt-8 flex flex-wrap items-center gap-5 sm:gap-6" data-tour="orders">
+          {!showArchived && <OrderSearchField current={activeFilters} />}
           {!showArchived && <OrderFilterSheet current={activeFilters} />}
           {activeLabels.length > 0 && (
             <p className="text-[14px] leading-relaxed text-dusk">
@@ -181,7 +182,9 @@ export default async function OrdersPage({
               <div className="panel mt-10 max-w-md">
                 <p className="font-serif text-[20px]">No orders yet.</p>
                 <p className="mt-2 text-[14px] leading-relaxed text-dusk">
-                  Start the first one.
+                  <Link href="/admin/orders/new" className="link-hair text-[12px]">
+                    New order
+                  </Link>
                 </p>
               </div>
             )}

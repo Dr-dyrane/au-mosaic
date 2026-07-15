@@ -22,12 +22,13 @@ export function customerFilterHref(
   return query ? `/admin/customers?${query}` : "/admin/customers";
 }
 
+/* Sort is a way of reading the list, not a filter on it, so it never
+   counts here. */
 export function activeCustomerFilterLabels(current: CustomerFilters) {
   const labels: string[] = [];
   const q = current.q?.trim();
 
   if (q) labels.push(`Search ${q}`);
-  if (cleanCustomerSort(current.sort) === "name") labels.push("A to Z");
 
   return labels;
 }
