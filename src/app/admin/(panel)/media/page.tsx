@@ -7,6 +7,7 @@ import MediaBatchAction from "./MediaBatchActions";
 import { MediaCreateAction } from "./MediaForms";
 import { loadMoreMediaRows, type MediaListFilters } from "./actions";
 import MediaFilterSheet from "./MediaFilterSheet";
+import Teach from "../Teach";
 import { asMediaListRows, type MediaListRow } from "./media-list";
 import {
   ROLES,
@@ -115,10 +116,11 @@ export default async function MediaPage({
         <div>
           <p className="eyebrow">Photos</p>
           <h1 className="font-serif text-display-section mt-3">The photo room.</h1>
-          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-dusk">
-            Product displays, room examples, and showroom photos. Only live
-            photos appear on the website.
-          </p>
+          <Teach>
+            <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-dusk">
+              Only live photos appear on the website.
+            </p>
+          </Teach>
         </div>
         <div className="hidden flex-wrap items-center gap-x-6 gap-y-4 sm:flex">
           <Link href="/admin/pieces" className="link-hair text-dusk text-[12px]">

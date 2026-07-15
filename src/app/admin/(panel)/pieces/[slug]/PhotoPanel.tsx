@@ -307,10 +307,7 @@ export default function PhotoPanel({
         <p className="font-serif text-[20px]">The photographs</p>
         <Teach until="stockroom">
           <p className="mt-2 max-w-md text-[14px] leading-relaxed text-dusk">
-            The site shows the night photograph in dark mode and the day
-            one in light. One is enough to start; the night slot leads.
-            Fill the frame with the work, hold the phone level, and let
-            the room&apos;s own light do the talking.
+            The site shows the night photo in dark mode and the day one in light.
           </p>
         </Teach>
       </div>

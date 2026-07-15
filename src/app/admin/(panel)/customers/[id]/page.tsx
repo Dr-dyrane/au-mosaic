@@ -11,6 +11,7 @@ import FoldTwins, { type Twin } from "./FoldTwins";
 import ForgetCustomer from "./ForgetCustomer";
 import SalesMotions from "./SalesMotions";
 import Back from "../../Back";
+import Teach from "../../Teach";
 import { STATUS_LABEL } from "../../orders/pipeline";
 import { Touch } from "../../touched";
 
@@ -423,14 +424,16 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         {twins.length > 0 && (
           <div className="mt-12">
             <p className="eyebrow">Same number</p>
-            <p className="mt-3 text-[14px] leading-relaxed text-dusk">
-              {twins.length === 1
-                ? "Another card shares this number."
-                : "Other cards share this number."}{" "}
-              One person, one card: fold the twin onto this one and every
-              order, enquiry, and motion follows. The folded card rests in
-              the archive.
-            </p>
+            <Teach until="people">
+              <p className="mt-3 text-[14px] leading-relaxed text-dusk">
+                {twins.length === 1
+                  ? "Another card shares this number."
+                  : "Other cards share this number."}{" "}
+                One person, one card: fold the twin onto this one and every
+                order, enquiry, and motion follows. The folded card rests in
+                the archive.
+              </p>
+            </Teach>
             <FoldTwins keepId={customer.id} twins={twins} />
           </div>
         )}

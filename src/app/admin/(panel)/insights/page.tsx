@@ -37,9 +37,8 @@ export default async function InsightsPage({
   const periodBilled = d.months.reduce((sum, m) => sum + m.billed, 0);
   const lastPoint = d.months[d.months.length - 1] ?? null;
   const topPiece = d.pieces[0] ?? null;
-  const leakPct = d.billedAll > 0 ? Math.round((d.leakTotal / d.billedAll) * 100) : 0;
-  const debtMax = Math.max(1, d.owedTotal, Math.round(d.billedAll * 0.2));
-  const leakMax = Math.max(1, Math.round(d.billedAll * 0.1), d.leakTotal);
+  const leakThreshold = Math.round(d.billedAll * 0.1);
+  const leakMax = Math.max(1, leakThreshold, d.leakTotal);
   const cashWatch = d.owedTotal > 0 || d.leakWatch;
 
   return (
@@ -54,7 +53,6 @@ export default async function InsightsPage({
           </div>
           <p className="eyebrow mt-8">Insights</p>
           <h1 className="font-serif text-display-section mt-3">The business at a glance.</h1>
-          <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dusk">Data first. Words only where they help.</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -96,28 +94,10 @@ export default async function InsightsPage({
             <MiniBars values={recentBars} label="Recent billed months" />
           </SignalTile>
           <SignalTile
-            href="/admin/debts"
-            label="Outstanding"
-            value={naira(d.owedTotal)}
-            note={d.owedTotal > 0 ? (d.oldestDebt ? "old money present" : "young balances") : "clear"}
-            watch={d.oldestDebt}
-          >
-            <Meter value={d.owedTotal} max={debtMax} />
-          </SignalTile>
-          <SignalTile
-            href="/admin/orders"
-            label="Leak"
-            value={naira(d.leakTotal)}
-            note={d.billedAll > 0 ? `${leakPct}% of billed` : "no billing yet"}
-            watch={d.leakWatch}
-          >
-            <Meter value={d.leakTotal} max={leakMax} />
-          </SignalTile>
-          <SignalTile
             href="/admin/pieces"
             label="Low stock"
             value={String(d.lowStock.length)}
-            note={d.lowStock.length > 0 ? "needs reorder eye" : "calm"}
+            note={d.lowStock.length > 0 ? `${d.lowStock.length} below reorder` : undefined}
             watch={d.lowStock.length > 0}
           >
             <DotGrid count={d.lowStock.length} label="Low stock items" />
@@ -175,7 +155,7 @@ export default async function InsightsPage({
           {d.billedAll > 0 ? (
             <div className="mt-6">
               <p className="eyebrow">Leak against watch line</p>
-              <Meter value={d.leakTotal} max={leakMax} />
+              <Meter value={d.leakTotal} max={leakMax} threshold={leakThreshold} />
             </div>
           ) : null}
           <div className="mt-5 flex flex-wrap gap-4">
@@ -226,7 +206,7 @@ export default async function InsightsPage({
             </div>
             <div className="mt-6">
               {d.lowStock.length === 0 ? (
-                <p className="mt-3 text-[14px] leading-relaxed text-dusk">Shelves calm.</p>
+                <p className="mt-3 text-[14px] leading-relaxed text-dusk">Nothing below reorder.</p>
               ) : (
                 <div className="mt-4 grid gap-2.5">
                   {d.lowStock.slice(0, 5).map((s) => (
@@ -250,7 +230,6 @@ export default async function InsightsPage({
                 <p className="eyebrow">Attention</p>
                 <p className="font-serif mt-3 text-[20px]">Tap sources</p>
               </div>
-              <State watch={false} />
             </div>
             <div className="mt-6">
               {d.taps.length === 0 ? (

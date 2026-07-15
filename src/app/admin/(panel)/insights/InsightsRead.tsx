@@ -45,11 +45,11 @@ export default function InsightsRead({ months }: { months: number }) {
             <h2 className="font-serif mt-3 text-[20px] leading-[1.2]">{state.read.headline}</h2>
           </div>
           {state.read.signals.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="grid content-start gap-1.5">
               {state.read.signals.slice(0, 3).map((s, i) => (
-                <span key={i} className="rounded-full bg-shell/55 px-3 py-2 text-[12px] leading-tight text-dusk">
+                <p key={i} className="text-[12px] leading-relaxed text-dusk">
                   {s}
-                </span>
+                </p>
               ))}
             </div>
           )}

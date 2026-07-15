@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { setDataMode, type SaveState } from "./actions";
 import Sentence from "../Sentence";
+import Teach from "../Teach";
 import { buzz } from "@/lib/backoffice";
 
 /* Live or demo, the owner's one switch. Demo is the launch default:
@@ -35,10 +36,15 @@ export default function DataModeToggle({ mode }: { mode: "live" | "demo" }) {
         <Sentence state={state} />
       </div>
       <p className="mt-3 text-[12px] leading-relaxed text-mist">
-        {mode === "demo"
-          ? "Demo is the default. Sample customers and orders show beside real ones, with a banner in every room."
-          : "Live only. Samples are hidden until you turn demo back on for a walkthrough."}
+        {mode === "demo" ? "Demo data is on." : "Live only."}
       </p>
+      <Teach>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-mist">
+          {mode === "demo"
+            ? "Demo is the default. Sample customers and orders show beside real ones, with a banner in every room."
+            : "Samples stay hidden until you turn demo back on for a walkthrough."}
+        </p>
+      </Teach>
     </form>
   );
 }

@@ -4,6 +4,8 @@ import RefreshLine from "./RefreshLine";
 import { TourOffer } from "./Tour";
 import { LastTouched } from "./touched";
 import { computeAttention } from "@/lib/attention";
+import { ADMIN_ROOMS, type AdminRoomId } from "@/lib/admin-rooms";
+import { IconOrders, IconOwed, IconPeople, IconStock } from "./icons";
 
 /* The morning glance: five numbers that used to live on paper.
    Force-dynamic because a back office is never stale; the queries run
@@ -15,22 +17,45 @@ function naira(kobo: number) {
   return `₦${(kobo / 100).toLocaleString("en-NG", { maximumFractionDigits: 0 })}`;
 }
 
+/* Each card wears its room's glyph, so the eye can walk from a number
+   here to the same shape on the rail. A warning number dresses in the
+   deep gold and carries a dot beside its label; the label word itself
+   says why. */
+const CARD_GLYPHS = {
+  stock: IconStock,
+  orders: IconOrders,
+  owed: IconOwed,
+  people: IconPeople,
+} as const;
+
+type CardRoom = keyof typeof CARD_GLYPHS;
+
 async function pulse() {
   const data = await readAdminPulse();
   if (!data.ok) return { ok: false as const, cards: [] };
   return {
     ok: true as const,
     cards: [
-      { label: "Pieces in the catalogue", value: String(data.pieces), note: "published and drafts", href: "/admin/pieces" },
-      { label: "Stock warnings", value: String(data.lowStock), note: "at or below reorder level", href: "/admin/pieces" },
-      { label: "Open orders", value: String(data.openOrders), note: "quoted through delivered", href: "/admin/orders" },
+      { label: "Pieces in the catalogue", value: String(data.pieces), href: "/admin/pieces", room: "stock" as CardRoom, warn: false },
+      /* Straight to the shelf, already filtered to the empties. */
+      { label: "Stock warnings", value: String(data.lowStock), href: "/admin/pieces?low=1", room: "stock" as CardRoom, warn: data.lowStock > 0 },
+      { label: "Open orders", value: String(data.openOrders), href: "/admin/orders", room: "orders" as CardRoom, warn: false },
       /* Never a negative on the glance: net overpayment reads as
          nothing owed, and the credit story lives on the order. */
-      { label: "Outstanding", value: naira(data.outstandingKobo), note: "billed minus paid, open orders", href: "/admin/debts" },
-      { label: "New enquiries", value: String(data.freshEnquiries), note: "unanswered", href: "/admin/customers" },
+      { label: "Outstanding", value: naira(data.outstandingKobo), href: "/admin/debts", room: "owed" as CardRoom, warn: false },
+      { label: "New enquiries", value: String(data.freshEnquiries), href: "/admin/customers#enquiries", room: "people" as CardRoom, warn: data.freshEnquiries > 0 },
     ],
   };
 }
+
+/* The floor plan under the numbers, phone and tablet only: the desk
+   already carries every room on the rail. Names come from the one
+   room list, so a room is called the same thing everywhere. */
+const DAILY_ROOM_IDS: readonly AdminRoomId[] = ["stock", "orders", "people"];
+const DAILY_ROOMS = ADMIN_ROOMS.filter((room) => DAILY_ROOM_IDS.includes(room.id));
+const QUIET_ROOMS = ADMIN_ROOMS.filter(
+  (room) => room.id !== "home" && !DAILY_ROOM_IDS.includes(room.id)
+);
 
 export default async function AdminHome() {
   const [p, attention] = await Promise.all([pulse(), computeAttention()]);
@@ -59,10 +84,6 @@ export default async function AdminHome() {
           </Link>
         </div>
       </div>
-      {/* The tour offer speaks to the new hand, whose numbers are
-          still zeros; it may sit above them. The trail serves the
-          returning hand, so it waits below the pulse. */}
-      <TourOffer />
 
       {attention.length > 0 && (
         <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2.5">
@@ -86,40 +107,57 @@ export default async function AdminHome() {
 
       {p.ok && (
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-tour="pulse">
-          {p.cards.map((c) => (
-            <Link key={c.label} href={c.href} className="panel group block transition-transform duration-300 active:scale-[0.99]">
-              <p className="eyebrow">{c.label}</p>
-              <p className="font-serif mt-3 text-[26px] leading-none transition-colors duration-300 group-hover:text-gold">{c.value}</p>
-              <p className="mt-3 text-[12px] uppercase tracking-[0.14em] text-mist">{c.note}</p>
-            </Link>
-          ))}
+          {p.cards.map((c) => {
+            const Glyph = CARD_GLYPHS[c.room];
+            return (
+              <Link key={c.label} href={c.href} className="panel group block transition-transform duration-300 active:scale-[0.99]">
+                <p className="flex items-center gap-2">
+                  <Glyph className="h-4 w-4 shrink-0 text-mist" />
+                  <span className="eyebrow">{c.label}</span>
+                  {c.warn && <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-deep" />}
+                </p>
+                <p
+                  className={`font-serif mt-3 text-[26px] leading-none transition-colors duration-300 group-hover:text-gold ${
+                    c.warn ? "font-semibold text-gold-deep" : ""
+                  }`}
+                >
+                  {c.value}
+                </p>
+              </Link>
+            );
+          })}
           {/* Rooms of different sizes, like a floor plan: the daily
               three wear serif, the occasional six wrap as a quiet
               cloud. Size is frequency, the mosaic is typographic,
               and nothing new is ornamental. */}
-          <div className="panel flex flex-col justify-center">
+          <div className="panel flex flex-col justify-center xl:hidden">
             <p className="eyebrow">The rooms</p>
             <ul className="mt-5 space-y-3">
-              <li><Link href="/admin/pieces" className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">The stockroom</Link></li>
-              <li><Link href="/admin/orders" className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">Orders</Link></li>
-              <li><Link href="/admin/customers" className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">Customers</Link></li>
+              {DAILY_ROOMS.map((room) => (
+                <li key={room.id}>
+                  <Link href={room.href} className="font-serif block text-[20px] leading-snug transition-colors duration-300 hover:text-gold">
+                    {room.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3.5">
-              <li><Link href="/admin/deliveries" className="link-hair text-dusk text-[12px]">Deliveries</Link></li>
-              <li><Link href="/admin/media" className="link-hair text-dusk text-[12px]">Photos</Link></li>
-              <li><Link href="/admin/debts" className="link-hair text-dusk text-[12px]">Who owes what</Link></li>
-              <li><Link href="/admin/insights" className="link-hair text-dusk text-[12px]">Insights</Link></li>
-              <li><Link href="/admin/settings" className="link-hair text-dusk text-[12px]">Settings</Link></li>
+              {QUIET_ROOMS.map((room) => (
+                <li key={room.id}>
+                  <Link href={room.href} className="link-hair text-dusk text-[12px]">
+                    {room.label}
+                  </Link>
+                </li>
+              ))}
               <li><Link href="/" className="link-hair text-dusk text-[12px]">The site</Link></li>
-              <li>
-                <button data-tour-start="menu" className="link-hair text-dusk text-[12px]">
-                  Take the tour
-                </button>
-              </li>
             </ul>
           </div>
         </div>
       )}
+
+      {/* The tour offer speaks to the new hand; it waits under the
+          numbers so the glance stays a glance, even on a phone. */}
+      <TourOffer />
 
       <LastTouched />
     </main>

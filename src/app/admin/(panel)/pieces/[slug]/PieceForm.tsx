@@ -3,7 +3,6 @@
 import { useActionState, useEffect, useRef } from "react";
 import ColorsField from "../ColorsField";
 import Sentence from "../../Sentence";
-import Teach from "../../Teach";
 import { keepValues } from "../../keep";
 import { APPLICATION_TAGS } from "@/lib/application-tags";
 import { buzz } from "@/lib/backoffice";
@@ -144,14 +143,7 @@ export default function PieceForm({ piece, ranges, stock }: Props) {
       </div>
 
       <div id="stock" className="panel grid gap-6">
-        <div>
-          <p className="font-serif text-[20px]">The trade facts</p>
-          <Teach until="stockroom">
-            <span className="mt-1.5 block text-[14px] text-dusk">
-              Stock and price stay on this piece. These words help buyers compare.
-            </span>
-          </Teach>
-        </div>
+        <p className="font-serif text-[20px]">The trade facts</p>
         <div className="grid gap-6 sm:grid-cols-3">
           <div>
             <label htmlFor="seedSize" className={label}>Seed size</label>
@@ -187,14 +179,7 @@ export default function PieceForm({ piece, ranges, stock }: Props) {
       </div>
 
       <div className="panel grid gap-6">
-        <div>
-          <p className="font-serif text-[20px]">Where it works</p>
-          <Teach until="stockroom">
-            <span className="mt-1.5 block text-[14px] text-dusk">
-              Show useful places without making a project archive.
-            </span>
-          </Teach>
-        </div>
+        <p className="font-serif text-[20px]">Where it works</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {APPLICATION_TAGS.map((tag) => (
             <label
@@ -218,14 +203,7 @@ export default function PieceForm({ piece, ranges, stock }: Props) {
         <p className="font-serif text-[20px]">The look</p>
         <ColorsField initial={piece.colors ?? []} />
         <label className="flex cursor-pointer items-center justify-between" data-tour="window">
-          <span>
-            <span className="block text-[14px] font-medium">Show on the site</span>
-            <Teach until="stockroom">
-              <span className="mt-1 block text-[14px] text-dusk">
-                Off means customers cannot see this piece.
-              </span>
-            </Teach>
-          </span>
+          <span className="block text-[14px] font-medium">Show on the site</span>
           <input type="checkbox" name="published" defaultChecked={piece.published} className="h-6 w-6 accent-[#c2a15c]" />
         </label>
       </div>

@@ -1143,3 +1143,33 @@ rail, the metaphor headings are gone (two survivors found in body copy and
 renamed: the morning tap became the morning summary in a permission line
 and Notifications in a server message). Gates: eslint zero warnings, 89 of
 89 tests, the build compiles.
+
+## The glance becomes a glance: 150 words fall to 69
+
+Batch four, the words. The home's five cards lost their permanent
+definition lines and gained their rooms' own glyphs; a warning value now
+dresses in the deep gold with a dot beside its label and semibold weight,
+so urgency survives any eye; the stock-warnings card deep-links to the
+shelf already filtered to Running low, and the enquiries card lands on the
+enquiries section by anchor. The rooms panel yields to the rail above xl
+and reads the canonical room names below it; the tour keeps one persistent
+door (the rail) plus the self-retiring offer for a brand-new hand, moved
+below the numbers so the phone fold shows figures first. The context rail
+gave up its aphorisms entirely, eleven decorative sentences deleted from
+the map, and on home it no longer repeats the pulse or the gold action the
+page already carries; its disclosure label finally states the action it
+performs. The piece form dropped three Teach blocks that restated labels;
+the photo panel kept one operational sentence inside Teach and released
+the photography lecture; the twins paragraph and the demo-mode paragraph
+now ride Teach and retire; the debts line stopped teaching a gesture the
+screen does not support. Insights traded poetry for data: "needs reorder
+eye" became the count itself, the duplicated Outstanding and Leak tiles
+folded into the Cash risk panel that owns the meters, the hard-coded
+Steady pill and the never-drawn watch line were wired to truth or removed,
+and the self-describing subtitle is gone.
+
+Measured live: the desktop home's whole main column is 69 words (the
+audit counted roughly 150 before the first number); no definition notes,
+no aphorisms, no duplicate navigation at 1440; the first number sits at
+y=715 on a 390px phone, above the fold. Gates: eslint zero warnings, 89
+of 89 tests, the build compiles.

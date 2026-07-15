@@ -155,7 +155,7 @@ export default async function CustomersPage({
       {/* The site's WhatsApp taps land here until they are cleared.
           The chat itself lives in WhatsApp; this remembers it began. */}
       {fresh.length > 0 && (
-        <section className="panel mt-8 max-w-2xl" data-tour="fresh">
+        <section id="enquiries" className="panel mt-8 max-w-2xl" data-tour="fresh">
           <p className="font-serif text-[20px]">New enquiries</p>
           <p className="mt-1.5 text-[14px] leading-relaxed text-dusk">
             <Teach until="people">Site taps. Check the chat, then clear.</Teach>

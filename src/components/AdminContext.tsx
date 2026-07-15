@@ -44,13 +44,9 @@ type Action = {
 };
 type ContextModel = {
   eyebrow: string;
-  title: string;
-  line: string;
   metrics: Metric[];
   actions: Action[];
 };
-
-const calm = "The room is calm.";
 
 function money(kobo: number) {
   return naira(Math.max(kobo, 0));
@@ -61,8 +57,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "home":
       return {
         eyebrow: "Today",
-        title: pulse.ok ? "The house is awake." : "The book is quiet.",
-        line: pulse.ok ? "Start with the oldest open loop, then the next sale." : "The window still stands on its own catalogue.",
         metrics: [
           { label: "Stock warnings", value: String(pulse.lowStock), href: "/admin/pieces" },
           { label: "Fresh enquiries", value: String(pulse.freshEnquiries), href: "/admin/customers" },
@@ -72,8 +66,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "stock":
       return {
         eyebrow: "Stock",
-        title: pulse.lowStock > 0 ? "Some shelves need attention." : "The shelves are calm.",
-        line: "Each piece carries its look, stock, price note, and window switch.",
         metrics: [
           { label: "Pieces", value: String(pulse.pieces), href: "/admin/pieces" },
           { label: "Warnings", value: String(pulse.lowStock), href: "/admin/pieces" },
@@ -86,8 +78,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "orders":
       return {
         eyebrow: "Orders",
-        title: "List beside given.",
-        line: "A discount is visible before it becomes a habit.",
         metrics: [
           { label: "Open orders", value: String(pulse.openOrders), href: "/admin/orders" },
           { label: "Outstanding", value: money(pulse.outstandingKobo), href: "/admin/debts" },
@@ -100,8 +90,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "people":
       return {
         eyebrow: "People",
-        title: pulse.freshEnquiries > 0 ? "Fresh taps are waiting." : "The chats are remembered.",
-        line: "WhatsApp stays the channel. The book keeps the memory.",
         metrics: [
           { label: "Fresh enquiries", value: String(pulse.freshEnquiries), href: "/admin/customers" },
           { label: "People owing", value: String(pulse.owingCustomers), href: "/admin/debts" },
@@ -111,8 +99,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "owed":
       return {
         eyebrow: "Owed",
-        title: pulse.owingCustomers > 0 ? "The oldest debt leads." : "No one is asking loudly.",
-        line: "Reminders leave through WhatsApp, already written in the customer's name.",
         metrics: [
           { label: "People owing", value: String(pulse.owingCustomers), href: "/admin/debts" },
           { label: "Outstanding", value: money(pulse.outstandingKobo), href: "/admin/debts" },
@@ -122,8 +108,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "deliveries":
       return {
         eyebrow: "Deliveries",
-        title: "One step at a time.",
-        line: "The van moves here. The shelf moves on the order.",
         metrics: [],
         actions: [
           { label: "New delivery", href: "/admin/deliveries/new" },
@@ -133,8 +117,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "photos":
       return {
         eyebrow: "Photos",
-        title: "Product display, room example, proof.",
-        line: "Photos can stay draft, become approved, or go live where they belong.",
         metrics: [],
         actions: [
           { label: "Add a photo", href: "/admin/media#media-add-photo", intent: ADMIN_ACTION_INTENTS.mediaCreate },
@@ -145,8 +127,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "insights":
       return {
         eyebrow: "Insights",
-        title: "Signals first.",
-        line: "Pace. Debt. Leak. Stock.",
         metrics: [
           { label: "Owed", value: money(pulse.outstandingKobo), href: "/admin/debts" },
           { label: "Stock", value: String(pulse.lowStock), href: "/admin/pieces" },
@@ -156,8 +136,6 @@ function baseContext(room: AdminRoomId, pulse: AdminPulse): ContextModel {
     case "settings":
       return {
         eyebrow: "Settings",
-        title: "Keys, facts, and history.",
-        line: "Owner tools stay quiet until the house needs them.",
         metrics: [],
         actions: [
           { label: "The history", href: "/admin/settings/history" },
@@ -174,8 +152,6 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
     return {
       ...ctx,
       eyebrow: "New record",
-      title: "Write only what is true now.",
-      line: "The book can grow later. Today needs the next honest detail.",
       actions: [],
     };
   }
@@ -183,8 +159,6 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
     return {
       ...ctx,
       eyebrow: "Order record",
-      title: "Money, stock, and message.",
-      line: "Check the balance, name the stock movement, then send the customer the next word.",
       actions: [],
     };
   }
@@ -192,8 +166,6 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
     return {
       ...ctx,
       eyebrow: "Customer record",
-      title: "One person, one memory.",
-      line: "Their chat stays in WhatsApp. Their history stays here.",
       actions: [],
     };
   }
@@ -201,8 +173,6 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
     return {
       ...ctx,
       eyebrow: "Piece record",
-      title: "The piece is the heart.",
-      line: "Name, image, stock, price note, and window switch live together.",
       actions: [],
     };
   }
@@ -210,8 +180,6 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
     return {
       ...ctx,
       eyebrow: "Photo record",
-      title: "One photograph, one job.",
-      line: "Its use, light, and state live here. The window follows what is Live.",
       actions: [],
     };
   }
@@ -219,8 +187,6 @@ function contextFor(pathname: string, pulse: AdminPulse): ContextModel {
     return {
       ...ctx,
       eyebrow: "From WhatsApp",
-      title: "Keep the thread's memory.",
-      line: "Tie the shared chat to a person, then continue in WhatsApp.",
       actions: [],
     };
   }
@@ -350,26 +316,11 @@ function withRecordFacts(ctx: ContextModel, facts: Metric[]): ContextModel {
   return { ...ctx, metrics: facts };
 }
 
-function ContextBody({
-  ctx,
-  compact = false,
-  actions,
-}: {
-  ctx: ContextModel;
-  compact?: boolean;
-  actions?: Action[];
-}) {
+function ContextBody({ ctx, actions }: { ctx: ContextModel; actions?: Action[] }) {
   const visibleActions = actions ?? ctx.actions;
   return (
     <>
       <p className="eyebrow">{ctx.eyebrow}</p>
-      {/* A styled p, not a heading: this panel is chrome, and on the
-          phone it sits above the page h1, where a heading would break
-          the document outline. */}
-      <p className={`font-serif mt-3 ${compact ? "text-[20px]" : "text-[26px]"} leading-tight`}>
-        {ctx.title}
-      </p>
-      <p className="mt-3 text-[14px] leading-relaxed text-dusk">{ctx.line || calm}</p>
       {ctx.metrics.length > 0 && (
         <dl className="mt-7 space-y-4">
           {ctx.metrics.map((metric) => (
@@ -418,18 +369,24 @@ export function AdminMobileContext({ pulse }: { pulse: AdminPulse }) {
   const routeAction = adminRouteActionFor(pathname);
   const extraActions = useAdminContextActions(pathname);
   const actions = contextActionsFor(pathname, ctx, pageAction, routeAction, extraActions);
+  const [open, setOpen] = useState(false);
   if (pathname === "/admin") return null;
   return (
-    <details className="admin-context glass liquid-glass mb-8 rounded-[28px] px-5 py-4 xl:hidden">
+    <details
+      className="admin-context glass liquid-glass mb-8 rounded-[28px] px-5 py-4 xl:hidden"
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
       <summary className="admin-context-summary flex items-center justify-between gap-5">
         <span>
           <span className="eyebrow block">This room</span>
           <span className="font-serif mt-1 block text-[20px] leading-tight">{ctx.eyebrow}</span>
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">Open</span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">
+          {open ? "Close" : "Open"}
+        </span>
       </summary>
       <div className="mt-7">
-        <ContextBody ctx={ctx} compact actions={actions} />
+        <ContextBody ctx={ctx} actions={actions} />
       </div>
     </details>
   );
@@ -457,6 +414,11 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
   const orderReturn = panel?.kind === "order-return" ? panel : null;
   const orderRecord = /^\/admin\/orders\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pathname);
   const customerRecord = /^\/admin\/customers\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pathname);
+  /* Home already shows the pulse and the gold action on the canvas.
+     The rail keeps its shell but stays quiet, like the phone panel. */
+  const home = pathname === "/admin";
+  const railCtx = home ? { ...ctx, metrics: [] } : ctx;
+  const railActions = home ? [] : actions;
 
   useEffect(() => {
     if (stockFilter && pathname !== "/admin/pieces") clearAdminContextPanel();
@@ -708,7 +670,7 @@ export function AdminContextRail({ pulse }: { pulse: AdminPulse }) {
               </div>
             </div>
           ) : (
-            <ContextBody ctx={ctx} actions={actions} />
+            <ContextBody ctx={railCtx} actions={railActions} />
           )}
         </div>
         <p className="mt-12 text-[11px] uppercase tracking-[0.18em] text-mist">
